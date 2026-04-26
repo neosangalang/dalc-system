@@ -12,6 +12,22 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
+     * Display the custom user's profile index.
+     */
+    public function index(): View
+    {
+        return view('profile.index');
+    }
+
+    /**
+     * Display the custom security settings view.
+     */
+    public function security(): View
+    {
+        return view('profile.security');
+    }
+
+    /**
      * Display the user's profile form.
      */
     public function edit(Request $request): View

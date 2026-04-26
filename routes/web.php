@@ -25,19 +25,12 @@ use App\Http\Controllers\Guardian\FeedbackController;
 
 // Import Shared Controllers
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SecureFileController;
 
-Route::get('/', function () {
-    if (\Illuminate\Support\Facades\Auth::check()) {
-        $role = \Illuminate\Support\Facades\Auth::user()->role;
-        return match($role) {
-            'admin'    => redirect()->route('admin.dashboard'),
-            'teacher'  => redirect()->route('teacher.dashboard'),
-            'guardian' => redirect()->route('guardian.dashboard'),
-            default    => redirect()->route('login'),
-        };
-    }
-    return redirect()->route('login');
-});
+// --- FIXED: Moved root logic to HomeController ---
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ==========================================
 // SECURITY, PROFILE & SHARED FEATURES (GLOBAL)
@@ -50,30 +43,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mfa-challenge', [\App\Http\Controllers\Auth\MfaChallengeController::class, 'index'])->name('security.mfa.challenge');
     Route::post('/mfa-challenge', [\App\Http\Controllers\Auth\MfaChallengeController::class, 'verify'])->name('security.mfa.verify-login');
 
-    Route::get('/profile', function () { return view('profile.index'); })->name('profile.index');
-    Route::get('/settings', function () { return view('profile.security'); })->name('profile.security');
+    // --- FIXED: Moved profile views to ProfileController ---
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/settings', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     
-    Route::get('/secure-log-photo/{id}', function ($id) {
-        $log = \App\Models\DailyLog::findOrFail($id);
-        $student = $log->student;
-        $user = \Illuminate\Support\Facades\Auth::user();
-
-        $isAuthorized = match($user->role) {
-            'admin'    => true, 
-            'teacher'  => $student->teacher_id == $user->id, 
-            'guardian' => $student->guardian_id == $user->id, 
-            default    => false,
-        };
-
-        if (!$isAuthorized) abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized.');
-
-        $disk = \Illuminate\Support\Facades\Storage::disk('local');
-        if (!$disk->exists($log->image_path)) abort(404, 'File not found in the secure vault.');
-
-        return $disk->response($log->image_path);
-    })->name('secure.log-photo');
+    // --- FIXED: Moved secure photo logic to SecureFileController ---
+    Route::get('/secure-log-photo/{id}', [SecureFileController::class, 'show'])->name('secure.log-photo');
 });
 
 /*
