@@ -122,7 +122,9 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     Route::post('/iep-goals/generate-ai', [IepGoalController::class, 'generateAi'])->name('iep-goals.generate-ai');
     Route::post('/reports/generate-ai', [ReportController::class, 'generateAiReport'])->name('reports.generate-ai');
 
-    Route::post('/reports/store', [ReportController::class, 'store'])->name('reports.store');
+    // --- FIXED: Commented out to prevent conflict with Route::resource('reports') ---
+    // Route::post('/reports/store', [ReportController::class, 'store'])->name('reports.store');
+    
     Route::get('/reports/{id}/pdf', [ReportController::class, 'downloadPdf'])->name('reports.pdf');
     Route::get('/students/{student}/iep-pdf', [IepGoalController::class, 'downloadIepPdf'])->name('iep-goals.pdf');
 
