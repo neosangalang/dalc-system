@@ -1,87 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IEP - {{ $student->first_name }} {{ $student->last_name }}</title>
-    <style>
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 13px; color: #000; }
-        .text-center { text-align: center; }
-        .header { margin-bottom: 25px; }
-        .header h3 { margin: 0 0 5px 0; font-size: 18px; }
-        .header h4 { margin: 5px 0; font-size: 15px; text-decoration: underline; }
-        .header p { margin: 2px 0; font-size: 11px; }
-        
-        .student-info { width: 100%; margin-bottom: 20px; border-collapse: collapse; }
-        .student-info td { padding: 6px 0; }
-        .student-info .label { width: 12%; font-weight: bold; }
-        .student-info .value { width: 38%; border-bottom: 1px solid #000; font-weight: bold; }
-        
-        .domain-box { 
-            border: 2px solid #000; 
-            background-color: #f8f9fa; 
-            padding: 8px; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            margin-top: 25px;
-            font-size: 14px;
-        }
-        
-        .goal-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .goal-table th, .goal-table td { border: 2px solid #000; padding: 12px; vertical-align: top; }
-        .goal-table th { text-align: left; font-size: 13px; background-color: #fff; }
-        
-        /* NEW: Signature Section Styling */
-        .signature-section { margin-top: 60px; width: 100%; border-collapse: collapse; page-break-inside: avoid; }
-        .signature-line { border-bottom: 1px solid #000; height: 30px; margin-bottom: 5px; }
-        .signature-name { font-weight: bold; font-size: 13px; }
-        .signature-title { font-size: 11px; }
-    </style>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="font-['Inter'] bg-white text-slate-900 antialiased text-[13px] p-4 sm:p-8 max-w-5xl mx-auto">
 
-    <div class="text-center header">
-        <h3>Dream Achievers Learning Center Philippines</h3>
-        <p>2 Masunurin St. Brgy. Sikatuna Quezon, City</p>
-        <p>09369523782</p>
-        <p>Dreamachieverslearningphil@gmail.com</p>
+    <div class="text-center mb-8">
+        <h3 class="text-xl font-black text-slate-900 tracking-tight m-0 mb-1">Dream Achievers Learning Center PH</h3>
+        <p class="text-[11px] font-bold text-slate-500 m-0 leading-relaxed">2 Masunurin St. Brgy. Sikatuna Quezon, City</p>
+        <p class="text-[11px] font-bold text-slate-500 m-0 leading-relaxed">09369523782</p>
+        <p class="text-[11px] font-bold text-slate-500 m-0 leading-relaxed">Dreamachieverslearningphil@gmail.com</p>
         
-        <hr style="border: 1px solid #000; margin: 15px 0;">
+        <hr class="border-t-2 border-slate-900 my-5">
         
-        <h4>INDIVIDUALIZED EDUCATIONAL PROGRAM</h4>
-        <h4>S.Y. {{ date('Y') }}-{{ date('Y')+1 }}</h4>
+        <h4 class="text-base font-black tracking-wider text-slate-950 uppercase underline decoration-2 underline-offset-4 my-1">INDIVIDUALIZED EDUCATIONAL PROGRAM</h4>
+        <h4 class="text-base font-black tracking-wider text-slate-950 uppercase underline decoration-2 underline-offset-4 my-1">S.Y. {{ date('Y') }}-{{ date('Y')+1 }}</h4>
     </div>
 
-    <table class="student-info">
-        <tr>
-            <td class="label">Child's Name:</td>
-            <td class="value">{{ $student->last_name }}, {{ $student->first_name }}</td>
-            <td class="label" style="padding-left: 20px;">Class:</td>
-            <td class="value">SPED</td>
-        </tr>
-        <tr>
-            <td class="label">Age:</td>
-            <td class="value">{{ \Carbon\Carbon::parse($student->date_of_birth)->age ?? 'N/A' }} yrs old</td>
-            <td class="label" style="padding-left: 20px;">DOB:</td>
-            <td class="value">{{ \Carbon\Carbon::parse($student->date_of_birth)->format('M d, Y') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Parents:</td>
-            <td colspan="3" class="value">{{ $student->guardian->name ?? 'N/A' }}</td>
-        </tr>
+    <table class="w-full border-collapse mb-6">
+        <tbody>
+            <tr>
+                <td class="w-[12%] font-extrabold text-slate-700 uppercase tracking-wider text-xs py-2.5 whitespace-nowrap">Child's Name:</td>
+                <td class="w-[38%] font-black text-slate-900 border-b border-slate-900 py-2.5 px-2 text-sm">{{ $student->last_name }}, {{ $student->first_name }}</td>
+                <td class="w-[12%] font-extrabold text-slate-700 uppercase tracking-wider text-xs py-2.5 pl-6 whitespace-nowrap">Class:</td>
+                <td class="w-[38%] font-black text-slate-900 border-b border-slate-900 py-2.5 px-2 text-sm">SPED</td>
+            </tr>
+            <tr>
+                <td class="w-[12%] font-extrabold text-slate-700 uppercase tracking-wider text-xs py-2.5 whitespace-nowrap">Age:</td>
+                <td class="w-[38%] font-black text-slate-900 border-b border-slate-900 py-2.5 px-2 text-sm">{{ \Carbon\Carbon::parse($student->date_of_birth)->age ?? 'N/A' }} yrs old</td>
+                <td class="w-[12%] font-extrabold text-slate-700 uppercase tracking-wider text-xs py-2.5 pl-6 whitespace-nowrap">DOB:</td>
+                <td class="w-[38%] font-black text-slate-900 border-b border-slate-900 py-2.5 px-2 text-sm">{{ \Carbon\Carbon::parse($student->date_of_birth)->format('M d, Y') }}</td>
+            </tr>
+            <tr>
+                <td class="w-[12%] font-extrabold text-slate-700 uppercase tracking-wider text-xs py-2.5 whitespace-nowrap">Parents:</td>
+                <td colspan="3" class="font-black text-slate-900 border-b border-slate-900 py-2.5 px-2 text-sm">{{ $student->guardian->name ?? 'N/A' }}</td>
+            </tr>
+        </tbody>
     </table>
 
     @forelse($student->iepGoals as $goal)
-        <div class="domain-box">
+        <div class="border-2 border-slate-900 bg-slate-50 rounded-xl p-3.5 font-black text-sm text-slate-900 tracking-widest uppercase mt-8 shadow-sm">
             DOMAIN : {{ str_replace('-', ' - ', strtoupper($goal->domain)) }}
         </div>
 
-        <table class="goal-table">
-            <thead>
+        <table class="w-full border-collapse mt-4 border-2 border-slate-900 overflow-hidden shadow-sm">
+            <thead class="bg-slate-100 border-b-2 border-slate-900">
                 <tr>
-                    <th style="width: 50%;">OBJECTIVES</th>
-                    <th style="width: 50%;">ACTIVITIES</th>
+                    <th scope="col" class="border-2 border-slate-900 px-5 py-3 w-1/2 text-left text-xs font-black text-slate-900 uppercase tracking-wider">OBJECTIVES</th>
+                    <th scope="col" class="border-2 border-slate-900 px-5 py-3 w-1/2 text-left text-xs font-black text-slate-900 uppercase tracking-wider">ACTIVITIES</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y-2 divide-slate-900">
                 @php
                     $subGoals = preg_split('/-{5,}/', $goal->goal_description);
                 @endphp
@@ -110,9 +86,9 @@
                     @endphp
 
                     @if(!empty($objective))
-                    <tr>
-                        <td>{!! nl2br(e($objective)) !!}</td>
-                        <td>{!! nl2br(e($activities)) !!}</td>
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="border-2 border-slate-900 p-5 text-slate-800 text-sm font-medium align-top leading-relaxed whitespace-pre-line">{!! nl2br(e($objective)) !!}</td>
+                        <td class="border-2 border-slate-900 p-5 text-slate-800 text-sm font-medium align-top leading-relaxed whitespace-pre-line">{!! nl2br(e($activities)) !!}</td>
                     </tr>
                     @endif
                 @endforeach
@@ -120,34 +96,39 @@
         </table>
         
     @empty
-        <div style="text-align: center; margin-top: 50px; font-style: italic;">
-            No IEP Goals have been assigned to this student yet.
+        <div class="text-center py-16 px-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 mt-12">
+            <i class="fa fa-clipboard-list text-5xl text-slate-300 mb-4 block"></i>
+            <p class="text-base font-bold text-slate-600 italic m-0">No IEP Goals have been assigned to this student yet.</p>
         </div>
     @endforelse
 
-    <table class="signature-section">
-        <tr>
-            <td style="width: 40%; text-align: center;">
-                <div class="signature-line"></div>
-                <div class="signature-name">{{ $student->teacher->name ?? '_________________________' }}</div>
-                <div class="signature-title">SPED Teacher</div>
-            </td>
-            
-            <td style="width: 20%;"></td> <td style="width: 40%; text-align: center;">
-                <div class="signature-line"></div>
-                <div class="signature-name">{{ $student->guardian->name ?? '_________________________' }}</div>
-                <div class="signature-title">Parent / Guardian</div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="3" style="text-align: center; padding-top: 40px;">
-                <div style="width: 40%; margin: 0 auto;">
-                    <div class="signature-line"></div>
-                    <div class="signature-name">_________________________</div>
-                    <div class="signature-title">School Administrator / SPED Coordinator</div>
-                </div>
-            </td>
-        </tr>
+    <table class="mt-16 w-full border-collapse [page-break-inside:avoid]">
+        <tbody>
+            <tr>
+                <td class="w-[40%] text-center align-top">
+                    <div class="border-b border-slate-900 h-10 mb-1.5 w-full"></div>
+                    <div class="font-black text-sm text-slate-900">{{ $student->teacher->name ?? '_________________________' }}</div>
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-0.5">SPED Teacher</div>
+                </td>
+                
+                <td class="w-[20%]"></td> 
+                
+                <td class="w-[40%] text-center align-top">
+                    <div class="border-b border-slate-900 h-10 mb-1.5 w-full"></div>
+                    <div class="font-black text-sm text-slate-900">{{ $student->guardian->name ?? '_________________________' }}</div>
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-0.5">Parent / Guardian</div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="text-center pt-12">
+                    <div class="w-[45%] mx-auto block">
+                        <div class="border-b border-slate-900 h-10 mb-1.5 w-full"></div>
+                        <div class="font-black text-sm text-slate-900">_________________________</div>
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mt-0.5">School Administrator / SPED Coordinator</div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
     </table>
 
 </body>

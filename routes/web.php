@@ -29,7 +29,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecureFileController;
 
-// --- FIXED: Moved root logic to HomeController ---
+// Root logic
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ==========================================
@@ -43,13 +43,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mfa-challenge', [\App\Http\Controllers\Auth\MfaChallengeController::class, 'index'])->name('security.mfa.challenge');
     Route::post('/mfa-challenge', [\App\Http\Controllers\Auth\MfaChallengeController::class, 'verify'])->name('security.mfa.verify-login');
 
-    // --- FIXED: Moved profile views to ProfileController ---
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/settings', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
-    
-    // --- FIXED: Moved secure photo logic to SecureFileController ---
     Route::get('/secure-log-photo/{id}', [SecureFileController::class, 'show'])->name('secure.log-photo');
 });
 
@@ -77,6 +74,10 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_approve_reports'])->group(function() {
         Route::get('/report-approval', [ReportApprovalController::class, 'index'])->name('report-approval.index');
+        
+        // FIXED: Added missing show route
+        Route::get('/report-approval/{id}', [ReportApprovalController::class, 'show'])->name('report-approval.show');
+        
         Route::post('/report-approval/{id}/status', [ReportApprovalController::class, 'updateStatus'])->name('report-approval.update-status');
     });
 
@@ -97,11 +98,14 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_manage_credentials'])->group(function() {
-        Route::resource('accounts', AccountController::class);
+        // ALWAYS put custom routes BEFORE the resource route in Laravel!
         Route::patch('/accounts/{account}/toggle-status', [AccountController::class, 'toggleStatus'])->name('accounts.toggle');
         Route::patch('/accounts/{account}/toggle-edit', [AccountController::class, 'toggleEditPermission'])->name('accounts.toggle-edit');
         Route::patch('/accounts/{id}/permissions', [AccountController::class, 'updatePermissions'])->name('accounts.permissions');
         Route::put('/accounts/{id}/credentials', [AccountController::class, 'updateCredentials'])->name('accounts.update-credentials');
+        
+        // Resource route comes last
+        Route::resource('accounts', AccountController::class);
     });
 
 });
@@ -121,9 +125,6 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     Route::post('/daily-logs/generate-ai', [DailyLogController::class, 'generateAiReport'])->name('daily-logs.generate-ai');
     Route::post('/iep-goals/generate-ai', [IepGoalController::class, 'generateAi'])->name('iep-goals.generate-ai');
     Route::post('/reports/generate-ai', [ReportController::class, 'generateAiReport'])->name('reports.generate-ai');
-
-    // --- FIXED: Commented out to prevent conflict with Route::resource('reports') ---
-    // Route::post('/reports/store', [ReportController::class, 'store'])->name('reports.store');
     
     Route::get('/reports/{id}/pdf', [ReportController::class, 'downloadPdf'])->name('reports.pdf');
     Route::get('/students/{student}/iep-pdf', [IepGoalController::class, 'downloadIepPdf'])->name('iep-goals.pdf');
@@ -160,7 +161,6 @@ Route::middleware(['auth', 'role:guardian', \App\Http\Middleware\ForcePasswordCh
     Route::get('/recommendations', [GuardianController::class, 'recommendations'])->name('recommendations');
     Route::get('/notifications', [GuardianController::class, 'notifications'])->name('notifications');
 
-    // This is the fixed route!
     Route::get('/switch-child/{id}', [GuardianController::class, 'switchChild'])->name('switch-child');
 });
 

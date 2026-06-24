@@ -41,7 +41,7 @@ class DocumentReadyNotification extends Notification implements ShouldQueue
             ->greeting("Hello {$notifiable->name},")
             ->line("A new {$this->documentType} for {$this->studentName} has been generated and is ready for your review.")
             ->action('View Document', url($this->url))
-            ->line('Thank you for partnering with Dream Achievers Learning Center!')
+            ->line('Thank you for partnering with Dream Achievers Learning Center PH!')
             ->theme('default');
     }
 

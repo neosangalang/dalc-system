@@ -98,7 +98,7 @@ class AccountController extends Controller
             ->with('success', "Account permanently deleted.");
     }
 
-    public function updateCredentials(\Illuminate\Http\Request $request, $id)
+    public function updateCredentials(Request $request, $id)
     {
         $user = User::findOrFail($id);
         $admin = Auth::user(); // The person performing the action
@@ -119,9 +119,17 @@ class AccountController extends Controller
         // 2. SECURITY CHECK: VERIFY ADMIN'S MFA CODE
         $google2fa = new Google2FA();
         
-        // Note: Check your database to ensure your MFA column is named 'google2fa_secret'
-        // If you are using Laravel Fortify, it might be named 'two_factor_secret'. Update if necessary!
-        $isMfaValid = $google2fa->verifyKey($admin->google2fa_secret, $request->mfa_code);
+        // FIX: Prevent crash if admin hasn't set up 2FA yet
+        if (empty($admin->google2fa_secret)) {
+            return back()->withErrors(['mfa_code' => 'Two-Factor Authentication is not configured for your account. Please set it up in your profile first.'])->withInput();
+        }
+
+        try {
+            // Safe to verify because we know the secret isn't empty
+            $isMfaValid = $google2fa->verifyKey($admin->google2fa_secret, $request->mfa_code);
+        } catch (\Exception $e) {
+            return back()->withErrors(['mfa_code' => 'There is a problem with your MFA configuration.'])->withInput();
+        }
 
         if (!$isMfaValid) {
             // Kick them back to the modal with the error and keep what they typed
@@ -147,7 +155,7 @@ class AccountController extends Controller
         return redirect()->back()->with('success', "Login credentials for {$user->name} have been successfully updated!");
     }
 
-    public function updatePermissions(\Illuminate\Http\Request $request, $id)
+    public function updatePermissions(Request $request, $id)
     {
         // SECURITY CHECK: Only Master Admins can modify advanced module permissions
         if (Auth::user()->role !== 'admin') {

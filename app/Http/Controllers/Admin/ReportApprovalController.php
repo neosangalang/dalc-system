@@ -9,6 +9,9 @@ use App\Notifications\DocumentReadyNotification;
 
 class ReportApprovalController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         // Fetch all reports that are waiting for the Principal/Admin to approve them
@@ -20,6 +23,21 @@ class ReportApprovalController extends Controller
         return view('admin.report-approval.index', compact('pendingReports'));
     }
 
+    /**
+     * Display the specified report.
+     */
+    public function show($id)
+    {
+        // Find the report and eager load relationships to avoid N+1 queries
+        $report = Report::with(['student', 'teacher', 'student.guardian'])
+            ->findOrFail($id);
+
+        return view('admin.report-approval.show', compact('report'));
+    }
+
+    /**
+     * Update the status of the report.
+     */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([

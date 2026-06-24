@@ -6,224 +6,156 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<style>
-    :root {
-        --admin-bg: #F1F5F9; 
-        --admin-primary: #1E293B; 
-        --admin-accent: #4F46E5; 
-        --admin-success: #10B981;
-        --admin-warning: #F59E0B;
-        --admin-danger: #EF4444;
-        --admin-border: #E2E8F0;
-    }
-
-    body {
-        background-color: var(--admin-bg);
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Command Metric Cards */
-    .metric-card {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        border: 1px solid var(--admin-border);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        height: 100%;
-    }
-    .metric-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-    .metric-icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        margin-bottom: 16px;
-    }
-
-    /* Action Grid */
-    .action-btn {
-        background: white;
-        border: 1px solid var(--admin-border);
-        border-radius: 12px;
-        padding: 20px 10px;
-        text-align: center;
-        transition: all 0.2s;
-        height: 100%;
-    }
-    .action-btn:hover {
-        border-color: var(--admin-accent);
-        background: #F5F3FF;
-        transform: scale(1.02);
-    }
-    .action-btn i {
-        font-size: 24px;
-        margin-bottom: 8px;
-        display: block;
-    }
-    .action-btn span {
-        font-weight: 700;
-        font-size: 13px;
-        color: var(--admin-primary);
-    }
-
-    /* Professional Table */
-    .admin-table {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        border: 1px solid var(--admin-border);
-    }
-    .admin-table thead th {
-        background: #F8FAFC;
-        text-transform: uppercase;
-        font-size: 11px;
-        letter-spacing: 0.05em;
-        color: #64748B;
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--admin-border);
-    }
-</style>
-
-<div class="container-fluid py-2">
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="metric-card">
-                <div class="metric-icon-box" style="background: #EEF2FF; color: var(--admin-accent);">
-                    <i class="fa fa-users"></i>
-                </div>
-                <h3 class="fw-800 m-0">{{ $totalStudents }}</h3>
-                <p class="text-muted small fw-600 mb-0">Active Students</p>
-            </div>
+<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
+    
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4 w-full">
+        <div>
+            <h2 class="text-2xl font-extrabold text-slate-800 m-0">System Overview</h2>
+            <p class="text-sm font-medium text-slate-500 mt-1 mb-0">Welcome to the EduTrack SPED control panel.</p>
         </div>
         
-        <div class="col-md-3">
-            <div class="metric-card">
-                <div class="metric-icon-box" style="background: #F0FDF4; color: var(--admin-success);">
-                    <i class="fa fa-chalkboard-user"></i>
-                </div>
-                <h3 class="fw-800 m-0">{{ $activeTeachers }}</h3>
-                <p class="text-muted small fw-600 mb-0">Active Teachers</p>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="metric-card">
-                <div class="metric-icon-box" style="background: #FDF2F8; color: #EC4899;">
-                    <i class="fa fa-heart"></i>
-                </div>
-                <h3 class="fw-800 m-0">{{ $guardians }}</h3>
-                <p class="text-muted small fw-600 mb-0">Registered Guardians</p>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <a href="{{ route('admin.report-approval.index') }}" class="text-decoration-none">
-                <div class="metric-card" style="border-left: 4px solid {{ $pendingReports > 0 ? 'var(--admin-danger)' : 'var(--admin-success)' }}">
-                    <div class="metric-icon-box" style="background: {{ $pendingReports > 0 ? '#FEF2F2' : '#F0FDF4' }}; color: {{ $pendingReports > 0 ? 'var(--admin-danger)' : 'var(--admin-success)' }};">
-                        <i class="fa fa-file-signature"></i>
-                    </div>
-                    <h3 class="fw-800 m-0">{{ $pendingReports }}</h3>
-                    <p class="small fw-bold mb-0 {{ $pendingReports > 0 ? 'text-danger' : 'text-success' }}">
-                        {{ $pendingReports > 0 ? 'Needs Review' : 'Reports Cleared' }}
-                    </p>
-                </div>
-            </a>
-        </div>
+        
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="admin-table">
-                <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold m-0"><i class="fa fa-history me-2 text-muted"></i>Recent Student Enrollment</h5>
-                    <a href="{{ route('admin.students.index') }}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">View All</a>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 w-full">
+        
+        <div class="bg-white rounded-2xl border-slate-200 shadow-sm hover:shadow-md h p-6 borderover:-translate-y-1 transition-all duration-200">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 bg-indigo-50 text-indigo-600">
+                <i class="fa fa-users"></i>
+            </div>
+            <h3 class="font-extrabold text-3xl text-slate-800 m-0">{{ $totalStudents ?? 0 }}</h3>
+            <p class="text-slate-500 text-sm font-semibold mt-1">Active Students</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 bg-emerald-50 text-emerald-500">
+                <i class="fa fa-chalkboard-user"></i>
+            </div>
+            <h3 class="font-extrabold text-3xl text-slate-800 m-0">{{ $activeTeachers ?? 0 }}</h3>
+            <p class="text-slate-500 text-sm font-semibold mt-1">Active Teachers</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 bg-pink-50 text-pink-500">
+                <i class="fa fa-heart"></i>
+            </div>
+            <h3 class="font-extrabold text-3xl text-slate-800 m-0">{{ $guardians ?? 0 }}</h3>
+            <p class="text-slate-500 text-sm font-semibold mt-1">Registered Guardians</p>
+        </div>
+
+        <a href="{{ route('admin.report-approval.index') }}" class="block group text-decoration-none">
+            <div class="bg-white rounded-2xl p-6 border-l-4 {{ ($pendingReports ?? 0) > 0 ? 'border-l-red-500' : 'border-l-emerald-500' }} border-t border-r border-b border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 {{ ($pendingReports ?? 0) > 0 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500' }}">
+                    <i class="fa fa-file-signature"></i>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead>
+                <h3 class="font-extrabold text-3xl text-slate-800 m-0">{{ $pendingReports ?? 0 }}</h3>
+                <p class="text-sm font-bold mt-1 {{ ($pendingReports ?? 0) > 0 ? 'text-red-500' : 'text-emerald-500' }}">
+                    {{ ($pendingReports ?? 0) > 0 ? 'Needs Review' : 'Reports Cleared' }}
+                </p>
+            </div>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+        
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h5 class="font-bold text-lg text-slate-800 m-0 flex items-center">
+                        <i class="fa fa-history mr-3 text-slate-400"></i> Recent Enrollment
+                    </h5>
+                    <a href="{{ route('admin.students.index') }}" class="px-5 py-2 bg-indigo-600 text-white text-xs font-bold rounded-full hover:bg-indigo-700 transition shadow-sm">View All</a>
+                </div>
+                
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-sm text-left whitespace-nowrap">
+                        <thead class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-wider">
                             <tr>
-                                <th>Student</th>
-                                <th>Assigned Teacher</th>
-                                <th>Status</th>
-                                <th class="text-end">Actions</th>
+                                <th class="px-6 py-4">Student</th>
+                                <th class="px-6 py-4">Assigned Teacher</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach($recentStudents as $student)
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="student-avatar" style="width:38px; height:38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #F1F5F9; color: var(--admin-accent); font-weight: 800; border: 1px solid var(--admin-border)">
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($recentStudents ?? [] as $student)
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 text-indigo-600 font-extrabold text-sm border border-slate-200">
                                             {{ strtoupper(substr($student->first_name, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <div class="fw-800 text-dark">{{ $student->first_name }} {{ $student->last_name }}</div>
-                                            <small class="text-muted">ID: {{ $student->student_id_number }}</small>
+                                            <div class="font-extrabold text-slate-800">{{ $student->first_name }} {{ $student->last_name }}</div>
+                                            <div class="text-[11px] text-slate-500 mt-0.5">ID: {{ $student->student_id_number }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="fw-600 small">{{ $student->teacher->name ?? 'Unassigned' }}</div>
-                                    <div class="text-muted" style="font-size: 11px;">Guardian: {{ $student->guardian->name ?? 'None' }}</div>
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-slate-700">{{ $student->teacher->name ?? 'Unassigned' }}</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">Guardian: {{ $student->guardian->name ?? 'None' }}</div>
                                 </td>
-                                <td>
-                                    <span class="badge {{ $student->status === 'active' ? 'bg-success' : 'bg-secondary' }} bg-opacity-10 {{ $student->status === 'active' ? 'text-success' : 'text-secondary' }} px-3 py-2 rounded-pill fw-bold" style="font-size: 11px;">
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex px-3 py-1 text-[11px] font-bold rounded-full {{ $student->status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
                                         {{ ucfirst($student->status) }}
                                     </span>
                                 </td>
-                                <td class="text-end pe-4">
-                                    <a href="{{ route('admin.students.show', $student->id) }}" class="btn btn-sm btn-light border rounded-circle" style="width:32px; height:32px; display: inline-flex; align-items: center; justify-content: center;"><i class="fa fa-eye"></i></a>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{{ route('admin.students.show', $student->id) }}" class="inline-flex items-center justify-center w-8 h-8 bg-slate-50 border border-slate-200 text-slate-600 rounded-full hover:bg-slate-100 hover:text-indigo-600 transition-colors">
+                                        <i class="fa fa-eye text-xs"></i>
+                                    </a>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-slate-500 text-sm">
+                                    No recent student enrollments found.
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="bg-white p-4 rounded-4 border">
-                <h6 class="fw-800 text-dark mb-4 text-uppercase" style="letter-spacing: 1px; font-size: 12px;">Admin Toolbox</h6>
-                <div class="row g-3">
-                    <div class="col-6">
-                        <a href="{{ route('admin.accounts.index') }}" class="action-btn d-block text-decoration-none">
-                            <i class="fa fa-user-plus text-primary"></i>
-                            <span>Accounts</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.students.index') }}" class="action-btn d-block text-decoration-none">
-                            <i class="fa fa-user-graduate text-success"></i>
-                            <span>Students</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.quarters.index') }}" class="action-btn d-block text-decoration-none">
-                            <i class="fa fa-calendar-check text-warning"></i>
-                            <span>Calendar</span>
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('admin.archive.index') }}" class="action-btn d-block text-decoration-none">
-                            <i class="fa fa-box-archive text-purple"></i>
-                            <span>Archives</span>
-                        </a>
-                    </div>
+        <div class="lg:col-span-1">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h6 class="font-extrabold text-slate-800 mb-6 text-xs uppercase tracking-widest">Admin Toolbox</h6>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="{{ route('admin.accounts.index') }}" class="group bg-white border border-slate-200 rounded-xl p-4 text-center transition-all duration-200 hover:border-indigo-600 hover:bg-indigo-50 hover:scale-[1.02] block">
+                        <i class="fa fa-user-plus text-2xl text-indigo-500 block mb-2 group-hover:text-indigo-600"></i>
+                        <span class="font-bold text-[13px] text-slate-800">Accounts</span>
+                    </a>
+                    
+                    <a href="{{ route('admin.students.index') }}" class="group bg-white border border-slate-200 rounded-xl p-4 text-center transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-50 hover:scale-[1.02] block">
+                        <i class="fa fa-user-graduate text-2xl text-emerald-500 block mb-2 group-hover:text-emerald-600"></i>
+                        <span class="font-bold text-[13px] text-slate-800">Students</span>
+                    </a>
+                    
+                    <a href="{{ route('admin.quarters.index') }}" class="group bg-white border border-slate-200 rounded-xl p-4 text-center transition-all duration-200 hover:border-amber-500 hover:bg-amber-50 hover:scale-[1.02] block">
+                        <i class="fa fa-calendar-check text-2xl text-amber-500 block mb-2 group-hover:text-amber-600"></i>
+                        <span class="font-bold text-[13px] text-slate-800">Calendar</span>
+                    </a>
+                    
+                    <a href="{{ route('admin.archive.index') }}" class="group bg-white border border-slate-200 rounded-xl p-4 text-center transition-all duration-200 hover:border-purple-500 hover:bg-purple-50 hover:scale-[1.02] block">
+                        <i class="fa fa-box-archive text-2xl text-purple-500 block mb-2 group-hover:text-purple-600"></i>
+                        <span class="font-bold text-[13px] text-slate-800">Archives</span>
+                    </a>
                 </div>
 
-                <div class="mt-4 p-3 rounded-3" style="background: #F8FAFC; border: 1px dashed var(--admin-border);">
-                    <h6 class="fw-bold small mb-2"><i class="fa fa-lightbulb text-warning me-2"></i>Quick Fact</h6>
-                    <p class="text-muted mb-0" style="font-size: 12px;">You have <strong>{{ $pendingReports }}</strong> reports waiting for your signature. Reports stay hidden from guardians until approved.</p>
+                <div class="mt-6 p-4 rounded-xl bg-slate-50 border border-dashed border-slate-300">
+                    <h6 class="font-bold text-sm mb-2 text-slate-800 flex items-center">
+                        <i class="fa fa-lightbulb text-amber-500 mr-2 text-lg"></i> Quick Fact
+                    </h6>
+                    <p class="text-slate-500 text-[13px] leading-relaxed mb-0">
+                        You have <strong class="text-slate-800">{{ $pendingReports ?? 0 }}</strong> reports waiting for your signature. Reports stay hidden from guardians until approved.
+                    </p>
                 </div>
             </div>
         </div>
+        
     </div>
 </div>
 

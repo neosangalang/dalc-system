@@ -4,273 +4,219 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
-<style>
-    body {
-        background-color: #F8FAFC;
-        font-family: 'Inter', sans-serif;
-        color: #1E293B;
-    }
-
-    /* Clean Form Cards */
-    .form-card {
-        background: #FFFFFF;
-        border-radius: 16px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        overflow: hidden;
-    }
-    .form-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #E2E8F0;
-        background: #FFFFFF;
-    }
-    
-    /* AI Assistant Blocks */
-    .ai-block {
-        background: #F8FAFC;
-        border: 1px dashed #CBD5E1;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 20px;
-    }
-    .ai-block-primary { border-color: #818CF8; background: #EEF2FF; }
-    .ai-block-success { border-color: #34D399; background: #ECFDF5; }
-
-    /* Feed Timeline Elements */
-    .log-feed-card {
-        background: #FFFFFF;
-        border-radius: 16px;
-        border: 1px solid #E2E8F0;
-        margin-bottom: 20px;
-        transition: box-shadow 0.2s;
-    }
-    .log-feed-card:hover {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-    }
-    .log-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 16px 20px;
-        border-bottom: 1px solid #F1F5F9;
-    }
-    .log-body {
-        padding: 20px;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: #334155;
-    }
-    .log-footer {
-        background: #F8FAFC;
-        padding: 12px 20px;
-        border-top: 1px solid #E2E8F0;
-        border-radius: 0 0 16px 16px;
-    }
-
-    /* Form Inputs */
-    .clean-input {
-        border-radius: 8px;
-        border: 1px solid #CBD5E1;
-        padding: 10px 14px;
-        font-size: 14px;
-    }
-    .clean-input:focus {
-        border-color: #4F6AF5;
-        box-shadow: 0 0 0 3px rgba(79, 106, 245, 0.1);
-    }
-    .form-label {
-        font-weight: 600;
-        font-size: 13px;
-        color: #475569;
-        margin-bottom: 6px;
-    }
-</style>
-
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert" style="border-radius: 10px;">
-        <i class="fa fa-check-circle me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert" style="border-radius: 10px;">
-        <i class="fa fa-exclamation-triangle me-2"></i> <strong>Oops! Something went wrong:</strong>
-        <ul class="mb-0 mt-1">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="fw-bold m-0 text-dark"><i class="fa fa-pencil-alt me-2" style="color:#4F6AF5"></i>Daily Logging</h4>
-        <p class="text-muted small m-0 mt-1">Record observations and generate formal documentation.</p>
-    </div>
-</div>
-
-<div class="row g-4 align-items-start">
-    
-    <div class="col-xl-5 col-lg-6">
-        <div class="form-card" style="position: sticky; top: 20px;">
-            <div class="form-header">
-                <h6 class="fw-bold m-0"><i class="fa fa-plus-circle text-primary me-2"></i>New Daily Log</h6>
+    @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
+            <div class="flex items-center">
+                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
+                <span class="font-bold text-sm">{{ session('success') }}</span>
             </div>
-            
-            <div class="p-4">
-                <form action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Student</label>
-                        <select name="student_id" id="student_id" class="form-select clean-input" required>
-                            <option value="" disabled selected>Select a student...</option>
-                            @foreach($myStudents as $student)
-                                <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
+                <i class="fa fa-times text-lg"></i>
+            </button>
+        </div>
+    @endif
 
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <label class="form-label">Date</label>
-                            <input type="date" name="log_date" class="form-control clean-input" value="{{ date('Y-m-d') }}" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Quarter</label>
-                            <select name="quarter" class="form-select clean-input" required>
-                                <option value="Q1">Q1</option>
-                                <option value="Q2">Q2</option>
-                                <option value="Q3">Q3</option>
-                                <option value="Q4">Q4</option>
+    @if($errors->any())
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-4 rounded-xl shadow-sm animate-fade-in-down">
+            <div class="flex items-center mb-2 font-bold text-sm">
+                <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Oops! Something went wrong:
+            </div>
+            <ul class="list-disc pl-5 text-sm font-medium m-0 space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="mb-8">
+        <h4 class="text-2xl font-extrabold text-slate-800 m-0 flex items-center">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 mr-3 shadow-sm">
+                <i class="fa fa-pencil-alt"></i>
+            </div>
+            Daily Logging
+        </h4>
+        <p class="text-slate-500 text-sm font-medium mt-1 ml-[52px] m-0">Record observations and generate formal documentation.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <div class="lg:col-span-5 sticky top-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-100 bg-white">
+                    <h6 class="text-base font-extrabold text-slate-800 m-0 flex items-center">
+                        <i class="fa fa-plus-circle text-indigo-600 mr-2"></i> New Daily Log
+                    </h6>
+                </div>
+                
+                <div class="p-6">
+                    <form action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0">
+                        @csrf
+                        
+                        <div class="mb-4">
+                            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Student</label>
+                            <select name="student_id" id="student_id" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                                <option value="" disabled selected>Select a student...</option>
+                                @foreach($myStudents as $student)
+                                    <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
+                                @endforeach
                             </select>
                         </div>
-                    </div>
 
-                    <div class="mb-4">
-                        <label class="form-label"><i class="fa fa-camera text-muted me-1"></i> Attach Photo (Optional)</label>
-                        <input type="file" name="photo" class="form-control clean-input" accept="image/*" style="font-size: 13px;">
-                    </div>
-
-                    <hr class="mb-4" style="border-color: #E2E8F0;">
-
-                    <div class="ai-block ai-block-primary">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label text-primary m-0"><i class="fa fa-bolt me-1"></i> 1. Quick Notes (Informal)</label>
-                        </div>
-                        <textarea name="raw_notes" id="rawNotes" class="form-control clean-input mb-2 border-primary" rows="3" required placeholder="e.g., he ate snacks, played with blocks, got distracted..."></textarea>
-                        
-                        <button type="button" id="generateAiBtn" class="btn btn-sm w-100 fw-bold shadow-sm" style="background: #4F6AF5; color: white;">
-                            <i class="fa fa-magic me-1"></i> Rewrite Professionally with AI
-                        </button>
-
-                        <div id="aiLoading" class="text-center text-primary small mt-2 fw-bold d-none">
-                            <i class="fa fa-spinner fa-spin me-1"></i> AI is thinking...
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label text-dark"><i class="fa fa-file-alt text-success me-1"></i> 2. Formal Documentation</label>
-                        <textarea name="notes" id="formalNotes" class="form-control clean-input bg-light" rows="4" required placeholder="The AI-standardized report will appear here..."></textarea>
-                    </div>
-
-                    <div class="ai-block ai-block-success mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label text-success m-0"><i class="fa fa-home me-1"></i> 3. Home Recommendations (For Parents)</label>
-                        </div>
-                        <textarea name="home_recommendations" id="home_recommendations" class="form-control clean-input mb-2 border-success" rows="3" placeholder="AI will generate home activities here..."></textarea>
-                        
-                        <button type="button" id="btnGenerateRecommendations" class="btn btn-sm w-100 fw-bold text-white shadow-sm" style="background-color: #34D399;">
-                            <i class="fa fa-lightbulb me-1"></i> Generate Home Activities with AI
-                        </button>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm" style="border-radius: 10px; font-size: 15px;">
-                        <i class="fa fa-save me-2"></i> Save Daily Log
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-7 col-lg-6">
-        <div class="d-flex justify-content-between align-items-end mb-3 px-1">
-            <h6 class="fw-bold m-0 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 12px;">Recent Daily Logs</h6>
-            <div class="input-group shadow-sm" style="width: 220px; border-radius: 8px; overflow: hidden; border: 1px solid #CBD5E1;">
-                <span class="input-group-text bg-white border-0 text-muted"><i class="fa fa-search"></i></span>
-                <input type="text" id="logSearch" class="form-control form-control-sm border-0 ps-0" style="box-shadow: none;" placeholder="Search logs...">
-            </div>
-        </div>
-
-        <div id="logs-feed-container">
-            @forelse($recentLogs as $log)
-                <div class="log-feed-card log-item">
-                    
-                    <div class="log-header">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 42px; height: 42px; background: linear-gradient(135deg, #4F6AF5, #8B5CF6); font-size: 15px;">
-                                {{ strtoupper(substr($log->student->first_name, 0, 1)) }}
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Date</label>
+                                <input type="date" name="log_date" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" value="{{ date('Y-m-d') }}" required>
                             </div>
                             <div>
-                                <h6 class="m-0 fw-bold text-dark">{{ $log->student->first_name }} {{ $log->student->last_name }}</h6>
-                                <small class="text-muted"><i class="fa fa-calendar-alt me-1"></i>{{ \Carbon\Carbon::parse($log->log_date)->format('M j, Y') }}</small>
+                                <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Quarter</label>
+                                <select name="quarter" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                                    <option value="Q1">Q1</option>
+                                    <option value="Q2">Q2</option>
+                                    <option value="Q3">Q3</option>
+                                    <option value="Q4">Q4</option>
+                                </select>
                             </div>
                         </div>
-                        
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-light text-primary border px-2 py-1 fw-bold">{{ $log->quarter }}</span>
+
+                        <div class="mb-6">
+                            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center">
+                                <i class="fa fa-camera text-slate-400 mr-1.5"></i> Attach Photo (Optional)
+                            </label>
+                            <input type="file" name="photo" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-xl cursor-pointer" accept="image/*">
+                        </div>
+
+                        <hr class="border-slate-100 my-6">
+
+                        <div class="p-5 mb-5 bg-indigo-50/50 border border-dashed border-indigo-300 rounded-xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-extrabold text-indigo-600 uppercase tracking-wider m-0 flex items-center">
+                                    <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
+                                </label>
+                            </div>
+                            <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-indigo-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm mb-3" rows="3" required placeholder="e.g., he ate snacks, played with blocks, got distracted..."></textarea>
                             
-                            <form action="{{ route('teacher.daily-logs.destroy', $log->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to permanently delete this daily log?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-link text-danger p-0 ms-2 opacity-75" title="Delete Log" onmouseover="this.classList.remove('opacity-75')" onmouseout="this.classList.add('opacity-75')">
-                                    <i class="fa fa-trash-alt fs-6"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                            <button type="button" id="generateAiBtn" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
+                                <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally with AI
+                            </button>
 
-                    <div class="log-body">
-                        @if($log->image_path)
-                            <div class="mb-3 text-center bg-light rounded p-2" style="border: 1px dashed #cbd5e1;">
-                                <img src="{{ route('secure.log-photo', $log->id) }}" alt="Activity Photo" class="img-fluid rounded shadow-sm" style="max-height: 200px; width: auto;">
+                            <div id="aiLoading" class="text-center text-indigo-600 text-xs mt-3 font-bold hidden">
+                                <i class="fa fa-spinner fa-spin mr-1"></i> AI is thinking...
                             </div>
-                        @endif
-
-                        <div style="font-size: 14px;">
-                            {{ $log->notes }}
                         </div>
+
+                        <div class="mb-6">
+                            <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-2 flex items-center">
+                                <i class="fa fa-file-alt text-emerald-500 mr-1.5"></i> 2. Formal Documentation
+                            </label>
+                            <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 bg-slate-50 focus:border-emerald-500 focus:ring-emerald-500 shadow-inner" rows="4" required placeholder="The AI-standardized report will appear here..."></textarea>
+                        </div>
+
+                        <div class="p-5 mb-6 bg-emerald-50/50 border border-dashed border-emerald-300 rounded-xl relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-extrabold text-emerald-600 uppercase tracking-wider m-0 flex items-center">
+                                    <i class="fa fa-home mr-1.5"></i> 3. Home Recommendations
+                                </label>
+                            </div>
+                            <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-emerald-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-emerald-500 focus:ring-emerald-500 shadow-sm mb-3" rows="3" placeholder="AI will generate home activities here..."></textarea>
+                            
+                            <button type="button" id="btnGenerateRecommendations" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-emerald-500 text-white text-sm font-bold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
+                                <i class="fa fa-lightbulb mr-1.5"></i> Generate Home Activities with AI
+                            </button>
+                        </div>
+
+                        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-slate-800 text-white text-sm font-extrabold rounded-xl hover:bg-slate-900 transition-colors shadow-sm">
+                            <i class="fa fa-save mr-2"></i> Save Daily Log
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            
+            <div class="flex flex-wrap justify-between items-end mb-5 gap-3 px-1">
+                <h6 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider m-0">Recent Daily Logs</h6>
+                
+                <div class="relative w-full sm:w-56 shadow-sm rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                        <i class="fa fa-search"></i>
+                    </span>
+                    <input type="text" id="logSearch" class="w-full border-0 py-2 pl-9 pr-3 text-sm font-bold text-slate-700 focus:ring-0 placeholder:text-slate-400 bg-transparent" placeholder="Search logs...">
+                </div>
+            </div>
+
+            <div id="logs-feed-container" class="space-y-5">
+                @forelse($recentLogs as $log)
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item">
                         
-                        @if($log->home_recommendations)
-                            <div class="mt-3 p-3 rounded" style="background: #F0FDF4; border-left: 3px solid #10B981;">
-                                <span class="fw-bold text-success" style="font-size: 12px;"><i class="fa fa-check-circle me-1"></i> Home Activities Attached</span>
-                                <p class="mb-0 mt-1 small text-dark">{{ $log->home_recommendations }}</p>
+                        <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-start bg-white">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-base shadow-sm bg-gradient-to-br from-indigo-500 to-purple-500 shrink-0">
+                                    {{ strtoupper(substr($log->student->first_name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <h6 class="text-sm font-extrabold text-slate-800 m-0">{{ $log->student->first_name }} {{ $log->student->last_name }}</h6>
+                                    <p class="text-xs font-medium text-slate-500 m-0 mt-0.5"><i class="fa fa-calendar-alt mr-1"></i>{{ \Carbon\Carbon::parse($log->log_date)->format('M j, Y') }}</p>
+                                </div>
                             </div>
-                        @endif
-                    </div>
-
-                    <div class="log-footer">
-                        <div class="small fw-bold text-muted mb-2"><i class="fa fa-comments me-1"></i> Comments</div>
-                        <div class="comment-wrapper bg-white p-3 rounded border shadow-sm">
-                            @include('components.comment-thread', ['item' => $log])
+                            
+                            <div class="flex items-center gap-3">
+                                <span class="px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-indigo-600 text-[10px] font-extrabold uppercase">{{ $log->quarter }}</span>
+                                
+                                <form action="{{ route('teacher.daily-logs.destroy', $log->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to permanently delete this daily log?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-slate-400 hover:text-rose-500 transition-colors p-1" title="Delete Log">
+                                        <i class="fa fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
 
-                </div>
-            @empty
-                <div class="text-center py-5 text-muted bg-white rounded-4 shadow-sm border">
-                    <div class="mx-auto mb-3" style="width: 60px; height: 60px; background: #EEF2FF; color: #4F6AF5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                        <i class="fa fa-clipboard"></i>
+                        <div class="p-5 text-sm text-slate-700 leading-relaxed">
+                            @if($log->image_path)
+                                <div class="mb-4 text-center bg-slate-50 rounded-xl p-3 border border-dashed border-slate-300">
+                                    <img src="{{ route('secure.log-photo', $log->id) }}" alt="Activity Photo" class="max-h-48 w-auto mx-auto rounded-lg shadow-sm border border-slate-200">
+                                </div>
+                            @endif
+
+                            <div class="whitespace-pre-line">
+                                {{ $log->notes }}
+                            </div>
+                            
+                            @if($log->home_recommendations)
+                                <div class="mt-5 p-4 rounded-xl bg-emerald-50 border-l-4 border-emerald-500">
+                                    <span class="font-extrabold text-emerald-700 text-xs uppercase tracking-wider flex items-center mb-1.5">
+                                        <i class="fa fa-check-circle mr-1.5"></i> Home Activities Attached
+                                    </span>
+                                    <p class="mb-0 text-emerald-900 font-medium whitespace-pre-line">{{ $log->home_recommendations }}</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="px-5 py-3 bg-slate-50 border-t border-slate-100">
+                            <div class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
+                                <i class="fa fa-comments mr-1.5"></i> Comments
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                @include('components.comment-thread', ['item' => $log])
+                            </div>
+                        </div>
+
                     </div>
-                    <h6 class="fw-bold text-dark">No Logs Yet</h6>
-                    <p class="small">Record your first log using the form on the left.</p>
-                </div>
-            @endforelse
+                @empty
+                    <div class="text-center py-16 px-6 bg-white rounded-2xl shadow-sm border border-slate-200">
+                        <div class="w-16 h-16 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-clipboard text-2xl"></i>
+                        </div>
+                        <h6 class="text-base font-extrabold text-slate-800 m-0 mb-1">No Logs Yet</h6>
+                        <p class="text-sm font-medium text-slate-500 m-0">Record your first log using the form on the left.</p>
+                    </div>
+                @endforelse
+            </div>
         </div>
     </div>
 </div>
@@ -305,7 +251,7 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
 
     // Update UI to show loading
     btn.disabled = true;
-    loading.classList.remove('d-none');
+    loading.classList.remove('hidden'); // Tailwind override
     output.value = "Translating notes..."; 
 
     // Send request to Controller
@@ -334,7 +280,7 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
     .finally(() => {
         // Reset UI
         btn.disabled = false;
-        loading.classList.add('d-none');
+        loading.classList.add('hidden'); // Tailwind override
     });
 });
 
@@ -357,7 +303,7 @@ document.getElementById('btnGenerateRecommendations').addEventListener('click', 
 
     // Change button state to loading
     let originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Generating Activities...';
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Generating Activities...';
     btn.disabled = true;
 
     fetch('{{ route('teacher.daily-logs.generate-recommendations') }}', {

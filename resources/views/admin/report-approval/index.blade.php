@@ -4,81 +4,124 @@
 
 @section('content')
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-radius: 10px;">
-        <i class="fa fa-check-circle me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
+<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
-@if(session('warning'))
-    <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert" style="border-radius: 10px;">
-        <i class="fa fa-exclamation-triangle me-2"></i> {{ session('warning') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
+    @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
+            <div class="flex items-center">
+                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
+                <span class="font-bold text-sm">{{ session('success') }}</span>
+            </div>
+            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
+                <i class="fa fa-times text-lg"></i>
+            </button>
+        </div>
+    @endif
 
-<div class="data-card">
-    <div class="data-card-header">
-        <h5><i class="fa fa-file-circle-check me-2" style="color:var(--success)"></i> Pending Reports for Approval</h5>
-    </div>
-    
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color: #f8f9fa;">
-                <tr>
-                    <th class="py-3 px-4">Student</th>
-                    <th class="py-3">Report Type</th>
-                    <th class="py-3">Submitted By (Teacher)</th>
-                    <th class="py-3">Date Submitted</th>
-                    <th class="py-3 text-end px-4">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($pendingReports as $report)
+    @if(session('warning'))
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
+            <div class="flex items-center">
+                <i class="fa fa-exclamation-triangle mr-3 text-amber-500 text-lg"></i>
+                <span class="font-bold text-sm">{{ session('warning') }}</span>
+            </div>
+            <button @click="show = false" type="button" class="text-amber-500 hover:text-amber-700 transition-colors">
+                <i class="fa fa-times text-lg"></i>
+            </button>
+        </div>
+    @endif
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        
+        <div class="p-6 border-b border-slate-100 flex items-center bg-white">
+            <h3 class="text-lg font-extrabold text-slate-800 m-0 flex items-center">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 mr-3 shadow-sm">
+                    <i class="fa fa-file-circle-check"></i>
+                </div>
+                Pending Reports for Approval
+            </h3>
+        </div>
+        
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+                <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>
-                        <td class="px-4 fw-bold text-dark">{{ $report->student->first_name }} {{ $report->student->last_name }}</td>
-                        <td>
-                            <span class="badge-custom" style="background:#EEF1FF;color:var(--primary)">
-                                {{ strtoupper(str_replace('_', ' ', $report->report_type)) }}
-                            </span>
-                        </td>
-                        <td>{{ $report->teacher->name ?? 'Unknown Teacher' }}</td>
-                        <td class="text-muted small">{{ $report->updated_at->format('M d, Y - h:i A') }}</td>
-                        <td class="text-end px-4">
+                        <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider">Student</th>
+                        <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider">Report Type</th>
+                        <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider">Submitted By (Teacher)</th>
+                        <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider">Date Submitted</th>
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-extrabold text-slate-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                    @forelse($pendingReports as $report)
+                        <tr class="hover:bg-slate-50 transition-colors duration-150">
                             
-                            <button class="btn btn-sm btn-outline-primary me-2">
-                                <i class="fa fa-eye"></i> View
-                            </button>
+                            <td class="px-6 py-4 text-sm font-extrabold text-slate-800">
+                                {{ $report->student->first_name }} {{ $report->student->last_name }}
+                            </td>
+                            
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-3 py-1 text-[11px] font-bold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    {{ strtoupper(str_replace('_', ' ', $report->report_type)) }}
+                                </span>
+                            </td>
+                            
+                            <td class="px-6 py-4 text-sm font-semibold text-slate-700">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa fa-chalkboard-teacher text-slate-400"></i>
+                                    {{ $report->teacher->name ?? 'Unknown Teacher' }}
+                                </div>
+                            </td>
+                            
+                            <td class="px-6 py-4 text-xs font-medium text-slate-500">
+                                {{ $report->updated_at->format('M d, Y - h:i A') }}
+                            </td>
+                            
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    
+                                    <a href="{{ route('admin.report-approval.show', $report->id) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-indigo-200 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 text-decoration-none">
+                                        <i class="fa fa-eye mr-1.5"></i> View
+                                    </a>
 
-                            <form action="{{ route('admin.report-approval.update-status', $report->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                <input type="hidden" name="status" value="approved">
-                                <button type="submit" class="btn btn-sm btn-success text-white fw-bold shadow-sm" onclick="return confirm('Approve this report? This will immediately email the parents.');">
-                                    <i class="fa fa-check"></i> Approve
-                                </button>
-                            </form>
+                                    <form action="{{ route('admin.report-approval.update-status', $report->id) }}" method="POST" class="m-0" onsubmit="return confirm('Approve this report? This will immediately email the parents.');">
+                                        @csrf
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-emerald-500 border border-transparent text-white text-xs font-bold rounded-lg hover:bg-emerald-600 transition-colors shadow-sm focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
+                                            <i class="fa fa-check mr-1.5"></i> Approve
+                                        </button>
+                                    </form>
 
-                            <form action="{{ route('admin.report-approval.update-status', $report->id) }}" method="POST" class="d-inline ms-1">
-                                @csrf
-                                <input type="hidden" name="status" value="rejected">
-                                <button type="submit" class="btn btn-sm btn-danger text-white fw-bold shadow-sm">
-                                    <i class="fa fa-xmark"></i> Reject
-                                </button>
-                            </form>
+                                    <form action="{{ route('admin.report-approval.update-status', $report->id) }}" method="POST" class="m-0">
+                                        @csrf
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-rose-500 border border-transparent text-white text-xs font-bold rounded-lg hover:bg-rose-600 transition-colors shadow-sm focus:ring-2 focus:ring-rose-500 focus:ring-offset-1">
+                                            <i class="fa fa-xmark mr-1.5"></i> Reject
+                                        </button>
+                                    </form>
 
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-5">
-                            <i class="fa fa-check-double fs-1 mb-3 text-success opacity-50"></i><br>
-                            All caught up! There are no reports waiting for your approval.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-16 text-center bg-white">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-50 mb-4 border border-emerald-100">
+                                    <i class="fa fa-check-double text-2xl text-emerald-500"></i>
+                                </div>
+                                <h3 class="font-extrabold text-slate-800 text-lg mb-1">All caught up!</h3>
+                                <p class="text-slate-500 text-sm font-medium m-0">There are currently no reports waiting for your approval.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+
 @endsection

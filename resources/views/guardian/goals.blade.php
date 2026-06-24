@@ -5,127 +5,167 @@
 @section('content')
 
 <style>
-    /* Custom sleek scrollbar for the text areas */
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    [x-cloak] { display: none !important; }
 </style>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="fw-bold text-dark mb-1">Learning Goals</h3>
-        <p class="text-muted">Track your child's progress across all educational domains.</p>
-    </div>
-    
-    @if(isset($activeChild) && isset($myChildren))
-    <div class="d-flex align-items-center gap-3">
-        <div class="dropdown">
-            <button class="btn btn-light border bg-white rounded-pill px-3 py-2 fw-bold text-primary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" style="box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <div style="width: 24px; height: 24px; background: #4F6AF5; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">
-                    <i class="fa fa-user"></i>
-                </div>
-                Viewing: {{ $activeChild->first_name }}
-            </button>
-            
-            <ul class="dropdown-menu shadow border-0 mt-2 p-2" style="border-radius: 12px; min-width: 200px;">
-                <li><h6 class="dropdown-header text-muted fw-bold" style="letter-spacing: 1px; font-size: 11px;">MY CHILDREN</h6></li>
+<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
+
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
+        <div>
+            <h3 class="text-2xl font-extrabold text-slate-800 mb-1 m-0">Learning Goals</h3>
+            <p class="text-sm font-medium text-slate-500 m-0">Track your child's progress across all educational domains.</p>
+        </div>
+        
+        @if(isset($activeChild) && isset($myChildren))
+        <div class="flex items-center gap-3">
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open" @click.away="open = false" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm text-indigo-600 font-bold text-sm hover:bg-slate-50 focus:outline-none transition-colors">
+                    <div class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] shrink-0">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    Viewing: {{ $activeChild->first_name }}
+                    <i class="fa fa-chevron-down ml-1 text-xs text-slate-400 transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                </button>
                 
-                @foreach($myChildren as $child)
-                    <li>
-                        <a class="dropdown-item py-2 rounded {{ $activeChild->id === $child->id ? 'bg-primary text-white fw-bold' : '' }}" 
-                           href="{{ route('guardian.switch-child', $child->id) }}">
-                            {{ $child->first_name }} {{ $child->last_name }}
-                            @if($activeChild->id === $child->id)
-                                <i class="fa fa-check float-end mt-1"></i>
-                            @endif
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
+                <ul x-show="open" x-cloak x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50 list-none pl-0">
+                    <li><h6 class="px-4 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider m-0">My Children</h6></li>
+                    
+                    @foreach($myChildren as $child)
+                        <li>
+                            <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center justify-between px-4 py-2 text-sm font-medium transition-colors decoration-transparent {{ $activeChild->id === $child->id ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 hover:bg-slate-50' }}">
+                                <span>{{ $child->first_name }} {{ $child->last_name }}</span>
+                                @if($activeChild->id === $child->id)
+                                    <i class="fa fa-check text-white text-xs mt-0.5"></i>
+                                @endif
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
         </div>
+        @endif
     </div>
-    @endif
-</div>
 
-@if(isset($activeChild))
-    <div class="data-card mb-4 border-top border-4 border-primary">
-        
-        <div class="data-card-header border-bottom pb-3 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <h5 class="fw-bold m-0 text-dark">
-                <i class="fa fa-chart-pie text-primary me-2"></i> {{ $activeChild->first_name }}'s IEP Goal Progress
-            </h5>
+    @if(isset($activeChild))
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden border-t-4 border-t-indigo-600 mb-6">
             
-            <a href="{{ route('guardian.goals.download-iep', $activeChild->id) }}" class="btn btn-danger fw-bold shadow-sm" style="border-radius: 8px;">
-                <i class="fa fa-file-pdf me-2"></i> Download Official IEP
-            </a>
-        </div>
-        
-        <div class="row g-4">
-            @forelse($activeChild->iepGoals as $goal)
-                <div class="col-lg-6">
-                    <div class="p-4 border rounded shadow-sm bg-white d-flex flex-column h-100" style="transition: transform 0.2s;">
+            <div class="px-6 py-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
+                <h5 class="font-extrabold text-slate-800 m-0 text-lg flex items-center">
+                    <i class="fa fa-chart-pie text-indigo-600 mr-2.5"></i> {{ $activeChild->first_name }}'s IEP Goal Progress
+                </h5>
+                
+                <a href="{{ route('guardian.goals.download-iep', $activeChild->id) }}" class="inline-flex items-center px-4 py-2 bg-rose-500 text-white text-sm font-bold rounded-xl hover:bg-rose-600 transition-colors shadow-sm decoration-transparent focus:ring-2 focus:ring-rose-500 focus:ring-offset-1">
+                    <i class="fa fa-file-pdf mr-2"></i> Download Official IEP
+                </a>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 gap-6 bg-slate-50/50">
+                @forelse($activeChild->iepGoals as $goal)
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-md">
                         
-                        <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
-                            <span class="badge bg-light text-dark border px-3 py-2" style="font-size: 13px;">
-                                <i class="fa fa-layer-group text-primary me-1"></i> {{ $goal->domain }}
-                            </span>
+                        <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                            <h6 class="m-0 font-extrabold text-slate-800 flex items-center gap-3 text-base">
+                                <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center shrink-0">
+                                    <i class="fa fa-layer-group text-sm"></i>
+                                </div>
+                                {{ $goal->domain }}
+                            </h6>
+                            
                             @if($goal->status == 'achieved')
-                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2"><i class="fa fa-check-circle me-1"></i> Achieved</span>
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 font-bold text-xs shadow-sm border border-emerald-100">
+                                    <i class="fa fa-check-circle mr-1.5"></i> Achieved
+                                </span>
                             @else
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"><i class="fa fa-spinner fa-spin me-1"></i> In Progress</span>
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 font-bold text-xs shadow-sm border border-indigo-100">
+                                    <i class="fa fa-spinner fa-spin mr-1.5"></i> In Progress
+                                </span>
                             @endif
                         </div>
-                        
-                        <div class="custom-scrollbar flex-grow-1 mb-4 pe-3" style="max-height: 220px; overflow-y: auto; font-size: 0.95rem; line-height: 1.7; color: #475569;">
+
+                        <div class="p-6">
                             @php
-                                // Magic Text Cleaner: Turns raw AI text into beautiful HTML
-                                $cleanText = $goal->goal_description;
-                                
-                                // Make 'OBJECTIVE:' a bold header with a target icon
-                                $cleanText = preg_replace('/(OBJECTIVE:)/', '<strong class="text-dark d-block mt-2 mb-1" style="font-size:14px;"><i class="fa fa-bullseye text-primary me-1"></i> $1</strong>', $cleanText);
-                                
-                                // Make 'ACTIVITIES:' a bold header with a task icon
-                                $cleanText = preg_replace('/(ACTIVITIES:)/', '<strong class="text-dark d-block mt-3 mb-1" style="font-size:14px;"><i class="fa fa-tasks text-secondary me-1"></i> $1</strong>', $cleanText);
-                                
-                                // Turn those dashed lines into clean HTML dividers
-                                $cleanText = preg_replace('/-{5,}/', '<hr class="my-3 opacity-25">', $cleanText);
+                                $text = $goal->goal_description ?? '';
+                                $objectiveText = '';
+                                $activitiesText = '';
+
+                                if (strpos($text, 'ACTIVITIES:') !== false) {
+                                    $parts = explode('ACTIVITIES:', $text);
+                                    $objectiveText = trim(str_replace('OBJECTIVE:', '', $parts[0]));
+                                    $activitiesText = trim($parts[1]);
+                                } else {
+                                    $objectiveText = trim(str_replace('OBJECTIVE:', '', $text));
+                                }
+
+                                // Updated logic to inject Tailwind classes for the digital checkboxes
+                                if ($activitiesText) {
+                                    $formattedActivities = str_replace('[]', '<div class="flex items-start gap-3 mb-2 p-2 rounded-lg transition-colors hover:bg-slate-50 group"><div class="w-5 h-5 bg-slate-100 border-2 border-slate-300 rounded-md shrink-0 mt-0.5 flex items-center justify-center transition-all group-hover:border-slate-400 group-hover:bg-slate-200 shadow-sm"></div> <span class="text-sm font-medium text-slate-700 leading-relaxed pt-[1px]">', $activitiesText);
+                                    $formattedActivities = str_replace(' <div class="flex items-start', '</span></div><div class="flex items-start', $formattedActivities);
+                                    
+                                    if (strpos($formattedActivities, '<div') !== false) {
+                                        $formattedActivities .= '</span></div>';
+                                    }
+                                } else {
+                                    $formattedActivities = '<p class="text-slate-500 text-sm font-medium mb-0 px-3">No specific activities listed.</p>';
+                                }
                             @endphp
-                            
-                            {!! $cleanText !!}
-                        </div>
-                        
-                        <div class="mt-auto pt-3 border-top">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px;">Mastery Level</span>
-                                <span class="small fw-bold" style="color: {{ $goal->progress_percentage == 100 ? 'var(--success)' : 'var(--primary)' }}; font-size: 14px;">{{ $goal->progress_percentage }}%</span>
+
+                            <div class="bg-slate-50 border-l-4 border-indigo-500 rounded-r-xl p-5 mb-6">
+                                <h6 class="uppercase text-slate-500 font-extrabold text-[11px] tracking-wider mb-2 flex items-center m-0">
+                                    <i class="fa fa-bullseye mr-1.5 text-indigo-500"></i> Objective
+                                </h6>
+                                <p class="m-0 text-slate-800 text-[15px] font-semibold leading-relaxed">
+                                    {{ $objectiveText }}
+                                </p>
                             </div>
-                            <div class="progress" style="height: 12px; border-radius: 10px; background-color: #EEF1FF; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
-                                <div class="progress-bar progress-bar-striped {{ $goal->progress_percentage == 100 ? 'bg-success' : 'progress-bar-animated bg-primary' }}" 
-                                     role="progressbar" 
-                                     style="width: {{ $goal->progress_percentage }}%"></div>
+
+                            <div>
+                                <h6 class="uppercase text-slate-500 font-extrabold text-[11px] tracking-wider mb-3 px-1 flex items-center m-0">
+                                    <i class="fa fa-list-check mr-1.5 text-indigo-500"></i> Activities / Interventions
+                                </h6>
+                                <div class="max-h-[250px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-lg hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
+                                    {!! $formattedActivities !!}
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-5 border border-slate-200 rounded-xl mt-6 shadow-sm">
+                                <div class="flex justify-between items-end mb-3">
+                                    <span class="font-extrabold text-slate-800 uppercase text-xs tracking-wide">Mastery Level</span>
+                                    <span class="font-black text-lg {{ $goal->progress_percentage == 100 ? 'text-emerald-500' : 'text-indigo-600' }}">{{ $goal->progress_percentage }}%</span>
+                                </div>
+                                <div class="h-3 rounded-full bg-indigo-50 shadow-inner overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500 ease-in-out {{ $goal->progress_percentage == 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500 relative' }}" style="width: {{ $goal->progress_percentage }}%">
+                                        @if($goal->progress_percentage != 100 && $goal->progress_percentage > 0)
+                                            <div class="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem]"></div>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="bg-slate-50 border-t border-slate-200 p-6">
+                            <h6 class="font-extrabold text-slate-800 mb-4 flex items-center m-0">
+                                <i class="fa fa-comments mr-2 text-indigo-500"></i> Discussion & Notes
+                            </h6>
                             @include('components.comment-thread', ['item' => $goal])
                         </div>
 
                     </div>
-                </div>
-            @empty
-                <div class="col-12 text-center py-5 text-muted bg-light rounded" style="border: 2px dashed #ced4da;">
-                    <i class="fa fa-clipboard-list fs-1 mb-3 opacity-50 text-primary"></i>
-                    <p class="mb-0 fw-bold">No IEP Goals Assigned Yet</p>
-                    <small>Goals will appear here once the teacher establishes them.</small>
-                </div>
-            @endforelse
+                @empty
+                    <div class="w-full text-center py-12 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+                        <i class="fa fa-clipboard-list text-5xl mb-4 text-indigo-200"></i>
+                        <p class="text-base font-extrabold text-slate-700 m-0 mb-1">No IEP Goals Assigned Yet</p>
+                        <p class="text-sm font-medium text-slate-500 m-0">Goals will appear here once the teacher establishes them.</p>
+                    </div>
+                @endforelse
+            </div>
         </div>
-    </div>
-@else
-    <div class="alert alert-info border-0 shadow-sm" style="border-radius: 12px;">
-        <i class="fa fa-info-circle me-2"></i> No children are currently linked to your account.
-    </div>
-@endif
+    @else
+        <div class="bg-sky-50 border border-sky-200 text-sky-800 px-5 py-4 rounded-xl shadow-sm flex items-center gap-3">
+            <i class="fa fa-info-circle text-sky-500 text-xl"></i> 
+            <span class="text-sm font-bold">No children are currently linked to your account.</span>
+        </div>
+    @endif
+
+</div>
 
 @endsection

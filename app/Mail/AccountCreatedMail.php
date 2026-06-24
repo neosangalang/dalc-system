@@ -20,7 +20,7 @@ class AccountCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to Dream Achievers Learning Center',
+            subject: 'Welcome to Dream Achievers Learning Center PH',
         );
     }
 

@@ -4,318 +4,210 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-    :root {
-        --kid-bg: #F4F8FE;
-        --kid-blue: #5C8DF6;
-        --kid-blue-light: #E3EFFF;
-        --kid-yellow: #FFC043;
-        --kid-yellow-light: #FFF4D9;
-        --kid-green: #4CD18E;
-        --kid-green-light: #DDF7E9;
-        --kid-purple: #9D7CFF;
-        --kid-purple-light: #F0E8FF;
-        --kid-pink: #FF84A1;
-        --text-main: #3B4A6B;
-        --text-soft: #7A89A8;
-    }
-
-    body {
-        background-color: var(--kid-bg);
-        font-family: 'Quicksand', sans-serif;
-        color: var(--text-main);
-    }
-
-    /* Playful Soft Cards */
-    .fun-card {
-        background: #FFFFFF;
-        border-radius: 24px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(92, 141, 246, 0.08);
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-
-    .fun-card-header {
-        padding: 20px 24px;
-        border-bottom: 2px dashed #EAF0FA;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    /* Bouncy Stat Cards */
-    .stat-box {
-        padding: 24px;
-        border-radius: 24px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .stat-box:hover {
-        transform: translateY(-8px);
-    }
-    .stat-icon-wrap {
-        width: 64px;
-        height: 64px;
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-    }
-
-    /* Interactive Profile Buttons */
-    .kid-profile-item {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 2px solid transparent;
-        border-radius: 20px;
-        padding: 16px;
-    }
-    .kid-profile-item:hover {
-        background-color: var(--kid-blue-light);
-        border-color: var(--kid-blue);
-    }
-    .kid-profile-item.active-profile {
-        background-color: var(--kid-blue);
-        color: white !important;
-        box-shadow: 0 8px 20px rgba(92, 141, 246, 0.3);
-    }
-    .kid-profile-item.active-profile .text-muted {
-        color: #E3EFFF !important;
-    }
-
-    /* Playful Progress Bars */
-    .fun-progress-track {
-        height: 16px;
-        background-color: #EEF2F9;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .fun-progress-bar {
-        height: 100%;
-        border-radius: 10px;
-        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-        background-size: 1rem 1rem;
-    }
-
-    /* Daily Log Chat Bubbles */
-    .log-bubble {
-        background: #F8FBFF;
-        border: 2px solid #EAF0FA;
-        border-radius: 20px;
-        border-bottom-left-radius: 4px;
-        padding: 16px;
-        position: relative;
-    }
-    
-    .badge-fun {
-        padding: 6px 12px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 12px;
-    }
+    [x-cloak] { display: none !important; }
 </style>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1" style="color: var(--kid-blue);">Welcome back, {{ Auth::user()->name }}! 👋</h2>
-        <p class="mb-0" style="color: var(--text-soft); font-size: 1.1rem;">Let's see what your little ones are up to today.</p>
-    </div>
-    
-    @if(isset($activeChild) && isset($myChildren))
-    <div class="d-flex align-items-center gap-3">
-        <div class="dropdown">
-            <button class="btn border-0 rounded-pill px-4 py-2 fw-bold dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" style="background: var(--kid-blue); color: white; box-shadow: 0 4px 12px rgba(92, 141, 246, 0.3);">
-                <i class="fa fa-child fs-5"></i>
-                <span class="ms-1">Viewing: {{ $activeChild->first_name }}</span>
-            </button>
-            
-            <ul class="dropdown-menu shadow-lg border-0 mt-2 p-2" style="border-radius: 20px; min-width: 220px;">
-                <li><h6 class="dropdown-header fw-bold" style="color: var(--text-soft);">MY CHILDREN</h6></li>
-                @foreach($myChildren as $child)
-                    <li>
-                        <a class="dropdown-item py-2 px-3 mb-1 rounded-4 {{ $activeChild->id === $child->id ? 'fw-bold' : '' }}" 
-                           href="{{ route('guardian.switch-child', $child->id) }}"
-                           style="{{ $activeChild->id === $child->id ? 'background: var(--kid-blue-light); color: var(--kid-blue);' : 'color: var(--text-main);' }}">
-                            <i class="fa {{ $activeChild->id === $child->id ? 'fa-check-circle text-primary' : 'fa-user text-muted' }} me-2"></i> 
-                            {{ $child->first_name }} {{ $child->last_name }}
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-    @endif
-</div>
+<div class="font-['Quicksand'] bg-[#F4F8FE] min-h-screen text-[#3B4A6B] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="stat-box" style="background: white; border: 2px solid var(--kid-blue-light);">
-            <div class="stat-icon-wrap" style="background: var(--kid-blue-light); color: var(--kid-blue);">
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-[#5C8DF6] mb-1 m-0">Welcome back, {{ Auth::user()->name }}! 👋</h2>
+            <p class="text-[1.1rem] font-semibold text-[#7A89A8] m-0">Let's see what your little ones are up to today.</p>
+        </div>
+        
+        @if(isset($activeChild) && isset($myChildren))
+        <div class="flex items-center gap-3">
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 px-5 py-2.5 bg-[#5C8DF6] text-white font-bold rounded-full shadow-[0_4px_12px_rgba(92,141,246,0.3)] hover:bg-[#4a7ae0] transition-colors focus:outline-none">
+                    <i class="fa fa-child text-lg"></i>
+                    <span>Viewing: {{ $activeChild->first_name }}</span>
+                    <i class="fa fa-chevron-down ml-1 text-sm transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                </button>
+                
+                <ul x-show="open" x-transition.opacity x-transition:enter.duration.200ms x-transition:leave.duration.150ms x-cloak class="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl py-2 z-50 border border-slate-100 list-none pl-0">
+                    <li class="px-4 py-2 text-xs font-extrabold text-[#7A89A8] uppercase tracking-wider">MY CHILDREN</li>
+                    @forelse($myChildren ?? [] as $child)
+                        <li>
+                            <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center mx-2 px-3 py-2.5 mb-1 rounded-xl font-semibold transition-colors {{ (isset($activeChild) && $activeChild->id === $child->id) ? 'bg-[#E3EFFF] text-[#5C8DF6]' : 'text-[#3B4A6B] hover:bg-slate-50' }}">
+                                <i class="fa fa-check-circle mr-2 {{ (isset($activeChild) && $activeChild->id === $child->id) ? 'text-[#5C8DF6]' : 'text-transparent' }}"></i>
+                                {{ $child->first_name }} {{ $child->last_name }}
+                            </a>
+                        </li>
+                    @empty
+                        <li class="px-4 py-2 text-sm text-slate-500">No children linked.</li>
+                    @endforelse
+                </ul>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <div class="p-6 bg-white rounded-[24px] border-2 border-[#E3EFFF] flex items-center gap-5 transition-transform duration-300 hover:-translate-y-2 shadow-sm">
+            <div class="w-16 h-16 rounded-[20px] bg-[#E3EFFF] text-[#5C8DF6] flex items-center justify-center text-3xl shrink-0">
                 <i class="fa fa-users"></i>
             </div>
             <div>
-                <h3 class="fw-bold m-0" style="color: var(--kid-blue); font-size: 2rem;">{{ $myChildren->count() ?? 0 }}</h3>
-                <p class="m-0 fw-bold" style="color: var(--text-soft);">Enrolled Children</p>
+                <h3 class="text-3xl font-extrabold text-[#5C8DF6] m-0">{{ isset($myChildren) ? $myChildren->count() : 0 }}</h3>
+                <p class="text-[15px] font-bold text-[#7A89A8] m-0">Enrolled Children</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stat-box" style="background: white; border: 2px solid var(--kid-purple-light);">
-            <div class="stat-icon-wrap" style="background: var(--kid-purple-light); color: var(--kid-purple);">
+
+        <div class="p-6 bg-white rounded-[24px] border-2 border-[#F0E8FF] flex items-center gap-5 transition-transform duration-300 hover:-translate-y-2 shadow-sm">
+            <div class="w-16 h-16 rounded-[20px] bg-[#F0E8FF] text-[#9D7CFF] flex items-center justify-center text-3xl shrink-0">
                 <i class="fa fa-star"></i>
             </div>
             <div>
-                <h3 class="fw-bold m-0" style="color: var(--kid-purple); font-size: 2rem;">{{ $activeGoals->count() ?? 0 }}</h3> 
-                <p class="m-0 fw-bold" style="color: var(--text-soft);">Active IEP Goals</p>
+                <h3 class="text-3xl font-extrabold text-[#9D7CFF] m-0">{{ isset($activeGoals) ? $activeGoals->count() : 0 }}</h3> 
+                <p class="text-[15px] font-bold text-[#7A89A8] m-0">Active IEP Goals</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stat-box" style="background: white; border: 2px solid var(--kid-green-light);">
-            <div class="stat-icon-wrap" style="background: var(--kid-green-light); color: var(--kid-green);">
+
+        <div class="p-6 bg-white rounded-[24px] border-2 border-[#DDF7E9] flex items-center gap-5 transition-transform duration-300 hover:-translate-y-2 shadow-sm">
+            <div class="w-16 h-16 rounded-[20px] bg-[#DDF7E9] text-[#4CD18E] flex items-center justify-center text-3xl shrink-0">
                 <i class="fa fa-certificate"></i>
             </div>
             <div>
-                <h3 class="fw-bold m-0" style="color: var(--kid-green); font-size: 2rem;">{{ $recentReports->count() ?? 0 }}</h3>
-                <p class="m-0 fw-bold" style="color: var(--text-soft);">Official Reports</p>
+                <h3 class="text-3xl font-extrabold text-[#4CD18E] m-0">{{ isset($recentReports) ? $recentReports->count() : 0 }}</h3>
+                <p class="text-[15px] font-bold text-[#7A89A8] m-0">Official Reports</p>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row g-4">
-    <div class="col-lg-5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <div class="fun-card">
-            <div class="fun-card-header bg-white">
-                <div style="width: 40px; height: 40px; background: var(--kid-yellow-light); color: var(--kid-yellow); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                    <i class="fa fa-id-badge"></i>
-                </div>
-                <div>
-                    <h5 class="fw-bold m-0" style="color: var(--text-main);">Student Profiles</h5>
-                    <small style="color: var(--text-soft);">Select a child to view their progress</small>
-                </div>
-            </div>
-            
-            <div class="p-4 d-flex flex-column gap-2">
-                @forelse($myChildren as $child)
-                    @php
-                        $isActive = isset($activeChild) && $activeChild->id === $child->id;
-                    @endphp
-                    
-                    <a href="{{ route('guardian.switch-child', $child->id) }}" style="text-decoration: none; color: inherit;">
-                        <div class="d-flex align-items-center gap-3 kid-profile-item {{ $isActive ? 'active-profile' : '' }}">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" 
-                                 style="width: 60px; height: 60px; background: {{ $isActive ? '#ffffff' : 'var(--kid-yellow)' }}; color: {{ $isActive ? 'var(--kid-blue)' : '#ffffff' }}; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                                {{ strtoupper(substr($child->first_name, 0, 1)) }}
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 class="m-0 fw-bold {{ $isActive ? 'text-white' : 'text-dark' }}">{{ $child->first_name }} {{ $child->last_name }}</h5>
-                                <div class="d-flex gap-3 small mt-1 {{ $isActive ? 'text-white' : 'text-muted' }}" style="opacity: 0.9;">
-                                    <span><i class="fa fa-birthday-cake me-1"></i> {{ \Carbon\Carbon::parse($child->date_of_birth)->age }} yrs old</span>
-                                    <span><i class="fa fa-chalkboard-teacher me-1"></i> {{ $child->teacher->name ?? 'Unassigned' }}</span>
-                                </div>
-                            </div>
-                            @if($isActive) 
-                                <div style="background: rgba(255,255,255,0.2); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                                    <i class="fa fa-chevron-right text-white"></i>
-                                </div>
-                            @endif
-                        </div>
-                    </a>
-                @empty
-                    <div class="text-center py-4" style="color: var(--text-soft);">
-                        <i class="fa fa-ghost fs-1 mb-2 opacity-25"></i>
-                        <p class="mb-0 fw-bold">No children linked yet.</p>
+        <div class="lg:col-span-5">
+            <div class="bg-white rounded-[24px] shadow-[0_10px_30px_rgba(92,141,246,0.08)] overflow-hidden h-full flex flex-col">
+                <div class="p-6 bg-white border-b-2 border-dashed border-[#EAF0FA] flex items-center gap-4 shrink-0">
+                    <div class="w-10 h-10 bg-[#FFF4D9] text-[#FFC043] rounded-xl flex items-center justify-center text-xl shrink-0">
+                        <i class="fa fa-id-badge"></i>
                     </div>
-                @endforelse
-            </div>
-        </div>
-
-    </div>
-
-    <div class="col-lg-7">
-        
-        <div class="fun-card mb-4">
-            <div class="fun-card-header" style="background: var(--kid-purple-light);">
-                <div style="width: 40px; height: 40px; background: white; color: var(--kid-purple); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                    <i class="fa fa-rocket"></i>
-                </div>
-                <div>
-                    <h5 class="fw-bold m-0" style="color: var(--kid-purple);">{{ $activeChild->first_name ?? '' }}'s Goal Progress</h5>
-                    <small style="color: var(--text-main); opacity: 0.7;">Watch them grow!</small>
-                </div>
-            </div>
-            
-            <div class="p-4 d-flex flex-column gap-4 bg-white">
-                @forelse($activeGoals as $goal)
                     <div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge-fun" style="background: var(--kid-purple-light); color: var(--kid-purple);">{{ $goal->domain }}</span>
-                            <span class="fw-bold fs-5" style="color: var(--kid-purple);">{{ $goal->progress_percentage }}%</span>
-                        </div>
-                        
-                        <p class="mb-2" style="color: var(--text-main); font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                            {{ $goal->goal_description }}
-                        </p>
-                        
-                        <div class="fun-progress-track">
-                            <div class="fun-progress-bar" style="width: {{ $goal->progress_percentage }}%; background-color: var(--kid-purple);"></div>
-                        </div>
+                        <h5 class="text-lg font-extrabold text-[#3B4A6B] m-0">Student Profiles</h5>
+                        <p class="text-sm font-semibold text-[#7A89A8] m-0">Select a child to view their progress</p>
                     </div>
-                @empty
-                    <div class="text-center py-4" style="color: var(--text-soft);">
-                        <i class="fa fa-moon fs-1 mb-2 opacity-25"></i>
-                        <p class="mb-0 fw-bold">No active goals to track right now.</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="fun-card">
-            <div class="fun-card-header" style="background: var(--kid-green-light);">
-                <div style="width: 40px; height: 40px; background: white; color: var(--kid-green); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                    <i class="fa fa-book-open"></i>
                 </div>
-                <div>
-                    <h5 class="fw-bold m-0" style="color: var(--kid-green);">Teacher Updates</h5>
-                    <small style="color: var(--text-main); opacity: 0.7;">Recent notes from the classroom</small>
-                </div>
-            </div>
-            
-            <div class="p-4 bg-white d-flex flex-column gap-3">
-                @forelse($recentLogs as $log)
-                    <div class="log-bubble">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="fw-bold m-0" style="color: var(--kid-blue);">{{ \Carbon\Carbon::parse($log->log_date)->format('l, F j') }}</h6>
-                            <span class="badge-fun bg-white" style="color: var(--text-soft); border: 1px solid #EAF0FA;">
-                                <i class="fa fa-clock me-1"></i> {{ \Carbon\Carbon::parse($log->log_date)->diffForHumans() }}
-                            </span>
-                        </div>
-                        <p class="mb-2" style="color: var(--text-main); font-weight: 500; line-height: 1.6;">{{ $log->notes }}</p>
-                        <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top" style="border-color: #EAF0FA !important;">
-                            <div style="width: 24px; height: 24px; background: var(--kid-yellow); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">
-                                {{ substr($log->teacher->name ?? 'T', 0, 1) }}
+                
+                <div class="p-6 flex-1 flex flex-col gap-3 overflow-y-auto">
+                    @forelse($myChildren ?? [] as $child)
+                        @php
+                            $isActive = isset($activeChild) && $activeChild->id === $child->id;
+                        @endphp
+                        
+                        <a href="{{ route('guardian.switch-child', $child->id) }}" class="block decoration-transparent outline-none">
+                            <div class="flex items-center gap-4 p-4 rounded-[20px] border-2 transition-all duration-300 cursor-pointer group {{ $isActive ? 'bg-[#5C8DF6] border-[#5C8DF6] text-white shadow-[0_8px_20px_rgba(92,141,246,0.3)]' : 'border-transparent hover:bg-[#E3EFFF] hover:border-[#5C8DF6]' }}">
+                                
+                                <div class="w-14 h-14 rounded-full flex items-center justify-center font-extrabold text-xl shadow-sm shrink-0 transition-colors {{ $isActive ? 'bg-white text-[#5C8DF6]' : 'bg-[#FFC043] text-white' }}">
+                                    {{ strtoupper(substr($child->first_name, 0, 1)) }}
+                                </div>
+                                
+                                <div class="flex-1">
+                                    <h5 class="text-base font-extrabold m-0 {{ $isActive ? 'text-white' : 'text-[#3B4A6B]' }}">{{ $child->first_name }} {{ $child->last_name }}</h5>
+                                    <div class="flex gap-4 text-[13px] font-bold mt-1 {{ $isActive ? 'text-white/90' : 'text-[#7A89A8]' }}">
+                                        <span><i class="fa fa-birthday-cake mr-1"></i> {{ \Carbon\Carbon::parse($child->date_of_birth)->age }} yrs old</span>
+                                        <span><i class="fa fa-chalkboard-teacher mr-1"></i> {{ $child->teacher->name ?? 'Unassigned' }}</span>
+                                    </div>
+                                </div>
+                                
+                                @if($isActive) 
+                                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                                        <i class="fa fa-chevron-right text-white text-sm"></i>
+                                    </div>
+                                @endif
                             </div>
-                            <small class="fw-bold" style="color: var(--text-soft);">Teacher {{ $log->teacher->name ?? 'Staff' }}</small>
+                        </a>
+                    @empty
+                        <div class="text-center py-10 text-[#7A89A8]">
+                            <i class="fa fa-ghost text-5xl mb-3 opacity-25"></i>
+                            <p class="text-base font-extrabold m-0">No children linked yet.</p>
                         </div>
-                    </div>
-                @empty
-                    <div class="text-center py-4 border border-2 border-dashed rounded-4" style="border-color: var(--kid-blue-light) !important; color: var(--text-soft);">
-                        <p class="mb-0 fw-bold">No recent updates from the teacher.</p>
-                    </div>
-                @endforelse
+                    @endforelse
+                </div>
             </div>
         </div>
 
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            
+            <div class="bg-white rounded-[24px] shadow-[0_10px_30px_rgba(92,141,246,0.08)] overflow-hidden">
+                <div class="p-6 bg-[#F0E8FF] border-b-2 border-dashed border-white/40 flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white text-[#9D7CFF] rounded-xl flex items-center justify-center text-xl shrink-0">
+                        <i class="fa fa-rocket"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-lg font-extrabold text-[#9D7CFF] m-0">{{ $activeChild->first_name ?? 'Student' }}'s Goal Progress</h5>
+                        <p class="text-sm font-semibold text-[#3B4A6B]/70 m-0">Watch them grow!</p>
+                    </div>
+                </div>
+                
+                <div class="p-6 bg-white flex flex-col gap-6">
+                    @forelse($activeGoals ?? [] as $goal)
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs bg-[#F0E8FF] text-[#9D7CFF] tracking-wide">{{ $goal->domain }}</span>
+                                <span class="font-black text-xl text-[#9D7CFF]">{{ $goal->progress_percentage }}%</span>
+                            </div>
+                            
+                            <p class="text-sm font-bold text-[#3B4A6B] mb-3 line-clamp-2 leading-relaxed">
+                                {{ $goal->goal_description }}
+                            </p>
+                            
+                            <div class="h-4 bg-[#EEF2F9] rounded-full overflow-hidden shadow-inner">
+                                <div class="h-full rounded-full bg-[#9D7CFF] bg-[linear-gradient(45deg,rgba(255,255,255,.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] transition-all duration-500 ease-out" style="width: {{ $goal->progress_percentage }}%;"></div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-8 text-[#7A89A8]">
+                            <i class="fa fa-moon text-5xl mb-3 opacity-25"></i>
+                            <p class="text-base font-extrabold m-0">No active goals to track right now.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[24px] shadow-[0_10px_30px_rgba(92,141,246,0.08)] overflow-hidden">
+                <div class="p-6 bg-[#DDF7E9] border-b-2 border-dashed border-white/40 flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white text-[#4CD18E] rounded-xl flex items-center justify-center text-xl shrink-0">
+                        <i class="fa fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-lg font-extrabold text-[#4CD18E] m-0">Teacher Updates</h5>
+                        <p class="text-sm font-semibold text-[#3B4A6B]/70 m-0">Recent notes from the classroom</p>
+                    </div>
+                </div>
+                
+                <div class="p-6 bg-white flex flex-col gap-4">
+                    @forelse($recentLogs ?? [] as $log)
+                        <div class="bg-[#F8FBFF] border-2 border-[#EAF0FA] rounded-[20px] rounded-bl-sm p-5 relative">
+                            <div class="flex justify-between items-center mb-3">
+                                <h6 class="text-sm font-extrabold text-[#5C8DF6] m-0">{{ \Carbon\Carbon::parse($log->log_date)->format('l, F j') }}</h6>
+                                <span class="px-3 py-1 bg-white border border-[#EAF0FA] rounded-xl text-xs font-bold text-[#7A89A8] shadow-sm">
+                                    <i class="fa fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($log->log_date)->diffForHumans() }}
+                                </span>
+                            </div>
+                            <p class="text-sm font-semibold text-[#3B4A6B] leading-relaxed mb-4 whitespace-pre-line">{{ $log->notes }}</p>
+                            
+                            <div class="flex items-center gap-2 pt-3 border-t-2 border-dashed border-[#EAF0FA]">
+                                <div class="w-6 h-6 bg-[#FFC043] text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-sm shrink-0">
+                                    {{ substr($log->teacher->name ?? 'T', 0, 1) }}
+                                </div>
+                                <span class="text-xs font-extrabold text-[#7A89A8]">Teacher {{ $log->teacher->name ?? 'Staff' }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-10 border-2 border-dashed border-[#E3EFFF] rounded-[20px] text-[#7A89A8]">
+                            <p class="text-base font-extrabold m-0">No recent updates from the teacher.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+        </div>
     </div>
+
 </div>
 
 @endsection

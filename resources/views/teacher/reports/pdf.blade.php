@@ -28,7 +28,7 @@
 <body>
 
     <div class="header">
-        <h1 class="school-name">Dream Achievers Learning Center</h1>
+        <h1 class="school-name">Dream Achievers Learning Center PH</h1>
         <div class="subtitle">Official Student Progress Report</div>
     </div>
 

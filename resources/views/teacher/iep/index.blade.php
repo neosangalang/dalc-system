@@ -5,327 +5,329 @@
 @section('content')
 
 <style>
-    /* Clean styles for the Student Accordion */
-    .student-accordion .accordion-item {
-        border: 1px solid var(--border);
-        border-radius: 16px !important;
-        overflow: hidden;
-        margin-bottom: 16px;
-        background: #ffffff;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        transition: opacity 0.2s ease-in-out;
-    }
-    .student-accordion .accordion-button {
-        padding: 20px 24px;
-        font-weight: 600;
-    }
-    .student-accordion .accordion-button:focus {
-        box-shadow: none;
-    }
-    .student-accordion .accordion-button:not(.collapsed) {
-        background-color: #FAFCFF;
-        color: inherit;
-        box-shadow: inset 0 -1px 0 var(--border);
-    }
-    .student-accordion .accordion-body {
-        padding: 0; /* Remove padding so the table touches the edges */
-    }
+    [x-cloak] { display: none !important; }
 </style>
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-radius: 10px;">
-        <i class="fa fa-check-circle me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
+<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block" 
+     x-data="{ 
+        showAddModal: false, 
+        activeAccordion: null, 
+        activeEditModal: null 
+     }">
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-        <h4 class="fw-bold m-0 text-dark"><i class="fa fa-bullseye me-2" style="color:var(--purple)"></i>IEP & Goal Management</h4>
-        <p class="text-muted small m-0 mt-1">Manage individualized learning objectives for your students.</p>
-    </div>
-    
-    <div class="d-flex gap-3 align-items-center">
-        <div class="input-group shadow-sm" style="width: 260px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: white;">
-            <span class="input-group-text bg-white border-0 text-muted" id="search-icon">
-                <i class="fa fa-search"></i>
-            </span>
-            <input type="text" id="studentSearchInput" class="form-control border-0 ps-0" placeholder="Search students..." aria-label="Search students" aria-describedby="search-icon" style="box-shadow: none;">
+    @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
+            <div class="flex items-center">
+                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
+                <span class="font-bold text-sm">{{ session('success') }}</span>
+            </div>
+            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
+                <i class="fa fa-times text-lg"></i>
+            </button>
         </div>
+    @endif
 
-        <button class="btn btn-primary fw-bold shadow-sm" style="border-radius: 10px; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#addGoalModal">
-            <i class="fa fa-plus me-1"></i> Add Goal
-        </button>
-    </div>
-</div>
-
-<div class="accordion student-accordion" id="iepAccordion">
-    @forelse($myStudents as $student)
-        @php
-            // Filter the global goals collection for this specific student
-            $studentGoals = $goals->where('student_id', $student->id);
-            $activeCount = $studentGoals->where('status', 'in_progress')->count();
-        @endphp
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
+        <div>
+            <h4 class="text-2xl font-extrabold text-slate-800 m-0 flex items-center">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 mr-3 shadow-sm">
+                    <i class="fa fa-bullseye"></i>
+                </div>
+                IEP & Goal Management
+            </h4>
+            <p class="text-slate-500 text-sm font-medium mt-1 ml-[52px] m-0">Manage individualized learning objectives for your students.</p>
+        </div>
         
-        <div class="accordion-item student-accordion-item" data-student-name="{{ strtolower($student->first_name . ' ' . $student->last_name) }}">
-            <h2 class="accordion-header" id="heading{{ $student->id }}">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $student->id }}" aria-expanded="false" aria-controls="collapse{{ $student->id }}">
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <div class="relative w-full sm:w-64 shadow-sm rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
+                    <i class="fa fa-search"></i>
+                </span>
+                <input type="text" id="studentSearchInput" class="w-full border-0 py-2.5 pl-10 pr-3 text-sm font-bold text-slate-700 focus:ring-0 placeholder:text-slate-400 placeholder:font-medium bg-transparent" placeholder="Search students...">
+            </div>
+
+            <button @click="showAddModal = true" class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 whitespace-nowrap">
+                <i class="fa fa-plus mr-2"></i> Add Goal
+            </button>
+        </div>
+    </div>
+
+    <div class="space-y-4" id="iepAccordion">
+        @forelse($myStudents as $student)
+            @php
+                $studentGoals = $goals->where('student_id', $student->id);
+                $activeCount = $studentGoals->where('status', 'in_progress')->count();
+            @endphp
+            
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200 student-accordion-item" data-student-name="{{ strtolower($student->first_name . ' ' . $student->last_name) }}">
+                
+                <button @click="activeAccordion = activeAccordion === {{ $student->id }} ? null : {{ $student->id }}" 
+                        class="w-full px-6 py-5 flex flex-wrap sm:flex-nowrap items-center justify-between text-left transition-colors focus:outline-none"
+                        :class="activeAccordion === {{ $student->id }} ? 'bg-slate-50/50 border-b border-slate-100 shadow-inner' : 'hover:bg-slate-50/30'">
                     
-                    <div class="d-flex justify-content-between align-items-center w-100 pe-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold fs-5 shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--purple));">
-                                {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) }}
-                            </div>
-                            <div class="text-start">
-                                <h6 class="mb-0 fw-bold text-dark fs-5">{{ $student->first_name }} {{ $student->last_name }}</h6>
-                                <small class="text-muted"><i class="fa fa-id-badge me-1"></i> Assigned Student</small>
-                            </div>
+                    <div class="flex items-center gap-4 mb-3 sm:mb-0">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-extrabold text-lg shadow-sm bg-gradient-to-br from-indigo-500 to-purple-500 shrink-0">
+                            {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) }}
                         </div>
-                        
-                        <div class="d-flex gap-2 align-items-center">
-                            <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">{{ $studentGoals->count() }} Total Goals</span>
-                            @if($activeCount > 0)
-                                <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill"><i class="fa fa-spinner fa-spin me-1"></i>{{ $activeCount }} In Progress</span>
-                            @endif
+                        <div>
+                            <h6 class="text-lg font-extrabold text-slate-800 m-0">{{ $student->first_name }} {{ $student->last_name }}</h6>
+                            <p class="text-[11px] font-bold text-slate-500 m-0 mt-0.5"><i class="fa fa-id-badge text-indigo-400 mr-1"></i> Assigned Student</p>
                         </div>
                     </div>
-
-                </button>
-            </h2>
-            
-            <div id="collapse{{ $student->id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $student->id }}" data-bs-parent="#iepAccordion">
-                <div class="accordion-body">
                     
-                    @if($studentGoals->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead style="background: #F8FAFC; color: #64748B; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <tr>
-                                        <th class="ps-4 py-3">Domain</th>
-                                        <th>Goal Objective</th>
-                                        <th>Progress</th>
-                                        <th>Status</th>
-                                        <th class="text-end pe-4">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($studentGoals as $goal)
-                                        <tr>
-                                            <td class="ps-4">
-                                                @php
-                                                    $color = match($goal->domain) {
-                                                        'Language-Communication' => 'background:#EEF1FF;color:var(--primary)',
-                                                        'Self-Help'              => 'background:#EDFAF4;color:var(--success)',
-                                                        'Perceptuo-Cognitive'    => 'background:#F3EEFF;color:var(--purple)',
-                                                        'Socio-Emotional'        => 'background:#FFF4E5;color:#D97706',
-                                                        'Psychomotor'            => 'background:#FFE4E6;color:#E11D48',
-                                                        default                  => 'background:#F1F5F9;color:#475569',
-                                                    };
-                                                @endphp
-                                                <span class="badge-custom" style="{{ $color }}">{{ str_replace('-', ' - ', $goal->domain) }}</span>
-                                            </td>
-                                            <td style="font-size:13px; max-width:250px;">
-                                                <div class="text-truncate" title="{{ $goal->goal_description }}">
-                                                    {{ $goal->goal_description }}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div style="min-width:120px">
-                                                    <div class="progress" style="height: 6px; border-radius: 3px; background-color: #E2E8F0; margin-bottom: 4px;">
-                                                        <div class="progress-bar" style="width:{{ $goal->progress_percentage }}%; background:{{ $goal->progress_percentage == 100 ? 'var(--success)' : 'var(--primary)' }}"></div>
-                                                    </div>
-                                                    <small style="color:{{ $goal->progress_percentage == 100 ? 'var(--success)' : 'var(--primary)' }};font-weight:700; font-size: 11px;">
-                                                        {{ $goal->progress_percentage == 100 ? 'Achieved ✓' : $goal->progress_percentage . '%' }}
-                                                    </small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                @if($goal->status === 'in_progress')
-                                                    <span class="badge-custom badge-pending">In Progress</span>
-                                                @else
-                                                    <span class="badge-custom badge-approved">Achieved</span>
-                                                @endif
-                                            </td>
-                                            <td class="text-end pe-4">
-                                                <div class="d-flex justify-content-end gap-2">
-                                                    <button class="btn btn-sm btn-light border fw-bold text-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#editGoalModal{{ $goal->id }}">
-                                                        <i class="fa fa-edit"></i> Edit
-                                                    </button>
-                            
-                                                    <form action="{{ route('teacher.iep-goals.destroy', $goal->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this goal? This cannot be undone.');" class="m-0">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm border fw-bold shadow-sm" style="background-color: #ef4444; color: white;">
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
+                        <span class="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 text-[11px] font-extrabold uppercase tracking-wider shadow-sm">{{ $studentGoals->count() }} Total Goals</span>
+                        @if($activeCount > 0)
+                            <span class="px-3.5 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 text-[11px] font-extrabold uppercase tracking-wider shadow-sm"><i class="fa fa-spinner fa-spin mr-1"></i> {{ $activeCount }} In Progress</span>
+                        @endif
+                        <i class="fa fa-chevron-down text-slate-400 transition-transform ml-2 hidden sm:block" :class="activeAccordion === {{ $student->id }} ? 'rotate-180' : ''"></i>
+                    </div>
+                </button>
+                
+                <div x-show="activeAccordion === {{ $student->id }}" x-collapse x-cloak>
+                    <div class="p-0">
                         
-                                                <div class="modal fade" id="editGoalModal{{ $goal->id }}" tabindex="-1">
-                                                    <div class="modal-dialog modal-lg text-start">
-                                                        <div class="modal-content" style="border-radius:16px;border:none;">
-                                                            <form action="{{ route('teacher.iep-goals.update', $goal->id) }}" method="POST">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <div class="modal-header" style="border-bottom:1px solid var(--border);padding:20px 24px">
-                                                                    <h5 class="modal-title fw-800">Track IEP Progress for {{ $student->first_name }}</h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                                </div>
-                                                                <div class="modal-body p-4">
-                                                                    <div class="mb-3 interactive-checklist-container">
-                                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                            <label class="form-label fw-bold m-0">Interactive Activity Tracker</label>
-                                                                            <button type="button" class="btn btn-sm btn-link text-muted p-0 toggle-raw-text-btn" style="font-size: 11px; text-decoration: none;">
-                                                                                <i class="fa fa-pen me-1"></i>Edit Text
-                                                                            </button>
-                                                                        </div>
-                                                                        <div class="visual-checklist p-3 border rounded shadow-sm" style="background: #fff; max-height: 250px; overflow-y: auto; font-size: 14px;"></div>
-                                                                        
-                                                                        <textarea name="goal_description" class="form-control goal-raw-text d-none mt-2" rows="6" required>{{ $goal->goal_description }}</textarea>
-                                                                    </div>
-                                                                    
-                                                                    <div class="row">
-                                                                        <div class="col-6 mb-3">
-                                                                            <label class="form-label fw-bold">Calculated Progress (%)</label>
-                                                                            <input type="number" name="progress_percentage" class="form-control goal-progress-input" min="0" max="100" value="{{ $goal->progress_percentage }}" required>
-                                                                        </div>
-                                                                        <div class="col-6 mb-3">
-                                                                            <label class="form-label fw-bold">Status</label>
-                                                                            <select name="status" class="form-control goal-status-select" required>
-                                                                                <option value="in_progress" {{ $goal->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                                                                                <option value="achieved" {{ $goal->status == 'achieved' ? 'selected' : '' }}>Achieved</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer" style="padding:16px 24px;">
-                                                                    <button type="submit" class="btn btn-primary fw-bold w-100 py-2">
-                                                                        <i class="fa fa-save me-2"></i> Save Progress
-                                                                    </button>
-                                                                </div>
-                                                            </form> 
-                                                            <div class="px-4 pb-4 bg-light" style="border-radius: 0 0 16px 16px; border-top: 2px dashed #cbd5e1;">
-                                                                @include('components.comment-thread', ['item' => $goal])
+                        @if($studentGoals->count() > 0)
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse whitespace-nowrap">
+                                    <thead class="bg-slate-50 border-b border-slate-200">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Domain</th>
+                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Goal Objective</th>
+                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Progress</th>
+                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
+                                            <th scope="col" class="px-6 py-3 text-right text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 bg-white">
+                                        @foreach($studentGoals as $goal)
+                                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                                <td class="px-6 py-4">
+                                                    @php
+                                                        $badgeClass = match($goal->domain) {
+                                                            'Language-Communication' => 'bg-indigo-50 text-indigo-700 border-indigo-100',
+                                                            'Self-Help'              => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                                            'Perceptuo-Cognitive'    => 'bg-purple-50 text-purple-700 border-purple-100',
+                                                            'Socio-Emotional'        => 'bg-amber-50 text-amber-700 border-amber-100',
+                                                            'Psychomotor'            => 'bg-rose-50 text-rose-700 border-rose-100',
+                                                            default                  => 'bg-slate-50 text-slate-700 border-slate-100',
+                                                        };
+                                                    @endphp
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border {{ $badgeClass }}">
+                                                        {{ str_replace('-', ' - ', $goal->domain) }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-[13px] font-medium text-slate-700 max-w-[250px] truncate" title="{{ $goal->goal_description }}">
+                                                    {{ $goal->goal_description }}
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="min-w-[120px]">
+                                                        <div class="w-full h-1.5 bg-slate-200 rounded-full mb-1.5 overflow-hidden">
+                                                            <div class="h-full rounded-full {{ $goal->progress_percentage == 100 ? 'bg-emerald-500' : 'bg-indigo-500' }}" style="width: {{ $goal->progress_percentage }}%;"></div>
+                                                        </div>
+                                                        <p class="text-[10px] font-extrabold m-0 tracking-wider {{ $goal->progress_percentage == 100 ? 'text-emerald-600' : 'text-indigo-600' }}">
+                                                            {{ $goal->progress_percentage == 100 ? 'ACHIEVED ✓' : $goal->progress_percentage . '%' }}
+                                                        </p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    @if($goal->status === 'in_progress')
+                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800 uppercase tracking-widest">In Progress</span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-emerald-100 text-emerald-800 uppercase tracking-widest">Achieved</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-6 py-4 text-right whitespace-nowrap">
+                                                    <div class="flex justify-end gap-2">
+                                                        <button @click="activeEditModal = {{ $goal->id }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm">
+                                                            <i class="fa fa-edit mr-1.5"></i> Edit
+                                                        </button>
+                                                        <form action="{{ route('teacher.iep-goals.destroy', $goal->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this goal? This cannot be undone.');" class="m-0">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 bg-white border border-rose-200 text-rose-500 rounded-lg hover:bg-rose-50 transition-colors shadow-sm">
+                                                                <i class="fa fa-trash text-xs"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <div x-show="activeEditModal === {{ $goal->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="activeEditModal = null"></div>
+                                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                                                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-slate-200">
+                                                        <form action="{{ route('teacher.iep-goals.update', $goal->id) }}" method="POST" class="m-0">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                                                                <h5 class="text-lg font-extrabold text-slate-800 m-0">Track IEP Progress for {{ $student->first_name }}</h5>
+                                                                <button type="button" @click="activeEditModal = null" class="text-slate-400 hover:text-slate-600"><i class="fa fa-times text-xl"></i></button>
                                                             </div>
+                                                            <div class="p-6">
+                                                                <div class="mb-5 interactive-checklist-container">
+                                                                    <div class="flex justify-between items-center mb-2">
+                                                                        <label class="block text-[13px] font-extrabold text-slate-700 uppercase tracking-wider m-0">Interactive Activity Tracker</label>
+                                                                        <button type="button" class="text-indigo-600 hover:text-indigo-800 text-[11px] font-bold transition-colors toggle-raw-text-btn flex items-center">
+                                                                            <i class="fa fa-pen mr-1"></i> Edit Text
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="visual-checklist p-4 border border-slate-200 rounded-xl bg-white shadow-inner max-h-[300px] overflow-y-auto text-sm text-slate-700"></div>
+                                                                    <textarea name="goal_description" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-slate-50 goal-raw-text hidden mt-3" rows="6" required>{{ $goal->goal_description }}</textarea>
+                                                                </div>
+                                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                                                                    <div>
+                                                                        <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Calculated Progress (%)</label>
+                                                                        <input type="number" name="progress_percentage" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-progress-input" min="0" max="100" value="{{ $goal->progress_percentage }}" required>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Status</label>
+                                                                        <select name="status" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-status-select" required>
+                                                                            <option value="in_progress" {{ $goal->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                                                            <option value="achieved" {{ $goal->status == 'achieved' ? 'selected' : '' }}>Achieved</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="px-6 py-5 bg-white border-t border-slate-100 flex justify-end gap-3">
+                                                                <button type="button" @click="activeEditModal = null" class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50">Cancel</button>
+                                                                <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
+                                                            </div>
+                                                        </form>
+                                                        <div class="px-6 pb-6 bg-slate-50 border-t border-dashed border-slate-200 pt-6">
+                                                            @include('components.comment-thread', ['item' => $goal])
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5 bg-light">
-                            <i class="fa fa-clipboard-list fs-2 mb-3 text-muted opacity-50"></i>
-                            <h6 class="fw-bold text-dark mb-1">No Active Goals</h6>
-                            <p class="text-muted small mb-3">There are currently no IEP goals assigned to {{ $student->first_name }}.</p>
-                            <button class="btn btn-sm btn-outline-primary fw-bold" onclick="$('#collapse{{ $student->id }}').collapse('hide'); $('#addGoalModal').modal('show'); setTimeout(() => { document.querySelector('#addGoalModal select[name=student_id]').value = '{{ $student->id }}'; }, 500);">
-                                <i class="fa fa-plus me-1"></i> Create First Goal
-                            </button>
-                        </div>
-                    @endif
-
-                </div>
-            </div>
-        </div>
-    @empty
-        <div class="text-center py-5 text-muted bg-white rounded-4 shadow-sm border">
-            <i class="fa fa-users-slash fs-1 mb-3 opacity-50"></i>
-            <h5 class="fw-bold text-dark">No Students Found</h5>
-            <p>You have no students assigned to your roster yet.</p>
-        </div>
-    @endforelse
-</div>
-
-<div id="no-search-results" class="text-center py-5 text-muted bg-white rounded-4 shadow-sm border" style="display: none;">
-    <i class="fa fa-search fs-1 mb-3 opacity-50"></i>
-    <h5 class="fw-bold text-dark">No matches found</h5>
-    <p>We couldn't find any students matching that name.</p>
-</div>
-
-<div class="modal fade" id="addGoalModal" tabindex="-1">
-    <div class="modal-dialog modal-lg"> 
-        <div class="modal-content" style="border-radius:16px;border:none;">
-            <form action="{{ route('teacher.iep-goals.store') }}" method="POST">
-                @csrf
-                <div class="modal-header" style="border-bottom:1px solid var(--border);padding:20px 24px">
-                    <h5 class="modal-title fw-800">Assign New IEP Goal</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Select Student</label>
-                            <select name="student_id" class="form-control" required>
-                                <option value="" disabled selected>Choose a student...</option>
-                                @foreach($myStudents as $student)
-                                    <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Development Domain</label>
-                            <select id="domain-select" name="domain" class="form-control" required>
-                                <option value="" disabled selected>Select Domain...</option>
-                                <option value="Perceptuo-Cognitive">Perceptuo - Cognitive</option>
-                                <option value="Socio-Emotional">Socio - Emotional</option>
-                                <option value="Psychomotor">Psychomotor</option>
-                                <option value="Language-Communication">Language - Communication</option>
-                                <option value="Self-Help">Self - Help</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="p-3 mb-3" style="background-color: #f8f9fa; border: 1px dashed #4F6AF5; border-radius: 8px;">
-                        <h6 class="fw-bold text-primary mb-1">
-                            <i class="fa-solid fa-wand-magic-sparkles me-1"></i> AI IEP Builder
-                        </h6>
-                        <p class="small text-muted mb-2">Input the student's current status to generate Objectives and Activities.</p>
-                        
-                        <label class="form-label fw-bold small text-dark">Present Level of Performance</label>
-                        <textarea name="plop" id="ai-present-level" class="form-control mb-2" rows="2" required placeholder="e.g., Can sit for 5-10 minutes but fidgety. Follows 1-step commands with maximum prompts..."></textarea>
-                        
-                        <button type="button" id="generate-goals-btn" class="btn btn-sm btn-primary w-100 fw-bold">
-                            <i class="fa-solid fa-robot"></i> Generate Objectives & Activities
-                        </button>
-
-                        <div id="ai-results-container" class="mt-3 d-none">
-                            <hr class="my-2">
-                            <p class="fw-bold small mb-2 text-success"><i class="fa-solid fa-check"></i> Suggested IEP Strategies:</p>
-                            
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-sm" style="font-size: 0.85rem; background: white;">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 40%;">Objective</th>
-                                            <th style="width: 45%;">Activities</th>
-                                            <th style="width: 15%; text-align: center;">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="goals-list-tbody">
+                                            </div>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
+                        @else
+                            <div class="text-center py-12 px-6 bg-slate-50">
+                                <div class="w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa fa-clipboard-list text-2xl text-slate-300"></i>
+                                </div>
+                                <h6 class="text-base font-extrabold text-slate-800 mb-1 m-0">No Active Goals</h6>
+                                <p class="text-sm font-medium text-slate-500 mb-5 m-0">There are currently no IEP goals assigned to {{ $student->first_name }}.</p>
+                                <button type="button" @click="activeAccordion = null; showAddModal = true; setTimeout(() => { $refs.studentSelect.value = '{{ $student->id }}'; }, 100);" class="inline-flex items-center px-4 py-2 bg-white border border-indigo-200 text-indigo-600 text-sm font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm">
+                                    <i class="fa fa-plus mr-1.5"></i> Create First Goal
+                                </button>
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="text-center py-16 px-6 bg-white rounded-2xl shadow-sm border border-slate-200">
+                <i class="fa fa-users-slash text-5xl text-slate-300 mb-4 block"></i>
+                <h5 class="text-lg font-extrabold text-slate-800 m-0 mb-1">No Students Found</h5>
+                <p class="text-sm font-medium text-slate-500 m-0">You have no students assigned to your roster yet.</p>
+            </div>
+        @endforelse
+    </div>
+
+    <div id="no-search-results" class="text-center py-16 px-6 bg-white rounded-2xl shadow-sm border border-slate-200 mt-4" style="display: none;">
+        <i class="fa fa-search text-5xl text-slate-300 mb-4 block"></i>
+        <h5 class="text-lg font-extrabold text-slate-800 m-0 mb-1">No matches found</h5>
+        <p class="text-sm font-medium text-slate-500 m-0">We couldn't find any students matching that name.</p>
+    </div>
+
+    <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showAddModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showAddModal = false"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div x-show="showAddModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-slate-200">
+                <form action="{{ route('teacher.iep-goals.store') }}" method="POST" class="m-0">
+                    @csrf
+                    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <h5 class="text-lg font-extrabold text-slate-800 m-0">Assign New IEP Goal</h5>
+                        <button type="button" @click="showAddModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa fa-times text-xl"></i></button>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Select Student</label>
+                                <select x-ref="studentSelect" name="student_id" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                                    <option value="" disabled selected>Choose a student...</option>
+                                    @foreach($myStudents as $student)
+                                        <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Development Domain</label>
+                                <select id="domain-select" name="domain" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                                    <option value="" disabled selected>Select Domain...</option>
+                                    <option value="Perceptuo-Cognitive">Perceptuo - Cognitive</option>
+                                    <option value="Socio-Emotional">Socio - Emotional</option>
+                                    <option value="Psychomotor">Psychomotor</option>
+                                    <option value="Language-Communication">Language - Communication</option>
+                                    <option value="Self-Help">Self - Help</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="p-5 mb-6 bg-slate-50 border border-dashed border-indigo-300 rounded-xl relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-5">
+                                <i class="fa-solid fa-robot text-8xl text-indigo-900"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <h6 class="text-sm font-extrabold text-indigo-600 mb-1 flex items-center m-0">
+                                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI IEP Builder
+                                </h6>
+                                <p class="text-xs font-medium text-slate-500 mb-4 m-0">Input the student's current status to generate Objectives and Activities.</p>
+                                
+                                <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Present Level of Performance</label>
+                                <textarea name="plop" id="ai-present-level" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm mb-3" rows="2" required placeholder="e.g., Can sit for 5-10 minutes but fidgety..."></textarea>
+                                
+                                <button type="button" id="generate-goals-btn" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+                                    <i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities
+                                </button>
+
+                                <div id="ai-results-container" class="mt-4 hidden">
+                                    <hr class="border-indigo-100 my-4">
+                                    <p class="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider mb-3 m-0"><i class="fa-solid fa-check mr-1"></i> Suggested IEP Strategies:</p>
+                                    <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                                        <table class="w-full text-left bg-white whitespace-normal text-sm">
+                                            <thead class="bg-slate-50 border-b border-slate-200">
+                                                <tr>
+                                                    <th class="px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-[40%]">Objective</th>
+                                                    <th class="px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-[45%]">Activities</th>
+                                                    <th class="px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-[15%] text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="goals-list-tbody" class="divide-y divide-slate-100"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Final Goal Description</label>
+                            <textarea id="final-goal-input" name="goal_description" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" rows="5" required placeholder="The selected Objective and Activities will appear here..."></textarea>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Final Goal Description</label>
-                        <textarea id="final-goal-input" name="goal_description" class="form-control" rows="5" required placeholder="The selected Objective and Activities will appear here..."></textarea>
+                    <div class="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="button" @click="showAddModal = false" class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50">Cancel</button>
+                        <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
                     </div>
-                </div>
-                <div class="modal-footer" style="padding:16px 24px;">
-                    <button type="submit" class="btn btn-primary fw-bold w-100 py-2"><i class="fa fa-plus me-2"></i> Save IEP Goal</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
+@endsection
+
+@push('scripts')
 <script>
 // ==========================================
-// 0. NEW: SEARCH FILTER LOGIC
+// 0. SEARCH FILTER LOGIC
 // ==========================================
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('studentSearchInput');
@@ -347,7 +349,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
 
-            // Show/hide the "No matches found" message
             if (visibleCount === 0 && searchTerm !== '') {
                 noResultsMsg.style.display = 'block';
             } else {
@@ -358,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ==========================================
-// 1. PLOP DOMAIN MEMORY LOGIC (WITH BROWSER AUTO-SAVE)
+// 1. PLOP DOMAIN MEMORY LOGIC 
 // ==========================================
 document.addEventListener("DOMContentLoaded", function() {
     let domainSelect = document.getElementById('domain-select');
@@ -366,12 +367,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     let savedMemory = localStorage.getItem('iep_plop_memory');
     let plopMemory = savedMemory ? JSON.parse(savedMemory) : {};
-    
     let previousDomain = domainSelect.value;
 
-    if (previousDomain && plopMemory[previousDomain]) {
-        plopInput.value = plopMemory[previousDomain];
-    }
+    if (previousDomain && plopMemory[previousDomain]) plopInput.value = plopMemory[previousDomain];
 
     plopInput.addEventListener('input', function() {
         if (previousDomain) {
@@ -382,27 +380,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     domainSelect.addEventListener('change', function() {
         let newDomain = this.value;
-
         if (previousDomain) {
             plopMemory[previousDomain] = plopInput.value;
             localStorage.setItem('iep_plop_memory', JSON.stringify(plopMemory));
         }
-
-        if (plopMemory[newDomain]) {
-            plopInput.value = plopMemory[newDomain];
-        } else {
-            plopInput.value = ''; 
-        }
-
+        plopInput.value = plopMemory[newDomain] ? plopMemory[newDomain] : ''; 
         previousDomain = newDomain;
     });
 
     let form = plopInput.closest('form');
-    if (form) {
-        form.addEventListener('submit', function() {
-            localStorage.removeItem('iep_plop_memory');
-        });
-    }
+    if (form) form.addEventListener('submit', () => localStorage.removeItem('iep_plop_memory'));
 });
 
 // ==========================================
@@ -418,37 +405,34 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
     if(domainValue === '') { alert('Please select a Development Domain first!'); return; }
     if(presentLevelText.trim() === '') { alert('Please enter the Present Level of Performance first!'); return; }
 
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Analyzing...';
     btn.disabled = true;
 
     fetch("{{ route('teacher.iep-goals.generate-ai') }}", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        },
+        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}" },
         body: JSON.stringify({ domain: domainValue, present_level: presentLevelText })
     })
     .then(response => response.json())
     .then(data => {
-        btn.innerHTML = '<i class="fa-solid fa-robot"></i> Generate Objectives & Activities';
+        btn.innerHTML = '<i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities';
         btn.disabled = false;
 
         if(data.success) {
             tbody.innerHTML = '';
-            resultsContainer.classList.remove('d-none');
+            resultsContainer.classList.remove('hidden');
             data.goals.forEach((item) => {
-                let activityList = item.activities.map(a => `<li style="margin-bottom: 2px;">${a}</li>`).join('');
-                
+                let activityList = item.activities.map(a => `<li class="mb-1">${a}</li>`).join('');
                 let rawActivities = item.activities.map(a => `[ ] ${a}`).join('\n');
                  
                 let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
                 tr.innerHTML = `
-                    <td class="fw-bold text-primary align-middle">${item.objective}</td>
-                    <td class="align-middle"><ul class="mb-0 ps-3" style="list-style-type: disc;">${activityList}</ul></td>
-                    <td class="text-center align-middle">
-                        <button type="button" class="btn btn-sm btn-outline-success use-goal-btn w-100">
-                            <i class="fa fa-arrow-down"></i> Add
+                    <td class="font-extrabold text-indigo-600 align-middle py-3 px-4">${item.objective}</td>
+                    <td class="align-middle py-3 px-4"><ul class="mb-0 pl-4 list-disc text-slate-700">${activityList}</ul></td>
+                    <td class="text-center align-middle py-3 px-4">
+                        <button type="button" class="w-full inline-flex items-center justify-center px-3 py-2 border border-emerald-500 text-emerald-600 text-xs font-bold rounded-lg hover:bg-emerald-50 transition-colors use-goal-btn shadow-sm">
+                            <i class="fa fa-arrow-down mr-1"></i> Add
                         </button>
                     </td>
                 `;
@@ -458,19 +442,15 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
                     let formattedText = `OBJECTIVE:\n${item.objective}\n\nACTIVITIES:\n${rawActivities}`;
                     let finalInput = document.getElementById('final-goal-input');
                     
-                    if (finalInput.value.trim() === '') {
-                        finalInput.value = formattedText;
-                    } else {
-                        finalInput.value += `\n\n------------------------\n\n${formattedText}`;
-                    }
+                    if (finalInput.value.trim() === '') { finalInput.value = formattedText; } 
+                    else { finalInput.value += `\n\n------------------------\n\n${formattedText}`; }
                     
-                    this.innerHTML = '<i class="fa fa-check"></i> Added';
-                    this.classList.replace('btn-outline-success', 'btn-success');
-                    this.classList.add('text-white');
+                    this.innerHTML = '<i class="fa fa-check mr-1"></i> Added';
+                    this.className = "w-full inline-flex items-center justify-center px-3 py-2 bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors use-goal-btn shadow-sm";
+                    
                     setTimeout(() => {
-                        this.innerHTML = '<i class="fa fa-arrow-down"></i> Add Another';
-                        this.classList.replace('btn-success', 'btn-outline-success');
-                        this.classList.remove('text-white');
+                        this.innerHTML = '<i class="fa fa-arrow-down mr-1"></i> Add Another';
+                        this.className = "w-full inline-flex items-center justify-center px-3 py-2 border border-emerald-500 text-emerald-600 text-xs font-bold rounded-lg hover:bg-emerald-50 transition-colors use-goal-btn shadow-sm";
                     }, 1500);
                 };
 
@@ -479,9 +459,8 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
         } else {
             alert("AI Error: " + data.message);
         }
-    })
-    .catch(error => {
-        btn.innerHTML = '<i class="fa-solid fa-robot"></i> Generate Objectives & Activities';
+    }).catch(error => {
+        btn.innerHTML = '<i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities';
         btn.disabled = false;
         alert("Something went wrong communicating with the AI.");
     });
@@ -491,7 +470,6 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
 // 3. INTERACTIVE CHECKLIST LOGIC
 // ==========================================
 document.addEventListener("DOMContentLoaded", function() {
-    
     document.querySelectorAll('.interactive-checklist-container').forEach(container => {
         let textarea = container.querySelector('.goal-raw-text');
         let visualList = container.querySelector('.visual-checklist');
@@ -500,8 +478,8 @@ document.addEventListener("DOMContentLoaded", function() {
         let toggleBtn = container.querySelector('.toggle-raw-text-btn');
 
         toggleBtn.addEventListener('click', () => {
-            textarea.classList.toggle('d-none');
-            visualList.classList.toggle('d-none');
+            textarea.classList.toggle('hidden');
+            visualList.classList.toggle('hidden');
         });
 
         textarea.addEventListener('input', renderChecklist);
@@ -510,6 +488,7 @@ document.addEventListener("DOMContentLoaded", function() {
             let html = '';
             let totalBoxes = 0;
             let checkedBoxes = 0;
+            
             lines.forEach((line, index) => {
                 if (line.trim().startsWith('- ')) { line = line.replace('- ', '[ ] '); }
 
@@ -517,9 +496,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     totalBoxes++;
                     let text = line.trim().replace('[ ] ', '');
                     html += `
-                        <div class="form-check mb-2 px-3 py-1 rounded" style="transition: 0.2s;">
-                            <input class="form-check-input dynamic-checkbox mt-1" type="checkbox" data-line="${index}" style="cursor:pointer; width:1.3em; height:1.3em; border-color: #4F6AF5;">
-                            <label class="form-check-label ps-2" style="cursor:pointer; font-size: 14px;">${text}</label>
+                        <div class="flex items-start gap-3 mb-2 px-3 py-2 rounded hover:bg-slate-50 transition-colors">
+                            <input class="dynamic-checkbox mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4 shrink-0" type="checkbox" data-line="${index}">
+                            <label class="text-sm font-medium text-slate-700 cursor-pointer leading-tight pt-[1px]">${text}</label>
                         </div>`;
                 } 
                 else if (line.trim().startsWith('[x] ') || line.trim().startsWith('[X] ')) {
@@ -527,38 +506,36 @@ document.addEventListener("DOMContentLoaded", function() {
                     checkedBoxes++;
                     let text = line.trim().replace(/\[x\] /i, '');
                     html += `
-                        <div class="form-check mb-2 px-3 py-1 rounded" style="background: #f1f3f5; transition: 0.2s;">
-                            <input class="form-check-input dynamic-checkbox mt-1" type="checkbox" data-line="${index}" checked style="cursor:pointer; width:1.3em; height:1.3em; background-color: var(--success); border-color: var(--success);">
-                            <label class="form-check-label ps-2 text-muted text-decoration-line-through" style="cursor:pointer; font-size: 14px;">${text}</label>
+                        <div class="flex items-start gap-3 mb-2 px-3 py-2 rounded bg-slate-100 transition-colors">
+                            <input class="dynamic-checkbox mt-0.5 rounded border-emerald-500 bg-emerald-500 text-emerald-500 focus:ring-emerald-500 cursor-pointer w-4 h-4 shrink-0" type="checkbox" data-line="${index}" checked>
+                            <label class="text-sm font-medium text-slate-400 line-through cursor-pointer leading-tight pt-[1px]">${text}</label>
                         </div>`;
                 } 
                 else if (line.trim() !== '' && !line.includes('---')) {
-                    html += `<div class="mt-3 mb-2 px-1" style="color: var(--primary); font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">${line}</div>`;
+                    html += `<div class="mt-4 mb-2 px-1 text-[11px] font-extrabold text-indigo-600 uppercase tracking-wider">${line}</div>`;
                 } 
                 else if (line.includes('---')) {
-                    html += `<hr style="border-color: #dee2e6; margin: 15px 0;">`;
+                    html += `<hr class="border-slate-200 my-4">`;
                 }
             });
+            
             if(totalBoxes === 0 && textarea.value.trim() !== '') {
-                html += `<div class="text-muted small px-1 mt-2">No trackable activities found. Use the 'Edit Text' button to manually track progress.</div>`;
+                html += `<div class="text-slate-500 text-sm italic px-1 mt-2">No trackable activities found. Use the 'Edit Text' button to manually track progress.</div>`;
             }
 
             visualList.innerHTML = html;
             
             if (totalBoxes > 0) {
                 progressInput.readOnly = true;
-                progressInput.style.backgroundColor = '#e9ecef';
+                progressInput.classList.add('bg-slate-100', 'text-slate-500'); 
                 
                 let percent = Math.round((checkedBoxes / totalBoxes) * 100);
                 progressInput.value = percent;
-                if (percent === 100) {
-                    statusSelect.value = 'achieved';
-                } else {
-                    statusSelect.value = 'in_progress';
-                }
+                if (percent === 100) { statusSelect.value = 'achieved'; } 
+                else { statusSelect.value = 'in_progress'; }
             } else {
                 progressInput.readOnly = false;
-                progressInput.style.backgroundColor = '#fff';
+                progressInput.classList.remove('bg-slate-100', 'text-slate-500');
             }
 
             visualList.querySelectorAll('.dynamic-checkbox').forEach(chk => {
@@ -566,25 +543,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     let lineIdx = this.getAttribute('data-line');
                     let currentLines = textarea.value.split('\n');
                     
-                    if (currentLines[lineIdx].trim().startsWith('- ')) {
-                        currentLines[lineIdx] = currentLines[lineIdx].replace('- ', '[ ] ');
-                    }
-
-                    if (this.checked) {
-                        currentLines[lineIdx] = currentLines[lineIdx].replace('[ ] ', '[x] ');
-                    } else {
-                        currentLines[lineIdx] = currentLines[lineIdx].replace(/\[x\] /i, '[ ] ');
-                    }
+                    if (currentLines[lineIdx].trim().startsWith('- ')) { currentLines[lineIdx] = currentLines[lineIdx].replace('- ', '[ ] '); }
+                    if (this.checked) { currentLines[lineIdx] = currentLines[lineIdx].replace('[ ] ', '[x] '); } 
+                    else { currentLines[lineIdx] = currentLines[lineIdx].replace(/\[x\] /i, '[ ] '); }
                     
                     textarea.value = currentLines.join('\n');
                     renderChecklist();
                 });
             });
         }
-
         renderChecklist();
     });
 });
 </script>
-
-@endsection
+@endpush

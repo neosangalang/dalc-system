@@ -4,271 +4,164 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
-<style>
-    :root {
-        --t-bg: #F8FAFC;
-        --t-primary: #4F6AF5; 
-        --t-primary-light: #EEF2FF;
-        --t-success: #10B981; 
-        --t-success-light: #ECFDF5;
-        --t-warning: #F59E0B; 
-        --t-warning-light: #FFFBEB;
-        --t-accent: #8B5CF6; 
-        --t-accent-light: #F5F3FF;
-        --t-text-dark: #1E293B;
-        --t-text-muted: #64748B;
-        --t-border: #E2E8F0;
-    }
-
-    body {
-        background-color: var(--t-bg);
-        font-family: 'Inter', sans-serif;
-        color: var(--t-text-dark);
-    }
-
-    /* Clean Workspace Cards */
-    .workspace-card {
-        background: #FFFFFF;
-        border-radius: 16px;
-        border: 1px solid var(--t-border);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        margin-bottom: 24px;
-        overflow: hidden;
-    }
-    .workspace-header {
-        padding: 16px 24px;
-        border-bottom: 1px solid var(--t-border);
-        background: #FFFFFF;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* Top Action Metrics with Bounce Hover */
-    .metric-box {
-        padding: 20px;
-        border-radius: 16px;
-        background: #FFFFFF;
-        border: 1px solid var(--t-border);
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-    .metric-box:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(79, 106, 245, 0.15);
-    }
-    .metric-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-    }
-
-    /* Streamlined Calendar */
-    .quarter-box {
-        padding: 16px;
-        border-radius: 12px;
-        border: 1px solid var(--t-border);
-        background: #F8FAFC;
-        text-align: center;
-        min-width: 200px;
-        flex: 1;
-        transition: all 0.2s;
-    }
-    .quarter-box.active {
-        background: linear-gradient(135deg, var(--t-primary), var(--t-accent));
-        color: white !important;
-        border: none;
-        box-shadow: 0 4px 12px rgba(79, 106, 245, 0.3);
-        transform: scale(1.02);
-    }
-    .quarter-box.active .text-muted { color: rgba(255,255,255,0.8) !important; }
-
-    /* Student List with Quick Action */
-    .student-row {
-        padding: 16px 24px;
-        border-bottom: 1px solid var(--t-border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        transition: background 0.2s, transform 0.2s;
-    }
-    .student-row:hover { 
-        background: #f8f9ff; 
-        transform: translateX(4px);
-    }
-    .student-row:last-child { border-bottom: none; }
-    
-    .quick-log-btn {
-        background: var(--t-primary-light);
-        color: var(--t-primary);
-        border: 1px solid transparent;
-        font-weight: 600;
-        border-radius: 8px;
-        padding: 8px 16px;
-        transition: all 0.2s;
-    }
-    .quick-log-btn:hover {
-        background: var(--t-primary);
-        color: white;
-        box-shadow: 0 4px 6px rgba(79, 106, 245, 0.2);
-    }
-
-    /* Custom scrollbar for calendar */
-    .custom-scroll::-webkit-scrollbar { height: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-</style>
-
-<div class="container-fluid py-2">
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="metric-box">
-                <div class="metric-icon" style="background: var(--t-primary-light); color: var(--t-primary);">
-                    <i class="fa fa-users"></i>
-                </div>
-                <div>
-                    <h3 class="fw-bold m-0 counter" data-target="{{ $myStudentsCount ?? ($myStudents ? $myStudents->count() : 0) }}">0</h3>
-                    <p class="m-0 small fw-bold text-muted text-uppercase">My Students</p>
-                </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 flex items-center gap-4 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-indigo-50 text-indigo-600">
+                <i class="fa fa-users"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-extrabold text-slate-800 m-0 counter" data-target="{{ $myStudentsCount ?? ($myStudents ? $myStudents->count() : 0) }}">0</h3>
+                <p class="m-0 text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">My Students</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="metric-box">
-                <div class="metric-icon" style="background: var(--t-success-light); color: var(--t-success);">
-                    <i class="fa fa-pencil"></i>
-                </div>
-                <div>
-                    <h3 class="fw-bold m-0 counter" data-target="{{ $logsThisWeek ?? 0 }}">0</h3>
-                    <p class="m-0 small fw-bold text-muted text-uppercase">Logs This Week</p>
-                </div>
+
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 flex items-center gap-4 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/10">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-emerald-50 text-emerald-500">
+                <i class="fa fa-pencil"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-extrabold text-slate-800 m-0 counter" data-target="{{ $logsThisWeek ?? 0 }}">0</h3>
+                <p class="m-0 text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">Logs This Week</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="metric-box">
-                <div class="metric-icon" style="background: var(--t-accent-light); color: var(--t-accent);">
-                    <i class="fa fa-bullseye"></i>
-                </div>
-                <div>
-                    <h3 class="fw-bold m-0 counter" data-target="{{ $activeGoals ?? 0 }}">0</h3>
-                    <p class="m-0 small fw-bold text-muted text-uppercase">Active IEP Goals</p>
-                </div>
+
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 flex items-center gap-4 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/10">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-purple-50 text-purple-600">
+                <i class="fa fa-bullseye"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-extrabold text-slate-800 m-0 counter" data-target="{{ $activeGoals ?? 0 }}">0</h3>
+                <p class="m-0 text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">Active IEP Goals</p>
             </div>
         </div>
-        <div class="col-md-3">
-            @php $hasReports = ($reportsDue ?? 0) > 0; @endphp
-            <div class="metric-box" style="{{ $hasReports ? 'border-color: var(--t-warning); background: var(--t-warning-light);' : '' }}">
-                <div class="metric-icon" style="background: {{ $hasReports ? '#FDE68A' : '#F1F5F9' }}; color: {{ $hasReports ? 'var(--t-warning)' : 'var(--t-text-muted)' }};">
-                    <i class="fa fa-file-invoice"></i>
-                </div>
-                <div>
-                    <h3 class="fw-bold m-0 counter" data-target="{{ $reportsDue ?? 0 }}" style="color: {{ $hasReports ? 'var(--t-warning)' : 'inherit' }}">0</h3>
-                    <p class="m-0 small fw-bold text-uppercase" style="color: {{ $hasReports ? 'var(--t-warning)' : 'var(--t-text-muted)' }}">Reports Due</p>
-                </div>
+
+        @php $hasReports = ($reportsDue ?? 0) > 0; @endphp
+        <div class="p-5 rounded-2xl border flex items-center gap-4 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/10 {{ $hasReports ? 'bg-amber-50 border-amber-400' : 'bg-white border-slate-200' }}">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl shrink-0 {{ $hasReports ? 'bg-amber-200/50 text-amber-600' : 'bg-slate-100 text-slate-400' }}">
+                <i class="fa fa-file-invoice"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-extrabold m-0 counter {{ $hasReports ? 'text-amber-600' : 'text-slate-800' }}" data-target="{{ $reportsDue ?? 0 }}">0</h3>
+                <p class="m-0 text-xs font-bold uppercase tracking-wider mt-0.5 {{ $hasReports ? 'text-amber-600' : 'text-slate-500' }}">Reports Due</p>
             </div>
         </div>
+
     </div>
 
-    <div class="workspace-card mb-4">
-        <div class="workspace-header">
-            <h6 class="fw-bold m-0"><i class="fa fa-calendar-alt text-primary me-2"></i> Academic Calendar Timeline</h6>
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+        <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
+            <h6 class="text-base font-extrabold text-slate-800 m-0 flex items-center">
+                <i class="fa fa-calendar-alt text-indigo-600 mr-2"></i> Academic Calendar Timeline
+            </h6>
             @php $activeQ = isset($quarters) ? $quarters->where('is_active', true)->first() : null; @endphp
             @if($activeQ)
-                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold">Current: {{ $activeQ->name }}</span>
+                <span class="inline-flex items-center px-4 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-extrabold rounded-full tracking-wide">
+                    Current: {{ $activeQ->name }}
+                </span>
             @endif
         </div>
-        <div class="p-4 d-flex gap-3 overflow-auto custom-scroll pb-4">
+        
+        <div class="p-6 flex gap-4 overflow-x-auto pb-8 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full">
             @forelse($quarters ?? [] as $quarter)
                 @if($quarter->is_active)
-                    <div class="quarter-box active">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="fw-bold m-0 text-white">{{ $quarter->name }}</h5>
-                            <span class="badge bg-white text-primary rounded-pill px-2 py-1" style="font-size: 10px;">ACTIVE</span>
+                    <div class="flex-1 min-w-[200px] p-5 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-500 text-white shadow-lg shadow-indigo-500/30 transform scale-[1.02] transition-transform">
+                        <div class="flex justify-between items-center mb-3">
+                            <h5 class="text-lg font-extrabold m-0">{{ $quarter->name }}</h5>
+                            <span class="bg-white text-indigo-600 text-[10px] font-extrabold px-2.5 py-1 rounded-full tracking-widest">ACTIVE</span>
                         </div>
-                        <p class="m-0 small text-white text-start opacity-75 fw-bold">
+                        <p class="m-0 text-xs font-bold text-white/80">
                             {{ $quarter->start_date ? \Carbon\Carbon::parse($quarter->start_date)->format('M j, Y') : 'TBD' }} - 
                             {{ $quarter->end_date ? \Carbon\Carbon::parse($quarter->end_date)->format('M j, Y') : 'TBD' }}
                         </p>
                     </div>
                 @else
-                    <div class="quarter-box">
-                        <h5 class="fw-bold m-0 text-dark text-start mb-2">{{ $quarter->name }}</h5>
-                        <p class="m-0 small text-muted text-start fw-bold">
+                    <div class="flex-1 min-w-[200px] p-5 rounded-xl border border-slate-200 bg-slate-50 transition-colors hover:bg-slate-100">
+                        <h5 class="text-lg font-extrabold text-slate-800 m-0 mb-3">{{ $quarter->name }}</h5>
+                        <p class="m-0 text-xs font-bold text-slate-500">
                             {{ $quarter->start_date ? \Carbon\Carbon::parse($quarter->start_date)->format('M j') : 'TBD' }} - 
                             {{ $quarter->end_date ? \Carbon\Carbon::parse($quarter->end_date)->format('M j') : 'TBD' }}
                         </p>
                     </div>
                 @endif
             @empty
-                <div class="w-100 text-center py-3 text-muted">No calendar data configured by the administrator yet.</div>
+                <div class="w-full text-center py-4 text-sm font-medium text-slate-500">
+                    No calendar data configured by the administrator yet.
+                </div>
             @endforelse
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="workspace-card h-100">
-                <div class="workspace-header">
-                    <h6 class="fw-bold m-0"><i class="fa fa-user-graduate text-success me-2"></i> My Students</h6>
-                    <a href="{{ route('teacher.students.index') }}" class="btn btn-sm btn-light border fw-bold rounded-pill">View All</a>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <div class="lg:col-span-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col">
+                <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+                    <h6 class="text-base font-extrabold text-slate-800 m-0 flex items-center">
+                        <i class="fa fa-user-graduate text-emerald-500 mr-2"></i> My Students
+                    </h6>
+                    <a href="{{ route('teacher.students.index') }}" class="inline-flex items-center px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-full hover:bg-slate-50 transition-colors shadow-sm">
+                        View All
+                    </a>
                 </div>
-                <div class="d-flex flex-column">
+                
+                <div class="flex-1 overflow-y-auto">
                     @forelse($myStudents ?? [] as $student)
-                        <div class="student-row">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5" 
-                                     style="width: 46px; height: 46px; background: linear-gradient(135deg, var(--t-primary), var(--t-accent)); color: white;">
+                        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between hover:bg-indigo-50/30 transition-all hover:translate-x-1 group last:border-0">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center font-extrabold text-white text-lg bg-gradient-to-br from-indigo-500 to-purple-500 shadow-sm shrink-0">
                                     {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) }}
                                 </div>
                                 <div>
-                                    <h6 class="m-0 fw-bold text-dark">{{ $student->first_name }} {{ $student->last_name }}</h6>
-                                    <p class="m-0 small text-muted"><i class="fa fa-bullseye text-primary me-1"></i> Assigned Student</p>
+                                    <h6 class="m-0 text-sm font-extrabold text-slate-800 group-hover:text-indigo-700 transition-colors">{{ $student->first_name }} {{ $student->last_name }}</h6>
+                                    <p class="m-0 text-[11px] font-bold text-slate-500 mt-0.5"><i class="fa fa-bullseye text-indigo-400 mr-1"></i> Assigned Student</p>
                                 </div>
                             </div>
-                            <a href="{{ route('teacher.daily-logs.index', ['student_id' => $student->id]) }}" class="quick-log-btn text-decoration-none">
-                                <i class="fa fa-pen me-1"></i> Log
+                            <a href="{{ route('teacher.daily-logs.index', ['student_id' => $student->id]) }}" class="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm shrink-0 whitespace-nowrap">
+                                <i class="fa fa-pen mr-1.5"></i> Log
                             </a>
                         </div>
                     @empty
-                        <div class="text-center py-5 text-muted">
-                            <i class="fa fa-user-slash fs-1 mb-3 opacity-50"></i>
-                            <p class="mb-0">No students are currently assigned to your roster.</p>
+                        <div class="text-center py-12 px-6">
+                            <i class="fa fa-user-slash text-4xl text-slate-300 mb-4 block"></i>
+                            <p class="text-sm font-medium text-slate-500 m-0">No students are currently assigned to your roster.</p>
                         </div>
                     @endforelse
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-7">
-            <div class="workspace-card h-100">
-                <div class="workspace-header">
-                    <h6 class="fw-bold m-0"><i class="fa fa-bullseye text-purple me-2"></i> IEP Goal Progress (Quick View)</h6>
+        <div class="lg:col-span-7">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col min-h-[400px]">
+                <div class="px-6 py-5 border-b border-slate-100 bg-white shrink-0">
+                    <h6 class="text-base font-extrabold text-slate-800 m-0 flex items-center">
+                        <i class="fa fa-bullseye text-purple-500 mr-2"></i> IEP Goal Progress (Quick View)
+                    </h6>
                 </div>
                 
-                <div class="p-4 h-100 d-flex flex-column align-items-center justify-content-center text-center">
-                    <div class="p-5 w-100 rounded-4" style="background: #F8FAFC; border: 2px dashed var(--t-border);">
-                        <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 70px; height: 70px; background: var(--t-primary-light); color: var(--t-primary);">
-                            <i class="fa fa-bullseye fs-1"></i>
+                <div class="flex-1 p-6 flex items-center justify-center text-center">
+                    <div class="w-full h-full rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center p-8">
+                        <div class="w-20 h-20 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-5">
+                            <i class="fa fa-bullseye text-4xl"></i>
                         </div>
-                        <h5 class="fw-bold text-dark">Track Your Students' Milestones</h5>
-                        <p class="text-muted small mb-4 px-3">Assign IEP goals to your students to see their progress bars automatically populate here.</p>
-                        <a href="{{ route('teacher.iep-goals.index') }}" class="btn fw-bold px-4" style="background: var(--t-primary); color: white; border-radius: 8px;">
+                        <h5 class="text-xl font-extrabold text-slate-800 mb-2 m-0">Track Your Students' Milestones</h5>
+                        <p class="text-sm font-medium text-slate-500 mb-6 max-w-md">Assign IEP goals to your students to see their progress bars automatically populate here.</p>
+                        <a href="{{ route('teacher.iep-goals.index') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
                             Manage IEP Goals
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
+@endsection
+
+@push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const counters = document.querySelectorAll('.counter');
@@ -288,5 +181,4 @@
         });
     });
 </script>
-
-@endsection
+@endpush
