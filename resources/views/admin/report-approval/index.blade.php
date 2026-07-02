@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
+<div class="font-['Inter'] bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
@@ -30,11 +30,11 @@
         </div>
     @endif
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden">
         
-        <div class="p-6 border-b border-slate-100 flex items-center bg-white">
+        <div class="p-6 border-b border-slate-200 flex items-center bg-white">
             <h3 class="text-lg font-extrabold text-slate-800 m-0 flex items-center">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 mr-3 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 mr-3 shadow-sm border border-emerald-100">
                     <i class="fa fa-file-circle-check"></i>
                 </div>
                 Pending Reports for Approval
@@ -43,7 +43,7 @@
         
         <div class="overflow-x-auto w-full">
             <table class="w-full text-left border-collapse whitespace-nowrap">
-                <thead class="bg-slate-50 border-b border-slate-200">
+                <thead class="bg-slate-50 border-b border-slate-300">
                     <tr>
                         <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider">Student</th>
                         <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider">Report Type</th>
@@ -52,7 +52,7 @@
                         <th scope="col" class="px-6 py-4 text-right text-xs font-extrabold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 bg-white">
+                <tbody class="divide-y divide-slate-200 bg-white">
                     @forelse($pendingReports as $report)
                         <tr class="hover:bg-slate-50 transition-colors duration-150">
                             
@@ -80,7 +80,7 @@
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
                                     
-                                    <a href="{{ route('admin.report-approval.show', $report->id) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-indigo-200 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 text-decoration-none">
+                                    <a href="{{ route('admin.report-approval.show', $report->id) }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-indigo-200 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 text-decoration-none hover:border-indigo-300">
                                         <i class="fa fa-eye mr-1.5"></i> View
                                     </a>
 

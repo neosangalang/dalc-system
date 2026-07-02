@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
+<div class="font-['Inter'] bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
@@ -25,13 +25,13 @@
         <p class="text-slate-500 text-sm font-medium m-0">Set the start and end dates for each quarter. These dates will automatically appear on the Teacher Dashboard.</p>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden">
         <form action="{{ route('admin.quarters.update') }}" method="POST" class="m-0">
             @csrf
 
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
-                    <thead class="bg-slate-50 border-b border-slate-200">
+                    <thead class="bg-slate-50 border-b border-slate-300">
                         <tr>
                             <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider w-[15%]">Quarter</th>
                             <th scope="col" class="px-6 py-4 text-xs font-extrabold text-slate-500 uppercase tracking-wider w-[30%]">Start Date</th>
@@ -39,7 +39,7 @@
                             <th scope="col" class="px-6 py-4 text-center text-xs font-extrabold text-slate-500 uppercase tracking-wider w-[25%]">Current Active Quarter</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
+                    <tbody class="divide-y divide-slate-200 bg-white">
                         @foreach($quarters as $quarter)
                             <tr class="hover:bg-slate-50/50 transition-colors duration-150 {{ $quarter->is_active ? 'bg-indigo-50/30' : '' }}">
                                 
@@ -53,14 +53,14 @@
                                     <input type="date" 
                                            name="quarters[{{ $quarter->id }}][start_date]" 
                                            value="{{ $quarter->start_date }}"
-                                           class="w-full max-w-[200px] rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-white cursor-pointer transition-colors">
+                                           class="w-full max-w-[200px] rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-white cursor-pointer transition-colors">
                                 </td>
                                 
                                 <td class="px-6 py-5">
                                     <input type="date" 
                                            name="quarters[{{ $quarter->id }}][end_date]" 
                                            value="{{ $quarter->end_date }}"
-                                           class="w-full max-w-[200px] rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-white cursor-pointer transition-colors">
+                                           class="w-full max-w-[200px] rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-white cursor-pointer transition-colors">
                                 </td>
                                 
                                 <td class="px-6 py-5 text-center">
@@ -80,7 +80,7 @@
                 </table>
             </div>
 
-            <div class="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end">
+            <div class="px-6 py-5 bg-slate-50 border-t border-slate-200 flex justify-end">
                 <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 hover:-translate-y-0.5">
                     <i class="fa fa-save mr-2"></i> Save Calendar Settings
                 </button>

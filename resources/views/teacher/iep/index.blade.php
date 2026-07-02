@@ -8,7 +8,7 @@
     [x-cloak] { display: none !important; }
 </style>
 
-<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block" 
+<div class="font-['Inter'] bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block" 
      x-data="{ 
         showAddModal: false, 
         activeAccordion: null, 
@@ -30,7 +30,7 @@
     <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
         <div>
             <h4 class="text-2xl font-extrabold text-slate-800 m-0 flex items-center">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 mr-3 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 mr-3 shadow-sm">
                     <i class="fa fa-bullseye"></i>
                 </div>
                 IEP & Goal Management
@@ -39,7 +39,7 @@
         </div>
         
         <div class="flex items-center gap-3 w-full sm:w-auto">
-            <div class="relative w-full sm:w-64 shadow-sm rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
+            <div class="relative w-full sm:w-64 shadow-sm rounded-xl overflow-hidden border border-slate-300 bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
                     <i class="fa fa-search"></i>
                 </span>
@@ -52,21 +52,21 @@
         </div>
     </div>
 
-    <div class="space-y-4" id="iepAccordion">
+    <div class="space-y-6" id="iepAccordion">
         @forelse($myStudents as $student)
             @php
                 $studentGoals = $goals->where('student_id', $student->id);
                 $activeCount = $studentGoals->where('status', 'in_progress')->count();
             @endphp
             
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200 student-accordion-item" data-student-name="{{ strtolower($student->first_name . ' ' . $student->last_name) }}">
+            <div class="bg-white rounded-2xl border border-slate-300 shadow-md overflow-hidden transition-all duration-200 student-accordion-item" data-student-name="{{ strtolower($student->first_name . ' ' . $student->last_name) }}">
                 
                 <button @click="activeAccordion = activeAccordion === {{ $student->id }} ? null : {{ $student->id }}" 
                         class="w-full px-6 py-5 flex flex-wrap sm:flex-nowrap items-center justify-between text-left transition-colors focus:outline-none"
-                        :class="activeAccordion === {{ $student->id }} ? 'bg-slate-50/50 border-b border-slate-100 shadow-inner' : 'hover:bg-slate-50/30'">
+                        :class="activeAccordion === {{ $student->id }} ? 'bg-slate-50/50 border-b border-slate-300 shadow-sm' : 'hover:bg-slate-50/30'">
                     
                     <div class="flex items-center gap-4 mb-3 sm:mb-0">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-extrabold text-lg shadow-sm bg-gradient-to-br from-indigo-500 to-purple-500 shrink-0">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-extrabold text-lg shadow-sm bg-gradient-to-br from-indigo-500 to-purple-500 border-2 border-indigo-100 shrink-0">
                             {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) }}
                         </div>
                         <div>
@@ -78,7 +78,7 @@
                     <div class="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
                         <span class="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 text-[11px] font-extrabold uppercase tracking-wider shadow-sm">{{ $studentGoals->count() }} Total Goals</span>
                         @if($activeCount > 0)
-                            <span class="px-3.5 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 text-[11px] font-extrabold uppercase tracking-wider shadow-sm"><i class="fa fa-spinner fa-spin mr-1"></i> {{ $activeCount }} In Progress</span>
+                            <span class="px-3.5 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-extrabold uppercase tracking-wider shadow-sm"><i class="fa fa-spinner fa-spin mr-1"></i> {{ $activeCount }} In Progress</span>
                         @endif
                         <i class="fa fa-chevron-down text-slate-400 transition-transform ml-2 hidden sm:block" :class="activeAccordion === {{ $student->id }} ? 'rotate-180' : ''"></i>
                     </div>
@@ -90,7 +90,7 @@
                         @if($studentGoals->count() > 0)
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse whitespace-nowrap">
-                                    <thead class="bg-slate-50 border-b border-slate-200">
+                                    <thead class="bg-slate-50 border-b border-slate-300">
                                         <tr>
                                             <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Domain</th>
                                             <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Goal Objective</th>
@@ -99,21 +99,21 @@
                                             <th scope="col" class="px-6 py-3 text-right text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-slate-100 bg-white">
+                                    <tbody class="divide-y divide-slate-200 bg-white">
                                         @foreach($studentGoals as $goal)
                                             <tr class="hover:bg-slate-50/50 transition-colors">
                                                 <td class="px-6 py-4">
                                                     @php
                                                         $badgeClass = match($goal->domain) {
-                                                            'Language-Communication' => 'bg-indigo-50 text-indigo-700 border-indigo-100',
-                                                            'Self-Help'              => 'bg-emerald-50 text-emerald-700 border-emerald-100',
-                                                            'Perceptuo-Cognitive'    => 'bg-purple-50 text-purple-700 border-purple-100',
-                                                            'Socio-Emotional'        => 'bg-amber-50 text-amber-700 border-amber-100',
-                                                            'Psychomotor'            => 'bg-rose-50 text-rose-700 border-rose-100',
-                                                            default                  => 'bg-slate-50 text-slate-700 border-slate-100',
+                                                            'Language-Communication' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                                                            'Self-Help'              => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                                            'Perceptuo-Cognitive'    => 'bg-purple-50 text-purple-700 border-purple-200',
+                                                            'Socio-Emotional'        => 'bg-amber-50 text-amber-700 border-amber-200',
+                                                            'Psychomotor'            => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                            default                  => 'bg-slate-50 text-slate-700 border-slate-200',
                                                         };
                                                     @endphp
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border {{ $badgeClass }}">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border shadow-sm {{ $badgeClass }}">
                                                         {{ str_replace('-', ' - ', $goal->domain) }}
                                                     </span>
                                                 </td>
@@ -122,7 +122,7 @@
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     <div class="min-w-[120px]">
-                                                        <div class="w-full h-1.5 bg-slate-200 rounded-full mb-1.5 overflow-hidden">
+                                                        <div class="w-full h-2 bg-slate-200 rounded-full mb-1.5 overflow-hidden shadow-inner">
                                                             <div class="h-full rounded-full {{ $goal->progress_percentage == 100 ? 'bg-emerald-500' : 'bg-indigo-500' }}" style="width: {{ $goal->progress_percentage }}%;"></div>
                                                         </div>
                                                         <p class="text-[10px] font-extrabold m-0 tracking-wider {{ $goal->progress_percentage == 100 ? 'text-emerald-600' : 'text-indigo-600' }}">
@@ -132,20 +132,20 @@
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     @if($goal->status === 'in_progress')
-                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800 uppercase tracking-widest">In Progress</span>
+                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800 uppercase tracking-widest border border-amber-200">In Progress</span>
                                                     @else
-                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-emerald-100 text-emerald-800 uppercase tracking-widest">Achieved</span>
+                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-emerald-100 text-emerald-800 uppercase tracking-widest border border-emerald-200">Achieved</span>
                                                     @endif
                                                 </td>
                                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                                     <div class="flex justify-end gap-2">
-                                                        <button @click="activeEditModal = {{ $goal->id }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm">
+                                                        <button @click="activeEditModal = {{ $goal->id }}" class="inline-flex items-center px-3 py-1.5 bg-white border border-slate-300 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm hover:border-indigo-300">
                                                             <i class="fa fa-edit mr-1.5"></i> Edit
                                                         </button>
                                                         <form action="{{ route('teacher.iep-goals.destroy', $goal->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this goal? This cannot be undone.');" class="m-0">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 bg-white border border-rose-200 text-rose-500 rounded-lg hover:bg-rose-50 transition-colors shadow-sm">
+                                                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 bg-white border border-rose-300 text-rose-500 rounded-lg hover:bg-rose-50 transition-colors shadow-sm">
                                                                 <i class="fa fa-trash text-xs"></i>
                                                             </button>
                                                         </form>
@@ -157,11 +157,11 @@
                                                 <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                                                     <div x-show="activeEditModal === {{ $goal->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="activeEditModal = null"></div>
                                                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-slate-200">
+                                                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-slate-300">
                                                         <form action="{{ route('teacher.iep-goals.update', $goal->id) }}" method="POST" class="m-0">
                                                             @csrf
                                                             @method('PUT')
-                                                            <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                                                            <div class="px-6 py-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                                                                 <h5 class="text-lg font-extrabold text-slate-800 m-0">Track IEP Progress for {{ $student->first_name }}</h5>
                                                                 <button type="button" @click="activeEditModal = null" class="text-slate-400 hover:text-slate-600"><i class="fa fa-times text-xl"></i></button>
                                                             </div>
@@ -173,29 +173,29 @@
                                                                             <i class="fa fa-pen mr-1"></i> Edit Text
                                                                         </button>
                                                                     </div>
-                                                                    <div class="visual-checklist p-4 border border-slate-200 rounded-xl bg-white shadow-inner max-h-[300px] overflow-y-auto text-sm text-slate-700"></div>
-                                                                    <textarea name="goal_description" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-slate-50 goal-raw-text hidden mt-3" rows="6" required>{{ $goal->goal_description }}</textarea>
+                                                                    <div class="visual-checklist p-4 border border-slate-300 rounded-xl bg-white shadow-inner max-h-[300px] overflow-y-auto text-sm text-slate-700"></div>
+                                                                    <textarea name="goal_description" class="w-full rounded-xl border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-slate-50 goal-raw-text hidden mt-3" rows="6" required>{{ $goal->goal_description }}</textarea>
                                                                 </div>
                                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                                                                     <div>
                                                                         <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Calculated Progress (%)</label>
-                                                                        <input type="number" name="progress_percentage" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-progress-input" min="0" max="100" value="{{ $goal->progress_percentage }}" required>
+                                                                        <input type="number" name="progress_percentage" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-progress-input" min="0" max="100" value="{{ $goal->progress_percentage }}" required>
                                                                     </div>
                                                                     <div>
                                                                         <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Status</label>
-                                                                        <select name="status" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-status-select" required>
+                                                                        <select name="status" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-status-select" required>
                                                                             <option value="in_progress" {{ $goal->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
                                                                             <option value="achieved" {{ $goal->status == 'achieved' ? 'selected' : '' }}>Achieved</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="px-6 py-5 bg-white border-t border-slate-100 flex justify-end gap-3">
-                                                                <button type="button" @click="activeEditModal = null" class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50">Cancel</button>
+                                                            <div class="px-6 py-5 bg-white border-t border-slate-200 flex justify-end gap-3">
+                                                                <button type="button" @click="activeEditModal = null" class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm">Cancel</button>
                                                                 <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
                                                             </div>
                                                         </form>
-                                                        <div class="px-6 pb-6 bg-slate-50 border-t border-dashed border-slate-200 pt-6">
+                                                        <div class="px-6 pb-6 bg-slate-50 border-t border-dashed border-slate-300 pt-6">
                                                             @include('components.comment-thread', ['item' => $goal])
                                                         </div>
                                                     </div>
@@ -207,12 +207,12 @@
                             </div>
                         @else
                             <div class="text-center py-12 px-6 bg-slate-50">
-                                <div class="w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center mx-auto mb-4">
+                                <div class="w-16 h-16 rounded-full bg-white border border-slate-300 shadow-sm flex items-center justify-center mx-auto mb-4">
                                     <i class="fa fa-clipboard-list text-2xl text-slate-300"></i>
                                 </div>
                                 <h6 class="text-base font-extrabold text-slate-800 mb-1 m-0">No Active Goals</h6>
                                 <p class="text-sm font-medium text-slate-500 mb-5 m-0">There are currently no IEP goals assigned to {{ $student->first_name }}.</p>
-                                <button type="button" @click="activeAccordion = null; showAddModal = true; setTimeout(() => { $refs.studentSelect.value = '{{ $student->id }}'; }, 100);" class="inline-flex items-center px-4 py-2 bg-white border border-indigo-200 text-indigo-600 text-sm font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm">
+                                <button type="button" @click="activeAccordion = null; showAddModal = true; setTimeout(() => { $refs.studentSelect.value = '{{ $student->id }}'; }, 100);" class="inline-flex items-center px-4 py-2 bg-white border border-indigo-300 text-indigo-600 text-sm font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm">
                                     <i class="fa fa-plus mr-1.5"></i> Create First Goal
                                 </button>
                             </div>
@@ -222,7 +222,7 @@
                 </div>
             </div>
         @empty
-            <div class="text-center py-16 px-6 bg-white rounded-2xl shadow-sm border border-slate-200">
+            <div class="text-center py-16 px-6 bg-white rounded-2xl shadow-md border border-slate-300">
                 <i class="fa fa-users-slash text-5xl text-slate-300 mb-4 block"></i>
                 <h5 class="text-lg font-extrabold text-slate-800 m-0 mb-1">No Students Found</h5>
                 <p class="text-sm font-medium text-slate-500 m-0">You have no students assigned to your roster yet.</p>
@@ -230,7 +230,7 @@
         @endforelse
     </div>
 
-    <div id="no-search-results" class="text-center py-16 px-6 bg-white rounded-2xl shadow-sm border border-slate-200 mt-4" style="display: none;">
+    <div id="no-search-results" class="text-center py-16 px-6 bg-white rounded-2xl shadow-md border border-slate-300 mt-4" style="display: none;">
         <i class="fa fa-search text-5xl text-slate-300 mb-4 block"></i>
         <h5 class="text-lg font-extrabold text-slate-800 m-0 mb-1">No matches found</h5>
         <p class="text-sm font-medium text-slate-500 m-0">We couldn't find any students matching that name.</p>
@@ -240,10 +240,10 @@
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div x-show="showAddModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showAddModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showAddModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-slate-200">
+            <div x-show="showAddModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-slate-300">
                 <form action="{{ route('teacher.iep-goals.store') }}" method="POST" class="m-0">
                     @csrf
-                    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <div class="px-6 py-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                         <h5 class="text-lg font-extrabold text-slate-800 m-0">Assign New IEP Goal</h5>
                         <button type="button" @click="showAddModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa fa-times text-xl"></i></button>
                     </div>
@@ -251,7 +251,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <div>
                                 <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Select Student</label>
-                                <select x-ref="studentSelect" name="student_id" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                                <select x-ref="studentSelect" name="student_id" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
                                     <option value="" disabled selected>Choose a student...</option>
                                     @foreach($myStudents as $student)
                                         <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
@@ -260,7 +260,7 @@
                             </div>
                             <div>
                                 <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Development Domain</label>
-                                <select id="domain-select" name="domain" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                                <select id="domain-select" name="domain" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
                                     <option value="" disabled selected>Select Domain...</option>
                                     <option value="Perceptuo-Cognitive">Perceptuo - Cognitive</option>
                                     <option value="Socio-Emotional">Socio - Emotional</option>
@@ -271,7 +271,7 @@
                             </div>
                         </div>
 
-                        <div class="p-5 mb-6 bg-slate-50 border border-dashed border-indigo-300 rounded-xl relative overflow-hidden">
+                        <div class="p-5 mb-6 bg-slate-50 border border-dashed border-indigo-300 rounded-xl relative overflow-hidden shadow-inner">
                             <div class="absolute top-0 right-0 p-4 opacity-5">
                                 <i class="fa-solid fa-robot text-8xl text-indigo-900"></i>
                             </div>
@@ -282,25 +282,25 @@
                                 <p class="text-xs font-medium text-slate-500 mb-4 m-0">Input the student's current status to generate Objectives and Activities.</p>
                                 
                                 <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Present Level of Performance</label>
-                                <textarea name="plop" id="ai-present-level" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm mb-3" rows="2" required placeholder="e.g., Can sit for 5-10 minutes but fidgety..."></textarea>
+                                <textarea name="plop" id="ai-present-level" class="w-full rounded-xl border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm mb-3" rows="2" required placeholder="e.g., Can sit for 5-10 minutes but fidgety..."></textarea>
                                 
                                 <button type="button" id="generate-goals-btn" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
                                     <i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities
                                 </button>
 
                                 <div id="ai-results-container" class="mt-4 hidden">
-                                    <hr class="border-indigo-100 my-4">
+                                    <hr class="border-indigo-200 my-4">
                                     <p class="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider mb-3 m-0"><i class="fa-solid fa-check mr-1"></i> Suggested IEP Strategies:</p>
-                                    <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                                    <div class="border border-slate-300 rounded-xl overflow-hidden shadow-sm">
                                         <table class="w-full text-left bg-white whitespace-normal text-sm">
-                                            <thead class="bg-slate-50 border-b border-slate-200">
+                                            <thead class="bg-slate-50 border-b border-slate-300">
                                                 <tr>
                                                     <th class="px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-[40%]">Objective</th>
                                                     <th class="px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-[45%]">Activities</th>
                                                     <th class="px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-[15%] text-center">Action</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="goals-list-tbody" class="divide-y divide-slate-100"></tbody>
+                                            <tbody id="goals-list-tbody" class="divide-y divide-slate-200"></tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -309,11 +309,11 @@
 
                         <div>
                             <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Final Goal Description</label>
-                            <textarea id="final-goal-input" name="goal_description" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" rows="5" required placeholder="The selected Objective and Activities will appear here..."></textarea>
+                            <textarea id="final-goal-input" name="goal_description" class="w-full rounded-xl border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" rows="5" required placeholder="The selected Objective and Activities will appear here..."></textarea>
                         </div>
                     </div>
-                    <div class="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-                        <button type="button" @click="showAddModal = false" class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50">Cancel</button>
+                    <div class="px-6 py-5 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                        <button type="button" @click="showAddModal = false" class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm">Cancel</button>
                         <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
                     </div>
                 </form>
@@ -497,7 +497,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     let text = line.trim().replace('[ ] ', '');
                     html += `
                         <div class="flex items-start gap-3 mb-2 px-3 py-2 rounded hover:bg-slate-50 transition-colors">
-                            <input class="dynamic-checkbox mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4 shrink-0" type="checkbox" data-line="${index}">
+                            <input class="dynamic-checkbox mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4 shrink-0 shadow-sm" type="checkbox" data-line="${index}">
                             <label class="text-sm font-medium text-slate-700 cursor-pointer leading-tight pt-[1px]">${text}</label>
                         </div>`;
                 } 
@@ -506,7 +506,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     checkedBoxes++;
                     let text = line.trim().replace(/\[x\] /i, '');
                     html += `
-                        <div class="flex items-start gap-3 mb-2 px-3 py-2 rounded bg-slate-100 transition-colors">
+                        <div class="flex items-start gap-3 mb-2 px-3 py-2 rounded bg-slate-100 transition-colors border border-slate-200">
                             <input class="dynamic-checkbox mt-0.5 rounded border-emerald-500 bg-emerald-500 text-emerald-500 focus:ring-emerald-500 cursor-pointer w-4 h-4 shrink-0" type="checkbox" data-line="${index}" checked>
                             <label class="text-sm font-medium text-slate-400 line-through cursor-pointer leading-tight pt-[1px]">${text}</label>
                         </div>`;

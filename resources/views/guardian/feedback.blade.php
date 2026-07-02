@@ -18,22 +18,22 @@
     </div>
 
     @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border-[3px] border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
             <div class="flex items-center">
-                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
+                <i class="fa fa-check-circle mr-3 text-emerald-600 text-lg"></i>
                 <span class="font-bold text-sm">{{ session('success') }}</span>
             </div>
-            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
+            <button @click="show = false" type="button" class="text-emerald-600 hover:text-emerald-800 transition-colors">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
     @endif
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[600px]">
+    <div class="bg-white rounded-2xl shadow-sm border-[3px] border-slate-300 overflow-hidden flex flex-col h-[600px]">
         
-        <div class="px-6 py-5 border-b border-slate-100 bg-white shrink-0">
+        <div class="px-6 py-5 border-b-[3px] border-slate-300 bg-white shrink-0">
             <h5 class="font-extrabold text-slate-800 m-0 flex items-center text-lg">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 mr-3 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center text-indigo-600 mr-3 shadow-sm">
                     <i class="fa fa-comments"></i>
                 </div>
                 Conversation History
@@ -46,7 +46,7 @@
             @forelse($comments ?? [] as $comment)
                 <div class="flex flex-col {{ $comment->user->role == 'guardian' ? 'items-end' : 'items-start' }}">
                     
-                    <div class="max-w-[85%] md:max-w-[70%] p-4 shadow-sm {{ $comment->user->role == 'guardian' ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-sm' : 'bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm' }}">
+                    <div class="max-w-[85%] md:max-w-[70%] p-4 shadow-sm border-2 {{ $comment->user->role == 'guardian' ? 'bg-indigo-600 border-indigo-800 text-white rounded-2xl rounded-tr-sm' : 'bg-white border-slate-300 text-slate-700 rounded-2xl rounded-tl-sm' }}">
                         <strong class="text-[11px] tracking-wider uppercase block mb-1.5 {{ $comment->user->role == 'guardian' ? 'text-indigo-200' : 'text-slate-500' }}">
                             {{ $comment->user->name }}
                         </strong>
@@ -55,29 +55,29 @@
                         </p>
                     </div>
                     
-                    <div class="text-[11px] font-bold text-slate-400 mt-2 mx-1">
+                    <div class="text-[11px] font-bold text-slate-500 mt-2 mx-1">
                         {{ $comment->created_at->diffForHumans() }}
                     </div>
                 </div>
             @empty
-                <div class="h-full flex flex-col items-center justify-center text-slate-400">
-                    <i class="fa fa-comment-dots text-6xl mb-4 text-slate-200"></i>
+                <div class="h-full flex flex-col items-center justify-center text-slate-500 border-[3px] border-dashed border-slate-300 rounded-2xl m-2 bg-slate-50/50">
+                    <i class="fa fa-comment-dots text-6xl mb-4 text-slate-300"></i>
                     <p class="font-bold text-sm m-0">No messages yet. Send a message to start the conversation!</p>
                 </div>
             @endforelse
             
         </div>
 
-        <div class="p-4 bg-white border-t border-slate-100 shrink-0">
+        <div class="p-4 bg-white border-t-[3px] border-slate-300 shrink-0">
             <form action="{{ route('guardian.feedback.store') }}" method="POST" class="m-0">
                 @csrf
                 
                 {{-- Ensure this hidden input reflects your dynamic logic if needed --}}
                 <input type="hidden" name="student_id" value="1"> 
 
-                <div class="flex shadow-sm rounded-full overflow-hidden border border-slate-200 bg-slate-50 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
-                    <input type="text" name="body" class="w-full border-0 px-6 py-3 text-sm focus:ring-0 text-slate-700 placeholder:text-slate-400 bg-transparent" placeholder="Type your message here..." required autocomplete="off">
-                    <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold transition-colors shrink-0 focus:outline-none">
+                <div class="flex shadow-sm rounded-full overflow-hidden border-[3px] border-slate-300 bg-slate-50 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition-all">
+                    <input type="text" name="body" class="w-full border-0 px-6 py-3 text-sm focus:ring-0 text-slate-700 placeholder:text-slate-500 bg-transparent" placeholder="Type your message here..." required autocomplete="off">
+                    <button type="submit" class="px-6 py-3 bg-indigo-600 border-l-[3px] border-slate-300 hover:bg-indigo-700 text-white text-sm font-bold transition-colors shrink-0 focus:outline-none">
                         <i class="fa fa-paper-plane mr-1.5"></i> Send
                     </button>
                 </div>

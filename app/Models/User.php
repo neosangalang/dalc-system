@@ -11,16 +11,17 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
 
-   protected $fillable = [
+    protected $fillable = [
         'name',
         'email',
         'password',
         'username',
         'role',
+        'contact_number',      // <-- ADDED THIS: Now Laravel will save the contact number!
         'is_active',
-        'can_edit_students', // <-- Added this
-        'password_changed_at', // ADD THIS LINE!
-        'two_factor_secret',   // ADD THIS LINE TOO!
+        'can_edit_students', 
+        'password_changed_at', 
+        'two_factor_secret',   
         'can_manage_credentials',
         'can_manage_calendar',
         'can_create_profiles',
@@ -34,19 +35,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
-            'can_edit_students' => 'boolean', // <-- Added this
+            'can_edit_students' => 'boolean', 
         ];
     }
 
     
-    // Inside app/Models/User.php
+    // Relationship: A Guardian has many students (Useful if a parent has 2+ children enrolled)
     public function children()
     {
-        // This assumes your students table has a 'guardian_id' column
         return $this->hasMany(Student::class, 'guardian_id');
     }
 
-    // Relationship: A Guardian has one student (or many depending on your business logic, keeping it to one for now based on your blueprint)
+    // Relationship: A Guardian has one student (Fallback/Singular relationship)
     public function guardianStudent()
     {
         return $this->hasOne(Student::class, 'guardian_id');

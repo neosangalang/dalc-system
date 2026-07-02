@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
+<div class="font-['Inter'] bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
@@ -22,11 +22,11 @@
         
         <div class="lg:col-span-7 space-y-6">
             
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden">
                 
-                <div class="px-6 py-5 border-b border-slate-100 flex flex-wrap justify-between items-center bg-white gap-4">
+                <div class="px-6 py-5 border-b border-slate-200 flex flex-wrap justify-between items-center bg-white gap-4">
                     <h3 class="text-lg font-extrabold text-slate-800 m-0 flex items-center">
-                        <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 mr-3 shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 mr-3 shadow-sm border border-purple-100">
                             <i class="fa fa-box-archive"></i>
                         </div>
                         Year-End Archiving
@@ -75,8 +75,8 @@
                 </div>
             </div>
 
-            <div class="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-100 border-l-4 border-l-emerald-500 p-6 flex gap-4">
-                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+            <div class="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-200 border-l-4 border-l-emerald-500 p-6 flex gap-4">
+                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
                     <i class="fa fa-robot text-xl"></i>
                 </div>
                 <div>
@@ -90,15 +90,17 @@
         </div>
         
         <div class="lg:col-span-5">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-full min-h-[500px]">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden h-full min-h-[500px]">
                 
-                <div class="px-6 py-5 border-b border-slate-100 bg-white">
-                    <h3 class="text-lg font-extrabold text-slate-800 m-0">Archived Records</h3>
+                <div class="px-6 py-5 border-b border-slate-200 bg-white">
+                    <h3 class="text-lg font-extrabold text-slate-800 m-0 flex items-center">
+                        <i class="fa fa-folder-open text-indigo-500 mr-2"></i> Archived Records
+                    </h3>
                 </div>
                 
                 <div class="p-6 space-y-4">
                     @forelse($archives as $archive)
-                        <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/30 transition-colors">
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors shadow-sm">
                             <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 mt-1.5 shrink-0 shadow-sm"></div>
                             <div class="flex-1">
                                 <h6 class="font-extrabold text-sm text-slate-800 m-0 mb-1">
@@ -115,7 +117,7 @@
                         </div>
                     @empty
                         <div class="flex flex-col items-center justify-center py-16 text-center">
-                            <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-100">
+                            <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-200">
                                 <i class="fa fa-folder-open text-2xl text-slate-300"></i>
                             </div>
                             <h4 class="text-sm font-extrabold text-slate-700 m-0 mb-1">No archived records found</h4>

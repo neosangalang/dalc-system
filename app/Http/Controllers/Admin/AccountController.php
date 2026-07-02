@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth; 
@@ -14,9 +15,12 @@ class AccountController extends Controller
     public function index() {
         // Grab all users who are either teachers or guardians
         $users = User::whereIn('role', ['teacher', 'guardian'])->get();
+
+        // Grab all students
+        $students = Student::orderBy('last_name')->get();
         
-        // Pass them to the view using the exact name '$users'
-        return view('admin.accounts.index', compact('users'));
+        // Pass them to the view using the exact names '$users' and '$students'
+        return view('admin.accounts.index', compact('users', 'students'));
     }
 
     public function store(Request $request) {
@@ -26,20 +30,22 @@ class AccountController extends Controller
         }
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'username' => 'required|unique:users',
-            'email'    => 'required|email|unique:users',
-            'role'     => 'required|in:teacher,guardian',
-            'password' => 'required|string|min:8|confirmed', // Added 'confirmed' so the two password boxes must match!
+            'name'              => 'required|string|max:255',
+            'username'          => 'required|unique:users',
+            'email'             => 'required|email|unique:users',
+            'contact_number'    => 'required|string|max:20',
+            'role'              => 'required|in:teacher,guardian',
+            'password'          => 'required|string|min:8|confirmed',
         ]);
 
-        User::create([
-            'name'     => $validated['name'],
-            'username' => $validated['username'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role'     => $validated['role'],
-            'is_active'=> true,
+        $user = User::create([
+            'name'           => $validated['name'],
+            'username'       => $validated['username'],
+            'email'          => $validated['email'],
+            'contact_number' => $validated['contact_number'],
+            'password'       => Hash::make($validated['password']),
+            'role'           => $validated['role'],
+            'is_active'      => true,
         ]);
 
         return redirect()->back()
@@ -101,7 +107,7 @@ class AccountController extends Controller
     public function updateCredentials(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $admin = Auth::user(); // The person performing the action
+        $admin = Auth::user(); 
 
         // SECURITY CHECK: Teachers cannot reset passwords for other Teachers
         if ($admin->role === 'teacher' && $user->role === 'teacher') {
@@ -110,43 +116,39 @@ class AccountController extends Controller
 
         // 1. VALIDATE INCOMING DATA (INCLUDING MFA CODE)
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
-            'email'    => 'required|email|max:255|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:8',
-            'mfa_code' => 'required|numeric|digits:6', // Strict 6-digit requirement
+            'username'       => 'required|string|max:255|unique:users,username,' . $id,
+            'email'          => 'required|email|max:255|unique:users,email,' . $id,
+            'contact_number' => 'nullable|string|max:20',
+            'password'       => 'nullable|string|min:8',
+            'mfa_code'       => 'required|numeric|digits:6',
         ]);
 
         // 2. SECURITY CHECK: VERIFY ADMIN'S MFA CODE
         $google2fa = new Google2FA();
         
-        // FIX: Prevent crash if admin hasn't set up 2FA yet
-        if (empty($admin->google2fa_secret)) {
+        // FIXED: Changed to match the column name in your User model
+        if (empty($admin->two_factor_secret)) {
             return back()->withErrors(['mfa_code' => 'Two-Factor Authentication is not configured for your account. Please set it up in your profile first.'])->withInput();
         }
 
         try {
-            // Safe to verify because we know the secret isn't empty
-            $isMfaValid = $google2fa->verifyKey($admin->google2fa_secret, $request->mfa_code);
+            // FIXED: Changed to match the column name in your User model
+            $isMfaValid = $google2fa->verifyKey($admin->two_factor_secret, $request->mfa_code);
         } catch (\Exception $e) {
             return back()->withErrors(['mfa_code' => 'There is a problem with your MFA configuration.'])->withInput();
         }
 
         if (!$isMfaValid) {
-            // Kick them back to the modal with the error and keep what they typed
             return back()->withErrors(['mfa_code' => 'Security verification failed. Invalid Authenticator Code.'])->withInput();
         }
 
         // 3. APPLY CHANGES IF MFA PASSES
         $user->username = $request->username;
         $user->email = $request->email;
+        $user->contact_number = $request->contact_number;
 
-        // Hash the new password securely and attach it to the user if they typed one
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
-            
-            // --- THE MAGIC LINE ---
-            // This tells your middleware to trigger the "Force Password Change" screen
-            // the very next time this user tries to log in.
             $user->password_changed_at = null; 
         }
 

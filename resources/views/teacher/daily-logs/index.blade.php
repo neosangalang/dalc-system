@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
+<div class="font-['Inter'] bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
@@ -33,7 +33,7 @@
 
     <div class="mb-8">
         <h4 class="text-2xl font-extrabold text-slate-800 m-0 flex items-center">
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 mr-3 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mr-3 shadow-sm">
                 <i class="fa fa-pencil-alt"></i>
             </div>
             Daily Logging
@@ -44,8 +44,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         <div class="lg:col-span-5 sticky top-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-5 border-b border-slate-100 bg-white">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-200 bg-white">
                     <h6 class="text-base font-extrabold text-slate-800 m-0 flex items-center">
                         <i class="fa fa-plus-circle text-indigo-600 mr-2"></i> New Daily Log
                     </h6>
@@ -57,7 +57,7 @@
                         
                         <div class="mb-4">
                             <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Student</label>
-                            <select name="student_id" id="student_id" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                            <select name="student_id" id="student_id" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
                                 <option value="" disabled selected>Select a student...</option>
                                 @foreach($myStudents as $student)
                                     <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
@@ -68,11 +68,11 @@
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Date</label>
-                                <input type="date" name="log_date" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" value="{{ date('Y-m-d') }}" required>
+                                <input type="date" name="log_date" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" value="{{ date('Y-m-d') }}" required>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Quarter</label>
-                                <select name="quarter" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
+                                <select name="quarter" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required>
                                     <option value="Q1">Q1</option>
                                     <option value="Q2">Q2</option>
                                     <option value="Q3">Q3</option>
@@ -85,10 +85,10 @@
                             <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center">
                                 <i class="fa fa-camera text-slate-400 mr-1.5"></i> Attach Photo (Optional)
                             </label>
-                            <input type="file" name="photo" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-xl cursor-pointer" accept="image/*">
+                            <input type="file" name="photo" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-300 rounded-xl cursor-pointer shadow-sm" accept="image/*">
                         </div>
 
-                        <hr class="border-slate-100 my-6">
+                        <hr class="border-slate-200 my-6">
 
                         <div class="p-5 mb-5 bg-indigo-50/50 border border-dashed border-indigo-300 rounded-xl relative overflow-hidden">
                             <div class="flex justify-between items-center mb-2">
@@ -96,7 +96,7 @@
                                     <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
                                 </label>
                             </div>
-                            <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-indigo-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm mb-3" rows="3" required placeholder="e.g., he ate snacks, played with blocks, got distracted..."></textarea>
+                            <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-indigo-300 px-4 py-3 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm mb-3" rows="3" required placeholder="e.g., he ate snacks, played with blocks, got distracted..."></textarea>
                             
                             <button type="button" id="generateAiBtn" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
                                 <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally with AI
@@ -111,7 +111,7 @@
                             <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-2 flex items-center">
                                 <i class="fa fa-file-alt text-emerald-500 mr-1.5"></i> 2. Formal Documentation
                             </label>
-                            <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 bg-slate-50 focus:border-emerald-500 focus:ring-emerald-500 shadow-inner" rows="4" required placeholder="The AI-standardized report will appear here..."></textarea>
+                            <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 bg-slate-50 focus:border-emerald-500 focus:ring-emerald-500 shadow-inner" rows="4" required placeholder="The AI-standardized report will appear here..."></textarea>
                         </div>
 
                         <div class="p-5 mb-6 bg-emerald-50/50 border border-dashed border-emerald-300 rounded-xl relative overflow-hidden">
@@ -120,14 +120,14 @@
                                     <i class="fa fa-home mr-1.5"></i> 3. Home Recommendations
                                 </label>
                             </div>
-                            <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-emerald-200 px-4 py-3 text-sm font-medium text-slate-700 focus:border-emerald-500 focus:ring-emerald-500 shadow-sm mb-3" rows="3" placeholder="AI will generate home activities here..."></textarea>
+                            <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-emerald-300 px-4 py-3 text-sm font-medium text-slate-700 focus:border-emerald-500 focus:ring-emerald-500 shadow-sm mb-3" rows="3" placeholder="AI will generate home activities here..."></textarea>
                             
                             <button type="button" id="btnGenerateRecommendations" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-emerald-500 text-white text-sm font-bold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
                                 <i class="fa fa-lightbulb mr-1.5"></i> Generate Home Activities with AI
                             </button>
                         </div>
 
-                        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-slate-800 text-white text-sm font-extrabold rounded-xl hover:bg-slate-900 transition-colors shadow-sm">
+                        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-slate-800 text-white text-sm font-extrabold rounded-xl hover:bg-slate-900 transition-colors shadow-sm border border-slate-700">
                             <i class="fa fa-save mr-2"></i> Save Daily Log
                         </button>
                     </form>
@@ -140,7 +140,7 @@
             <div class="flex flex-wrap justify-between items-end mb-5 gap-3 px-1">
                 <h6 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider m-0">Recent Daily Logs</h6>
                 
-                <div class="relative w-full sm:w-56 shadow-sm rounded-xl overflow-hidden border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
+                <div class="relative w-full sm:w-56 shadow-sm rounded-xl overflow-hidden border border-slate-300 bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
                         <i class="fa fa-search"></i>
                     </span>
@@ -150,21 +150,21 @@
 
             <div id="logs-feed-container" class="space-y-5">
                 @forelse($recentLogs as $log)
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item">
+                    <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden hover:shadow-lg transition-shadow duration-200 log-item">
                         
-                        <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-start bg-white">
+                        <div class="px-5 py-4 border-b border-slate-200 flex justify-between items-start bg-slate-50/50">
                             <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-base shadow-sm bg-gradient-to-br from-indigo-500 to-purple-500 shrink-0">
+                                <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-base shadow-sm bg-gradient-to-br from-indigo-500 to-purple-500 shrink-0 border border-indigo-200">
                                     {{ strtoupper(substr($log->student->first_name, 0, 1)) }}
                                 </div>
                                 <div>
                                     <h6 class="text-sm font-extrabold text-slate-800 m-0">{{ $log->student->first_name }} {{ $log->student->last_name }}</h6>
-                                    <p class="text-xs font-medium text-slate-500 m-0 mt-0.5"><i class="fa fa-calendar-alt mr-1"></i>{{ \Carbon\Carbon::parse($log->log_date)->format('M j, Y') }}</p>
+                                    <p class="text-xs font-medium text-slate-500 m-0 mt-0.5"><i class="fa fa-calendar-alt mr-1 text-slate-400"></i>{{ \Carbon\Carbon::parse($log->log_date)->format('M j, Y') }}</p>
                                 </div>
                             </div>
                             
                             <div class="flex items-center gap-3">
-                                <span class="px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50 text-indigo-600 text-[10px] font-extrabold uppercase">{{ $log->quarter }}</span>
+                                <span class="px-2.5 py-1 rounded-md border border-indigo-200 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold uppercase shadow-sm">{{ $log->quarter }}</span>
                                 
                                 <form action="{{ route('teacher.daily-logs.destroy', $log->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to permanently delete this daily log?');">
                                     @csrf
@@ -176,19 +176,19 @@
                             </div>
                         </div>
 
-                        <div class="p-5 text-sm text-slate-700 leading-relaxed">
+                        <div class="p-5 text-sm text-slate-700 leading-relaxed bg-white">
                             @if($log->image_path)
                                 <div class="mb-4 text-center bg-slate-50 rounded-xl p-3 border border-dashed border-slate-300">
                                     <img src="{{ route('secure.log-photo', $log->id) }}" alt="Activity Photo" class="max-h-48 w-auto mx-auto rounded-lg shadow-sm border border-slate-200">
                                 </div>
                             @endif
 
-                            <div class="whitespace-pre-line">
+                            <div class="whitespace-pre-line font-medium text-[15px]">
                                 {{ $log->notes }}
                             </div>
                             
                             @if($log->home_recommendations)
-                                <div class="mt-5 p-4 rounded-xl bg-emerald-50 border-l-4 border-emerald-500">
+                                <div class="mt-5 p-4 rounded-xl bg-emerald-50 border-l-4 border-emerald-500 border-y border-r border-emerald-100">
                                     <span class="font-extrabold text-emerald-700 text-xs uppercase tracking-wider flex items-center mb-1.5">
                                         <i class="fa fa-check-circle mr-1.5"></i> Home Activities Attached
                                     </span>
@@ -197,19 +197,19 @@
                             @endif
                         </div>
 
-                        <div class="px-5 py-3 bg-slate-50 border-t border-slate-100">
-                            <div class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
-                                <i class="fa fa-comments mr-1.5"></i> Comments
+                        <div class="px-5 py-4 bg-slate-50 border-t border-slate-200">
+                            <div class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-3 flex items-center">
+                                <i class="fa fa-comments mr-1.5 text-indigo-400"></i> Comments
                             </div>
-                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="bg-white p-4 rounded-xl border border-slate-300 shadow-sm">
                                 @include('components.comment-thread', ['item' => $log])
                             </div>
                         </div>
 
                     </div>
                 @empty
-                    <div class="text-center py-16 px-6 bg-white rounded-2xl shadow-sm border border-slate-200">
-                        <div class="w-16 h-16 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+                    <div class="text-center py-16 px-6 bg-white rounded-2xl shadow-md border border-slate-300">
+                        <div class="w-16 h-16 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
                             <i class="fa fa-clipboard text-2xl"></i>
                         </div>
                         <h6 class="text-base font-extrabold text-slate-800 m-0 mb-1">No Logs Yet</h6>
