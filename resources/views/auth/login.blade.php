@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Login - Dream Achievers Learning Center</title>
@@ -16,60 +16,64 @@
 </head>
 <body class="font-['Nunito'] antialiased text-gray-900">
 
-    <div class="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5]">
+    <div class="min-h-[100dvh] flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5] p-4 sm:p-0">
         
-        <div class="bg-white rounded-[24px] px-11 py-12 w-full max-w-[440px] shadow-[0_24px_64px_rgba(0,0,0,0.25)] relative z-10 m-4">
+        <!-- REDUCED: max-w-[380px] (was 440px), tighter padding (px-6 py-8 across all devices), slightly smaller border radius -->
+        <div class="bg-white rounded-[20px] px-10 py-6 w-full max-w-[390px] shadow-[0_24px_64px_rgba(0,0,0,0.25)] relative z-10">
             
-            <div class="w-32 h-32 mx-auto mb-1 flex items-center justify-center">
+            <!-- REDUCED: Logo size scaled down -->
+            <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
                 <img src="/image/logo.png" alt="DALC Logo" class="w-full h-full object-contain drop-shadow-sm">
             </div>
 
-            <h1 class="text-[22px] font-[800] text-[#1A1F4B] mb-6 text-center leading-[1.3]">
+            <!-- REDUCED: Font size and margin -->
+            <h1 class="text-[18px] font-[800] text-[#1A1F4B] mb-5 text-center leading-[1.3]">
                 Dream Achievers<br>Learning Center PH
             </h1>
             
-
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
                 @if ($errors->any())
-                    <div class="bg-red-50 border border-red-200 text-red-600 text-[13px] py-2 px-3 rounded-[10px] mb-4 font-medium flex items-start gap-2">
+                    <div class="bg-red-50 border border-red-200 text-red-600 text-[12px] py-2 px-3 rounded-lg mb-4 font-medium flex items-start gap-2">
                         <span class="mt-0.5">❌</span>
                         <span>{{ $errors->first() }}</span>
                     </div>
                 @endif
 
                 <div class="mb-3">
-                    <label class="block font-bold text-[13px] text-[#1A1F4B] mb-1.5">Username</label>
+                    <label class="block font-bold text-[12px] text-[#1A1F4B] mb-1">Username</label>
+                    <!-- REDUCED: Input padding (py-2.5) and text size -->
                     <input type="text" name="username" required autofocus placeholder="Enter your username"
-                        class="w-full border-2 border-[#E8ECF8] rounded-xl px-4 py-3 text-[14px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
+                        class="w-full border-2 border-[#E8ECF8] rounded-xl px-3.5 py-2.5 text-[13px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block font-bold text-[13px] text-[#1A1F4B] mb-1.5">Password</label>
+                    <label class="block font-bold text-[12px] text-[#1A1F4B] mb-1">Password</label>
                     <input type="password" name="password" required placeholder="Enter your password"
-                        class="w-full border-2 border-[#E8ECF8] rounded-xl px-4 py-3 text-[14px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
+                        class="w-full border-2 border-[#E8ECF8] rounded-xl px-3.5 py-2.5 text-[13px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
                 </div>
 
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-center mb-5">
                     <div class="flex items-center gap-2">
                         <input type="checkbox" name="remember" id="remember_me" 
                             class="w-4 h-4 text-[#4F6AF5] border-[#E8ECF8] rounded focus:ring-[#4F6AF5]">
-                        <label for="remember_me" class="text-[13px] text-[#7B8DB7] cursor-pointer">
+                        <label for="remember_me" class="text-[12px] text-[#7B8DB7] cursor-pointer">
                             Remember me
                         </label>
                     </div>
 
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-[#4F6AF5] text-[13px] font-bold no-underline hover:underline transition-all">
+                        <a href="{{ route('password.request') }}" class="text-[#4F6AF5] text-[12px] font-bold no-underline hover:underline transition-all">
                             Forgot password?
                         </a>
                     @endif
                 </div>
 
+                <!-- REDUCED: Button padding and text size -->
                 <button type="submit" 
-                    class="w-full bg-gradient-to-br from-[#4F6AF5] to-[#3751D7] text-white rounded-xl py-[13px] px-6 font-bold text-[15px] shadow-[0_4px_16px_rgba(79,106,245,0.3)] transition-all duration-200 hover:shadow-[0_6px_20px_rgba(79,106,245,0.4)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                    <i class="fa fa-sign-in-alt"></i> Sign In
+                    class="w-full bg-gradient-to-br from-[#4F6AF5] to-[#3751D7] text-white rounded-xl py-2.5 px-6 font-bold text-[14px] shadow-[0_4px_16px_rgba(79,106,245,0.3)] transition-all duration-200 hover:shadow-[0_6px_20px_rgba(79,106,245,0.4)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                    <i class="fa fa-sign-in-alt text-[13px]"></i> Sign In
                 </button>
             </form>
         </div>

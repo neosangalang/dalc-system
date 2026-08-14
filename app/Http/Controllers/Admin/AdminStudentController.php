@@ -21,17 +21,16 @@ class AdminStudentController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'first_name'        => 'required|string|max:255',
-            'last_name'         => 'required|string|max:255',
-            'class_name'        => 'required|string|max:255',
-            'date_of_birth'     => 'required|date',
-            'gender'            => 'required|in:Male,Female',
-            'diagnosis'         => 'required|string',
-            'teacher_id'        => 'required|exists:users,id',
-            'medical_document'  => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-
-            // Guardians are created separately (User Management) and optionally linked here
-            'guardian_id'       => 'nullable|exists:users,id',
+            'first_name'                => 'required|string|max:255',
+            'last_name'                 => 'required|string|max:255',
+            'learners_reference_number' => 'nullable|string|max:255', // <-- Added LRN Validation
+            'class_name'                => 'nullable|string|max:255',
+            'date_of_birth'             => 'nullable|date',
+            'gender'                    => 'required|in:Male,Female',
+            'diagnosis'                 => 'required|string',
+            'teacher_id'                => 'nullable|exists:users,id',
+            'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'guardian_id'               => 'nullable|exists:users,id', // Uses dropdown from User Management
         ]);
 
         DB::transaction(function () use ($request) {
@@ -41,16 +40,17 @@ class AdminStudentController extends Controller
             }
 
             Student::create([
-                'first_name'        => $request->first_name,
-                'last_name'         => $request->last_name,
-                'class_name'        => $request->class_name,
-                'date_of_birth'     => $request->date_of_birth,
-                'gender'            => $request->gender,
-                'diagnosis'         => $request->diagnosis,
-                'medical_document'  => $medicalDocPath,
-                'teacher_id'        => $request->teacher_id,
-                'guardian_id'       => $request->guardian_id ?: null,
-                'status'            => 'active',
+                'first_name'                => $request->first_name,
+                'last_name'                 => $request->last_name,
+                'learners_reference_number' => $request->learners_reference_number, // <-- Saves LRN to DB
+                'class_name'                => $request->class_name,
+                'date_of_birth'             => $request->date_of_birth,
+                'gender'                    => $request->gender,
+                'diagnosis'                 => $request->diagnosis,
+                'medical_document'          => $medicalDocPath,
+                'teacher_id'                => $request->teacher_id,
+                'guardian_id'               => $request->guardian_id ?: null,
+                'status'                    => 'active',
             ]);
         });
 
@@ -61,28 +61,24 @@ class AdminStudentController extends Controller
         $student = Student::findOrFail($id);
 
         $request->validate([
-            'first_name'        => 'required|string|max:255',
-            'last_name'         => 'required|string|max:255',
-            'class_name'        => 'required|string|max:255',
-            'date_of_birth'     => 'nullable|date',
-            'gender'            => 'required|in:Male,Female',
-            'diagnosis'         => 'nullable|string',
-            'teacher_id'        => 'nullable|exists:users,id',
-            'status'            => 'required|in:active,archived',
-            'medical_document'  => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-
-            // Matches the hidden input in the Edit modal: <input name="guardian_action" value="update">
-            'guardian_action'   => 'required|in:create,update',
-
-            'guardian_name'     => 'nullable|string|max:255',
-            'guardian_email'    => 'nullable|email|max:255',
-            'guardian_phone'    => 'nullable|string|max:50',
+            'first_name'                => 'required|string|max:255',
+            'last_name'                 => 'required|string|max:255',
+            'learners_reference_number' => 'nullable|string|max:255', // <-- Added LRN Validation
+            'class_name'                => 'nullable|string|max:255',
+            'date_of_birth'             => 'nullable|date',
+            'gender'                    => 'required|in:Male,Female',
+            'diagnosis'                 => 'nullable|string',
+            'teacher_id'                => 'nullable|exists:users,id',
+            'guardian_id'               => 'nullable|exists:users,id', // <-- Added Guardian ID validation
+            'status'                    => 'required|in:active,archived',
+            'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         DB::transaction(function () use ($request, $student) {
+            // Include LRN and Guardian ID in the fields that are allowed to be updated
             $data = $request->only([
-                'first_name', 'last_name', 'class_name', 'date_of_birth',
-                'gender', 'diagnosis', 'teacher_id', 'status',
+                'first_name', 'last_name', 'learners_reference_number', 'class_name', 'date_of_birth',
+                'gender', 'diagnosis', 'teacher_id', 'guardian_id', 'status',
             ]);
 
             if ($request->hasFile('medical_document')) {
@@ -93,15 +89,7 @@ class AdminStudentController extends Controller
             }
 
             $student->update($data);
-
-            // Update the linked guardian's info if the edit form included guardian fields
-            if ($student->guardian && $request->filled('guardian_name')) {
-                $student->guardian->update([
-                    'name'  => $request->guardian_name,
-                    'email' => $request->guardian_email ?: $student->guardian->email,
-                    'phone' => $request->guardian_phone,
-                ]);
-            }
+            // Note: Old manual guardian update logic removed because Guardian linking is now just an ID dropdown!
         });
 
         return redirect()->back()->with('success', 'Student profile updated successfully!');
