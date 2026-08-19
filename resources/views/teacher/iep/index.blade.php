@@ -6,6 +6,11 @@
 
 <style>
     [x-cloak] { display: none !important; }
+    /* Custom scrollbar for the text areas */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 
 <div class="font-['Inter'] bg-slate-50 min-h-[100dvh] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block" 
@@ -52,6 +57,7 @@
         </div>
     </div>
 
+    <!-- ACCORDION SECTION -->
     <div class="space-y-4 sm:space-y-6" id="iepAccordion">
         @forelse($myStudents as $student)
             @php
@@ -92,18 +98,18 @@
                                 <table class="w-full text-left border-collapse block sm:table whitespace-normal sm:whitespace-nowrap">
                                     <thead class="hidden sm:table-header-group bg-slate-50 border-b border-slate-300">
                                         <tr>
-                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Domain</th>
-                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Goal Objective</th>
-                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Progress</th>
+                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-1/5">Domain</th>
+                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-2/5">Goal Objective</th>
+                                            <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-1/5">Progress</th>
                                             <th scope="col" class="px-6 py-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
                                             <th scope="col" class="px-6 py-3 text-right text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="block sm:table-row-group space-y-4 sm:space-y-0 divide-y-0 sm:divide-y divide-slate-200 bg-transparent sm:bg-white">
                                         @foreach($studentGoals as $goal)
-                                            <tr class="block sm:table-row bg-white sm:bg-transparent rounded-2xl sm:rounded-none border border-slate-200 sm:border-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors">
+                                            <tr class="block sm:table-row bg-white sm:bg-transparent rounded-[16px] sm:rounded-none border border-slate-200 sm:border-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors">
                                                 
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none">
+                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none align-top">
                                                     <span class="sm:hidden block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">Domain</span>
                                                     @php
                                                         $badgeClass = match($goal->domain) {
@@ -120,12 +126,14 @@
                                                     </span>
                                                 </td>
                                                 
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none text-[13px] font-medium text-slate-700 sm:max-w-[250px] whitespace-normal sm:whitespace-nowrap sm:truncate" title="{{ $goal->goal_description }}">
-                                                    <span class="sm:hidden block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">Goal Description</span>
-                                                    {{ $goal->goal_description }}
+                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none align-top">
+                                                    <span class="sm:hidden block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">Goal Description</span>
+                                                    <div class="text-[13px] font-medium text-slate-700 whitespace-pre-line max-h-[180px] sm:max-h-[140px] overflow-y-auto pr-2 bg-slate-50/50 sm:bg-transparent p-3 sm:p-0 rounded-lg sm:rounded-none border border-slate-100 sm:border-none leading-relaxed custom-scrollbar" title="Goal Description">
+                                                        {{ $goal->goal_description }}
+                                                    </div>
                                                 </td>
                                                 
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none">
+                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none align-top pt-5 sm:pt-4">
                                                     <span class="sm:hidden block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">Progress</span>
                                                     <div class="min-w-[120px]">
                                                         <div class="w-full h-2 bg-slate-200 rounded-full mb-1.5 overflow-hidden shadow-inner">
@@ -137,7 +145,7 @@
                                                     </div>
                                                 </td>
                                                 
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none">
+                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 sm:border-none align-top pt-5 sm:pt-4">
                                                     <span class="sm:hidden block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">Status</span>
                                                     @if($goal->status === 'in_progress')
                                                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800 uppercase tracking-widest border border-amber-200">In Progress</span>
@@ -146,7 +154,7 @@
                                                     @endif
                                                 </td>
                                                 
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 bg-slate-50 sm:bg-transparent rounded-b-2xl sm:rounded-none">
+                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-4 bg-slate-50 sm:bg-transparent rounded-b-2xl sm:rounded-none align-top pt-5 sm:pt-4">
                                                     <div class="flex justify-end gap-2 w-full sm:w-auto">
                                                         <button @click="activeEditModal = {{ $goal->id }}" class="flex-1 sm:flex-none inline-flex justify-center items-center px-3 py-2 sm:py-1.5 bg-white border border-slate-300 text-indigo-600 text-[12px] sm:text-xs font-bold rounded-lg hover:bg-indigo-50 transition-colors shadow-sm hover:border-indigo-300">
                                                             <i class="fa fa-edit mr-1.5"></i> Edit / Track
@@ -161,64 +169,6 @@
                                                     </div>
                                                 </td>
                                             </tr>
-
-                                            <!-- EDIT GOAL MODAL (Increased Space) -->
-                                            <div x-show="activeEditModal === {{ $goal->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="activeEditModal = null"></div>
-                                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border border-slate-300 relative z-10">
-                                                        <form action="{{ route('teacher.iep-goals.update', $goal->id) }}" method="POST" class="m-0 flex flex-col h-[90vh] sm:h-auto sm:max-h-[85vh]">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            
-                                                            <div class="px-5 sm:px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
-                                                                <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 leading-tight">Track Progress: {{ $student->first_name }}</h5>
-                                                                <button type="button" @click="activeEditModal = null" class="text-slate-400 hover:text-slate-600 ml-4"><i class="fa fa-times text-xl"></i></button>
-                                                            </div>
-                                                            
-                                                            <!-- Added flex-1 and overflow-y-auto here so the body scrolls but headers/footers stay pinned -->
-                                                            <div class="p-5 sm:p-6 flex-1 overflow-y-auto custom-scrollbar bg-white">
-                                                                <div class="mb-5 interactive-checklist-container">
-                                                                    <div class="flex justify-between items-center mb-2">
-                                                                        <label class="block text-[12px] sm:text-[13px] font-extrabold text-slate-700 uppercase tracking-wider m-0">Interactive Activity Tracker</label>
-                                                                        <button type="button" class="text-indigo-600 hover:text-indigo-800 text-[11px] font-bold transition-colors toggle-raw-text-btn flex items-center bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
-                                                                            <i class="fa fa-pen mr-1"></i> Edit Text
-                                                                        </button>
-                                                                    </div>
-                                                                    <!-- Increased max height for better visibility -->
-                                                                    <div class="visual-checklist p-4 border border-slate-300 rounded-xl bg-white shadow-inner max-h-[400px] overflow-y-auto text-[13px] sm:text-sm text-slate-700 custom-scrollbar"></div>
-                                                                    <!-- Increased Rows to 10 -->
-                                                                    <textarea name="goal_description" class="w-full rounded-xl border-slate-300 px-4 py-3 text-[13px] sm:text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-slate-50 goal-raw-text hidden mt-3 custom-scrollbar" rows="10" required>{{ $goal->goal_description }}</textarea>
-                                                                </div>
-                                                                
-                                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                                                    <div>
-                                                                        <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Calculated Progress (%)</label>
-                                                                        <input type="number" name="progress_percentage" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-[13px] sm:text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-progress-input" min="0" max="100" value="{{ $goal->progress_percentage }}" required>
-                                                                    </div>
-                                                                    <div>
-                                                                        <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Status</label>
-                                                                        <select name="status" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-[13px] sm:text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-status-select" required>
-                                                                            <option value="in_progress" {{ $goal->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                                                                            <option value="achieved" {{ $goal->status == 'achieved' ? 'selected' : '' }}>Achieved</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                                
-                                                                <div class="mt-6 border-t border-dashed border-slate-300 pt-6">
-                                                                    @include('components.comment-thread', ['item' => $goal])
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <div class="px-5 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 shrink-0">
-                                                                <button type="button" @click="activeEditModal = null" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-white border border-slate-300 rounded-xl text-[13px] sm:text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm">Cancel</button>
-                                                                <button type="submit" class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 bg-indigo-600 text-white text-[13px] sm:text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -254,7 +204,78 @@
         <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0">We couldn't find any students matching that name.</p>
     </div>
 
-    <!-- CREATE IEP GOAL MODAL (Increased Space & Mobile Optimized) -->
+    <!-- ========================================== -->
+    <!-- EDIT/TRACK PROGRESS MODALS -->
+    <!-- ========================================== -->
+    @foreach($myStudents as $student)
+        @foreach($goals->where('student_id', $student->id) as $goal)
+            <div x-show="activeEditModal === {{ $goal->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="activeEditModal = null"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    
+                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border border-slate-300 relative z-10">
+                        
+                        <div class="flex flex-col h-[90vh] sm:h-auto sm:max-h-[85vh]">
+                            
+                            <div class="px-5 sm:px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
+                                <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 leading-tight">Track Progress: {{ $student->first_name }}</h5>
+                                <button type="button" @click="activeEditModal = null" class="text-slate-400 hover:text-slate-600 ml-4"><i class="fa fa-times text-xl"></i></button>
+                            </div>
+                            
+                            <div class="p-5 sm:p-6 flex-1 overflow-y-auto custom-scrollbar bg-white">
+                                
+                                <form action="{{ route('teacher.iep-goals.update', $goal->id) }}" method="POST" class="m-0">
+                                    @csrf
+                                    @method('PUT')
+                                    
+                                    <div class="mb-5 interactive-checklist-container">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="block text-[12px] sm:text-[13px] font-extrabold text-slate-700 uppercase tracking-wider m-0">Interactive Activity Tracker</label>
+                                            <button type="button" class="text-indigo-600 hover:text-indigo-800 text-[11px] font-bold transition-colors toggle-raw-text-btn flex items-center bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
+                                                <i class="fa fa-pen mr-1"></i> Edit Text
+                                            </button>
+                                        </div>
+                                        <div class="visual-checklist p-4 border border-slate-300 rounded-xl bg-white shadow-inner max-h-[400px] overflow-y-auto text-[13px] sm:text-sm text-slate-700 custom-scrollbar"></div>
+                                        <textarea name="goal_description" class="w-full rounded-xl border-slate-300 px-4 py-3 text-[13px] sm:text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-slate-50 goal-raw-text hidden mt-3 custom-scrollbar" rows="10" required>{{ $goal->goal_description }}</textarea>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                        <div>
+                                            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Calculated Progress (%)</label>
+                                            <!-- BULLETPROOF FIX: The visible box is strictly read-only, ensuring the user cannot manually type while guaranteeing it sends the data to Laravel -->
+                                            <input type="number" name="progress_percentage" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-[13px] sm:text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-progress-input bg-slate-100" min="0" max="100" value="{{ $goal->progress_percentage }}" readonly required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Status</label>
+                                            <select name="status" class="w-full rounded-xl border-slate-300 px-4 py-2.5 text-[13px] sm:text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm goal-status-select" required>
+                                                <option value="in_progress" {{ $goal->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                                <option value="achieved" {{ $goal->status == 'achieved' ? 'selected' : '' }}>Achieved</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0 pt-2 mb-2">
+                                        <button type="button" @click="activeEditModal = null" class="w-full sm:w-auto px-4 sm:px-5 py-3 sm:py-2.5 bg-white border border-slate-300 rounded-xl text-[13px] sm:text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm">Cancel</button>
+                                        <button type="submit" class="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-2.5 bg-indigo-600 text-white text-[13px] sm:text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
+                                    </div>
+                                </form>
+                                
+                                <div class="mt-6 border-t border-dashed border-slate-300 pt-6">
+                                    @include('components.comment-thread', ['item' => $goal])
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endforeach
+
+    <!-- ========================================== -->
+    <!-- CREATE IEP GOAL MODAL -->
+    <!-- ========================================== -->
     <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div x-show="showAddModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showAddModal = false"></div>
@@ -305,14 +326,12 @@
                                 <p class="text-[11px] sm:text-xs font-medium text-slate-500 mb-4 m-0">Input the student's current status to generate Objectives and Activities.</p>
                                 
                                 <label class="block text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Present Level of Performance</label>
-                                <!-- Increased rows from 2 to 4 for more typing space -->
                                 <textarea name="plop" id="ai-present-level" class="w-full rounded-xl border-slate-300 px-4 py-3 text-[13px] sm:text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm mb-3 custom-scrollbar" rows="4" required placeholder="e.g., Can sit for 5-10 minutes but fidgety..."></textarea>
                                 
                                 <button type="button" id="generate-goals-btn" class="w-full inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-indigo-600 text-white text-[13px] sm:text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
                                     <i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities
                                 </button>
 
-                                <!-- AI RESULTS TABLE (Redesigned for Mobile) -->
                                 <div id="ai-results-container" class="mt-4 hidden">
                                     <hr class="border-indigo-200 my-4">
                                     <p class="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider mb-3 m-0"><i class="fa-solid fa-check mr-1"></i> Suggested IEP Strategies:</p>
@@ -326,7 +345,6 @@
                                                     <th class="px-4 py-2.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest w-[15%] text-center">Action</th>
                                                 </tr>
                                             </thead>
-                                            <!-- The JS logic injects mobile-friendly flex cards into this tbody -->
                                             <tbody id="goals-list-tbody" class="block sm:table-row-group divide-y-0 sm:divide-y divide-slate-200 space-y-3 sm:space-y-0 p-2 sm:p-0 bg-slate-50 sm:bg-transparent"></tbody>
                                         </table>
                                     </div>
@@ -336,14 +354,13 @@
 
                         <div>
                             <label class="block text-[11px] sm:text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">Final Goal Description</label>
-                            <!-- Increased rows from 5 to 10 so they can see all generated activities easily -->
                             <textarea id="final-goal-input" name="goal_description" class="w-full rounded-xl border-slate-300 px-4 py-3 text-[13px] sm:text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm custom-scrollbar" rows="10" required placeholder="The selected Objective and Activities will appear here..."></textarea>
                         </div>
                     </div>
                     
-                    <div class="px-5 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 shrink-0">
-                        <button type="button" @click="showAddModal = false" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-white border border-slate-300 rounded-xl text-[13px] sm:text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm">Cancel</button>
-                        <button type="submit" class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 bg-indigo-600 text-white text-[13px] sm:text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
+                    <div class="px-5 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0">
+                        <button type="button" @click="showAddModal = false" class="px-4 sm:px-5 py-3 sm:py-2.5 bg-white border border-slate-300 rounded-xl text-[13px] sm:text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm">Cancel</button>
+                        <button type="submit" class="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-2.5 bg-indigo-600 text-white text-[13px] sm:text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
                     </div>
                 </form>
             </div>
@@ -422,7 +439,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ==========================================
-// 2. AI BUILDER LOGIC (Mobile Optimized Output)
+// 2. AI BUILDER LOGIC
 // ==========================================
 document.getElementById('generate-goals-btn').addEventListener('click', function() {
     let btn = this;
@@ -455,7 +472,6 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
                 let rawActivities = item.activities.map(a => `[ ] ${a}`).join('\n');
                  
                 let tr = document.createElement('tr');
-                // Updated classes to transform standard rows into stacked cards on mobile
                 tr.className = "block sm:table-row bg-white border border-slate-200 sm:border-none rounded-xl sm:rounded-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors";
                 tr.innerHTML = `
                     <td class="block sm:table-cell font-extrabold text-indigo-600 align-top py-3 px-4 border-b border-slate-100 sm:border-none text-[13px] sm:text-sm">
@@ -509,8 +525,9 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('.interactive-checklist-container').forEach(container => {
         let textarea = container.querySelector('.goal-raw-text');
         let visualList = container.querySelector('.visual-checklist');
-        let progressInput = container.closest('form').querySelector('.goal-progress-input');
-        let statusSelect = container.closest('form').querySelector('.goal-status-select');
+        let form = container.closest('form');
+        let progressInput = form.querySelector('.goal-progress-input');
+        let statusSelect = form.querySelector('.goal-status-select');
         let toggleBtn = container.querySelector('.toggle-raw-text-btn');
 
         toggleBtn.addEventListener('click', () => {
@@ -528,19 +545,19 @@ document.addEventListener("DOMContentLoaded", function() {
             lines.forEach((line, index) => {
                 if (line.trim().startsWith('- ')) { line = line.replace('- ', '[ ] '); }
 
-                if (line.trim().startsWith('[ ] ')) {
+                if (line.trim().match(/^\[[\s]*\]/)) {
                     totalBoxes++;
-                    let text = line.trim().replace('[ ] ', '');
+                    let text = line.trim().replace(/^\[[\s]*\]/, '').trim();
                     html += `
                         <div class="flex items-start gap-3 mb-2 px-3 py-2 rounded hover:bg-slate-50 transition-colors">
                             <input class="dynamic-checkbox mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4 shrink-0 shadow-sm" type="checkbox" data-line="${index}">
                             <label class="text-[13px] sm:text-sm font-medium text-slate-700 cursor-pointer leading-tight pt-[1px]">${text}</label>
                         </div>`;
                 } 
-                else if (line.trim().startsWith('[x] ') || line.trim().startsWith('[X] ')) {
+                else if (line.trim().match(/^\[x\]/i)) {
                     totalBoxes++;
                     checkedBoxes++;
-                    let text = line.trim().replace(/\[x\] /i, '');
+                    let text = line.trim().replace(/^\[x\]/i, '').trim();
                     html += `
                         <div class="flex items-start gap-3 mb-2 px-3 py-2 rounded bg-slate-100 transition-colors border border-slate-200">
                             <input class="dynamic-checkbox mt-0.5 rounded border-emerald-500 bg-emerald-500 text-emerald-500 focus:ring-emerald-500 cursor-pointer w-4 h-4 shrink-0" type="checkbox" data-line="${index}" checked>
@@ -556,22 +573,24 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             
             if(totalBoxes === 0 && textarea.value.trim() !== '') {
-                html += `<div class="text-slate-500 text-[13px] sm:text-sm italic px-1 mt-2">No trackable activities found. Use the 'Edit Text' button to manually track progress.</div>`;
+                html += `<div class="text-slate-500 text-[13px] sm:text-sm italic px-1 mt-2">No trackable activities found. Click 'Edit Text' to see the raw text or add manual brackets [ ].</div>`;
             }
 
             visualList.innerHTML = html;
             
             if (totalBoxes > 0) {
-                progressInput.readOnly = true;
-                progressInput.classList.add('bg-slate-100', 'text-slate-500'); 
-                
                 let percent = Math.round((checkedBoxes / totalBoxes) * 100);
+                
+                // BULLETPROOF FIX: Use standard readonly so the browser always submits the value
+                progressInput.readOnly = true;
                 progressInput.value = percent;
+                progressInput.classList.add('bg-slate-100', 'text-slate-500', 'pointer-events-none'); 
+                
                 if (percent === 100) { statusSelect.value = 'achieved'; } 
                 else { statusSelect.value = 'in_progress'; }
             } else {
                 progressInput.readOnly = false;
-                progressInput.classList.remove('bg-slate-100', 'text-slate-500');
+                progressInput.classList.remove('bg-slate-100', 'text-slate-500', 'pointer-events-none');
             }
 
             visualList.querySelectorAll('.dynamic-checkbox').forEach(chk => {
@@ -579,9 +598,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     let lineIdx = this.getAttribute('data-line');
                     let currentLines = textarea.value.split('\n');
                     
-                    if (currentLines[lineIdx].trim().startsWith('- ')) { currentLines[lineIdx] = currentLines[lineIdx].replace('- ', '[ ] '); }
-                    if (this.checked) { currentLines[lineIdx] = currentLines[lineIdx].replace('[ ] ', '[x] '); } 
-                    else { currentLines[lineIdx] = currentLines[lineIdx].replace(/\[x\] /i, '[ ] '); }
+                    if (currentLines[lineIdx].match(/^-\s+/)) { currentLines[lineIdx] = currentLines[lineIdx].replace(/^-\s+/, '[ ] '); }
+                    
+                    if (this.checked) { 
+                        currentLines[lineIdx] = currentLines[lineIdx].replace(/\[[\s]*\]/, '[x]'); 
+                    } else { 
+                        currentLines[lineIdx] = currentLines[lineIdx].replace(/\[x\]/i, '[ ]'); 
+                    }
                     
                     textarea.value = currentLines.join('\n');
                     renderChecklist();

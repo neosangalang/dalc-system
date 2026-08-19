@@ -20,7 +20,7 @@ class MfaSetupController extends Controller
 
         // 2. Generate the QR Code data linking to their specific email
         $qrCodeUrl = $google2fa->getQRCodeUrl(
-            'DALC SPED System',
+            'DALC System',
             $user->email,
             $secretKey
         );

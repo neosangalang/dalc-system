@@ -4,81 +4,105 @@
 
 @section('content')
 
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!-- Wrapper matching the 5xl max-width of the other dashboards -->
+<div class="font-['Inter'] min-h-[100dvh] py-6 sm:py-8 w-full max-w-5xl mx-auto flex flex-col items-center">
 
-<style>
-    [x-cloak] { display: none !important; }
-</style>
-
-<!-- Added large bottom padding (pb-24) on mobile to prevent the bottom from being cut off -->
-<div class="font-['Quicksand'] bg-[#F4F8FE] min-h-[100dvh] text-[#3B4A6B] pt-6 pb-24 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
-
-    <!-- HEADER SECTION -->
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-5 sm:mb-8 gap-4 sm:gap-4">
+    <!-- 1. WELCOME HEADER (Fixed: Changed back to visible colors) -->
+    <div class="flex flex-wrap justify-between items-end mb-8 gap-4 w-full">
         <div>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-[#5C8DF6] mb-1 m-0 leading-tight">Welcome back, {{ Auth::user()->name }}! 👋</h2>
-            <p class="text-[1rem] sm:text-[1.1rem] font-semibold text-[#7A89A8] m-0 leading-tight">Let's see what your little ones are up to today.</p>
+            <h2 class="text-xl sm:text-2xl font-bold text-[#5B8DEF] mb-1">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h2>
+            <p class="text-[#6B7086] text-xs sm:text-sm font-medium">Let's see what your little ones are up to today.</p>
         </div>
+    </div>
+
+    <!-- 2. THREE STAT CARDS (Glassy design with colored borders on hover) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mb-10 w-full">
         
-        @if(isset($activeChild) && isset($myChildren))
-        <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            <div x-data="{ open: false }" class="relative w-full md:w-auto">
-                <!-- Dropdown Button: Full width on mobile -->
-                <button @click="open = !open" @click.away="open = false" class="w-full md:w-auto flex items-center justify-between md:justify-center gap-2 px-5 py-3 sm:py-2.5 bg-[#5C8DF6] text-white font-bold rounded-2xl md:rounded-full border-[3px] border-[#4a7ae0] shadow-[0_4px_12px_rgba(92,141,246,0.3)] hover:bg-[#4a7ae0] transition-colors focus:outline-none">
-                    <div class="flex items-center gap-2">
-                        <i class="fa fa-child text-lg"></i>
-                        <span>Viewing: {{ $activeChild->first_name }}</span>
-                    </div>
-                    <i class="fa fa-chevron-down ml-1 text-sm transition-transform" :class="open ? 'rotate-180' : ''"></i>
-                </button>
-                
-                <!-- Dropdown Menu: Full width on mobile -->
-                <ul x-show="open" x-transition.opacity x-transition:enter.duration.200ms x-transition:leave.duration.150ms x-cloak class="absolute right-0 mt-2 w-full md:w-64 bg-white rounded-2xl shadow-xl py-2 z-50 border-[3px] border-[#DCE6F9] list-none pl-0">
-                    <li class="px-4 py-2 text-xs font-extrabold text-[#7A89A8] uppercase tracking-wider">MY CHILDREN</li>
-                    @forelse($myChildren ?? [] as $child)
-                        <li>
-                            <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center mx-2 px-3 py-3 md:py-2.5 mb-1 rounded-xl font-semibold transition-colors {{ (isset($activeChild) && $activeChild->id === $child->id) ? 'bg-[#E3EFFF] text-[#5C8DF6] border-[2px] border-[#5C8DF6]' : 'text-[#3B4A6B] hover:bg-slate-50 border-[2px] border-transparent hover:border-[#DCE6F9]' }}">
-                                <i class="fa fa-check-circle mr-2 {{ (isset($activeChild) && $activeChild->id === $child->id) ? 'text-[#5C8DF6]' : 'text-transparent' }}"></i>
-                                {{ $child->first_name }} {{ $child->last_name }}
-                            </a>
-                        </li>
-                    @empty
-                        <li class="px-4 py-2 text-sm text-slate-500">No children linked.</li>
-                    @endforelse
-                </ul>
+        <!-- Enrolled Children (Blue Theme) -->
+        <div class="group bg-gradient-to-br from-[#5B8DEF]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#5B8DEF]/40 hover:border-[#5B8DEF] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(91,141,239,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#5B8DEF] group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-child"></i>
             </div>
+            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ isset($myChildren) ? $myChildren->count() : 0 }}</h3>
+            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Enrolled Children</p>
         </div>
-        @endif
+
+        <!-- Active IEP Goals (Purple Theme) -->
+        <div class="group bg-gradient-to-br from-[#A874FF]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#A874FF]/40 hover:border-[#A874FF] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(168,116,255,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#A874FF] group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ isset($activeGoals) ? $activeGoals->count() : 0 }}</h3> 
+            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Active IEP Goals</p>
+        </div>
+
+        <!-- Official Reports (Green Theme) -->
+        <div class="group bg-gradient-to-br from-[#48C78E]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#48C78E]/40 hover:border-[#48C78E] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(72,199,142,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#48C78E] group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ isset($recentReports) ? $recentReports->count() : 0 }}</h3>
+            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Official Reports</p>
+        </div>
+
     </div>
 
-    <!-- STATS GRID: Compact Box-Only Design -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-5 mb-6 sm:mb-8">
+    <!-- 3. SYSTEM MODULES (Sandwiched directly in the middle) -->
+    <div class="w-full pt-2 mb-10">
         
-        <!-- Enrolled Children Box -->
-        <div class="p-4 sm:p-5 bg-white rounded-[16px] sm:rounded-[20px] border-[3px] border-[#A9C4F8] flex flex-col items-center justify-center text-center transition-transform duration-300 hover:-translate-y-1 shadow-sm">
-            <h3 class="text-3xl sm:text-4xl font-extrabold text-[#5C8DF6] m-0 mb-1 leading-none">{{ isset($myChildren) ? $myChildren->count() : 0 }}</h3>
-            <p class="text-[11px] sm:text-[12px] font-extrabold text-[#7A89A8] m-0 uppercase tracking-widest">Enrolled Children</p>
+        <!-- Header Text (Fixed: Changed back to visible colors) -->
+        <div class="flex items-center gap-3 justify-center mb-6 w-full">
+            <span class="h-px flex-1 max-w-[48px] bg-[#C4922E]/40"></span>
+            <span class="w-1 h-1 rounded-full bg-[#C4922E]"></span>
+            <h3 class="text-[10px] font-extrabold text-[#6B7086] uppercase tracking-[0.2em] whitespace-nowrap">System Modules</h3>
+            <span class="w-1 h-1 rounded-full bg-[#C4922E]"></span>
+            <span class="h-px flex-1 max-w-[48px] bg-[#C4922E]/40"></span>
         </div>
 
-        <!-- Active IEP Goals Box -->
-        <div class="p-4 sm:p-5 bg-white rounded-[16px] sm:rounded-[20px] border-[3px] border-[#CBB3FF] flex flex-col items-center justify-center text-center transition-transform duration-300 hover:-translate-y-1 shadow-sm">
-            <h3 class="text-3xl sm:text-4xl font-extrabold text-[#9D7CFF] m-0 mb-1 leading-none">{{ isset($activeGoals) ? $activeGoals->count() : 0 }}</h3> 
-            <p class="text-[11px] sm:text-[12px] font-extrabold text-[#7A89A8] m-0 uppercase tracking-widest">Active IEP Goals</p>
+        <!-- GUARDIAN MODULES (3 Columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 max-w-3xl mx-auto w-full">
+            
+            <!-- IEP Goals (Gold Theme) -->
+            <a href="{{ route('guardian.goals') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#C4922E]/10 to-white/90 backdrop-blur-md border-2 border-[#C4922E]/40 hover:border-[#C4922E] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(196,146,46,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
+                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#C4922E] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
+                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#C4922E] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#C4922E] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-bullseye"></i></div>
+                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">IEP Goals</h4>
+                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Track Progress</p>
+            </a>
+            
+            <!-- Report Cards Dropdown (Indigo Theme) -->
+            <div x-data="{ open: false }" class="relative h-full w-full">
+                <button @click="open = !open" @click.away="open = false" class="group relative overflow-hidden bg-gradient-to-br from-[#4A5AA8]/10 to-white/90 backdrop-blur-md border-2 border-[#4A5AA8]/30 hover:border-[#4A5AA8] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(74,90,168,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center w-full h-full focus-visible:outline-none">
+                    <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#4A5AA8] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
+                    <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#4A5AA8] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#4A5AA8] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-file-signature"></i></div>
+                    <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Reports <i class="fa fa-caret-down ml-1 text-[#6B7086] text-[9px]"></i></h4>
+                    <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">View Evaluations</p>
+                </button>
+                <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-1/2 -translate-x-1/2 w-[115%] bg-white/95 backdrop-blur-md border border-[#E8E5DC] rounded-xl shadow-xl z-50 p-2 text-center text-xs font-bold text-[#6B7086]">
+                    <a href="{{ route('guardian.reports', ['type' => 'daily']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Daily Summaries</a>
+                    <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 1</a>
+                    <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 2</a>
+                    <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 3</a>
+                    <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 4</a>
+                    <a href="{{ route('guardian.reports', ['type' => 'year_end']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Year-End</a>
+                </div>
+            </div>
+            
+            <!-- Home Support (Teal Theme) -->
+            <a href="{{ route('guardian.recommendations') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#0E7C86]/10 to-white/90 backdrop-blur-md border-2 border-[#0E7C86]/30 hover:border-[#0E7C86] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(14,124,134,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
+                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#0E7C86] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
+                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#0E7C86] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#0E7C86] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Home Recommendation</h4>
+                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Activities & Tips</p>
+            </a>
         </div>
-
-        <!-- Official Reports Box -->
-        <div class="p-4 sm:p-5 bg-white rounded-[16px] sm:rounded-[20px] border-[3px] border-[#91E5B9] flex flex-col items-center justify-center text-center transition-transform duration-300 hover:-translate-y-1 shadow-sm">
-            <h3 class="text-3xl sm:text-4xl font-extrabold text-[#4CD18E] m-0 mb-1 leading-none">{{ isset($recentReports) ? $recentReports->count() : 0 }}</h3>
-            <p class="text-[11px] sm:text-[12px] font-extrabold text-[#7A89A8] m-0 uppercase tracking-widest">Official Reports</p>
-        </div>
-
     </div>
 
-    <!-- MAIN CONTENT CARDS -->
-    <div class="flex flex-col gap-5 sm:gap-6">
+    <!-- 4. BOTTOM CONTENT CARDS -->
+    <div class="flex flex-col gap-5 sm:gap-6 w-full">
         
         <!-- Goal Progress Card -->
-        <div class="bg-white rounded-[20px] sm:rounded-[24px] border-[3px] border-[#DCE6F9] shadow-[0_10px_30px_rgba(92,141,246,0.08)] overflow-hidden flex flex-col">
+        <div class="bg-white/95 backdrop-blur-sm rounded-[20px] sm:rounded-[24px] border-2 border-[#DCE6F9] shadow-lg overflow-hidden flex flex-col">
             <div class="p-4 sm:p-6 bg-[#F0E8FF] border-b-[3px] border-[#CBB3FF] flex items-center gap-3 sm:gap-4 shrink-0">
                 <div class="w-10 h-10 bg-white text-[#9D7CFF] border-[2px] border-[#CBB3FF] rounded-xl flex items-center justify-center text-xl shrink-0">
                     <i class="fa fa-rocket"></i>
@@ -115,7 +139,7 @@
         </div>
 
         <!-- Teacher Updates Card -->
-        <div class="bg-white rounded-[20px] sm:rounded-[24px] border-[3px] border-[#DCE6F9] shadow-[0_10px_30px_rgba(92,141,246,0.08)] overflow-hidden flex flex-col">
+        <div class="bg-white/95 backdrop-blur-sm rounded-[20px] sm:rounded-[24px] border-2 border-[#DCE6F9] shadow-lg overflow-hidden flex flex-col">
             <div class="p-4 sm:p-6 bg-[#DDF7E9] border-b-[3px] border-[#91E5B9] flex items-center gap-3 sm:gap-4 shrink-0">
                 <div class="w-10 h-10 bg-white text-[#4CD18E] border-[2px] border-[#91E5B9] rounded-xl flex items-center justify-center text-xl shrink-0">
                     <i class="fa fa-book-open"></i>
