@@ -4,180 +4,184 @@
 
 @section('content')
 
-<!-- Wrapper matching the 5xl max-width of the other dashboards -->
-<div class="font-['Inter'] min-h-[100dvh] py-6 sm:py-8 w-full max-w-5xl mx-auto flex flex-col items-center">
+<div class="bg-[#F5F5F5] min-h-[100dvh] py-8 md:py-10 w-full font-['Inter',sans-serif] text-[#111111]">
+    <div class="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-8 md:space-y-10">
 
-    <!-- 1. WELCOME HEADER (Fixed: Changed back to visible colors) -->
-    <div class="flex flex-wrap justify-between items-end mb-8 gap-4 w-full">
-        <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-[#5B8DEF] mb-1">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h2>
-            <p class="text-[#6B7086] text-xs sm:text-sm font-medium">Let's see what your little ones are up to today.</p>
-        </div>
-    </div>
-
-    <!-- 2. THREE STAT CARDS (Glassy design with colored borders on hover) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 mb-10 w-full">
-        
-        <!-- Enrolled Children (Blue Theme) -->
-        <div class="group bg-gradient-to-br from-[#5B8DEF]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#5B8DEF]/40 hover:border-[#5B8DEF] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(91,141,239,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#5B8DEF] group-hover:scale-110 transition-transform duration-300">
-                <i class="fa-solid fa-child"></i>
+        <!-- WELCOME & CHILD SELECTOR (School-Friendly Tone) -->
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-2xl md:text-3xl font-[800] tracking-tight text-[#111111]">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h2>
+                <p class="text-[#555555] font-[500] text-[15px] md:text-[16px]">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
             </div>
-            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ isset($myChildren) ? $myChildren->count() : 0 }}</h3>
-            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Enrolled Children</p>
-        </div>
 
-        <!-- Active IEP Goals (Purple Theme) -->
-        <div class="group bg-gradient-to-br from-[#A874FF]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#A874FF]/40 hover:border-[#A874FF] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(168,116,255,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#A874FF] group-hover:scale-110 transition-transform duration-300">
-                <i class="fa-solid fa-bullseye"></i>
-            </div>
-            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ isset($activeGoals) ? $activeGoals->count() : 0 }}</h3> 
-            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Active IEP Goals</p>
-        </div>
-
-        <!-- Official Reports (Green Theme) -->
-        <div class="group bg-gradient-to-br from-[#48C78E]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#48C78E]/40 hover:border-[#48C78E] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(72,199,142,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#48C78E] group-hover:scale-110 transition-transform duration-300">
-                <i class="fa-solid fa-file-invoice"></i>
-            </div>
-            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ isset($recentReports) ? $recentReports->count() : 0 }}</h3>
-            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Official Reports</p>
-        </div>
-
-    </div>
-
-    <!-- 3. SYSTEM MODULES (Sandwiched directly in the middle) -->
-    <div class="w-full pt-2 mb-10">
-        
-        <!-- Header Text (Fixed: Changed back to visible colors) -->
-        <div class="flex items-center gap-3 justify-center mb-6 w-full">
-            <span class="h-px flex-1 max-w-[48px] bg-[#C4922E]/40"></span>
-            <span class="w-1 h-1 rounded-full bg-[#C4922E]"></span>
-            <h3 class="text-[10px] font-extrabold text-[#6B7086] uppercase tracking-[0.2em] whitespace-nowrap">System Modules</h3>
-            <span class="w-1 h-1 rounded-full bg-[#C4922E]"></span>
-            <span class="h-px flex-1 max-w-[48px] bg-[#C4922E]/40"></span>
-        </div>
-
-        <!-- GUARDIAN MODULES (3 Columns) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 max-w-3xl mx-auto w-full">
             
-            <!-- IEP Goals (Gold Theme) -->
-            <a href="{{ route('guardian.goals') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#C4922E]/10 to-white/90 backdrop-blur-md border-2 border-[#C4922E]/40 hover:border-[#C4922E] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(196,146,46,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
-                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#C4922E] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#C4922E] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#C4922E] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-bullseye"></i></div>
-                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">IEP Goals</h4>
-                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Track Progress</p>
-            </a>
-            
-            <!-- Report Cards Dropdown (Indigo Theme) -->
-            <div x-data="{ open: false }" class="relative h-full w-full">
-                <button @click="open = !open" @click.away="open = false" class="group relative overflow-hidden bg-gradient-to-br from-[#4A5AA8]/10 to-white/90 backdrop-blur-md border-2 border-[#4A5AA8]/30 hover:border-[#4A5AA8] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(74,90,168,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center w-full h-full focus-visible:outline-none">
-                    <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#4A5AA8] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                    <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#4A5AA8] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#4A5AA8] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-file-signature"></i></div>
-                    <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Reports <i class="fa fa-caret-down ml-1 text-[#6B7086] text-[9px]"></i></h4>
-                    <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">View Evaluations</p>
-                </button>
-                <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-1/2 -translate-x-1/2 w-[115%] bg-white/95 backdrop-blur-md border border-[#E8E5DC] rounded-xl shadow-xl z-50 p-2 text-center text-xs font-bold text-[#6B7086]">
-                    <a href="{{ route('guardian.reports', ['type' => 'daily']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Daily Summaries</a>
-                    <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 1</a>
-                    <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 2</a>
-                    <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 3</a>
-                    <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Quarter 4</a>
-                    <a href="{{ route('guardian.reports', ['type' => 'year_end']) }}" class="block p-2.5 hover:bg-[#EEF4FE] hover:text-[#4A5AA8] rounded-lg transition-colors">Year-End</a>
-                </div>
-            </div>
-            
-            <!-- Home Support (Teal Theme) -->
-            <a href="{{ route('guardian.recommendations') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#0E7C86]/10 to-white/90 backdrop-blur-md border-2 border-[#0E7C86]/30 hover:border-[#0E7C86] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(14,124,134,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
-                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#0E7C86] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#0E7C86] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#0E7C86] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-hand-holding-heart"></i></div>
-                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Home Recommendation</h4>
-                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Activities & Tips</p>
-            </a>
-        </div>
-    </div>
 
-    <!-- 4. BOTTOM CONTENT CARDS -->
-    <div class="flex flex-col gap-5 sm:gap-6 w-full">
-        
-        <!-- Goal Progress Card -->
-        <div class="bg-white/95 backdrop-blur-sm rounded-[20px] sm:rounded-[24px] border-2 border-[#DCE6F9] shadow-lg overflow-hidden flex flex-col">
-            <div class="p-4 sm:p-6 bg-[#F0E8FF] border-b-[3px] border-[#CBB3FF] flex items-center gap-3 sm:gap-4 shrink-0">
-                <div class="w-10 h-10 bg-white text-[#9D7CFF] border-[2px] border-[#CBB3FF] rounded-xl flex items-center justify-center text-xl shrink-0">
-                    <i class="fa fa-rocket"></i>
-                </div>
-                <div>
-                    <h5 class="text-base sm:text-lg font-extrabold text-[#9D7CFF] m-0 leading-tight">{{ $activeChild->first_name ?? 'Student' }}'s Goal Progress</h5>
-                    <p class="text-[12px] sm:text-sm font-semibold text-[#3B4A6B]/70 m-0">Watch them grow!</p>
-                </div>
-            </div>
-            
-            <div class="p-4 sm:p-6 bg-white flex flex-col gap-4 sm:gap-6">
-                @forelse($activeGoals ?? [] as $goal)
-                    <div class="p-4 border-[3px] border-[#EAF0FA] rounded-[16px] sm:rounded-[20px] shrink-0">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-extrabold text-[10px] sm:text-xs bg-[#F0E8FF] border-[2px] border-[#CBB3FF] text-[#9D7CFF] tracking-wide uppercase">{{ $goal->domain }}</span>
-                            <span class="font-black text-lg sm:text-xl text-[#9D7CFF]">{{ $goal->progress_percentage }}%</span>
-                        </div>
-                        
-                        <p class="text-[13px] sm:text-sm font-bold text-[#3B4A6B] mb-3 line-clamp-2 leading-relaxed">
-                            {{ $goal->goal_description }}
-                        </p>
-                        
-                        <div class="h-4 sm:h-5 bg-[#EEF2F9] rounded-full overflow-hidden shadow-inner border-[2px] border-[#DCE6F9]">
-                            <div class="h-full rounded-full bg-[#9D7CFF] bg-[linear-gradient(45deg,rgba(255,255,255,.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] transition-all duration-500 ease-out" style="width: {{ $goal->progress_percentage }}%;"></div>
-                        </div>
+        </header>
+
+        <!-- PORTAL QUICK LINKS (Replaces "System Modules") -->
+        <section>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 w-full">
+                
+                <!-- Learning Goals -->
+                <a href="{{ route('guardian.goals') }}" class="group bg-[#FFFFFF] hover:bg-[#FAF5FF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all p-5 flex flex-col items-start gap-3">
+                    <div class="w-[42px] h-[42px] rounded-lg bg-[#8B5CF6]/10 border-[2px] border-[#000000] flex items-center justify-center text-[#8B5CF6] transition-colors group-hover:bg-[#8B5CF6] group-hover:text-[#FFFFFF]"><i class="fa-solid fa-bullseye text-[18px]"></i></div>
+                    <div>
+                        <h3 class="text-[16px] font-[800] text-[#111111]">Learning Goals</h3>
+                        <p class="text-[13px] font-[500] text-[#555555] mt-1">{{ isset($activeGoals) ? $activeGoals->count() : 0 }} objectives being tracked.</p>
                     </div>
-                @empty
-                    <div class="text-center py-6 sm:py-8 text-[#7A89A8] border-[3px] border-dashed border-[#DCE6F9] rounded-[16px] sm:rounded-[20px]">
-                        <i class="fa fa-moon text-4xl sm:text-5xl mb-3 opacity-25"></i>
-                        <p class="text-[13px] sm:text-base font-extrabold m-0">No active goals to track right now.</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
+                </a>
 
-        <!-- Teacher Updates Card -->
-        <div class="bg-white/95 backdrop-blur-sm rounded-[20px] sm:rounded-[24px] border-2 border-[#DCE6F9] shadow-lg overflow-hidden flex flex-col">
-            <div class="p-4 sm:p-6 bg-[#DDF7E9] border-b-[3px] border-[#91E5B9] flex items-center gap-3 sm:gap-4 shrink-0">
-                <div class="w-10 h-10 bg-white text-[#4CD18E] border-[2px] border-[#91E5B9] rounded-xl flex items-center justify-center text-xl shrink-0">
-                    <i class="fa fa-book-open"></i>
+                <!-- School Reports Dropdown -->
+                <div x-data="{ open: false }" class="relative w-full h-full">
+                    <button @click="open = !open" @click.away="open = false" class="group bg-[#FFFFFF] hover:bg-[#F8FAFC] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all p-5 flex flex-col items-start gap-3 w-full text-left h-full focus-visible:outline-none">
+                        <div class="w-[42px] h-[42px] rounded-lg bg-[#3B82F6]/10 border-[2px] border-[#000000] flex items-center justify-center text-[#3B82F6] transition-colors group-hover:bg-[#3B82F6] group-hover:text-[#FFFFFF]"><i class="fa-solid fa-file-signature text-[18px]"></i></div>
+                        <div class="flex-1 w-full">
+                            <h3 class="text-[16px] font-[800] text-[#111111] flex justify-between items-center w-full">School Reports <i class="fa-solid fa-caret-down text-[12px] transition-transform duration-200" :class="{'rotate-180': open}"></i></h3>
+                            <p class="text-[13px] font-[500] text-[#555555] mt-1">View official evaluations.</p>
+                        </div>
+                    </button>
+                    <!-- Reports Dropdown Links -->
+                    <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-[#FFFFFF] border-[2px] border-[#000000] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] rounded-xl z-50 p-2 text-left text-[14px] font-[600] text-[#555555]">
+                        <a href="{{ route('guardian.reports', ['type' => 'daily']) }}" class="block px-4 py-3 hover:bg-[#F8FAFC] hover:text-[#111111] rounded-lg transition-colors flex justify-between items-center">Daily Summaries <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block px-4 py-3 hover:bg-[#F8FAFC] hover:text-[#111111] rounded-lg transition-colors flex justify-between items-center">Quarter 1 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-4 py-3 hover:bg-[#F8FAFC] hover:text-[#111111] rounded-lg transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-4 py-3 hover:bg-[#F8FAFC] hover:text-[#111111] rounded-lg transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block px-4 py-3 hover:bg-[#F8FAFC] hover:text-[#111111] rounded-lg transition-colors flex justify-between items-center">Quarter 4 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                    </div>
                 </div>
-                <div>
-                    <h5 class="text-base sm:text-lg font-extrabold text-[#4CD18E] m-0 leading-tight">Teacher Updates</h5>
-                    <p class="text-[12px] sm:text-sm font-semibold text-[#3B4A6B]/70 m-0">Recent notes from the classroom</p>
-                </div>
+
+                <!-- At-Home Support -->
+                <a href="{{ route('guardian.recommendations') }}" class="group bg-[#FFFFFF] hover:bg-[#F0FDF4] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all p-5 flex flex-col items-start gap-3">
+                    <div class="w-[42px] h-[42px] rounded-lg bg-[#10B981]/10 border-[2px] border-[#000000] flex items-center justify-center text-[#10B981] transition-colors group-hover:bg-[#10B981] group-hover:text-[#FFFFFF]"><i class="fa-solid fa-house-chimney-medical text-[18px]"></i></div>
+                    <div>
+                        <h3 class="text-[16px] font-[800] text-[#111111]">Home Recommendation</h3>
+                        <p class="text-[13px] font-[500] text-[#555555] mt-1">See what you can do at home.</p>
+                    </div>
+                </a>
             </div>
+        </section>
+
+        <!-- MAIN CONTENT: PROGRESS & UPDATES -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
             
-            <div class="p-4 sm:p-6 bg-white flex flex-col gap-4">
-                @forelse($recentLogs ?? [] as $log)
-                    <div class="bg-[#F8FBFF] border-[3px] border-[#DCE6F9] rounded-[16px] sm:rounded-[20px] rounded-bl-sm p-4 sm:p-5 relative shrink-0">
-                        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
-                            <h6 class="text-[13px] sm:text-sm font-extrabold text-[#5C8DF6] m-0">{{ \Carbon\Carbon::parse($log->log_date)->format('l, F j') }}</h6>
-                            <span class="px-2.5 sm:px-3 py-1 bg-white border-[2px] border-[#DCE6F9] rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold text-[#7A89A8] shadow-sm">
-                                <i class="fa fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($log->log_date)->diffForHumans() }}
+            <!-- LEFT COLUMN: MILESTONES (Rebranded Goal Progress) -->
+            <section class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-[32px] h-[32px] rounded-full bg-[#8B5CF6]/10 border-[2px] border-[#000000] flex items-center justify-center text-[#8B5CF6]"><i class="fa-solid fa-chart-line"></i></div>
+                    <h2 class="text-[16px] font-[800] text-[#111111]">{{ $activeChild->first_name ?? 'Child' }}'s Current IEP Goals</h2>
+                </div>
+
+                <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] p-6 md:p-8 flex flex-col gap-6">
+                    
+                    @forelse($activeGoals ?? [] as $goal)
+                        <div class="flex flex-col gap-3">
+                            <!-- Category Badge -->
+                            <span class="inline-block bg-[#8B5CF6]/10 text-[#8B5CF6] text-[11px] font-[800] uppercase tracking-[0.08em] px-3 py-1 rounded-full border-[2px] border-[#000000] w-max">
+                                {{ $goal->domain ?? 'Development Area' }}
                             </span>
-                        </div>
-                        <p class="text-[13px] sm:text-sm font-semibold text-[#3B4A6B] leading-relaxed mb-4 whitespace-pre-line">{{ $log->notes }}</p>
-                        
-                        <div class="flex items-center gap-2 pt-3 border-t-[3px] border-dashed border-[#DCE6F9]">
-                            <div class="w-6 h-6 bg-[#FFC043] text-white border-[2px] border-[#FDE093] rounded-full flex items-center justify-center text-[10px] font-black shadow-sm shrink-0">
-                                {{ substr($log->teacher->name ?? 'T', 0, 1) }}
+                            
+                            <!-- Progress Stats -->
+                            <div class="flex justify-between items-end mt-1">
+                                <h3 class="text-[16px] font-[800] text-[#111111] line-clamp-1 pr-4">{{ $goal->goal_description }}</h3>
+                                <span class="text-[18px] font-[800] text-[#111111]">{{ $goal->progress_percentage ?? 0 }}%</span>
                             </div>
-                            <span class="text-[11px] sm:text-xs font-extrabold text-[#7A89A8]">Teacher {{ $log->teacher->name ?? 'Staff' }}</span>
+                            
+                            <!-- Thicker, Friendlier Progress Bar -->
+                            <div class="h-[16px] w-full bg-[#F5F5F5] border-[2px] border-[#000000] rounded-full overflow-hidden relative">
+                                <div class="absolute top-0 left-0 h-full bg-[#8B5CF6] border-r-[2px] border-[#000000]" style="width: {{ $goal->progress_percentage ?? 0 }}%;"></div>
+                            </div>
                         </div>
+
+                        @if (!$loop->last)
+                            <div class="w-full h-[2px] bg-[#E5E5E5] my-2"></div>
+                        @endif
+                    @empty
+                        <div class="text-center py-8 text-[#555555] flex flex-col items-center">
+                            <div class="w-[56px] h-[56px] bg-[#F5F5F5] border-[2px] border-[#000000] rounded-full flex items-center justify-center text-[20px] mb-3"><i class="fa-solid fa-star text-[#F59E0B]"></i></div>
+                            <h4 class="text-[16px] font-[800] text-[#111111]">Ready for New Challenges!</h4>
+                            <p class="text-[13px] font-[500] mt-1">The teachers are preparing the next set of goals.</p>
+                        </div>
+                    @endforelse
+
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: CLASSROOM MESSAGES & SUPPORT -->
+            <div class="flex flex-col gap-8">
+                
+                <!-- Classroom Messages -->
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-[32px] h-[32px] rounded-full bg-[#3B82F6]/10 border-[2px] border-[#000000] flex items-center justify-center text-[#3B82F6]"><i class="fa-regular fa-comments"></i></div>
+                        <h2 class="text-[16px] font-[800] text-[#111111]">Daily Log</h2>
                     </div>
-                @empty
-                    <div class="text-center py-8 sm:py-10 border-[3px] border-dashed border-[#DCE6F9] rounded-[16px] sm:rounded-[20px] text-[#7A89A8]">
-                        <p class="text-[13px] sm:text-base font-extrabold m-0">No recent updates from the teacher.</p>
+
+                    <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] p-6 md:p-8 flex flex-col gap-6">
+                        
+                        @forelse($recentLogs ?? [] as $log)
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-[28px] h-[28px] rounded-full bg-[#F5F5F5] border-[2px] border-[#000000] flex items-center justify-center text-[11px] font-[800] text-[#111111]">
+                                        {{ substr($log->teacher->name ?? 'T', 0, 1) }}
+                                    </div>
+                                    <h4 class="text-[14px] font-[800] text-[#111111]">Teacher {{ $log->teacher->name ?? 'Staff' }}</h4>
+                                    <span class="text-[12px] font-[500] text-[#555555] ml-auto"><i class="fa-regular fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($log->log_date)->diffForHumans() }}</span>
+                                </div>
+                                <div class="bg-[#F8FAFC] border-[2px] border-[#000000] rounded-[12px] rounded-tl-none p-4 mt-1">
+                                    <p class="text-[14px] font-[500] text-[#111111] leading-relaxed">{{ $log->notes }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-6 text-[#555555] flex flex-col items-center">
+                                <div class="w-[56px] h-[56px] bg-[#F5F5F5] border-[2px] border-[#000000] rounded-full flex items-center justify-center text-[20px] mb-3"><i class="fa-regular fa-envelope-open"></i></div>
+                                <h4 class="text-[16px] font-[800] text-[#111111]">No New Notes</h4>
+                                <p class="text-[13px] font-[500] mt-1">We'll let you know when the teacher sends an update.</p>
+                            </div>
+                        @endforelse
+
                     </div>
-                @endforelse
+                </section>
+
+                <!-- Try this at Home -->
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-[32px] h-[32px] rounded-full bg-[#10B981]/10 border-[2px] border-[#000000] flex items-center justify-center text-[#10B981]"><i class="fa-solid fa-puzzle-piece"></i></div>
+                        <h2 class="text-[16px] font-[800] text-[#111111]">Try this at Home</h2>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        @forelse($homeActivities ?? [] as $activity)
+                            <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-[15px] font-[800] text-[#111111] mb-1">{{ $activity->title ?? 'Practice Activity' }}</h3>
+                                    <p class="text-[13px] font-[500] text-[#555555]">{{ $activity->description ?? 'Short description of the task.' }}</p>
+                                </div>
+                                <a href="{{ route('guardian.recommendations', $activity->id ?? '') }}" class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[8px] shadow-[2px_2px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-px hover:shadow-[3px_3px_0_0_rgba(0,0,0,0.20)] px-4 py-2 text-[13px] font-[800] text-[#111111] transition-all text-center whitespace-nowrap">
+                                    View Activity
+                                </a>
+                            </div>
+                        @empty
+                            <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-[15px] font-[800] text-[#111111] mb-1">Check Recommendations</h3>
+                                    <p class="text-[13px] font-[500] text-[#555555]">Find engaging activities to do together.</p>
+                                </div>
+                                <a href="{{ route('guardian.recommendations') }}" class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[8px] shadow-[2px_2px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-px hover:shadow-[3px_3px_0_0_rgba(0,0,0,0.20)] px-4 py-2 text-[13px] font-[800] text-[#111111] transition-all text-center whitespace-nowrap">
+                                    Browse Ideas
+                                </a>
+                            </div>
+                        @endforelse
+                    </div>
+                </section>
+
             </div>
         </div>
 
     </div>
-
 </div>
+
+@push('scripts')
+<script src="//unpkg.com/alpinejs" defer></script>
+@endpush
 
 @endsection

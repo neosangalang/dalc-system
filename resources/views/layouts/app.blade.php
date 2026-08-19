@@ -19,13 +19,14 @@
     </style>
 </head>
 
-<!-- UPDATED: A crisp, clean Blue to White gradient background -->
-<body class="font-['Nunito'] bg-gradient-to-br from-[#D9E6FF] to-[#FFFFFF] text-[#2C2F45] antialiased min-h-screen bg-fixed">
+<!-- Restored Original Colors -->
+<body class="font-['Nunito'] bg-gradient-to-br from-[#F4F1EA] via-[#EDF0F8] to-[#F4F1EA] text-[#2C2F45] antialiased min-h-screen bg-fixed">
 
     <!-- ========================================== -->
     <!-- 1. TOP HEADER NAVIGATION                   -->
     <!-- ========================================== -->
-    <header class="sticky top-0 z-50 h-16 bg-white/70 backdrop-blur-lg border-b border-[#E8E5DC]/50 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
+    <!-- Added a smooth, visible outline: border-[#1E2657]/20 -->
+    <header class="sticky top-0 z-50 h-16 bg-white/80 backdrop-blur-lg border-b border-[#1E2657]/20 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
 
         <!-- Logo and Brand -->
         <div class="flex items-center gap-4 sm:gap-6 min-w-0">
@@ -58,11 +59,12 @@
 
                 @if($myChildren->count() > 0 && $activeChild)
                     <div x-data="{ switchOpen: false }" class="relative z-40">
-                        <button @click="switchOpen = !switchOpen" @click.away="switchOpen = false" class="flex items-center gap-2 px-3 py-1.5 bg-white/60 border border-white text-[#1E2657] font-bold text-sm rounded-xl hover:bg-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E2657]/40">
+                        <!-- Smoothed outline from black/70 to #1E2657/20 -->
+                        <button @click="switchOpen = !switchOpen" @click.away="switchOpen = false" class="flex items-center gap-2 px-3 py-1.5 bg-[#F0F3FA] border border-[#1E2657]/20 text-[#1E2657] font-bold text-sm rounded-xl hover:bg-[#E4E9F7] shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E2657]/40">
                             <div class="bg-[#1E2657] text-white rounded-full flex items-center justify-center w-6 h-6 text-[10px]"><i class="fa-solid fa-child"></i></div>
                             <span class="hidden sm:inline text-[#6B7086] font-semibold">Viewing:</span> {{ $activeChild->first_name }}
                         </button>
-                        <div x-show="switchOpen" x-transition x-cloak class="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md border border-[#E8E5DC] rounded-2xl shadow-xl py-2 z-50">
+                        <div x-show="switchOpen" x-transition x-cloak class="absolute right-0 mt-2 w-56 bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl py-2 z-50">
                             @foreach($myChildren as $child)
                                 <a href="{{ route('guardian.switch-child', $child->id) }}" class="block px-4 py-2.5 text-sm font-bold hover:bg-[#D9E6FF]/50 {{ $activeChild->id === $child->id ? 'text-[#5B8DEF] bg-[#D9E6FF]/50' : 'text-[#2C2F45]' }}">
                                     {{ $child->first_name }} {{ $child->last_name }}
@@ -75,11 +77,12 @@
 
             <!-- Notifications Menu -->
             <div x-data="{ notifOpen: false }" class="relative">
-                <button @click="notifOpen = !notifOpen" @click.away="notifOpen = false" class="w-10 h-10 rounded-xl border border-[#D9E6FF]/50 flex items-center justify-center text-[#6B7086] hover:border-white hover:bg-white hover:text-[#1E2657] shadow-sm transition backdrop-blur-md">
+                <!-- Smoothed outline from black/70 to #1E2657/20 -->
+                <button @click="notifOpen = !notifOpen" @click.away="notifOpen = false" class="w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-sm transition">
                     <i class="fa fa-bell"></i>
                 </button>
-                <div x-show="notifOpen" x-transition x-cloak class="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-md border border-[#E8E5DC] rounded-2xl shadow-xl overflow-hidden z-50">
-                    <div class="bg-[#F8F9FD]/80 px-4 py-3 border-b border-[#E8E5DC] flex justify-between items-center">
+                <div x-show="notifOpen" x-transition x-cloak class="absolute right-0 mt-2 w-80 bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl overflow-hidden z-50">
+                    <div class="bg-[#F8F9FD] px-4 py-3 border-b border-[#E8E5DC] flex justify-between items-center">
                         <span class="font-bold text-sm text-[#1E2657]">Notifications</span>
                     </div>
                     <div class="px-4 py-8 text-center text-[#9CA0AF]">
@@ -91,11 +94,11 @@
 
             <!-- Profile Menu -->
             <div x-data="{ profileOpen: false }" class="relative">
-                <button @click="profileOpen = !profileOpen" @click.away="profileOpen = false" class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-white text-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shadow-md hover:ring-2 hover:ring-[#5B8DEF]/50 transition">
+                <button @click="profileOpen = !profileOpen" @click.away="profileOpen = false" class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-white text-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shadow-md border border-[#1E2657]/20 hover:ring-2 hover:ring-[#5B8DEF]/50 transition">
                     {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 </button>
-                <div x-show="profileOpen" x-transition x-cloak class="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md border border-[#E8E5DC] rounded-2xl shadow-xl py-2 z-50">
-                    <div class="px-4 py-3 border-b border-[#E8E5DC] bg-[#F8F9FD]/80">
+                <div x-show="profileOpen" x-transition x-cloak class="absolute right-0 mt-2 w-56 bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl py-2 z-50">
+                    <div class="px-4 py-3 border-b border-[#E8E5DC] bg-[#F8F9FD]">
                         <span class="block text-sm font-extrabold text-[#1E2657]">{{ Auth::user()->name ?? 'Guest User' }}</span>
                         <span class="block text-[10px] font-bold text-[#C4922E] uppercase tracking-wide mt-0.5">{{ Auth::user()->role ?? 'Role' }} Account</span>
                     </div>
@@ -122,7 +125,8 @@
         <!-- BACK BUTTON: Shows only when inside a system module (not on the main dashboard) -->
         @if(!$isDashboard && Auth::check())
             <div class="mb-6">
-                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-md border border-white rounded-xl text-sm font-bold text-[#6B7086] hover:text-[#1E2657] hover:bg-white shadow-sm transition-all">
+                <!-- Smoothed outline from black/70 to #1E2657/20 -->
+                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
                     <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                 </a>
             </div>

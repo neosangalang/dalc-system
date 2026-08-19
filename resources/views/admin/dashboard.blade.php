@@ -4,118 +4,142 @@
 
 @section('content')
 
-<!-- Added max-w-5xl wrapper to keep everything perfectly proportioned and card-like -->
-<div class="font-['Inter'] min-h-[100dvh] py-6 sm:py-8 w-full max-w-5xl mx-auto flex flex-col items-center">
-    
-    <!-- 1. WELCOME HEADER (Fixed: Changed back to visible colors) -->
-    <div class="flex flex-wrap justify-between items-end mb-8 gap-4 w-full">
-        <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-[#5B8DEF] mb-1">System Overview 🚀</h2>
-            <p class="text-[#6B7086] text-xs sm:text-sm font-medium">Welcome to the Dream Achievers Learning Center PH control panel.</p>
-        </div>
-    </div>
+<!-- Main Background and Typography Container -->
+<div class="bg-[#F5F5F5] min-h-[100dvh] py-8 md:py-10 w-full font-['Inter',sans-serif] text-[#111111]">
+    <div class="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 space-y-10">
 
-    <!-- 2. FOUR STAT CARDS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-10 w-full">
-        
-        <!-- Active Students (Blue Theme) -->
-        <div class="group bg-gradient-to-br from-[#5B8DEF]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#5B8DEF]/40 hover:border-[#5B8DEF] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(91,141,239,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#5B8DEF] group-hover:scale-110 transition-transform duration-300">
-                <i class="fa-solid fa-users"></i>
-            </div>
-            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ $totalStudents ?? 0 }}</h3>
-            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Active Students</p>
-        </div>
-        
-        <!-- Active Teachers (Purple Theme) -->
-        <div class="group bg-gradient-to-br from-[#A874FF]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#A874FF]/40 hover:border-[#A874FF] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(168,116,255,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#A874FF] group-hover:scale-110 transition-transform duration-300">
-                <i class="fa-solid fa-chalkboard-user"></i>
-            </div>
-            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ $activeTeachers ?? 0 }}</h3>
-            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Active Teachers</p>
-        </div>
+        <!-- 1. WELCOME HEADER -->
+        <header>
+            <h2 class="text-2xl md:text-3xl font-[800] tracking-tight mb-1">System Overview 🚀</h2>
+            <p class="text-[#555555] font-[500] text-[15px]">Welcome to the Dream Achievers Learning Center PH control panel.</p>
+        </header>
 
-        <!-- Registered Guardians (Green Theme) -->
-        <div class="group bg-gradient-to-br from-[#48C78E]/15 to-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 border-[#48C78E]/40 hover:border-[#48C78E] shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(72,199,142,0.4)] flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm text-[#48C78E] group-hover:scale-110 transition-transform duration-300">
-                <i class="fa-solid fa-heart"></i>
-            </div>
-            <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ $guardians ?? 0 }}</h3>
-            <p class="text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center">Registered Guardians</p>
-        </div>
-
-        <!-- Reports Status (Dynamic Rose/Gold Theme) -->
-        @php $hasPending = ($pendingReports ?? 0) > 0; @endphp
-        <a href="{{ route('admin.report-approval.index') }}" class="block group text-decoration-none h-full focus-visible:outline-none w-full">
-            <div class="bg-gradient-to-br {{ $hasPending ? 'from-rose-400/20 to-white/80 border-rose-400 hover:border-rose-500 hover:shadow-[0_8px_25px_-8px_rgba(244,63,94,0.4)]' : 'from-[#C4922E]/15 to-white/80 border-[#C4922E]/40 hover:border-[#C4922E] hover:shadow-[0_8px_25px_-8px_rgba(196,146,46,0.4)]' }} backdrop-blur-md rounded-2xl p-4 sm:p-5 border-2 shadow-sm flex flex-col items-center justify-center hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out h-full relative overflow-hidden">
-                @if($hasPending)
-                    <div class="absolute top-0 left-0 w-full h-1 bg-rose-400"></div>
-                @endif
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2.5 bg-white shadow-sm {{ $hasPending ? 'text-rose-500' : 'text-[#C4922E]' }} group-hover:scale-110 transition-transform duration-300">
-                    <i class="fa-solid fa-file-signature"></i>
+        <!-- 2. STAT CARDS -->
+        <section>
+            <!-- Desktop: 4 columns, Mobile: 2 columns -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 w-full">
+                
+                <!-- Stat Card 1: Active Students (Blue) -->
+                <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out p-6 flex flex-col items-center justify-center h-[130px]">
+                    <h3 class="font-[800] text-[36px] text-[#3B82F6] leading-none mb-2 counter">{{ $totalStudents ?? 0 }}</h3>
+                    <p class="text-[#555555] text-[12px] font-[700] uppercase tracking-[0.08em] m-0 text-center">Active Students</p>
                 </div>
-                <h3 class="font-extrabold text-2xl text-[#2C2F45] m-0 leading-none">{{ $pendingReports ?? 0 }}</h3>
-                <p class="text-[9px] font-extrabold uppercase tracking-widest mt-1.5 m-0 text-center {{ $hasPending ? 'text-rose-600' : 'text-[#6B7086]' }}">
-                    {{ $hasPending ? 'Needs Review' : 'Reports Cleared' }}
-                </p>
+
+                <!-- Stat Card 2: Active Teachers (Purple) -->
+                <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out p-6 flex flex-col items-center justify-center h-[130px]">
+                    <h3 class="font-[800] text-[36px] text-[#8B5CF6] leading-none mb-2 counter">{{ $activeTeachers ?? 0 }}</h3>
+                    <p class="text-[#555555] text-[12px] font-[700] uppercase tracking-[0.08em] m-0 text-center">Active Teachers</p>
+                </div>
+
+                <!-- Stat Card 3: Registered Guardians (Green) -->
+                <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out p-6 flex flex-col items-center justify-center h-[130px]">
+                    <h3 class="font-[800] text-[36px] text-[#10B981] leading-none mb-2 counter">{{ $guardians ?? 0 }}</h3>
+                    <p class="text-[#555555] text-[12px] font-[700] uppercase tracking-[0.08em] m-0 text-center">Registered Guardians</p>
+                </div>
+
+                <!-- Stat Card 4: Reports Status (Red if Pending, Orange if Clear) -->
+                @php $hasPending = ($pendingReports ?? 0) > 0; @endphp
+                <a href="{{ route('admin.report-approval.index') }}" class="block text-decoration-none h-full focus-visible:outline-none w-full">
+                    <div class="bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out p-6 flex flex-col items-center justify-center h-[130px]">
+                        <h3 class="font-[800] text-[36px] {{ $hasPending ? 'text-[#EF4444]' : 'text-[#F59E0B]' }} leading-none mb-2 counter">{{ $pendingReports ?? 0 }}</h3>
+                        <p class="text-[#555555] text-[12px] font-[700] uppercase tracking-[0.08em] m-0 text-center">
+                            {{ $hasPending ? 'Reports Pending Review' : 'Reports Cleared' }}
+                        </p>
+                    </div>
+                </a>
+
             </div>
-        </a>
-        
+        </section>
+
+        <!-- 3. SYSTEM MODULES -->
+        <section>
+            <!-- Section Label -->
+            <div class="flex items-center gap-4 mb-6">
+                <span class="h-[2px] w-8 bg-[#000000]"></span>
+                <h2 class="text-[12px] font-[800] text-[#555555] uppercase tracking-[0.1em]">System Modules</h2>
+                <span class="h-[2px] flex-1 bg-[#E5E5E5]"></span>
+            </div>
+
+            <!-- ADMIN MODULES (5 Columns mapping perfectly to the 5 distinct roles) -->
+            <!-- Desktop: 5 cols, Tablet: 3 cols, Mobile: 2 cols -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 md:gap-6 w-full">
+                
+                <!-- Student Profiles (Blue) -->
+                <a href="{{ route('admin.students.index') }}" class="group bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out block h-[160px] p-5 relative overflow-hidden">
+                    <div class="w-[42px] h-[42px] rounded-lg bg-[#3B82F6]/10 border-[2px] border-[#000000] flex items-center justify-center mb-4 transition-colors group-hover:bg-[#3B82F6]">
+                        <i class="fa-solid fa-users text-[#3B82F6] text-[18px] group-hover:text-[#FFFFFF]"></i>
+                    </div>
+                    <h3 class="text-[15px] font-[800] text-[#111111] mb-1">Student Profiles</h3>
+                    <p class="text-[13px] text-[#555555] font-[500]">Manage Roster</p>
+                </a>
+                
+                <!-- Approvals (Green) -->
+                <a href="{{ route('admin.report-approval.index') }}" class="group bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out block h-[160px] p-5 relative overflow-hidden">
+                    <div class="w-[42px] h-[42px] rounded-lg bg-[#10B981]/10 border-[2px] border-[#000000] flex items-center justify-center mb-4 transition-colors group-hover:bg-[#10B981]">
+                        <i class="fa-solid fa-file-circle-check text-[#10B981] text-[18px] group-hover:text-[#FFFFFF]"></i>
+                    </div>
+                    <h3 class="text-[15px] font-[800] text-[#111111] mb-1">Approvals</h3>
+                    <p class="text-[13px] text-[#555555] font-[500]">Review Reports</p>
+                </a>
+                
+                <!-- Users (Purple) -->
+                <a href="{{ route('admin.accounts.index') }}" class="group bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out block h-[160px] p-5 relative overflow-hidden">
+                    <div class="w-[42px] h-[42px] rounded-lg bg-[#8B5CF6]/10 border-[2px] border-[#000000] flex items-center justify-center mb-4 transition-colors group-hover:bg-[#8B5CF6]">
+                        <i class="fa-solid fa-user-shield text-[#8B5CF6] text-[18px] group-hover:text-[#FFFFFF]"></i>
+                    </div>
+                    <h3 class="text-[15px] font-[800] text-[#111111] mb-1">Users</h3>
+                    <p class="text-[13px] text-[#555555] font-[500]">Manage Access</p>
+                </a>
+                
+                <!-- Calendar (Orange) -->
+                <a href="{{ route('admin.quarters.index') }}" class="group bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out block h-[160px] p-5 relative overflow-hidden">
+                    <div class="w-[42px] h-[42px] rounded-lg bg-[#F59E0B]/10 border-[2px] border-[#000000] flex items-center justify-center mb-4 transition-colors group-hover:bg-[#F59E0B]">
+                        <i class="fa-solid fa-calendar-days text-[#F59E0B] text-[18px] group-hover:text-[#FFFFFF]"></i>
+                    </div>
+                    <h3 class="text-[15px] font-[800] text-[#111111] mb-1">Calendar</h3>
+                    <p class="text-[13px] text-[#555555] font-[500]">System Terms</p>
+                </a>
+                
+                <!-- Archive (Dark Gray) -->
+                <a href="{{ route('admin.archive.index') }}" class="group bg-[#FFFFFF] border-[2px] border-[#000000] rounded-[16px] shadow-[4px_4px_0_0_rgba(0,0,0,0.20)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.20)] hover:-translate-y-[2px] transition-all duration-150 ease-in-out block h-[160px] p-5 relative overflow-hidden">
+                    <div class="w-[42px] h-[42px] rounded-lg bg-[#111111]/5 border-[2px] border-[#000000] flex items-center justify-center mb-4 transition-colors group-hover:bg-[#111111]">
+                        <i class="fa-solid fa-box-archive text-[#111111] text-[18px] group-hover:text-[#FFFFFF]"></i>
+                    </div>
+                    <h3 class="text-[15px] font-[800] text-[#111111] mb-1">Archive</h3>
+                    <p class="text-[13px] text-[#555555] font-[500]">Past Records</p>
+                </a>
+            </div>
+        </section>
+
     </div>
-
-    <!-- 3. SYSTEM MODULES SITTING EXACTLY BELOW THE NUMBER CARDS -->
-    <div class="w-full pt-2 mb-6">
-        
-        <!-- Header Text (Fixed: Changed back to visible colors) -->
-        <div class="flex items-center gap-3 justify-center mb-6 w-full">
-            <span class="h-px flex-1 max-w-[48px] bg-[#C4922E]/40"></span>
-            <span class="w-1 h-1 rounded-full bg-[#C4922E]"></span>
-            <h3 class="text-[10px] font-extrabold text-[#6B7086] uppercase tracking-[0.2em] whitespace-nowrap">System Modules</h3>
-            <span class="w-1 h-1 rounded-full bg-[#C4922E]"></span>
-            <span class="h-px flex-1 max-w-[48px] bg-[#C4922E]/40"></span>
-        </div>
-
-        <!-- ADMIN MODULES (5 Columns) -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-5 max-w-5xl mx-auto w-full">
-            
-            <a href="{{ route('admin.students.index') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#1E2657]/10 to-white/90 backdrop-blur-md border-2 border-[#1E2657]/30 hover:border-[#1E2657] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(30,38,87,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
-                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#1E2657] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#1E2657] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#1E2657] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-users"></i></div>
-                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Student Profiles</h4>
-                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Manage Roster</p>
-            </a>
-            
-            <a href="{{ route('admin.report-approval.index') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#C4922E]/10 to-white/90 backdrop-blur-md border-2 border-[#C4922E]/40 hover:border-[#C4922E] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(196,146,46,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
-                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#C4922E] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#C4922E] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#C4922E] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-file-circle-check"></i></div>
-                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Approvals</h4>
-                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Review Reports</p>
-            </a>
-            
-            <a href="{{ route('admin.accounts.index') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#0E7C86]/10 to-white/90 backdrop-blur-md border-2 border-[#0E7C86]/30 hover:border-[#0E7C86] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(14,124,134,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
-                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#0E7C86] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#0E7C86] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#0E7C86] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-user-shield"></i></div>
-                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Users</h4>
-                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Manage Access</p>
-            </a>
-            
-            <a href="{{ route('admin.quarters.index') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#4A5AA8]/10 to-white/90 backdrop-blur-md border-2 border-[#4A5AA8]/30 hover:border-[#4A5AA8] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(74,90,168,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
-                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#4A5AA8] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#4A5AA8] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#4A5AA8] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-calendar-days"></i></div>
-                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Calendar</h4>
-                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">System Terms</p>
-            </a>
-            
-            <a href="{{ route('admin.archive.index') }}" class="group relative overflow-hidden bg-gradient-to-br from-[#8B8374]/10 to-white/90 backdrop-blur-md border-2 border-[#8B8374]/30 hover:border-[#8B8374] rounded-2xl p-4 pt-5 shadow-sm hover:shadow-[0_8px_25px_-8px_rgba(139,131,116,0.3)] hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-out flex flex-col items-center text-center">
-                <span class="absolute top-0 left-0 right-0 h-[3px] bg-[#8B8374] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-                <div class="w-10 h-10 rounded-xl bg-white shadow-sm text-[#8B8374] flex items-center justify-center text-lg mb-2.5 group-hover:bg-[#8B8374] group-hover:text-white group-hover:scale-110 transition-all duration-300"><i class="fa-solid fa-box-archive"></i></div>
-                <h4 class="text-[11px] font-extrabold text-[#2C2F45] uppercase tracking-wide">Archive</h4>
-                <p class="text-[9px] font-bold text-[#6B7086] mt-0.5">Past Records</p>
-            </a>
-        </div>
-    </div>
-
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.innerText;
+                if(isNaN(target)) return; // Only animate numbers
+                
+                let count = 0;
+                const inc = Math.max(1, Math.ceil(target / 100)); // Ensure it increments even for small numbers
+                
+                const timer = setInterval(() => {
+                    count += inc;
+                    if (count >= target) {
+                        counter.innerText = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.innerText = count;
+                    }
+                }, 15);
+            };
+            setTimeout(updateCount, 100);
+        });
+    });
+</script>
+@endpush

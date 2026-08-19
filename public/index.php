@@ -12,19 +12,6 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 // Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
 
-// Bootstrap Laravel and create the application...
-$app = require_once __DIR__.'/../bootstrap/app.php';
-
-// Redirect Laravel storage to Vercel's writable /tmp directory
-$app->useStoragePath('/tmp');
-
-// Handle the incoming request (Compatible with Laravel 10 & 11)
-if (method_exists($app, 'handleRequest')) {
-    $app->handleRequest(Request::capture());
-} else {
-    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-    $response = $kernel->handle(
-        $request = Request::capture()
-    )->send();
-    $kernel->terminate($request, $response);
-}
+// Bootstrap Laravel and handle the request...
+(require_once __DIR__.'/../bootstrap/app.php')
+    ->handleRequest(Request::capture());
