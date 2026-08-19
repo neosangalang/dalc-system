@@ -1,9 +1,5 @@
 <?php
 
-// 1. Force errors to show on the screen instead of a blank page
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
-
 use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
@@ -19,15 +15,13 @@ require __DIR__.'/../vendor/autoload.php';
 // Bootstrap Laravel and create the application...
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-// 2. VERCEL FIX: Force Laravel to write temporary files to Vercel's /tmp folder
+// Redirect Laravel storage to Vercel's writable /tmp directory
 $app->useStoragePath('/tmp');
 
-// 3. Handle the incoming request (Works for both Laravel 10 and Laravel 11)
+// Handle the incoming request (Compatible with Laravel 10 & 11)
 if (method_exists($app, 'handleRequest')) {
-    // Laravel 11+ way
     $app->handleRequest(Request::capture());
 } else {
-    // Laravel 10 way
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
     $response = $kernel->handle(
         $request = Request::capture()
