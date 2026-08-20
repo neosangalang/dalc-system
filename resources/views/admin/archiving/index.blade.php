@@ -4,13 +4,14 @@
 
 @section('content')
 
-<div class="font-['Inter'] bg-slate-50 min-h-[100dvh] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block">
+<!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
+<div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
     @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-5 sm:mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down mb-6">
             <div class="flex items-center">
                 <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-                <span class="font-bold text-[13px] sm:text-sm">{{ session('success') }}</span>
+                <span class="font-extrabold text-sm">{{ session('success') }}</span>
             </div>
             <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
                 <i class="fa fa-times text-lg"></i>
@@ -20,14 +21,15 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         
+        <!-- LEFT COLUMN -->
         <div class="lg:col-span-7 space-y-5 sm:space-y-6">
             
-            <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden">
                 
-                <!-- Header (Stacks on mobile, row on desktop) -->
-                <div class="p-4 sm:px-6 sm:py-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4">
-                    <h3 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 flex items-center">
-                        <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 mr-3 shadow-sm border border-purple-100 shrink-0">
+                <!-- Header -->
+                <div class="p-5 sm:p-6 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4">
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-[#6B7086]/10 flex items-center justify-center text-[#6B7086] mr-3 shadow-sm border border-black/5 shrink-0">
                             <i class="fa fa-box-archive"></i>
                         </div>
                         Year-End Archiving
@@ -36,84 +38,86 @@
                     <form action="{{ route('admin.archive.run') }}" method="POST" class="m-0 w-full sm:w-auto" onsubmit="return confirm('Are you sure you want to run the year-end archive? This cannot be undone.');">
                         @csrf
                         <input type="hidden" name="school_year" value="2024-2025">
-                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-indigo-600 text-white text-[13px] sm:text-sm font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1" onclick="runArchiveDemo()">
+                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1" onclick="runArchiveDemo()">
                             <i class="fa fa-play mr-2"></i> Run Archive
                         </button>
                     </form>
                 </div>
                 
-                <div class="p-4 sm:p-6">
-                    <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl mb-5 sm:mb-6 shadow-sm">
-                        <strong class="flex items-center text-[12px] sm:text-[13px] font-extrabold text-orange-800 mb-1">
-                            <i class="fa fa-triangle-exclamation text-orange-500 mr-2"></i> Year-end Archive for SY 2024-2025
+                <div class="p-5 sm:p-6">
+                    <!-- Warning Notice -->
+                    <div class="bg-[#F59E0B]/10 border border-[#F59E0B]/20 p-4 rounded-xl mb-5 sm:mb-6 shadow-sm">
+                        <strong class="flex items-center text-[13px] font-extrabold text-[#1E2657] mb-1">
+                            <i class="fa fa-triangle-exclamation text-[#F59E0B] mr-2"></i> Year-end Archive for SY 2024-2025
                         </strong>
-                        <p class="text-[11px] sm:text-xs font-medium text-orange-700 m-0 leading-relaxed ml-0 sm:ml-6 mt-1.5 sm:mt-0">
+                        <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed ml-0 sm:ml-6 mt-1.5 sm:mt-0">
                             This will snapshot all student records into JSON format, generate master PDFs for safekeeping, and optionally deactivate teacher/guardian accounts.
                         </p>
                     </div>
                     
-                    <div class="relative border-l-2 border-indigo-100 ml-2 sm:ml-4 space-y-5 sm:space-y-6 mt-6 sm:mt-8">
+                    <!-- Timeline Steps -->
+                    <div class="relative border-l-2 border-[#3B82F6]/20 ml-2 sm:ml-4 space-y-6 sm:space-y-8 mt-6 sm:mt-8">
                         
-                        <div class="relative pl-5 sm:pl-6">
-                            <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm"></span>
-                            <p class="font-extrabold text-[12px] sm:text-[13px] text-slate-800 m-0 mb-0.5">Snapshot Student Data</p>
-                            <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Capture all profiles, IEP goals, and progress notes</p>
+                        <div class="relative pl-6 sm:pl-8">
+                            <span class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#3B82F6] border-4 border-white shadow-sm"></span>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Snapshot Student Data</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Capture all profiles, IEP goals, and progress notes</p>
                         </div>
                         
-                        <div class="relative pl-5 sm:pl-6">
-                            <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm"></span>
-                            <p class="font-extrabold text-[12px] sm:text-[13px] text-slate-800 m-0 mb-0.5">Generate Master PDFs</p>
-                            <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Create one comprehensive PDF file per student</p>
+                        <div class="relative pl-6 sm:pl-8">
+                            <span class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#3B82F6] border-4 border-white shadow-sm"></span>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Generate Master PDFs</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Create one comprehensive PDF file per student</p>
                         </div>
                         
-                        <div class="relative pl-5 sm:pl-6">
-                            <span id="step3Dot" class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-slate-300 border-4 border-white shadow-sm transition-colors duration-500"></span>
-                            <p class="font-extrabold text-[12px] sm:text-[13px] text-slate-800 m-0 mb-0.5">Soft-Delete Records</p>
-                            <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Mark processed students as archived in the active database</p>
+                        <div class="relative pl-6 sm:pl-8">
+                            <span id="step3Dot" class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#E8E5DC] border-4 border-white shadow-sm transition-colors duration-500"></span>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Soft-Delete Records</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Mark processed students as archived in the active database</p>
                         </div>
                         
                     </div>
                 </div>
             </div>
 
-            <div class="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-200 border-l-4 border-l-emerald-500 p-4 sm:p-6 flex gap-3 sm:gap-4 items-start">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
+            <!-- Automated Rollover Box -->
+            <div class="bg-white rounded-2xl shadow-sm border border-black/15 border-l-4 border-l-[#10B981] p-5 sm:p-6 flex gap-4 items-start">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#10B981]/10 text-[#10B981] flex items-center justify-center shrink-0 border border-[#10B981]/20">
                     <i class="fa fa-robot text-lg sm:text-xl"></i>
                 </div>
                 <div>
-                    <h5 class="font-extrabold text-[13px] sm:text-[15px] text-emerald-900 mb-1 sm:mb-1.5 m-0 leading-tight">Automated Quarterly Rollover Active</h5>
-                    <p class="text-[11px] sm:text-xs font-medium text-emerald-700 m-0 leading-relaxed">
-                        This system is configured with automated background tasks (Cron Jobs). The system will securely archive all approved daily reports and clear active Teacher dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-emerald-900">No manual initialization is required.</strong>
+                    <h5 class="font-extrabold text-[14px] sm:text-[15px] text-[#1E2657] mb-1 sm:mb-1.5 m-0 leading-tight">Automated Quarterly Rollover Active</h5>
+                    <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed">
+                        This system is configured with automated background tasks (Cron Jobs). The system will securely archive all approved daily reports and clear active Teacher dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
                     </p>
                 </div>
             </div>
 
         </div>
         
+        <!-- RIGHT COLUMN -->
         <div class="lg:col-span-5">
-            <!-- Added sm:min-h-[500px] to only force height on PC, allowing natural height on Mobile -->
-            <div class="bg-white rounded-2xl shadow-md border border-slate-300 overflow-hidden h-full sm:min-h-[500px]">
+            <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden h-full sm:min-h-[500px]">
                 
-                <div class="p-4 sm:px-6 sm:py-5 border-b border-slate-200 bg-white flex items-center">
-                    <h3 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 flex items-center">
-                        <i class="fa fa-folder-open text-indigo-500 mr-2"></i> Archived Records
+                <div class="p-5 sm:p-6 border-b border-black/10 bg-[#F4F6FA] flex items-center">
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
+                        <i class="fa fa-folder-open text-[#6B7086] mr-2"></i> Archived Records
                     </h3>
                 </div>
                 
-                <div class="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <div class="p-5 sm:p-6 space-y-4">
                     @forelse($archives as $archive)
-                        <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors shadow-sm">
-                            <div class="hidden sm:block w-2.5 h-2.5 rounded-full bg-indigo-500 mt-1.5 shrink-0 shadow-sm"></div>
+                        <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 p-4 rounded-xl bg-white border border-black/15 hover:border-black/30 hover:shadow-md transition-all shadow-sm">
+                            <div class="hidden sm:block w-2.5 h-2.5 rounded-full bg-[#6B7086] mt-1.5 shrink-0 shadow-sm"></div>
                             <div class="flex-1">
-                                <h6 class="font-extrabold text-[13px] sm:text-sm text-slate-800 m-0 mb-1 leading-tight">
-                                    <span class="sm:hidden inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5 mb-[1px]"></span>
+                                <h6 class="font-extrabold text-[13px] sm:text-sm text-[#1E2657] m-0 mb-1 leading-tight">
+                                    <span class="sm:hidden inline-block w-2 h-2 rounded-full bg-[#6B7086] mr-1.5 mb-[1px]"></span>
                                     {{ $archive->student->first_name ?? 'Unknown' }} {{ $archive->student->last_name ?? 'Student' }} – SY {{ $archive->school_year }}
                                 </h6>
-                                <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0 mb-3">Archived on: {{ $archive->archived_at->format('M j, Y') }}</p>
+                                <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] m-0 mb-3">Archived on: {{ $archive->archived_at->format('M j, Y') }}</p>
                                 
                                 @if($archive->master_pdf_path)
-                                    <!-- Full width button on mobile, auto width on desktop -->
-                                    <a href="{{ asset('storage/' . $archive->master_pdf_path) }}" target="_blank" class="w-full sm:w-auto inline-flex justify-center sm:justify-start items-center px-3 py-2 sm:py-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
+                                    <a href="{{ asset('storage/' . $archive->master_pdf_path) }}" target="_blank" class="w-full sm:w-auto inline-flex justify-center sm:justify-start items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
                                         <i class="fa fa-file-pdf mr-1.5 text-rose-500"></i> Download PDF
                                     </a>
                                 @endif
@@ -121,11 +125,11 @@
                         </div>
                     @empty
                         <div class="flex flex-col items-center justify-center py-12 sm:py-16 text-center">
-                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-50 flex items-center justify-center mb-3 sm:mb-4 border border-slate-200">
-                                <i class="fa fa-folder-open text-xl sm:text-2xl text-slate-300"></i>
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#F4F6FA] flex items-center justify-center mb-3 sm:mb-4 border border-black/5">
+                                <i class="fa fa-folder-open text-xl sm:text-2xl text-[#9CA0AF]"></i>
                             </div>
-                            <h4 class="text-[13px] sm:text-sm font-extrabold text-slate-700 m-0 mb-1">No archived records found</h4>
-                            <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Past student records will appear here.</p>
+                            <h4 class="text-[14px] font-extrabold text-[#1E2657] m-0 mb-1">No archived records found</h4>
+                            <p class="text-[12px] font-medium text-[#6B7086] m-0">Past student records will appear here.</p>
                         </div>
                     @endforelse
                 </div>
@@ -144,8 +148,8 @@
         setTimeout(() => { 
             const step3 = document.getElementById('step3Dot');
             if (step3) {
-                step3.classList.remove('bg-slate-300');
-                step3.classList.add('bg-indigo-500');
+                step3.classList.remove('bg-[#E8E5DC]');
+                step3.classList.add('bg-[#3B82F6]');
             }
         }, 800);
     }
