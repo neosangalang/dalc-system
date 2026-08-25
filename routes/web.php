@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\QuarterlyCalendarController;
 use App\Http\Controllers\Admin\ReportApprovalController;
 use App\Http\Controllers\Admin\ArchiveController;
 use App\Http\Controllers\Admin\AcademicQuarterController;
+use App\Http\Controllers\Admin\AnnouncementController;
 
 // Import Teacher Controllers
 use App\Http\Controllers\Teacher\TeacherController;
@@ -60,6 +61,13 @@ Route::middleware(['auth', 'role:admin', \App\Http\Middleware\ForcePasswordChang
     ->name('admin.') 
     ->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    // Announcement Management
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/announcements/{id}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
+    Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
+    Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 });
 
 /*
@@ -109,6 +117,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
         // Resource route comes last
         Route::resource('accounts', AccountController::class);
     });
+    
 
 });
 
@@ -123,7 +132,8 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     ->group(function () {
     
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
-    
+    Route::get('/announcements', [TeacherController::class, 'announcements'])->name('announcements.index');
+
     Route::post('/daily-logs/generate-ai', [DailyLogController::class, 'generateAiReport'])->name('daily-logs.generate-ai');
     Route::post('/iep-goals/generate-ai', [IepGoalController::class, 'generateAi'])->name('iep-goals.generate-ai');
     Route::post('/reports/generate-ai', [ReportController::class, 'generateAiReport'])->name('reports.generate-ai');
@@ -153,7 +163,9 @@ Route::middleware(['auth', 'role:guardian', \App\Http\Middleware\ForcePasswordCh
     ->group(function () {
         
     Route::get('/dashboard', [GuardianController::class, 'dashboard'])->name('dashboard');
-    
+ 
+    Route::get('/announcements', [GuardianController::class, 'announcements'])->name('announcements.index');
+
     Route::get('/goals', [GuardianController::class, 'goals'])->name('goals');
     Route::get('/goals/download-iep/{studentId}', [GuardianController::class, 'downloadIepPdf'])->name('goals.download-iep');
     

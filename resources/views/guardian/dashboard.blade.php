@@ -19,7 +19,8 @@
 
         <!-- PORTAL QUICK LINKS -->
         <section>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 w-full">
+            <!-- Note: Changed to grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 to fit all 4 cards perfectly -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 w-full">
                 
                 <!-- Learning Goals (Purple Theme) -->
                 <a href="{{ route('guardian.goals') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-5 flex flex-col items-start gap-4 relative overflow-hidden h-full">
@@ -69,53 +70,109 @@
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
+
+                <!-- Announcements Module Card (NEW) -->
+                <a href="{{ route('guardian.announcements.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-5 flex flex-col items-start gap-4 relative overflow-hidden h-full">
+                    
+                    <!-- Red Notification Badge -->
+                    @if($newAnnouncementsCount > 0)
+                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center min-w-[24px] z-20">
+                            {{ $newAnnouncementsCount }}
+                        </div>
+                    @endif
+
+                    <div class="w-10 h-10 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white relative z-10">
+                        <i class="fa-solid fa-bullhorn text-[16px]"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300">Announcements</h3>
+                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0 mt-1">Center updates & alerts.</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+
             </div>
         </section>
 
         <!-- MAIN CONTENT: PROGRESS & UPDATES -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mt-4">
             
-            <!-- LEFT COLUMN: MILESTONES -->
-            <section class="flex flex-col gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6]"><i class="fa-solid fa-chart-line text-sm"></i></div>
-                    <h2 class="text-[15px] font-extrabold text-[#1E2657]">{{ $activeChild->first_name ?? 'Child' }}'s Current IEP Goals</h2>
-                </div>
+            <!-- LEFT COLUMN: MILESTONES & HOME ACTIVITIES -->
+            <div class="flex flex-col gap-8">
+                <!-- IEP Goals Section -->
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6]"><i class="fa-solid fa-chart-line text-sm"></i></div>
+                        <h2 class="text-[15px] font-extrabold text-[#1E2657]">{{ $activeChild->first_name ?? 'Child' }}'s Current IEP Goals</h2>
+                    </div>
 
-                <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-6 md:p-8 flex flex-col gap-6">
-                    
-                    @forelse($activeGoals ?? [] as $goal)
-                        <div class="flex flex-col gap-3">
-                            <!-- Category Badge -->
-                            <span class="inline-block bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-md w-max">
-                                {{ $goal->domain ?? 'Development Area' }}
-                            </span>
-                            
-                            <!-- Progress Stats -->
-                            <div class="flex justify-between items-end mt-1">
-                                <h3 class="text-[14px] font-extrabold text-[#1E2657] line-clamp-1 pr-4">{{ $goal->goal_description }}</h3>
-                                <span class="text-[16px] font-extrabold text-[#8B5CF6]">{{ $goal->progress_percentage ?? 0 }}%</span>
+                    <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-6 md:p-8 flex flex-col gap-6">
+                        
+                        @forelse($activeGoals ?? [] as $goal)
+                            <div class="flex flex-col gap-3">
+                                <!-- Category Badge -->
+                                <span class="inline-block bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-md w-max">
+                                    {{ $goal->domain ?? 'Development Area' }}
+                                </span>
+                                
+                                <!-- Progress Stats -->
+                                <div class="flex justify-between items-end mt-1">
+                                    <h3 class="text-[14px] font-extrabold text-[#1E2657] line-clamp-1 pr-4">{{ $goal->goal_description }}</h3>
+                                    <span class="text-[16px] font-extrabold text-[#8B5CF6]">{{ $goal->progress_percentage ?? 0 }}%</span>
+                                </div>
+                                
+                                <!-- Clean Progress Bar -->
+                                <div class="h-[8px] w-full bg-[#F4F6FA] rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#8B5CF6] rounded-full transition-all duration-1000 ease-out" style="width: {{ $goal->progress_percentage ?? 0 }}%;"></div>
+                                </div>
                             </div>
-                            
-                            <!-- Clean Progress Bar -->
-                            <div class="h-[8px] w-full bg-[#F4F6FA] rounded-full overflow-hidden">
-                                <div class="h-full bg-[#8B5CF6] rounded-full transition-all duration-1000 ease-out" style="width: {{ $goal->progress_percentage ?? 0 }}%;"></div>
+
+                            @if (!$loop->last)
+                                <div class="w-full h-px bg-black/5 my-2"></div>
+                            @endif
+                        @empty
+                            <div class="text-center py-8 text-[#9CA0AF] flex flex-col items-center">
+                                <div class="w-14 h-14 bg-[#F4F6FA] border border-black/5 rounded-full flex items-center justify-center text-[20px] mb-3"><i class="fa-solid fa-star text-[#F59E0B]"></i></div>
+                                <h4 class="text-[15px] font-extrabold text-[#1E2657]">Ready for New Challenges!</h4>
+                                <p class="text-[12px] font-medium mt-1">The teachers are preparing the next set of goals.</p>
                             </div>
-                        </div>
+                        @endforelse
 
-                        @if (!$loop->last)
-                            <div class="w-full h-px bg-black/5 my-2"></div>
-                        @endif
-                    @empty
-                        <div class="text-center py-8 text-[#9CA0AF] flex flex-col items-center">
-                            <div class="w-14 h-14 bg-[#F4F6FA] border border-black/5 rounded-full flex items-center justify-center text-[20px] mb-3"><i class="fa-solid fa-star text-[#F59E0B]"></i></div>
-                            <h4 class="text-[15px] font-extrabold text-[#1E2657]">Ready for New Challenges!</h4>
-                            <p class="text-[12px] font-medium mt-1">The teachers are preparing the next set of goals.</p>
-                        </div>
-                    @endforelse
+                    </div>
+                </section>
 
-                </div>
-            </section>
+                <!-- Try this at Home Section -->
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981]"><i class="fa-solid fa-puzzle-piece text-sm"></i></div>
+                        <h2 class="text-[15px] font-extrabold text-[#1E2657]">Try this at Home</h2>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        @forelse($homeActivities ?? [] as $activity)
+                            <div class="bg-white border border-black/15 rounded-2xl shadow-sm hover:shadow-md hover:border-black/30 transition-all p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-[14px] font-extrabold text-[#1E2657] mb-1">{{ $activity->title ?? 'Practice Activity' }}</h3>
+                                    <p class="text-[12px] font-medium text-[#9CA0AF] line-clamp-1">{{ $activity->description ?? 'Short description of the task.' }}</p>
+                                </div>
+                                <a href="{{ route('guardian.recommendations', $activity->id ?? '') }}" class="bg-white border border-black/15 rounded-xl shadow-sm hover:bg-slate-50 hover:border-[#10B981]/50 hover:text-[#10B981] px-4 py-2.5 text-[12px] font-extrabold text-[#6B7086] transition-all text-center whitespace-nowrap">
+                                    View Activity
+                                </a>
+                            </div>
+                        @empty
+                            <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-[14px] font-extrabold text-[#1E2657] mb-1">Check Recommendations</h3>
+                                    <p class="text-[12px] font-medium text-[#9CA0AF]">Find engaging activities to do together.</p>
+                                </div>
+                                <a href="{{ route('guardian.recommendations') }}" class="bg-white border border-black/15 rounded-xl shadow-sm hover:bg-slate-50 hover:border-[#10B981]/50 hover:text-[#10B981] px-4 py-2.5 text-[12px] font-extrabold text-[#6B7086] transition-all text-center whitespace-nowrap">
+                                    Browse Ideas
+                                </a>
+                            </div>
+                        @endforelse
+                    </div>
+                </section>
+            </div>
 
             <!-- RIGHT COLUMN: CLASSROOM MESSAGES & SUPPORT -->
             <div class="flex flex-col gap-8">
@@ -152,36 +209,45 @@
 
                     </div>
                 </section>
-
-                <!-- Try this at Home -->
+                
+                <!-- Center Announcements Section (Latest Only) -->
                 <section class="flex flex-col gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981]"><i class="fa-solid fa-puzzle-piece text-sm"></i></div>
-                        <h2 class="text-[15px] font-extrabold text-[#1E2657]">Try this at Home</h2>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6]">
+                                <i class="fa-solid fa-bullhorn text-sm"></i>
+                            </div>
+                            <h2 class="text-[15px] font-extrabold text-[#1E2657]">Latest Announcement</h2>
+                        </div>
+                        <!-- Link to see all -->
+                        <a href="{{ route('guardian.announcements.index') }}" class="text-[12px] font-bold text-[#8B5CF6] hover:underline">View All</a>
                     </div>
 
-                    <div class="flex flex-col gap-4">
-                        @forelse($homeActivities ?? [] as $activity)
-                            <div class="bg-white border border-black/15 rounded-2xl shadow-sm hover:shadow-md hover:border-black/30 transition-all p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div>
-                                    <h3 class="text-[14px] font-extrabold text-[#1E2657] mb-1">{{ $activity->title ?? 'Practice Activity' }}</h3>
-                                    <p class="text-[12px] font-medium text-[#9CA0AF] line-clamp-1">{{ $activity->description ?? 'Short description of the task.' }}</p>
+                    <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-6 md:p-8 flex flex-col gap-6">
+                        @if($latestAnnouncement)
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center gap-3 mb-1">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] text-white shadow-sm flex items-center justify-center text-[12px] font-bold">
+                                        <i class="fa-solid fa-bell"></i>
+                                    </div>
+                                    <h4 class="text-[13px] font-extrabold text-[#1E2657]">{{ $latestAnnouncement->title }}</h4>
+                                    <span class="text-[11px] font-medium text-[#9CA3AF] ml-auto">
+                                        <i class="fa-regular fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($latestAnnouncement->created_at)->diffForHumans() }}
+                                    </span>
                                 </div>
-                                <a href="{{ route('guardian.recommendations', $activity->id ?? '') }}" class="bg-white border border-black/15 rounded-xl shadow-sm hover:bg-slate-50 hover:border-[#10B981]/50 hover:text-[#10B981] px-4 py-2.5 text-[12px] font-extrabold text-[#6B7086] transition-all text-center whitespace-nowrap">
-                                    View Activity
-                                </a>
-                            </div>
-                        @empty
-                            <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div>
-                                    <h3 class="text-[14px] font-extrabold text-[#1E2657] mb-1">Check Recommendations</h3>
-                                    <p class="text-[12px] font-medium text-[#9CA0AF]">Find engaging activities to do together.</p>
+                                <div class="bg-[#F4F6FA] border border-black/5 rounded-2xl rounded-tl-sm p-4 mt-1">
+                                    <p class="text-[13px] font-medium text-[#4B5563] leading-relaxed m-0 whitespace-pre-line">{{ $latestAnnouncement->content }}</p>
                                 </div>
-                                <a href="{{ route('guardian.recommendations') }}" class="bg-white border border-black/15 rounded-xl shadow-sm hover:bg-slate-50 hover:border-[#10B981]/50 hover:text-[#10B981] px-4 py-2.5 text-[12px] font-extrabold text-[#6B7086] transition-all text-center whitespace-nowrap">
-                                    Browse Ideas
-                                </a>
                             </div>
-                        @endforelse
+                        @else
+                            <div class="text-center py-6 text-[#9CA3AF] flex flex-col items-center">
+                                <div class="w-14 h-14 bg-[#F4F6FA] border border-black/5 rounded-full flex items-center justify-center text-[20px] mb-3">
+                                    <i class="fa-regular fa-bell-slash"></i>
+                                </div>
+                                <h4 class="text-[15px] font-extrabold text-[#1E2657]">No Announcements Yet</h4>
+                                <p class="text-[12px] font-medium mt-1">We'll let you know when the center posts an update.</p>
+                            </div>
+                        @endif
                     </div>
                 </section>
 

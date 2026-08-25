@@ -39,7 +39,27 @@
                     <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Active IEP Goals</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
+                <!-- Announcements Stat Card -->
+                        <a href="/teacher/announcements" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-center relative overflow-hidden h-full block">
+                            
+                            <!-- Red Notification Badge -->
+                            @if($newAnnouncementsCount > 0)
+                                <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20">
+                                    {{ $newAnnouncementsCount }}
+                                </div>
+                            @endif
 
+                            <!-- Big Icon (Matches the big numbers on other cards) -->
+                            <h3 class="font-extrabold text-[32px] text-[#8B5CF6] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-none mb-2">
+                                <i class="fa-solid fa-bullhorn text-[28px]"></i>
+                            </h3>
+                            
+                            <!-- Uppercase Label -->
+                            <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Announcements</p>
+
+                            <!-- Bottom Hover Line -->
+                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
+                        </a>
                 <!-- Card 4: Reports Due (Orange/Amber Theme) -->
                 @php $hasReports = ($reportsDue ?? 0) > 0; @endphp
                 <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-center h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 {{ $hasReports ? 'hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)]' : 'hover:border-black/30 hover:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.15)]' }}">

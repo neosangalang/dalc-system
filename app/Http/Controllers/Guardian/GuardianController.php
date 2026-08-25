@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Guardian;
-
+use App\Models\Announcement;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\IepGoal;
@@ -41,10 +41,15 @@ class GuardianController extends Controller
     // ==========================================
     public function dashboard()
     {
+        // 1. Fetch only the single newest announcement & count recent ones
+        $latestAnnouncement = Announcement::latest()->first();
+        $newAnnouncementsCount = Announcement::where('created_at', '>=', now()->subDays(3))->count();
+
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
         if (!$activeChild) {
-            return view('guardian.dashboard', compact('myChildren', 'activeChild'));
+            // 2. Updated compact variables
+            return view('guardian.dashboard', compact('myChildren', 'activeChild', 'latestAnnouncement', 'newAnnouncementsCount'));
         }
 
         // Fetch data ONLY for the active child
@@ -66,7 +71,19 @@ class GuardianController extends Controller
             ->take(5)
             ->get();
 
-        return view('guardian.dashboard', compact('myChildren', 'activeChild', 'activeGoals', 'recentReports', 'recentLogs'));
+        // 3. Updated compact variables
+        return view('guardian.dashboard', compact('myChildren', 'activeChild', 'activeGoals', 'recentReports', 'recentLogs', 'latestAnnouncement', 'newAnnouncementsCount'));
+    }
+
+    // ==========================================
+    // ANNOUNCEMENTS
+    // ==========================================
+    public function announcements()
+    {
+        $announcements = Announcement::latest()->get();
+        list($activeChild, $myChildren) = $this->getActiveChildData();
+        
+        return view('guardian.announcements', compact('announcements', 'myChildren', 'activeChild'));
     }
 
     // ==========================================
@@ -129,7 +146,7 @@ class GuardianController extends Controller
     public function downloadIepPdf($studentId)
     {
         $student = Student::with(['iepGoals', 'guardian', 'teacher'])
-            ->where('guardian_id', auth()->id()) 
+            ->where('guardian_id', Auth::id())
             ->findOrFail($studentId);
 
         $pdf = Pdf::loadView('teacher.iep.pdf', compact('student'));

@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Auth;
 class TeacherController extends Controller
 {
     public function dashboard() {
+        // 1. Add this single line at the top to count recent announcements for the red badge
+        $newAnnouncementsCount = \App\Models\Announcement::where('created_at', '>=', now()->subDays(3))->count();
+        
         // Get the ID of the currently logged-in teacher
         $teacherId = Auth::id();
 
@@ -37,9 +40,18 @@ class TeacherController extends Controller
             ->take(4)
             ->get();
 
-        // Pass 'quarters' into the view alongside everything else
+        // Pass everything into the view, INCLUDING 'newAnnouncementsCount' at the end!
         return view('teacher.dashboard', compact(
-            'myStudentsCount', 'logsThisWeek', 'activeGoals', 'myStudents', 'quarters'
+            'myStudentsCount', 'logsThisWeek', 'activeGoals', 'myStudents', 'quarters', 'newAnnouncementsCount'
         ));
+    }
+    // ==========================================
+    // ANNOUNCEMENTS
+    // ==========================================
+    public function announcements()
+    {
+        $announcements = \App\Models\Announcement::latest()->get();
+        
+        return view('teacher.announcements', compact('announcements'));
     }
 }
