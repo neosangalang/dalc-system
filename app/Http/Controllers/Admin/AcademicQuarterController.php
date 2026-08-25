@@ -30,20 +30,24 @@ class AcademicQuarterController extends Controller
             'quarters' => 'required|array',
             'quarters.*.start_date' => 'nullable|date',
             'quarters.*.end_date' => 'nullable|date',
-            'active_quarter_id' => 'required|exists:academic_quarters,id',
+            'active_quarter_id' => 'nullable|exists:academic_quarters,id',
         ]);
 
-        // First, set ALL quarters to inactive
+        // Set ALL quarters to inactive first
         AcademicQuarter::query()->update(['is_active' => false]);
 
-        // Then, loop through the submitted data and update dates
+        // Activate the selected quarter if one was specified
+        if ($request->filled('active_quarter_id')) {
+            AcademicQuarter::where('id', $request->active_quarter_id)->update(['is_active' => true]);
+        }
+
+        // Update dates for each quarter
         foreach ($request->quarters as $id => $data) {
             $quarter = AcademicQuarter::find($id);
             if ($quarter) {
                 $quarter->update([
                     'start_date' => $data['start_date'],
                     'end_date' => $data['end_date'],
-                    'is_active' => ($id == $request->active_quarter_id) ? true : false,
                 ]);
             }
         }

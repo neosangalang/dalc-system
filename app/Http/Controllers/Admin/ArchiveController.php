@@ -14,13 +14,33 @@ class ArchiveController extends Controller
     // ==========================================
     // 1. THE INDEX METHOD (Shows the page)
     // ==========================================
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch records and name the variable '$archives' to match your Blade view
-        $archives = ArchivedStudent::with('student')->latest()->get();
+        // Get all unique school years for the filter dropdown
+        $schoolYears = ArchivedStudent::select('school_year')
+            ->distinct()
+            ->orderBy('school_year', 'desc')
+            ->pluck('school_year');
 
-        // Load the view at resources/views/admin/archiving/index.blade.php
-        return view('admin.archiving.index', compact('archives'));
+        // Filter by selected year, or show all
+        $query = ArchivedStudent::with('student')->latest();
+
+        if ($request->filled('school_year')) {
+            $query->where('school_year', $request->school_year);
+        }
+
+        // Search by student name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('student', function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        $archives = $query->get();
+
+        return view('admin.archiving.index', compact('archives', 'schoolYears'));
     }
 
     // ==========================================
@@ -30,7 +50,7 @@ class ArchiveController extends Controller
     {
         $schoolYear = '2024-2025'; 
 
-        $activeStudents = Student::with(['iepGoals', 'dailyLogs'])
+        $activeStudents = Student::with(['iepGoals', 'dailyLogs', 'teacher', 'guardian'])
             ->where('status', 'active')
             ->get();
 
@@ -66,6 +86,40 @@ class ArchiveController extends Controller
 
         return redirect()->back()->with('success', 'Year-End Archiving completed successfully!');
     }
+
+    // ==========================================
+    // 3. THE SHOW METHOD (View archived data)
+    // ==========================================
+    public function show($id)
+    {
+        $archive = ArchivedStudent::with('student')->findOrFail($id);
+
+        return view('admin.archiving.show', compact('archive'));
+    }
+
+    // ==========================================
+    // 4. THE RESTORE METHOD (Retrieve student)
+    // ==========================================
+    public function restore($id)
+    {
+        $archive = ArchivedStudent::findOrFail($id);
+
+        // Set the student back to active
+        Student::where('id', $archive->student_id)
+            ->update(['status' => 'active']);
+
+        // Delete the PDF file if it exists
+        if ($archive->master_pdf_path && Storage::disk('public')->exists($archive->master_pdf_path)) {
+            Storage::disk('public')->delete($archive->master_pdf_path);
+        }
+
+        // Remove the archive record
+        $archive->delete();
+
+        return redirect()->route('admin.archive.index')
+            ->with('success', 'Student has been restored to active status successfully!');
+    }
+
     public function archiveQuarterlyReports(\Illuminate\Http\Request $request)
 {
     // 1. Validate the date the admin picked

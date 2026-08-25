@@ -31,9 +31,10 @@
     </div>
 
     <!-- Calendar Table Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden" x-data="{ activeId: '{{ $quarters->where('is_active', true)->first()->id ?? '' }}' }">
         <form action="{{ route('admin.quarters.update') }}" method="POST" class="m-0">
             @csrf
+            <input type="hidden" name="active_quarter_id" :value="activeId">
 
             <!-- Mobile hides horizontal scrolling, PC restores it -->
             <div class="overflow-x-hidden md:overflow-x-auto w-full">
@@ -46,7 +47,7 @@
                             <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[15%]">Quarter</th>
                             <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[30%]">Start Date</th>
                             <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[30%]">End Date</th>
-                            <th scope="col" class="px-6 py-4 text-center text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[25%]">Current Active Quarter</th>
+                            <th scope="col" class="px-6 py-4 text-center text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[25%]">Active Status (ON / OFF)</th>
                         </tr>
                     </thead>
                     
@@ -54,16 +55,15 @@
                         @foreach($quarters as $quarter)
                             
                             <!-- Mobile row behaves as a relative block with padding, PC is standard row -->
-                            <tr class="block md:table-row relative md:static p-4 md:p-0 hover:bg-slate-50 transition-colors duration-150 {{ $quarter->is_active ? 'bg-[#3B82F6]/5' : '' }}">
+                            <tr class="block md:table-row relative md:static p-4 md:p-0 hover:bg-slate-50 transition-colors duration-150"
+                                :class="activeId == '{{ $quarter->id }}' ? 'bg-[#3B82F6]/5' : ''">
                                 
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-4 md:mb-0">
-                                    <span class="text-lg font-extrabold {{ $quarter->is_active ? 'text-[#3B82F6]' : 'text-[#1E2657]' }}">
+                                    <span class="text-lg font-extrabold" :class="activeId == '{{ $quarter->id }}' ? 'text-[#3B82F6]' : 'text-[#1E2657]'">
                                         {{ $quarter->name }}
                                     </span>
-                                    <!-- Mobile-only Active badge -->
-                                    @if($quarter->is_active)
-                                        <span class="md:hidden ml-2 px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#3B82F6]/10 text-[#3B82F6] uppercase tracking-widest border border-[#3B82F6]/20">Active</span>
-                                    @endif
+                                    <!-- Active badge -->
+                                    <span x-show="activeId == '{{ $quarter->id }}'" class="ml-2 px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#3B82F6]/10 text-[#3B82F6] uppercase tracking-widest border border-[#3B82F6]/20 inline-block">Active</span>
                                 </td>
                                 
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-3 md:mb-0">
@@ -83,15 +83,20 @@
                                 </td>
                                 
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 text-left md:text-center absolute md:static top-4 right-4">
-                                    <label class="inline-flex items-center justify-end md:justify-center p-0 md:p-2 rounded-full cursor-pointer hover:bg-slate-100 transition-colors">
-                                        <span class="md:hidden text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mr-2">Set Active</span>
-                                        <input type="radio" 
-                                               name="active_quarter_id" 
-                                               value="{{ $quarter->id }}" 
-                                               {{ $quarter->is_active ? 'checked' : '' }} 
-                                               required
-                                               class="w-5 h-5 text-[#3B82F6] border-black/15 focus:ring-[#3B82F6] cursor-pointer transition-all shadow-sm">
-                                    </label>
+                                    <div class="inline-flex items-center justify-end md:justify-center gap-2.5">
+                                        <span class="md:hidden text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest">Active</span>
+                                        <!-- ON/OFF Toggle Switch Button -->
+                                        <button type="button" 
+                                                @click="activeId = (activeId == '{{ $quarter->id }}' ? '' : '{{ $quarter->id }}')"
+                                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1"
+                                                :class="activeId == '{{ $quarter->id }}' ? 'bg-[#3B82F6]' : 'bg-slate-300'">
+                                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                                  :class="activeId == '{{ $quarter->id }}' ? 'translate-x-5' : 'translate-x-0'"></span>
+                                        </button>
+                                        <span class="text-xs font-extrabold hidden md:inline-block w-8 text-left" 
+                                              :class="activeId == '{{ $quarter->id }}' ? 'text-[#3B82F6]' : 'text-[#9CA0AF]'" 
+                                              x-text="activeId == '{{ $quarter->id }}' ? 'ON' : 'OFF'"></span>
+                                    </div>
                                 </td>
                                 
                             </tr>

@@ -88,6 +88,8 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_archive_students'])->group(function() {
         Route::get('/archive', [ArchiveController::class, 'index'])->name('archive.index');
         Route::post('/archive/run', [ArchiveController::class, 'runArchive'])->name('archive.run');
+        Route::get('/archive/{id}/view', [ArchiveController::class, 'show'])->name('archive.show');
+        Route::post('/archive/{id}/restore', [ArchiveController::class, 'restore'])->name('archive.restore');
         Route::get('/archive/{id}/pdf', [ArchiveController::class, 'masterPdf'])->name('archive.pdf');
         Route::post('/archive/execute-rollover', [ArchiveController::class, 'archiveQuarterlyReports'])->name('archive.reports');
     });

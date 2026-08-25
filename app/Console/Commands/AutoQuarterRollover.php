@@ -32,13 +32,13 @@ class AutoQuarterRollover extends Command
             $this->info("Today is the end of {$currentQuarter->name}. Starting automatic rollover...");
             Log::info("SYSTEM: Automatic Quarterly Rollover triggered for {$currentQuarter->name}.");
 
-            // 3. YOUR ARCHIVING LOGIC GOES HERE
-            // (This is the same code you have inside your ArchiveController)
-            
-            // Example:
-            // Report::where('quarter', $currentQuarter->name)
-            //       ->where('status', 'approved')
-            //       ->update(['is_archived' => true]);
+            // 3. Archive all approved reports up to this quarter's end date
+            $archivedCount = Report::where('status', 'approved')
+                                  ->whereDate('created_at', '<=', $currentQuarter->end_date)
+                                  ->update(['status' => 'archived']);
+
+            Log::info("SYSTEM: {$archivedCount} approved reports archived for {$currentQuarter->name}.");
+            $this->info("{$archivedCount} reports archived.");
 
             // 4. Move to the next quarter
             $currentQuarter->update(['is_active' => false]);
@@ -47,6 +47,10 @@ class AutoQuarterRollover extends Command
             if ($nextQuarter) {
                 $nextQuarter->update(['is_active' => true]);
                 Log::info("SYSTEM: Successfully moved to {$nextQuarter->name}.");
+                $this->info("Moved to {$nextQuarter->name}.");
+            } else {
+                Log::warning("SYSTEM: No next quarter found after {$currentQuarter->name}.");
+                $this->warn('No next quarter found. Please create new quarters.');
             }
 
             $this->info('Rollover complete!');
