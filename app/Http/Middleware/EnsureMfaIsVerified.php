@@ -18,7 +18,7 @@ class EnsureMfaIsVerified
         $user = $request->user();
 
         if ($user) {
-            // 🚨 STRICT FIX: Check if it's strictly null or just a blank space in the database
+            // 🚨 DOOR 1: New account (No 2FA secret set up yet) -> Show QR Code setup
             if (is_null($user->two_factor_secret) || trim($user->two_factor_secret) === '') {
                 
                 if (!$request->routeIs('security.mfa.setup') && !$request->routeIs('security.mfa.verify') && !$request->routeIs('logout')) {
@@ -26,7 +26,7 @@ class EnsureMfaIsVerified
                         ->with('warning', 'You must secure your account with Two-Factor Authentication.');
                 }
             } 
-            // 🚨 DOOR 2: They have a key, but do they have a pass?
+            // 🚨 DOOR 2: Existing account (Already has 2FA configured) -> Only ask for 6-digit challenge code
             else {
                 // Check for BOTH the temporary session AND the 30-day cookie
                 $hasSession = session('mfa_verified');

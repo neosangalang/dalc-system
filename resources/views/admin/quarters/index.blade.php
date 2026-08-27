@@ -69,17 +69,20 @@
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-3 md:mb-0">
                                     <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Start Date</span>
                                     <input type="date" 
+                                           id="start_date_{{ $quarter->id }}"
                                            name="quarters[{{ $quarter->id }}][start_date]" 
                                            value="{{ $quarter->start_date }}"
-                                           class="w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors">
+                                           class="start-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
+                                           data-quarter-id="{{ $quarter->id }}">
                                 </td>
                                 
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-3 md:mb-0">
                                     <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">End Date</span>
                                     <input type="date" 
+                                           id="end_date_{{ $quarter->id }}"
                                            name="quarters[{{ $quarter->id }}][end_date]" 
                                            value="{{ $quarter->end_date }}"
-                                           class="w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors">
+                                           class="end-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors">
                                 </td>
                                 
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 text-left md:text-center absolute md:static top-4 right-4">
@@ -116,5 +119,41 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const startInputs = document.querySelectorAll('.start-date-input');
+
+        // Function to update the end date min value
+        function enforceMinEndDate(startInput) {
+            const quarterId = startInput.getAttribute('data-quarter-id');
+            const endInput = document.getElementById('end_date_' + quarterId);
+            
+            if (startInput.value) {
+                // Set the minimum allowed date on the End Date picker
+                endInput.min = startInput.value;
+                
+                // If the user already selected an end date that is now invalid, clear it
+                if (endInput.value && endInput.value < startInput.value) {
+                    endInput.value = startInput.value;
+                }
+            } else {
+                endInput.min = '';
+            }
+        }
+
+        // Apply logic on initial load
+        startInputs.forEach(input => {
+            enforceMinEndDate(input);
+
+            // Listen for changes
+            input.addEventListener('change', function() {
+                enforceMinEndDate(this);
+            });
+        });
+    });
+</script>
+@endpush
 
 @endsection

@@ -11,8 +11,19 @@ class MfaSetupController extends Controller
 {
     public function index()
     {
-        $google2fa = new \PragmaRX\Google2FA\Google2FA();
         $user = \Illuminate\Support\Facades\Auth::user();
+
+        // If the user already configured 2FA, do NOT show a new QR code! Send to challenge or dashboard
+        if (!empty($user->two_factor_secret)) {
+            if (session('mfa_verified') || request()->cookie('mfa_remember_' . $user->id)) {
+                if ($user->role === 'admin') return redirect()->route('admin.dashboard');
+                if ($user->role === 'teacher') return redirect()->route('teacher.dashboard');
+                return redirect()->route('guardian.dashboard');
+            }
+            return redirect()->route('security.mfa.challenge');
+        }
+
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
 
         // 1. Generate a brand new secret key and save it to the session temporarily
         $secretKey = $google2fa->generateSecretKey();
@@ -21,7 +32,7 @@ class MfaSetupController extends Controller
         // 2. Generate the QR Code data linking to their specific email
         $qrCodeUrl = $google2fa->getQRCodeUrl(
             'DALC System',
-            $user->email,
+            $user->email ?? $user->username,
             $secretKey
         );
 

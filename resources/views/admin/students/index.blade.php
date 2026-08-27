@@ -4,7 +4,7 @@
 
 @section('content')
 
-<!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
+<!-- Main Container -->
 <div class="w-full max-w-[1200px] mx-auto space-y-6">
 
     @if(session('success'))
@@ -45,14 +45,14 @@
 
         <!-- FILTERS -->
         <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-5 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end m-0">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end m-0">
                 
                 <!-- Search -->
-                <div class="md:col-span-4">
+                <div>
                     <label class="block text-[11px] font-extrabold text-[#3B82F6] uppercase tracking-widest mb-1.5 flex items-center">
                         <i class="fa fa-search mr-1.5"></i> Search Keyword
                     </label>
-                    <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+                    <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-[#9CA0AF] bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
                             <i class="fa fa-font"></i>
                         </span>
@@ -61,11 +61,11 @@
                 </div>
 
                 <!-- Class -->
-                <div class="md:col-span-3">
+                <div>
                     <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
                         <i class="fa fa-school mr-1.5 text-[#3B82F6]"></i> Filter by Class
                     </label>
-                    <select id="filterClass" class="w-full rounded-xl border-black/15 py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                    <select id="filterClass" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                         <option value="">All Classes</option>
                         <option value="Playgroup Morning (Love A)">Playgroup Morning (Love A)</option>
                         <option value="Playgroup Afternoon (Love B)">Playgroup Afternoon (Love B)</option>
@@ -80,11 +80,11 @@
                 </div>
 
                 <!-- Diagnosis -->
-                <div class="md:col-span-3">
+                <div>
                     <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
                         <i class="fa fa-notes-medical mr-1.5 text-[#3B82F6]"></i> Filter by Diagnosis
                     </label>
-                    <select id="filterDiagnosis" class="w-full rounded-xl border-black/15 py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                    <select id="filterDiagnosis" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                         <option value="">All Diagnoses</option>
                         <option value="Autism Spectrum Disorder (ASD)">Autism Spectrum Disorder (ASD)</option>
                         <option value="Attention Deficit Hyperactivity Disorder (ADHD)">Attention Deficit Hyperactivity Disorder (ADHD)</option>
@@ -96,13 +96,26 @@
                     </select>
                 </div>
 
+                <!-- Teacher -->
+                <div>
+                    <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
+                        <i class="fa fa-chalkboard-teacher mr-1.5 text-[#3B82F6]"></i> Filter by Teacher
+                    </label>
+                    <select id="filterTeacher" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                        <option value="">All Teachers</option>
+                        @foreach($teachers ?? [] as $teacher)
+                            <option value="{{ strtolower($teacher->name) }}">{{ $teacher->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <!-- Status & Reset -->
-                <div class="md:col-span-2 flex gap-2">
+                <div class="flex gap-2">
                     <div class="flex-1">
                         <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
                             <i class="fa fa-toggle-on mr-1.5 text-[#3B82F6]"></i> Status
                         </label>
-                        <select id="filterStatus" class="w-full rounded-xl border-black/15 py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                        <select id="filterStatus" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                             <option value="">All Statuses</option>
                             <option value="active">Active</option>
                             <option value="archived">Archived</option>
@@ -136,11 +149,13 @@
                     <!-- TABLE BODY -->
                     <tbody class="block md:table-row-group space-y-4 md:space-y-0 divide-y-0 md:divide-y divide-black/5 bg-transparent md:bg-white">
                         @forelse($students ?? [] as $student)
+                            <!-- Added data-teacher attribute for JS filtering -->
                             <tr x-data="{ showEditModal: false }" 
                                 class="block md:table-row bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150 student-row"
                                 data-class="{{ strtolower($student->class_name ?? '') }}"
                                 data-diagnosis="{{ strtolower($student->diagnosis ?? '') }}"
-                                data-status="{{ strtolower($student->status ?? '') }}">
+                                data-status="{{ strtolower($student->status ?? '') }}"
+                                data-teacher="{{ strtolower($student->teacher->name ?? 'unassigned') }}">
                                 
                                 <!-- 1. Profile Area -->
                                 <td class="block md:table-cell p-4 md:px-6 md:py-4 border-b border-black/5 md:border-none relative">
@@ -152,10 +167,7 @@
                                             <div>
                                                 <div class="text-[14px] font-extrabold text-[#1E2657] leading-tight">{{ $student->first_name }} {{ $student->last_name }}</div>
                                                 <div class="text-[11px] text-[#6B7086] font-medium mt-0.5">
-                                                    ID: <span class="font-bold text-[#1E2657]">{{ $student->student_id_number ?? $student->id }}</span>
                                                     @if($student->learners_reference_number)
-                                                        <span class="hidden md:inline mx-1 text-black/10">|</span> 
-                                                        <span class="md:hidden block"></span>
                                                         LRN: <span class="font-bold text-[#3B82F6]">{{ $student->learners_reference_number }}</span>
                                                     @endif
                                                 </div>
@@ -265,7 +277,7 @@
                                     <!-- EDIT MODAL -->
                                     <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                                         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                            <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showEditModal = false"></div>
+                                            <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel editing this student?')) showEditModal = false"></div>
 
                                             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
@@ -278,7 +290,7 @@
                                                     
                                                     <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
                                                         <h3 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-edit text-[#3B82F6] mr-2"></i> Edit Student</h3>
-                                                        <button type="button" @click="showEditModal = false" class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
+                                                        <button type="button" @click="if(confirm('Do you want to cancel editing this student?')) showEditModal = false" class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
                                                             <i class="fa fa-times text-xl"></i>
                                                         </button>
                                                     </div>
@@ -292,33 +304,34 @@
                                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mb-8">
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">First Name <span class="text-rose-500">*</span></label>
-                                                                <input type="text" name="first_name" value="{{ $student->first_name }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                                                <input type="text" name="first_name" value="{{ $student->first_name }}" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                                             </div>
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Last Name <span class="text-rose-500">*</span></label>
-                                                                <input type="text" name="last_name" value="{{ $student->last_name }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                                                <input type="text" name="last_name" value="{{ $student->last_name }}" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                                             </div>
                                                             
                                                             <div>
-                                                                <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">LRN</label>
-                                                                <input type="text" name="learners_reference_number" value="{{ $student->learners_reference_number }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" placeholder="e.g., 123456789012">
+                                                                <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">LRN <span class="text-rose-500">*</span></label>
+                                                                <input type="text" name="learners_reference_number" value="{{ $student->learners_reference_number }}" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" placeholder="e.g., 123456789012" pattern="\d{12}" maxlength="12" title="Must be a unique 12-digit number" required>
+                                                                <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Must be a unique 12-digit number.</p>
                                                             </div>
                                                             
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Gender <span class="text-rose-500">*</span></label>
-                                                                <select name="gender" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                                                <select name="gender" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                                                     <option value="Male" {{ $student->gender == 'Male' ? 'selected' : '' }}>Male</option>
                                                                     <option value="Female" {{ $student->gender == 'Female' ? 'selected' : '' }}>Female</option>
                                                                 </select>
                                                             </div>
                                                             <div>
-                                                                <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Date of Birth</label>
-                                                                <input type="date" name="date_of_birth" value="{{ $student->date_of_birth }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                                                <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Date of Birth <span class="text-rose-500">*</span></label>
+                                                                <input type="date" name="date_of_birth" value="{{ $student->date_of_birth }}" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                                             </div>
 
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Diagnosis <span class="text-rose-500">*</span></label>
-                                                                <select name="diagnosis" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                                                <select name="diagnosis" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                                                     <option value="Autism Spectrum Disorder (ASD)" {{ $student->diagnosis == 'Autism Spectrum Disorder (ASD)' ? 'selected' : '' }}>Autism Spectrum Disorder (ASD)</option>
                                                                     <option value="Attention Deficit Hyperactivity Disorder (ADHD)" {{ $student->diagnosis == 'Attention Deficit Hyperactivity Disorder (ADHD)' ? 'selected' : '' }}>Attention Deficit Hyperactivity Disorder (ADHD)</option>
                                                                     <option value="Down Syndrome" {{ $student->diagnosis == 'Down Syndrome' ? 'selected' : '' }}>Down Syndrome</option>
@@ -330,7 +343,7 @@
                                                             </div>
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name</label>
-                                                                <select name="class_name" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                                                <select name="class_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
                                                                     <option value="">-- Select Class --</option>
                                                                     <option value="Playgroup Morning (Love A)" {{ $student->class_name == 'Playgroup Morning (Love A)' ? 'selected' : '' }}>Playgroup Morning</option>
                                                                     <option value="Playgroup Afternoon (Love B)" {{ $student->class_name == 'Playgroup Afternoon (Love B)' ? 'selected' : '' }}>Playgroup Afternoon</option>
@@ -345,19 +358,30 @@
                                                             </div>
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Status</label>
-                                                                <select name="status" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                                                <select name="status" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
                                                                     <option value="active" {{ $student->status === 'active' ? 'selected' : '' }}>Active</option>
                                                                     <option value="archived" {{ $student->status === 'archived' ? 'selected' : '' }}>Archived</option>
                                                                 </select>
                                                             </div>
                                                             <div class="md:col-span-2">
-                                                                <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Assigned Teacher</label>
-                                                                <select name="teacher_id" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                                                <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Assigned Teacher <span class="text-rose-500">*</span></label>
+                                                                <select name="teacher_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                                                     <option value="">-- Select Teacher --</option>
                                                                     @foreach($teachers ?? [] as $teacher)
                                                                         <option value="{{ $teacher->id }}" {{ $student->teacher_id == $teacher->id ? 'selected' : '' }}>{{ $teacher->name }}</option>
                                                                     @endforeach
                                                                 </select>
+                                                            </div>
+
+                                                            <div class="md:col-span-2">
+                                                                <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1 flex justify-between items-end">
+                                                                    Medical Document Upload (Optional)
+                                                                    @if($student->medical_document)
+                                                                        <span class="text-[10px] text-[#10B981] font-extrabold uppercase tracking-widest"><i class="fa fa-check mr-1"></i> Document on file</span>
+                                                                    @endif
+                                                                </label>
+                                                                <input type="file" name="medical_document" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
+                                                                <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Upload a new file to replace the existing one. Accepted formats: PDF, JPG, PNG (Max 5MB).</p>
                                                             </div>
                                                         </div>
 
@@ -367,7 +391,7 @@
                                                         
                                                         <div class="grid grid-cols-1 gap-5 mb-4">
                                                             <div>
-                                                                <select name="guardian_id" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm">
+                                                                <select name="guardian_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm">
                                                                     <option value="">-- Select Existing Guardian --</option>
                                                                     @foreach($guardians as $guardian)
                                                                         <option value="{{ $guardian->id }}" {{ $student->guardian_id == $guardian->id ? 'selected' : '' }}>{{ $guardian->name }}</option>
@@ -379,7 +403,7 @@
                                                     </div>
 
                                                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                        <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
+                                                        <button type="button" @click="if(confirm('Do you want to cancel editing this student?')) showEditModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
                                                         <button type="submit" class="px-4 py-2 bg-[#4F46E5] rounded-xl text-[13px] font-extrabold text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
                                                             <i class="fa fa-save mr-1.5"></i> Save Changes
                                                         </button>
@@ -425,7 +449,7 @@
         <!-- CREATE MODAL -->
         <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div x-show="showCreateModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showCreateModal = false"></div>
+                <div x-show="showCreateModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false"></div>
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
@@ -435,7 +459,7 @@
 
                         <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
                             <h3 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-plus text-[#3B82F6] mr-2"></i> Enroll Student</h3>
-                            <button type="button" @click="showCreateModal = false" class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
+                            <button type="button" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false" class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
                                 <i class="fa fa-times text-xl"></i>
                             </button>
                         </div>
@@ -449,34 +473,35 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                                 <div>
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">First Name <span class="text-rose-500">*</span></label>
-                                    <input type="text" name="first_name" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                    <input type="text" name="first_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                 </div>
                                 <div>
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Last Name <span class="text-rose-500">*</span></label>
-                                    <input type="text" name="last_name" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                    <input type="text" name="last_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">LRN</label>
-                                    <input type="text" name="learners_reference_number" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" placeholder="e.g., 123456789012">
+                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">LRN <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="learners_reference_number" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" placeholder="e.g., 123456789012" pattern="\d{12}" maxlength="12" title="Must be a unique 12-digit number" required>
+                                    <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Must be a unique 12-digit number.</p>
                                 </div>
 
                                 <div>
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Gender <span class="text-rose-500">*</span></label>
-                                    <select name="gender" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                    <select name="gender" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                         <option value="">-- Select Gender --</option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Date of Birth</label>
-                                    <input type="date" name="date_of_birth" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Date of Birth <span class="text-rose-500">*</span></label>
+                                    <input type="date" name="date_of_birth" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                 </div>
 
                                 <div>
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Diagnosis <span class="text-rose-500">*</span></label>
-                                    <select name="diagnosis" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                    <select name="diagnosis" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                         <option value="Autism Spectrum Disorder (ASD)" selected>Autism Spectrum Disorder (ASD)</option>
                                         <option value="Attention Deficit Hyperactivity Disorder (ADHD)">Attention Deficit Hyperactivity Disorder (ADHD)</option>
                                         <option value="Down Syndrome">Down Syndrome</option>
@@ -488,7 +513,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name</label>
-                                    <select name="class_name" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                    <select name="class_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
                                         <option value="">-- Select Class --</option>
                                         <option value="Playgroup Morning (Love A)">Playgroup Morning</option>
                                         <option value="Playgroup Afternoon (Love B)">Playgroup Afternoon</option>
@@ -502,13 +527,19 @@
                                     </select>
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Assign Teacher</label>
-                                    <select name="teacher_id" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Assign Teacher <span class="text-rose-500">*</span></label>
+                                    <select name="teacher_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                         <option value="">-- Select a Teacher --</option>
                                         @foreach($teachers ?? [] as $teacher)
                                             <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Medical Document Upload (Optional)</label>
+                                    <input type="file" name="medical_document" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
+                                    <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Accepted formats: PDF, JPG, PNG (Max 5MB).</p>
                                 </div>
                             </div>
                             
@@ -518,7 +549,7 @@
                             
                             <div class="grid grid-cols-1 gap-5 mb-4">
                                 <div class="md:col-span-2">
-                                    <select name="guardian_id" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm">
+                                    <select name="guardian_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm">
                                         <option value="" disabled selected>-- Select Existing Guardian --</option>
                                         @foreach($guardians ?? [] as $guardian)
                                             <option value="{{ $guardian->id }}">{{ $guardian->name }}</option>
@@ -531,10 +562,8 @@
                         </div>
 
                         <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                            <button type="button" @click="showCreateModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
-                            <button type="submit" class="px-4 py-2 bg-[#4F46E5] rounded-xl text-[13px] font-extrabold text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
-                                <i class="fa fa-save mr-1.5"></i> Save & Enroll
-                            </button>
+                            <button type="button" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Save & Enroll</button>
                         </div>
                     </form>
                 </div>
@@ -557,6 +586,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('filterSearchInput');
     const classFilter = document.getElementById('filterClass');
     const diagnosisFilter = document.getElementById('filterDiagnosis');
+    const teacherFilter = document.getElementById('filterTeacher');
     const statusFilter = document.getElementById('filterStatus');
     const noResultsMsg = document.getElementById('no-search-results');
 
@@ -564,6 +594,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const selectedClass = classFilter ? classFilter.value.toLowerCase() : '';
         const selectedDiagnosis = diagnosisFilter ? diagnosisFilter.value.toLowerCase() : '';
+        const selectedTeacher = teacherFilter ? teacherFilter.value.toLowerCase() : '';
         const selectedStatus = statusFilter ? statusFilter.value.toLowerCase() : '';
 
         const tableRows = document.querySelectorAll('table tbody tr.student-row');
@@ -573,14 +604,16 @@ document.addEventListener("DOMContentLoaded", function() {
             const rowText = row.textContent.toLowerCase();
             const rowClass = (row.getAttribute('data-class') || '').toLowerCase();
             const rowDiagnosis = (row.getAttribute('data-diagnosis') || '').toLowerCase();
+            const rowTeacher = (row.getAttribute('data-teacher') || '').toLowerCase();
             const rowStatus = (row.getAttribute('data-status') || '').toLowerCase();
 
             const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
             const matchesClass = selectedClass === '' || rowClass === selectedClass;
             const matchesDiagnosis = selectedDiagnosis === '' || rowDiagnosis === selectedDiagnosis;
+            const matchesTeacher = selectedTeacher === '' || rowTeacher === selectedTeacher;
             const matchesStatus = selectedStatus === '' || rowStatus === selectedStatus;
 
-            if (matchesSearch && matchesClass && matchesDiagnosis && matchesStatus) {
+            if (matchesSearch && matchesClass && matchesDiagnosis && matchesTeacher && matchesStatus) {
                 row.style.display = '';
                 visibleCount++;
             } else {
@@ -600,6 +633,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (searchInput) searchInput.addEventListener('input', filterStudents);
     if (classFilter) classFilter.addEventListener('change', filterStudents);
     if (diagnosisFilter) diagnosisFilter.addEventListener('change', filterStudents);
+    if (teacherFilter) teacherFilter.addEventListener('change', filterStudents);
     if (statusFilter) statusFilter.addEventListener('change', filterStudents);
 });
 
@@ -607,11 +641,13 @@ function resetFilters() {
     const searchInput = document.getElementById('filterSearchInput');
     const classFilter = document.getElementById('filterClass');
     const diagnosisFilter = document.getElementById('filterDiagnosis');
+    const teacherFilter = document.getElementById('filterTeacher');
     const statusFilter = document.getElementById('filterStatus');
 
     if (searchInput) searchInput.value = '';
     if (classFilter) classFilter.value = '';
     if (diagnosisFilter) diagnosisFilter.value = '';
+    if (teacherFilter) teacherFilter.value = '';
     if (statusFilter) statusFilter.value = '';
 
     if (searchInput) searchInput.dispatchEvent(new Event('input'));

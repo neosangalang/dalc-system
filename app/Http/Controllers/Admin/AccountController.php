@@ -31,11 +31,14 @@ class AccountController extends Controller
 
         $validated = $request->validate([
             'name'              => 'required|string|max:255',
-            'username'          => 'required|unique:users',
-            'email'             => 'required|email|unique:users',
-            'contact_number'    => 'required|string|max:20',
+            'username'          => 'required|string|max:255|unique:users,username',
+            'email'             => 'required|email|max:255|unique:users,email',
+            'contact_number'    => 'required|regex:/^09[0-9]{9}$/|unique:users,contact_number',
             'role'              => 'required|in:teacher,guardian',
             'password'          => 'required|string|min:8|confirmed',
+        ], [
+            'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
+            'contact_number.unique' => 'This contact number is already registered to another account.',
         ]);
 
         $user = User::create([
@@ -114,25 +117,26 @@ class AccountController extends Controller
             abort(403, 'Security Violation: Teachers cannot modify Teacher login credentials.');
         }
 
-        // 1. VALIDATE INCOMING DATA (INCLUDING MFA CODE)
+        // 1. VALIDATE INCOMING DATA (INCLUDING MFA CODE & UNIQUE CONSTRAINTS)
         $request->validate([
             'username'       => 'required|string|max:255|unique:users,username,' . $id,
             'email'          => 'required|email|max:255|unique:users,email,' . $id,
-            'contact_number' => 'nullable|string|max:20',
+            'contact_number' => 'nullable|regex:/^09[0-9]{9}$/|unique:users,contact_number,' . $id,
             'password'       => 'nullable|string|min:8',
             'mfa_code'       => 'required|numeric|digits:6',
+        ], [
+            'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
+            'contact_number.unique' => 'This contact number is already registered to another account.',
         ]);
 
         // 2. SECURITY CHECK: VERIFY ADMIN'S MFA CODE
         $google2fa = new Google2FA();
         
-        // FIXED: Changed to match the column name in your User model
         if (empty($admin->two_factor_secret)) {
             return back()->withErrors(['mfa_code' => 'Two-Factor Authentication is not configured for your account. Please set it up in your profile first.'])->withInput();
         }
 
         try {
-            // FIXED: Changed to match the column name in your User model
             $isMfaValid = $google2fa->verifyKey($admin->two_factor_secret, $request->mfa_code);
         } catch (\Exception $e) {
             return back()->withErrors(['mfa_code' => 'There is a problem with your MFA configuration.'])->withInput();

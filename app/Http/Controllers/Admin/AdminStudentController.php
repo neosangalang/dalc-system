@@ -23,12 +23,12 @@ class AdminStudentController extends Controller
         $request->validate([
             'first_name'                => 'required|string|max:255',
             'last_name'                 => 'required|string|max:255',
-            'learners_reference_number' => 'nullable|string|max:255', // <-- Added LRN Validation
+            'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number', // Enforces unique 12-digit LRN
             'class_name'                => 'nullable|string|max:255',
-            'date_of_birth'             => 'nullable|date',
+            'date_of_birth'             => 'required|date', // Enforced requirement
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',
-            'teacher_id'                => 'nullable|exists:users,id',
+            'teacher_id'                => 'required|exists:users,id', // Enforced requirement
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'guardian_id'               => 'nullable|exists:users,id', // Uses dropdown from User Management
         ]);
@@ -42,7 +42,7 @@ class AdminStudentController extends Controller
             Student::create([
                 'first_name'                => $request->first_name,
                 'last_name'                 => $request->last_name,
-                'learners_reference_number' => $request->learners_reference_number, // <-- Saves LRN to DB
+                'learners_reference_number' => $request->learners_reference_number, 
                 'class_name'                => $request->class_name,
                 'date_of_birth'             => $request->date_of_birth,
                 'gender'                    => $request->gender,
@@ -63,13 +63,13 @@ class AdminStudentController extends Controller
         $request->validate([
             'first_name'                => 'required|string|max:255',
             'last_name'                 => 'required|string|max:255',
-            'learners_reference_number' => 'nullable|string|max:255', // <-- Added LRN Validation
+            'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number,' . $id, // Ignores current student ID during unique check
             'class_name'                => 'nullable|string|max:255',
-            'date_of_birth'             => 'nullable|date',
+            'date_of_birth'             => 'required|date', // Enforced requirement
             'gender'                    => 'required|in:Male,Female',
-            'diagnosis'                 => 'nullable|string',
-            'teacher_id'                => 'nullable|exists:users,id',
-            'guardian_id'               => 'nullable|exists:users,id', // <-- Added Guardian ID validation
+            'diagnosis'                 => 'required|string',
+            'teacher_id'                => 'required|exists:users,id', // Enforced requirement
+            'guardian_id'               => 'nullable|exists:users,id', 
             'status'                    => 'required|in:active,archived',
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
