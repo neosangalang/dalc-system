@@ -3,55 +3,65 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\Student;
-use App\Models\AcademicQuarter;
-use App\Models\IepGoal;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Student;
+use App\Models\DailyLog;
+use App\Models\IepGoal;
+use App\Models\Report;
+use App\Models\Announcement;
+use App\Models\AcademicQuarter;
+use Carbon\Carbon; // Required for week calculations
 
 class TeacherController extends Controller
 {
-    public function dashboard() {
-        // 1. Add this single line at the top to count recent announcements for the red badge
-        $newAnnouncementsCount = \App\Models\Announcement::where('created_at', '>=', now()->subDays(3))->count();
-        
-        // Get the ID of the currently logged-in teacher
+    public function dashboard()
+    {
         $teacherId = Auth::id();
 
-        // Count how many active students belong to this teacher
-        $myStudentsCount = Student::where('teacher_id', $teacherId)->where('status', 'active')->count();
-        
-        // Count how many active IEP goals belong to this teacher's students
-        $activeGoals = IepGoal::whereHas('student', function($query) use ($teacherId) {
-            $query->where('teacher_id', $teacherId);
+        // 1. Count Active Students
+        $myStudentsCount = Student::where('teacher_id', $teacherId)
+            ->where('status', 'active')
+            ->count();
+
+        // 2. Count Logs THIS WEEK
+        // This looks at the 'log_date' and checks if it falls within the current Monday-Sunday
+        $logsThisWeek = DailyLog::where('teacher_id', $teacherId)
+            ->whereBetween('log_date', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])
+            ->count();
+
+        // 3. Count Active IEP Goals
+        $activeGoals = IepGoal::whereHas('student', function($q) use ($teacherId) {
+            $q->where('teacher_id', $teacherId);
         })->where('status', 'in_progress')->count();
 
-        // We will build the Daily Logs logic next, so we will set this to 0 for now
-        $logsThisWeek = 0; 
+        // 4. Count Reports Due (Draft or Pending)
+        $reportsDue = Report::whereHas('student', function($q) use ($teacherId) {
+            $q->where('teacher_id', $teacherId);
+        })->whereIn('status', ['draft', 'pending_approval'])->count();
 
-        // THE FIX: Fetch the quarters from the database!
-        $quarters = AcademicQuarter::orderBy('name')->get();
+        // 5. Get Recent Announcements Count
+        $newAnnouncementsCount = Announcement::where('created_at', '>=', Carbon::now()->subDays(7))->count();
 
-        // Fetch the 4 most recent students assigned to this teacher
-        $myStudents = Student::where('teacher_id', $teacherId)
-            ->withCount(['iepGoals' => function($query) {
-                $query->where('status', 'in_progress');
-            }])
-            ->latest()
-            ->take(4)
-            ->get();
+        // 6. Fetch Academic Quarters for the Timeline
+        $quarters = AcademicQuarter::orderBy('start_date', 'asc')->get();
 
-        // Pass everything into the view, INCLUDING 'newAnnouncementsCount' at the end!
         return view('teacher.dashboard', compact(
-            'myStudentsCount', 'logsThisWeek', 'activeGoals', 'myStudents', 'quarters', 'newAnnouncementsCount'
+            'myStudentsCount',
+            'logsThisWeek',
+            'activeGoals',
+            'reportsDue',
+            'newAnnouncementsCount',
+            'quarters'
         ));
     }
-    // ==========================================
-    // ANNOUNCEMENTS
-    // ==========================================
+
     public function announcements()
     {
-        $announcements = \App\Models\Announcement::latest()->get();
-        
+        $announcements = Announcement::latest()->paginate(10);
         return view('teacher.announcements', compact('announcements'));
     }
 }

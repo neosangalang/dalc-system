@@ -27,6 +27,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecureFileController;
+use App\Http\Controllers\AiAssistantController; // <-- ADDED: AI Assistant Controller
 
 // Root logic
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -47,6 +48,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::get('/secure-log-photo/{id}', [SecureFileController::class, 'show'])->name('secure.log-photo');
+    
+    // <-- ADDED: Groq AI Rewrite Route (Available to authorized staff)
+    Route::post('/ai/rewrite-log', [AiAssistantController::class, 'rewriteDailyLog'])->name('ai.rewrite'); 
 });
 
 /*

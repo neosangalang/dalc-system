@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Guardian;
+
 use App\Models\Announcement;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
@@ -41,15 +42,17 @@ class GuardianController extends Controller
     // ==========================================
     public function dashboard()
     {
-        // 1. Fetch only the single newest announcement & count recent ones
-        $latestAnnouncement = Announcement::latest()->first();
-        $newAnnouncementsCount = Announcement::where('created_at', '>=', now()->subDays(3))->count();
+        // 1. Fetch the latest 3 announcements for the swipeable carousel
+        $featuredAnnouncements = Announcement::latest()->take(3)->get();
+        
+        // Track when the user last viewed the announcements page to clear notification badges dynamically
+        $lastSeen = session('last_seen_announcements', now()->subDays(3));
+        $newAnnouncementsCount = Announcement::where('created_at', '>', $lastSeen)->count();
 
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
         if (!$activeChild) {
-            // 2. Updated compact variables
-            return view('guardian.dashboard', compact('myChildren', 'activeChild', 'latestAnnouncement', 'newAnnouncementsCount'));
+            return view('guardian.dashboard', compact('myChildren', 'activeChild', 'featuredAnnouncements', 'newAnnouncementsCount'));
         }
 
         // Fetch data ONLY for the active child
@@ -71,8 +74,7 @@ class GuardianController extends Controller
             ->take(5)
             ->get();
 
-        // 3. Updated compact variables
-        return view('guardian.dashboard', compact('myChildren', 'activeChild', 'activeGoals', 'recentReports', 'recentLogs', 'latestAnnouncement', 'newAnnouncementsCount'));
+        return view('guardian.dashboard', compact('myChildren', 'activeChild', 'activeGoals', 'recentReports', 'recentLogs', 'featuredAnnouncements', 'newAnnouncementsCount'));
     }
 
     // ==========================================
@@ -82,6 +84,9 @@ class GuardianController extends Controller
     {
         $announcements = Announcement::latest()->get();
         list($activeChild, $myChildren) = $this->getActiveChildData();
+        
+        // Mark announcements as seen so the dashboard badge clears
+        session(['last_seen_announcements' => now()]);
         
         return view('guardian.announcements', compact('announcements', 'myChildren', 'activeChild'));
     }

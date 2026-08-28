@@ -23,23 +23,25 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
                     <i class="fa fa-search"></i>
                 </span>
-                <input type="text" id="studentSearchInput" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] sm:text-sm font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] placeholder:font-medium bg-transparent" placeholder="Search by name or exceptionality...">
+                <!-- Updated Placeholder -->
+                <input type="text" id="studentSearchInput" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] sm:text-sm font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] placeholder:font-medium bg-transparent" placeholder="Search by name or diagnosis...">
             </div>
         </div>
     </div>
 
     <!-- TABLE AREA -->
-    <div class="bg-transparent md:bg-white md:rounded-2xl md:shadow-sm md:border border-black/15 overflow-hidden">
+    <div class="bg-transparent md:bg-white md:rounded-2xl md:shadow-sm md:border border-black/15 overflow-hidden w-full overflow-x-auto">
         <div class="w-full">
             <table class="w-full text-left border-collapse block md:table">
                 <!-- DESKTOP HEADER -->
                 <thead class="hidden md:table-header-group bg-[#F4F6FA] border-b border-black/10">
                     <tr>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Student Name</th>
-                        <th scope="col" class="px-6 py-4 text-center text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Age</th>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Exceptionality</th>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Status</th>
-                        <th scope="col" class="px-6 py-4 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Actions</th>
+                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Student Name</th>
+                        <th scope="col" class="px-6 py-4 text-center text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Age</th>
+                        <!-- Updated Header -->
+                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Diagnosis</th>
+                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Status</th>
+                        <th scope="col" class="px-6 py-4 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="block md:table-row-group space-y-4 md:space-y-0 divide-y-0 md:divide-y divide-black/5 bg-transparent md:bg-white">
@@ -47,31 +49,33 @@
                         <tr class="block md:table-row relative bg-white md:bg-transparent rounded-[16px] md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150 student-row pt-2 md:pt-0">
                             
                             <!-- 1. Name & Avatar -->
-                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6">
+                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6 align-middle">
                                 <div class="flex items-center gap-4">
                                     <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white font-extrabold text-sm sm:text-base shadow-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shrink-0 border border-black/10">
                                         {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) }}
                                     </div>
-                                    <span class="text-[14px] sm:text-[15px] font-extrabold text-[#1E2657] leading-tight">{{ $student->last_name }}, {{ $student->first_name }}</span>
+                                    <span class="text-[14px] sm:text-[15px] font-extrabold text-[#1E2657] leading-tight whitespace-nowrap">{{ $student->last_name }}, {{ $student->first_name }}</span>
                                 </div>
                             </td>
 
-                            <!-- 2. Age -->
-                            <td class="flex justify-between items-center md:table-cell px-4 py-2 md:px-6 md:py-4 border-b border-black/5 md:border-none text-[13px] font-bold text-[#6B7086] mt-1 md:mt-0 md:text-center">
+                            <!-- 2. Age (Updated to check for missing date) -->
+                            <td class="flex justify-between items-center md:table-cell px-4 py-2 md:px-6 md:py-4 border-b border-black/5 md:border-none text-[13px] font-bold text-[#6B7086] mt-1 md:mt-0 md:text-center align-middle whitespace-nowrap">
                                 <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Age</span>
-                                {{ \Carbon\Carbon::parse($student->date_of_birth)->age }} yrs
+                                {{ $student->date_of_birth ? \Carbon\Carbon::parse($student->date_of_birth)->age . ' yrs' : 'N/A' }}
                             </td>
                             
-                            <!-- 3. Exceptionality -->
-                            <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none">
-                                <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Exceptionality</span>
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#8B5CF6]/10 text-[#8B5CF6] uppercase tracking-widest border border-[#8B5CF6]/20 shadow-sm text-right md:text-left leading-tight">
-                                    {{ $student->exceptionality ?? 'Unspecified' }}
+                            <!-- 3. Diagnosis -->
+                            <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle">
+                                <!-- Updated Mobile Label -->
+                                <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Diagnosis</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#8B5CF6]/10 text-[#8B5CF6] uppercase tracking-widest border border-[#8B5CF6]/20 shadow-sm text-right md:text-left leading-tight whitespace-nowrap">
+                                    <!-- Updated Data Binding -->
+                                    {{ $student->diagnosis ?? 'Unspecified' }}
                                 </span>
                             </td>
 
                             <!-- 4. Status Badge -->
-                            <td class="absolute top-4 right-4 md:static md:table-cell md:px-6 md:py-4">
+                            <td class="absolute top-4 right-4 md:static md:table-cell md:px-6 md:py-4 align-middle">
                                 @if($student->status === 'active')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#10B981]/10 text-[#10B981] uppercase tracking-widest border border-[#10B981]/20 shadow-sm">Active</span>
                                 @else
@@ -80,27 +84,33 @@
                             </td>
                             
                             <!-- 5. Actions Footer -->
-                            <td class="block md:table-cell px-4 py-4 md:px-6 md:py-4 bg-[#F4F6FA] md:bg-transparent rounded-b-[16px] md:rounded-none">
-                                <div class="grid grid-cols-2 md:flex md:justify-end gap-2 w-full md:w-auto">
+                            <td class="block md:table-cell px-4 py-4 md:px-6 md:py-4 bg-[#F4F6FA] md:bg-transparent rounded-b-[16px] md:rounded-none align-middle">
+                                <div class="flex flex-wrap lg:flex-nowrap md:justify-end gap-2 w-full md:w-auto">
                                     
-                                    <a href="{{ route('teacher.iep-goals.index') }}" title="View IEP Goals" class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#10B981] hover:border-[#10B981]/30 transition-colors shadow-sm decoration-transparent">
+                                    <!-- View Profile Button -->
+                                    <a href="{{ route('teacher.students.show', $student->id) }}" title="View Student Profile" class="w-full lg:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/30 transition-colors shadow-sm decoration-transparent whitespace-nowrap">
+                                        <i class="fa fa-eye mr-1.5 text-[#8B5CF6]"></i> Profile
+                                    </a>
+
+                                    <!-- IEP Goals Button -->
+                                    <a href="{{ route('teacher.iep-goals.index', ['student_id' => $student->id]) }}" title="View IEP Goals" class="w-full lg:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#10B981] hover:border-[#10B981]/30 transition-colors shadow-sm decoration-transparent whitespace-nowrap">
                                         <i class="fa fa-bullseye mr-1.5 text-[#10B981]"></i> IEP
                                     </a>
                                     
-                                    <a href="{{ route('teacher.iep-goals.pdf', $student->id) }}" title="Print Full IEP" target="_blank" class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
+                                    <a href="{{ route('teacher.iep-goals.pdf', $student->id) }}" title="Print Full IEP" target="_blank" class="w-full lg:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors shadow-sm decoration-transparent whitespace-nowrap">
                                         <i class="fa fa-file-pdf mr-1.5 text-rose-500"></i> <span class="hidden md:inline">Print IEP</span><span class="md:hidden">Print</span>
                                     </a>
 
-                                    <a href="{{ route('teacher.daily-logs.index') }}" title="Add Daily Log" class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-[#3B82F6] border border-transparent text-white text-[12px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm decoration-transparent focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
+                                    <a href="{{ route('teacher.daily-logs.index', ['student_id' => $student->id]) }}" title="Add Daily Log" class="w-full lg:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-[#3B82F6] border border-transparent text-white text-[12px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm decoration-transparent focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 whitespace-nowrap">
                                         <i class="fa fa-pencil mr-1.5"></i> Log
                                     </a>
 
                                     @if(Auth::user()->can_edit_students)
-                                        <button title="Edit Student Profile" class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#1E2657] transition-colors shadow-sm">
+                                        <a href="{{ route('teacher.students.edit', $student->id) }}" title="Edit Student Profile" class="w-full lg:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#1E2657] transition-colors shadow-sm decoration-transparent whitespace-nowrap">
                                             <i class="fa fa-edit mr-1.5 text-[#1E2657]"></i> Edit
-                                        </button>
+                                        </a>
                                     @else
-                                        <button title="Editing locked by Admin" disabled class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-[#F4F6FA] border border-black/5 text-[#9CA0AF] text-[12px] font-extrabold rounded-xl cursor-not-allowed shadow-sm md:shadow-none">
+                                        <button title="Editing locked by Admin" disabled class="w-full lg:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 bg-[#F4F6FA] border border-black/5 text-[#9CA0AF] text-[12px] font-extrabold rounded-xl cursor-not-allowed shadow-sm md:shadow-none whitespace-nowrap">
                                             <i class="fa fa-lock mr-1.5"></i> Locked
                                         </button>
                                     @endif

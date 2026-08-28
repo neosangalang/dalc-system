@@ -26,7 +26,6 @@ class IepGoalController extends Controller
     }
 
     public function store(Request $request) {
-        // 1. ADDED 'plop' to the validation rules
         $request->validate([
             'student_id'       => 'required|exists:students,id',
             'domain'           => 'required|string|max:255',
@@ -39,7 +38,6 @@ class IepGoalController extends Controller
                           ->where('teacher_id', Auth::id())
                           ->firstOrFail();
 
-        // 2. ADDED 'plop' to the database creation array
         IepGoal::create([
             'student_id'       => $student->id,
             'domain'           => $request->domain,
@@ -52,47 +50,42 @@ class IepGoalController extends Controller
         return redirect()->back()->with('success', 'New IEP Goal and Baseline PLOP successfully assigned!');
     }
 
-    // RENAMED to match your route and javascript!
     public function generateAi(\Illuminate\Http\Request $request)
     {
-        // 1. We now accept the Domain AND the Present Level of Performance
         $request->validate([
             'domain' => 'required|string',
             'present_level' => 'required|string|max:2000'
         ]);
 
-        $apiKey = env('GEMINI_API_KEY');
+        // Fetching the API key from config or env
+        $apiKey = config('services.groq.api_key', env('GROQ_API_KEY'));
 
-        // 2. The upgraded prompt forces the AI to output Objectives and Activities
-        $prompt = "You are an expert Special Education Teacher. 
-        Domain: '{$request->domain}'
-        Present Level of Performance: '{$request->present_level}'
-        
-        Generate 3 specific, measurable IEP objectives and 2-3 matching activities for each.
-        Output STRICTLY a JSON array of objects. No markdown formatting, no conversational text.
-        Format exactly like this:
-        [
-            {
-                \"objective\": \"To follow classroom routines dependently...\",
-                \"activities\": [\"Games / toys\", \"Social stories\", \"Token system\"]
-            }
-        ]";
+        if (!$apiKey) {
+            return response()->json(['success' => false, 'message' => 'API key is missing. Please contact the administrator.'], 500);
+        }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                // FIXED the model name below to gemini-2.0-flash
-                ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey, [
-                    'contents' => [
-                        ['parts' => [['text' => $prompt]]]
-                    ]
+            // FIXED: Using the exact model ID with the openai/ prefix
+            $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'openai/gpt-oss-20b', 
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => "You are an expert Special Education Teacher. Output STRICTLY a JSON array of objects. No markdown formatting, no conversational text."
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => "Domain: '{$request->domain}'\nPresent Level of Performance: '{$request->present_level}'\n\nGenerate 3 specific, measurable IEP objectives and 2-3 matching activities for each.\nFormat exactly like this:\n[\n  {\n    \"objective\": \"To follow classroom routines dependently...\",\n    \"activities\": [\"Games / toys\", \"Social stories\", \"Token system\"]\n  }\n]"
+                        ]
+                    ],
+                    'temperature' => 0.7,
                 ]);
 
             if ($response->successful()) {
-                $aiText = $response->json('candidates.0.content.parts.0.text');
+                $aiText = $response->json('choices.0.message.content');
                 
-                // 3. Clean up any markdown blocks Gemini might accidentally include
+                // Clean up any markdown blocks the AI might accidentally include
                 $aiText = str_replace(['```json', '```'], '', $aiText);
                 $aiText = trim($aiText);
 
@@ -104,7 +97,7 @@ class IepGoalController extends Controller
                 
                 return response()->json(['success' => false, 'message' => 'Failed to parse AI response. Raw output: ' . $aiText], 500);
             }
-            return response()->json(['success' => false, 'message' => 'Google AI Error: ' . $response->body()], 500);
+            return response()->json(['success' => false, 'message' => 'AI Error: ' . $response->body()], 500);
 
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -153,6 +146,6 @@ class IepGoalController extends Controller
         // Format the file name
         $fileName = 'IEP_' . $student->last_name . '_' . $student->first_name . '_SY2025-2026.pdf';
 
-        return $pdf->stream($fileName); // Use ->stream() to preview in browser, or ->download() to force file download
+        return $pdf->stream($fileName); 
     }
 }

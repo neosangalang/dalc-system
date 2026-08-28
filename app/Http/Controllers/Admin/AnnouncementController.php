@@ -3,70 +3,86 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use Illuminate\Http\Request;
-use App\Models\Announcement; 
+use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
 {
-    // 1. Show all announcements (The New Hub)
     public function index()
     {
         $announcements = Announcement::latest()->get();
         return view('admin.announcements.index', compact('announcements'));
     }
 
-    // 2. Show the blank form
-    public function create()
-    {
-        return view('admin.announcements.create');
-    }
-
-    // 3. Save the new announcement
     public function store(Request $request)
     {
+        // Added validation for 'type'
         $request->validate([
-            'title' => 'required|string|max:255',
+            'type'    => 'required|string|max:50',
+            'title'   => 'required|string|max:255',
             'content' => 'required|string',
+            'image'   => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB
         ]);
 
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('announcements', 'public');
+        }
+
+        // Added 'type' to the creation array
         Announcement::create([
-            'title' => $request->input('title'),
-            'content' => $request->input('content'),
+            'type'       => $request->type,
+            'title'      => $request->title,
+            'content'    => $request->content,
+            'image_path' => $imagePath,
         ]);
 
-        // Redirects to the hub instead of back
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement posted successfully!');
     }
 
-    // 4. Show the edit form
-    public function edit($id)
-    {
-        $announcement = Announcement::findOrFail($id);
-        return view('admin.announcements.edit', compact('announcement'));
-    }
-
-    // 5. Save the edited changes
     public function update(Request $request, $id)
     {
+        // Added validation for 'type'
         $request->validate([
-            'title' => 'required|string|max:255',
+            'type'    => 'required|string|max:50',
+            'title'   => 'required|string|max:255',
             'content' => 'required|string',
+            'image'   => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
         ]);
 
         $announcement = Announcement::findOrFail($id);
-        
-        $announcement->update([
-            'title' => $request->input('title'),
-            'content' => $request->input('content'),
-        ]);
+
+        if ($request->hasFile('image')) {
+            // Delete the old image from storage if it exists
+            if ($announcement->image_path) {
+                Storage::disk('public')->delete($announcement->image_path);
+            }
+            
+            // Store the new image
+            $announcement->image_path = $request->file('image')->store('announcements', 'public');
+        }
+
+        // Added 'type' update assignment
+        $announcement->type = $request->type;
+        $announcement->title = $request->title;
+        $announcement->content = $request->content;
+        $announcement->save();
 
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement updated successfully!');
     }
 
-    // 6. Delete the announcement
     public function destroy($id)
     {
-        Announcement::findOrFail($id)->delete();
+        $announcement = Announcement::findOrFail($id);
+
+        // Delete the image from storage when the announcement is deleted
+        if ($announcement->image_path) {
+            Storage::disk('public')->delete($announcement->image_path);
+        }
+
+        $announcement->delete();
+
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement deleted successfully!');
     }
 }

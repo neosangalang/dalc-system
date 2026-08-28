@@ -13,8 +13,15 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9CA0AF; }
 </style>
 
-<!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
+<!-- Main Container -->
 <div x-data="{ activeTab: 'create' }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+
+    <!-- BACK BUTTON -->
+    <div class="flex">
+        <a href="{{ route('teacher.students.index') }}" class="inline-flex items-center px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 hover:text-[#1E2657] shadow-sm transition-colors decoration-transparent focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
+            <i class="fa fa-arrow-left mr-2"></i> Back to Students
+        </a>
+    </div>
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down mb-6">
@@ -67,6 +74,11 @@
         </div>
     </div>
 
+    @php
+        $selectedStudentId = old('student_id', request('student_id'));
+        $selectedStudent = $myStudents->firstWhere('id', $selectedStudentId);
+    @endphp
+
     <!-- TAB 1: CREATE NEW LOG FORM -->
     <div x-show="activeTab === 'create'" x-transition.opacity.duration.300ms class="w-full">
         <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden">
@@ -77,7 +89,7 @@
             </div>
             
             <div class="p-5 sm:p-8">
-                <form action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0">
+                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0">
                     @csrf
                     
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
@@ -85,28 +97,32 @@
                         <!-- LEFT COLUMN: Main Form Content -->
                         <div class="lg:col-span-7">
                             
-                            <div class="mb-4">
-                                <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Student</label>
-                                <select name="student_id" id="student_id" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" required>
-                                    <option value="" disabled selected>Select a student...</option>
-                                    @foreach($myStudents as $student)
-                                        <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <input type="hidden" name="student_id" id="student_id" value="{{ $selectedStudentId }}">
+
+                            @if($selectedStudent)
+                                <div class="mb-5 flex items-center gap-4 bg-[#F4F6FA] border border-black/10 p-3 sm:p-4 rounded-2xl shadow-sm">
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shrink-0 border border-black/10">
+                                        {{ strtoupper(substr($selectedStudent->first_name, 0, 1) . substr($selectedStudent->last_name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest m-0 mb-0.5">Logging Observation For</p>
+                                        <p class="text-[16px] font-extrabold text-[#1E2657] m-0 leading-tight">{{ $selectedStudent->first_name }} {{ $selectedStudent->last_name }}</p>
+                                    </div>
+                                </div>
+                            @endif
 
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Date</label>
-                                    <input type="date" name="log_date" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" value="{{ date('Y-m-d') }}" required>
+                                    <input type="date" name="log_date" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" value="{{ old('log_date', date('Y-m-d')) }}" required>
                                 </div>
                                 <div>
                                     <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Quarter</label>
                                     <select name="quarter" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" required>
-                                        <option value="Q1">Q1</option>
-                                        <option value="Q2">Q2</option>
-                                        <option value="Q3">Q3</option>
-                                        <option value="Q4">Q4</option>
+                                        <option value="Q1" {{ old('quarter') == 'Q1' ? 'selected' : '' }}>Q1</option>
+                                        <option value="Q2" {{ old('quarter') == 'Q2' ? 'selected' : '' }}>Q2</option>
+                                        <option value="Q3" {{ old('quarter') == 'Q3' ? 'selected' : '' }}>Q3</option>
+                                        <option value="Q4" {{ old('quarter') == 'Q4' ? 'selected' : '' }}>Q4</option>
                                     </select>
                                 </div>
                             </div>
@@ -115,7 +131,7 @@
                                 <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
                                     <i class="fa fa-camera text-[#9CA0AF] mr-1.5"></i> Attach Photo (Optional)
                                 </label>
-                                <input type="file" name="photo" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-black/15 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/*">
+                                <input type="file" name="photo" id="photoInput" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-black/15 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png">
                             </div>
 
                             <hr class="border-black/10 my-6">
@@ -126,7 +142,7 @@
                                         <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
                                     </label>
                                 </div>
-                                <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white" rows="4" required placeholder="e.g., he ate snacks, played with blocks, got distracted..."></textarea>
+                                <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white" rows="4" required placeholder="e.g., he ate snacks, played with blocks, got distracted...">{{ old('raw_notes') }}</textarea>
                                 
                                 <button type="button" id="generateAiBtn" class="w-full inline-flex items-center justify-center px-4 py-3 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
                                     <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally
@@ -141,7 +157,7 @@
                                 <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
                                     <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation
                                 </label>
-                                <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here..."></textarea>
+                                <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here...">{{ old('notes') }}</textarea>
                             </div>
                         </div>
 
@@ -154,7 +170,7 @@
                                     </label>
                                 </div>
                                 
-                                <textarea name="home_recommendations" id="home_recommendations" class="flex-1 w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm mb-4 custom-scrollbar resize-none" placeholder="AI will generate home activities here..."></textarea>
+                                <textarea name="home_recommendations" id="home_recommendations" class="flex-1 w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm mb-4 custom-scrollbar resize-none" placeholder="AI will generate home activities here...">{{ old('home_recommendations') }}</textarea>
                                 
                                 <button type="button" id="btnGenerateRecommendations" class="mt-auto w-full inline-flex items-center justify-center px-4 py-3 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1">
                                     <i class="fa fa-lightbulb mr-1.5"></i> Generate Home Activities
@@ -176,20 +192,36 @@
 
     <!-- TAB 2: RECENT LOGS HISTORY -->
     <div x-show="activeTab === 'history'" x-transition.opacity.duration.300ms x-cloak class="max-w-4xl mx-auto">
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-5 gap-3 sm:gap-4 px-1">
+        
+        <!-- FILTER BAR -->
+        <div class="flex flex-col space-y-3 mb-6 px-1">
             <h6 class="text-[13px] font-extrabold text-[#1E2657] m-0">Previously Submitted Logs</h6>
             
-            <div class="relative w-full sm:w-72 shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
-                    <i class="fa fa-search"></i>
-                </span>
-                <input type="text" id="logSearch" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search by student or content...">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <!-- Student Filter -->
+                <select id="filterStudent" class="w-full sm:w-64 rounded-xl border-black/15 px-3 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                    <option value="all">All Assigned Students</option>
+                    @foreach($myStudents as $student)
+                        <option value="{{ $student->id }}" {{ $selectedStudentId == $student->id ? 'selected' : '' }}>
+                            {{ $student->first_name }} {{ $student->last_name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <!-- Search -->
+                <div class="relative w-full sm:flex-1 shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
+                        <i class="fa fa-search"></i>
+                    </span>
+                    <input type="text" id="logSearch" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search content...">
+                </div>
             </div>
         </div>
 
         <div id="logs-feed-container" class="space-y-4 sm:space-y-6">
             @forelse($recentLogs as $log)
-                <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item">
+                <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item" 
+                     data-student-id="{{ $log->student_id }}">
                     
                     <!-- Card Header -->
                     <div class="p-5 sm:px-6 border-b border-black/10 bg-[#F4F6FA] relative">
@@ -268,18 +300,88 @@
 
 @push('scripts')
 <script>
+// --- AUTO-SAVE DRAFT LOGIC ---
+document.addEventListener("DOMContentLoaded", function() {
+    const studentIdInput = document.getElementById('student_id');
+    const rawNotes = document.getElementById('rawNotes');
+    const formalNotes = document.getElementById('formalNotes');
+    const homeRecs = document.getElementById('home_recommendations');
+    const form = document.getElementById('dailyLogForm');
+
+    if (studentIdInput && studentIdInput.value) {
+        const sid = studentIdInput.value;
+        const rawKey = `dalc_draft_raw_${sid}`;
+        const formalKey = `dalc_draft_formal_${sid}`;
+        const homeKey = `dalc_draft_home_${sid}`;
+
+        if (localStorage.getItem(rawKey) && !rawNotes.value) rawNotes.value = localStorage.getItem(rawKey);
+        if (localStorage.getItem(formalKey) && !formalNotes.value) formalNotes.value = localStorage.getItem(formalKey);
+        if (localStorage.getItem(homeKey) && !homeRecs.value) homeRecs.value = localStorage.getItem(homeKey);
+
+        rawNotes.addEventListener('input', () => localStorage.setItem(rawKey, rawNotes.value));
+        formalNotes.addEventListener('input', () => localStorage.setItem(formalKey, formalNotes.value));
+        homeRecs.addEventListener('input', () => localStorage.setItem(homeKey, homeRecs.value));
+
+        if (form) {
+            form.addEventListener('submit', function() {
+                localStorage.removeItem(rawKey);
+                localStorage.removeItem(formalKey);
+                localStorage.removeItem(homeKey);
+            });
+        }
+    }
+});
+
+// --- FRONTEND IMAGE VALIDATION LOGIC ---
+document.addEventListener("DOMContentLoaded", function() {
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const validTypes = ['image/jpeg', 'image/png'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPEG or PNG only).');
+                    this.value = '';
+                } else if (file.size > 5 * 1024 * 1024) {
+                    alert('File is too large. Please select an image smaller than 5MB.');
+                    this.value = ''; 
+                }
+            }
+        });
+    }
+});
+
 // --- FEED SEARCH FILTER LOGIC ---
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('logSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const term = this.value.toLowerCase().trim();
-            document.querySelectorAll('.log-item').forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(term) ? '' : 'none';
-            });
+    const filterStudent = document.getElementById('filterStudent');
+    const logItems = document.querySelectorAll('.log-item');
+
+    function applyFilters() {
+        const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const studentId = filterStudent ? filterStudent.value : 'all';
+
+        logItems.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            const cardStudentId = card.getAttribute('data-student-id');
+
+            const matchesSearch = text.includes(term);
+            const matchesStudent = (studentId === 'all' || cardStudentId === studentId);
+
+            if (matchesSearch && matchesStudent) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
         });
     }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (filterStudent) filterStudent.addEventListener('change', applyFilters);
+
+    // Initial run to apply the auto-selected student filter on page load
+    applyFilters();
 });
 
 // --- AI REWRITE LOGIC ---
@@ -294,12 +396,10 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         return;
     }
 
-    // Update UI to show loading
     btn.disabled = true;
     loading.classList.remove('hidden'); 
     output.value = "Translating notes..."; 
 
-    // Send request to Controller
     fetch('{{ route('teacher.daily-logs.generate-ai') }}', {
         method: 'POST',
         headers: {
@@ -315,6 +415,9 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
             output.value = "";
         } else {
             output.value = data.formal_note;
+            
+            let sid = document.getElementById('student_id').value;
+            if(sid) localStorage.setItem(`dalc_draft_formal_${sid}`, data.formal_note);
         }
     })
     .catch(error => {
@@ -322,7 +425,6 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         output.value = "";
     })
     .finally(() => {
-        // Reset UI
         btn.disabled = false;
         loading.classList.add('hidden'); 
     });
@@ -336,7 +438,7 @@ document.getElementById('btnGenerateRecommendations').addEventListener('click', 
     let targetBox = document.getElementById('home_recommendations');
 
     if (!studentId) {
-        alert('Please select a student from the dropdown first!');
+        alert('Please return to the student list and select a student first!');
         return;
     }
 
@@ -345,7 +447,6 @@ document.getElementById('btnGenerateRecommendations').addEventListener('click', 
         return;
     }
 
-    // Change button state to loading
     let originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Generating Activities...';
     btn.disabled = true;
@@ -365,6 +466,8 @@ document.getElementById('btnGenerateRecommendations').addEventListener('click', 
     .then(data => {
         if (data.success) {
             targetBox.value = data.recommendation;
+            
+            if(studentId) localStorage.setItem(`dalc_draft_home_${studentId}`, data.recommendation);
         } else {
             alert('Error: ' + data.message);
         }
@@ -374,7 +477,6 @@ document.getElementById('btnGenerateRecommendations').addEventListener('click', 
         alert('An error occurred while generating recommendations.');
     })
     .finally(() => {
-        // Restore button
         btn.innerHTML = originalText;
         btn.disabled = false;
     });

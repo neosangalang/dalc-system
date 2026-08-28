@@ -25,7 +25,6 @@
     <!-- ========================================== -->
     <!-- 1. TOP HEADER NAVIGATION                   -->
     <!-- ========================================== -->
-    <!-- Added a smooth, visible outline: border-[#1E2657]/20 -->
     <header class="sticky top-0 z-50 h-16 bg-white/80 backdrop-blur-lg border-b border-[#1E2657]/20 flex items-center justify-between px-4 sm:px-6 lg:px-8 shadow-sm">
 
         <!-- Logo and Brand -->
@@ -49,35 +48,8 @@
 
         <div class="flex items-center gap-3 sm:gap-4 shrink-0">
 
-            <!-- GUARDIAN Child Switcher -->
-            @if(Auth::check() && strtolower(Auth::user()->role) === 'guardian')
-                @php
-                    $myChildren = Auth::user()->children ?? collect();
-                    $activeChildId = session('active_child_id', $myChildren->first()->id ?? null);
-                    $activeChild = $myChildren->where('id', $activeChildId)->first();
-                @endphp
-
-                @if($myChildren->count() > 0 && $activeChild)
-                    <div x-data="{ switchOpen: false }" class="relative z-40">
-                        <!-- Smoothed outline from black/70 to #1E2657/20 -->
-                        <button @click="switchOpen = !switchOpen" @click.away="switchOpen = false" class="flex items-center gap-2 px-3 py-1.5 bg-[#F0F3FA] border border-[#1E2657]/20 text-[#1E2657] font-bold text-sm rounded-xl hover:bg-[#E4E9F7] shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E2657]/40">
-                            <div class="bg-[#1E2657] text-white rounded-full flex items-center justify-center w-6 h-6 text-[10px]"><i class="fa-solid fa-child"></i></div>
-                            <span class="hidden sm:inline text-[#6B7086] font-semibold">Viewing:</span> {{ $activeChild->first_name }}
-                        </button>
-                        <div x-show="switchOpen" x-transition x-cloak class="absolute right-0 mt-2 w-56 bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl py-2 z-50">
-                            @foreach($myChildren as $child)
-                                <a href="{{ route('guardian.switch-child', $child->id) }}" class="block px-4 py-2.5 text-sm font-bold hover:bg-[#D9E6FF]/50 {{ $activeChild->id === $child->id ? 'text-[#5B8DEF] bg-[#D9E6FF]/50' : 'text-[#2C2F45]' }}">
-                                    {{ $child->first_name }} {{ $child->last_name }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            @endif
-
             <!-- Notifications Menu -->
             <div x-data="{ notifOpen: false }" class="relative">
-                <!-- Smoothed outline from black/70 to #1E2657/20 -->
                 <button @click="notifOpen = !notifOpen" @click.away="notifOpen = false" class="w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-sm transition">
                     <i class="fa fa-bell"></i>
                 </button>
@@ -124,8 +96,7 @@
 
         <!-- BACK BUTTON: Shows only when inside a system module (not on the main dashboard) -->
         @if(!$isDashboard && Auth::check())
-            <div class="mb-6">
-                <!-- Smoothed outline from black/70 to #1E2657/20 -->
+            <div class="mb-6 flex">
                 <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
                     <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                 </a>
