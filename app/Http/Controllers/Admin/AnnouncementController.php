@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\User;
+use App\Notifications\SystemAlert;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
@@ -31,12 +34,25 @@ class AnnouncementController extends Controller
         }
 
         // Added 'type' to the creation array
-        Announcement::create([
+        $announcement = Announcement::create([
             'type'       => $request->type,
             'title'      => $request->title,
             'content'    => $request->content,
             'image_path' => $imagePath,
         ]);
+
+        // Notify all active Guardians
+        try {
+            $guardians = \App\Models\User::where('role', 'guardian')->where('is_active', true)->get();
+            foreach ($guardians as $guardian) {
+                $guardian->notify(new \App\Notifications\SystemAlert(
+                    "New Center Announcement: {$announcement->title}",
+                    route('guardian.announcements.index')
+                ));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Guardian notification failed on announcement create: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement posted successfully!');
     }

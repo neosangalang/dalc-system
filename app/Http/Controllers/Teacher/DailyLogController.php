@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\DailyLog;
 use App\Models\Report; 
+use App\Notifications\SystemAlert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class DailyLogController extends Controller
 {
@@ -18,14 +20,29 @@ class DailyLogController extends Controller
         // Fetch students for the dropdown
         $myStudents = Student::where('teacher_id', $teacherId)->where('status', 'active')->get();
         
-        // Fetch recent logs to display on the right side
-        $recentLogs = DailyLog::with('student')
+        // Fetch recent logs with comments and student info to display on the feed
+        $recentLogs = DailyLog::with(['student', 'comments.user'])
             ->where('teacher_id', $teacherId)
             ->latest('log_date')
-            ->take(10)
+            ->take(15)
             ->get();
 
         return view('teacher.daily-logs.index', compact('myStudents', 'recentLogs'));
+    }
+
+    public function markCommentsAsRead($id)
+    {
+        $log = DailyLog::findOrFail($id);
+
+        if ($log->teacher_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $log->comments()
+             ->where('user_id', '!=', Auth::id())
+             ->update(['is_teacher_read' => 1]);
+
+        return response()->json(['success' => true]);
     }
 
    public function store(Request $request) {
@@ -51,7 +68,7 @@ class DailyLogController extends Controller
             $imagePath = $request->file('photo')->store('private_log_photos', 'local');
         }
 
-        DailyLog::create([
+        $dailyLog = DailyLog::create([
             'student_id' => $student->id,
             'teacher_id' => Auth::id(),
             'log_date'   => $request->log_date,
@@ -60,6 +77,19 @@ class DailyLogController extends Controller
             'home_recommendations' => $request->home_recommendations,
             'image_path' => $imagePath, 
         ]);
+
+        // Notify the Guardian
+        try {
+            $student->load('guardian');
+            if ($student->guardian) {
+                $student->guardian->notify(new \App\Notifications\SystemAlert(
+                    "Teacher " . Auth::user()->name . " posted today's Daily Log for {$student->first_name}.",
+                    route('guardian.dashboard')
+                ));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Guardian notification failed on daily log create: ' . $e->getMessage());
+        }
 
         return redirect()->route('teacher.daily-logs.index')->with('success', 'Daily log saved successfully!');
     }

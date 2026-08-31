@@ -27,7 +27,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecureFileController;
-use App\Http\Controllers\AiAssistantController; // <-- ADDED: AI Assistant Controller
+use App\Http\Controllers\AiAssistantController;
 
 // Root logic
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -49,8 +49,61 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::get('/secure-log-photo/{id}', [SecureFileController::class, 'show'])->name('secure.log-photo');
     
-    // <-- ADDED: Groq AI Rewrite Route (Available to authorized staff)
     Route::post('/ai/rewrite-log', [AiAssistantController::class, 'rewriteDailyLog'])->name('ai.rewrite'); 
+
+    // ==========================================
+    // REAL-TIME NOTIFICATION ENDPOINTS
+    // ==========================================
+    Route::get('/api/notifications', function() {
+        if (!auth()->check()) {
+            return response()->json(['count' => 0, 'items' => []]);
+        }
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        $notifications = $user->notifications()->latest()->take(10)->get()->map(function($notif) {
+            return [
+                'id' => $notif->id,
+                'message' => $notif->data['message'] ?? ($notif->data['title'] ?? 'New Alert'),
+                'url' => $notif->data['url'] ?? '#',
+                'time' => $notif->created_at->diffForHumans(),
+                'is_read' => $notif->read_at !== null
+            ];
+        });
+        
+        return response()->json([
+            'count' => $user->unreadNotifications()->count(),
+            'items' => $notifications
+        ]);
+    })->name('notifications.fetch');
+
+    Route::post('/api/notifications/mark-read', function() {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        $user->unreadNotifications->markAsRead();
+        return response()->json(['success' => true]);
+    })->name('notifications.markAllRead');
+
+    // NEW ROUTE: Marks a single notification as read and redirects the user
+    Route::get('/notifications/{id}/read', function($id) {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+        return redirect($notification->data['url'] ?? '/');
+    })->name('notifications.read');
+
+    Route::get('/test-alert', function () {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        $user->notify(new \App\Notifications\SystemAlert(
+            'System Test: Your real-time notifications are working!', 
+            '#'
+        ));
+        
+        return "Notification sent! Go back to your dashboard to see the bell icon light up.";
+    });
 });
 
 /*
@@ -63,7 +116,6 @@ Route::middleware(['auth', 'role:admin', \App\Http\Middleware\ForcePasswordChang
     ->name('admin.') 
     ->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    // Announcement Management
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
@@ -84,10 +136,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_approve_reports'])->group(function() {
         Route::get('/report-approval', [ReportApprovalController::class, 'index'])->name('report-approval.index');
-        
-        // FIXED: Added missing show route
         Route::get('/report-approval/{id}', [ReportApprovalController::class, 'show'])->name('report-approval.show');
-        
         Route::post('/report-approval/{id}/status', [ReportApprovalController::class, 'updateStatus'])->name('report-approval.update-status');
     });
 
@@ -110,17 +159,12 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_manage_credentials'])->group(function() {
-        // ALWAYS put custom routes BEFORE the resource route in Laravel!
         Route::patch('/accounts/{account}/toggle-status', [AccountController::class, 'toggleStatus'])->name('accounts.toggle');
         Route::patch('/accounts/{account}/toggle-edit', [AccountController::class, 'toggleEditPermission'])->name('accounts.toggle-edit');
         Route::patch('/accounts/{id}/permissions', [AccountController::class, 'updatePermissions'])->name('accounts.permissions');
         Route::put('/accounts/{id}/credentials', [AccountController::class, 'updateCredentials'])->name('accounts.update-credentials');
-        
-        // Resource route comes last
         Route::resource('accounts', AccountController::class);
     });
-    
-
 });
 
 /*
@@ -139,6 +183,9 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     Route::post('/daily-logs/generate-ai', [DailyLogController::class, 'generateAiReport'])->name('daily-logs.generate-ai');
     Route::post('/iep-goals/generate-ai', [IepGoalController::class, 'generateAi'])->name('iep-goals.generate-ai');
     Route::post('/reports/generate-ai', [ReportController::class, 'generateAiReport'])->name('reports.generate-ai');
+
+    
+    Route::post('/iep-goals/{id}/mark-read', [IepGoalController::class, 'markCommentsAsRead'])->name('iep-goals.mark-read');
     
     Route::get('/reports/{id}/pdf', [ReportController::class, 'downloadPdf'])->name('reports.pdf');
     Route::get('/students/{student}/iep-pdf', [IepGoalController::class, 'downloadIepPdf'])->name('iep-goals.pdf');
@@ -147,10 +194,12 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     Route::resource('files', FileController::class);
     Route::resource('reports', ReportController::class);
     Route::resource('iep-goals', IepGoalController::class);
+    Route::resource('reports', ReportController::class);
     
     Route::get('/daily-logs', [DailyLogController::class, 'index'])->name('daily-logs.index');
     Route::post('/daily-logs', [DailyLogController::class, 'store'])->name('daily-logs.store');
     Route::delete('/daily-logs/{id}', [DailyLogController::class, 'destroy'])->name('daily-logs.destroy');
+    Route::post('/daily-logs/{id}/mark-read', [DailyLogController::class, 'markCommentsAsRead'])->name('daily-logs.mark-read');
     Route::post('/daily-logs/generate-recommendations', [DailyLogController::class, 'generateAiRecommendations'])->name('daily-logs.generate-recommendations');
 });
 
@@ -165,16 +214,17 @@ Route::middleware(['auth', 'role:guardian', \App\Http\Middleware\ForcePasswordCh
     ->group(function () {
         
     Route::get('/dashboard', [GuardianController::class, 'dashboard'])->name('dashboard');
- 
     Route::get('/announcements', [GuardianController::class, 'announcements'])->name('announcements.index');
 
     Route::get('/goals', [GuardianController::class, 'goals'])->name('goals');
     Route::get('/goals/download-iep/{studentId}', [GuardianController::class, 'downloadIepPdf'])->name('goals.download-iep');
+    Route::post('/goals/{id}/mark-read', [GuardianController::class, 'markCommentsAsRead'])->name('goals.mark-read');
     
     Route::get('/reports', [GuardianController::class, 'reports'])->name('reports');
     Route::get('/reports/{id}/pdf', [GuardianController::class, 'downloadReportPdf'])->name('reports.pdf');
     
     Route::get('/recommendations', [GuardianController::class, 'recommendations'])->name('recommendations');
+    Route::get('/logs/archive', [GuardianController::class, 'logsArchive'])->name('logs.archive');
     Route::get('/notifications', [GuardianController::class, 'notifications'])->name('notifications');
 
     Route::get('/switch-child/{id}', [GuardianController::class, 'switchChild'])->name('switch-child');

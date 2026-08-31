@@ -68,15 +68,50 @@
             
             <div class="p-5 sm:p-6 grid grid-cols-1 gap-5 sm:gap-6 bg-[#F4F6FA]/50">
                 @forelse($activeChild->iepGoals as $goal)
-                    <div class="bg-white rounded-2xl border border-black/15 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                    
+                    @php
+                        // Check if the teacher has replied and it is unread by the guardian
+                        $goalUnreadCount = $goal->comments->filter(function($comment) {
+                            return $comment->user_id != Auth::id() && !$comment->is_guardian_read;
+                        })->count();
+                    @endphp
+
+                    <!-- GOAL CARD: Reactive Alpine State Wrapper -->
+                    <div x-data="{ 
+                            goalUnread: {{ $goalUnreadCount > 0 ? 'true' : 'false' }},
+                            markAsRead() {
+                                if (this.goalUnread) {
+                                    this.goalUnread = false;
+                                    fetch('{{ route('guardian.goals.mark-read', $goal->id) }}', {
+                                        method: 'POST',
+                                        headers: { 
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}', 
+                                            'Accept': 'application/json',
+                                            'Content-Type': 'application/json'
+                                        }
+                                    }).catch(err => console.error('Error marking as read', err));
+                                }
+                            }
+                         }" 
+                         class="bg-white rounded-2xl border transition-all duration-300 shadow-sm overflow-hidden hover:shadow-md"
+                         :class="goalUnread ? 'border-red-400 ring-2 ring-red-400/20' : 'border-black/15'">
                         
                         <!-- GOAL HEADER -->
-                        <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-black/10 bg-white flex flex-wrap justify-between items-center gap-2 sm:gap-0">
+                        <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-black/10 bg-white flex flex-wrap justify-between items-center gap-2 sm:gap-0 transition-colors duration-500"
+                             :class="goalUnread ? 'bg-red-50/30' : 'bg-white'">
+                            
                             <h6 class="m-0 font-extrabold text-[#1E2657] flex items-center gap-3 text-[14px] sm:text-base">
                                 <div class="w-8 h-8 bg-[#F4F6FA] text-[#8B5CF6] border border-black/5 rounded-lg flex items-center justify-center shrink-0">
                                     <i class="fa fa-layer-group text-[13px]"></i>
                                 </div>
                                 {{ $goal->domain }}
+                                
+                                <!-- Reactive New Reply Badge -->
+                                <span x-show="goalUnread" 
+                                      x-transition.opacity.duration.500ms
+                                      class="inline-flex items-center px-2.5 py-1 rounded-md bg-red-500 text-white font-extrabold text-[9px] shadow-sm uppercase tracking-widest animate-pulse ml-1">
+                                    <i class="fa fa-bell mr-1.5"></i> New Reply
+                                </span>
                             </h6>
                             
                             @if($goal->status == 'achieved')
@@ -174,11 +209,23 @@
                             </div>
                         </div>
 
-                        <!-- GOAL COMMENTS -->
-                        <div class="bg-[#F4F6FA] border-t border-black/10 p-5 sm:p-6">
-                            <h6 class="font-extrabold text-[#6B7086] mb-4 flex items-center m-0 text-[11px] uppercase tracking-widest">
-                                <i class="fa fa-comments mr-2 text-[#9CA0AF]"></i> Discussion & Notes
-                            </h6>
+                        <!-- GOAL COMMENTS: Interactive Read Trigger on Hover/Tap -->
+                        <div class="border-t border-black/10 p-5 sm:p-6 transition-colors duration-700 rounded-b-2xl cursor-pointer"
+                             :class="goalUnread ? 'bg-red-50/70 hover:bg-[#F4F6FA]' : 'bg-[#F4F6FA]'"
+                             @mouseenter.once="markAsRead()"
+                             @touchstart.once="markAsRead()">
+                            
+                            <div class="flex justify-between items-center mb-4">
+                                <h6 class="font-extrabold transition-colors duration-500 flex items-center m-0 text-[11px] uppercase tracking-widest"
+                                    :class="goalUnread ? 'text-red-500' : 'text-[#6B7086]'">
+                                    <i class="fa fa-comments mr-2" :class="goalUnread ? 'text-red-500 animate-bounce' : 'text-[#9CA0AF]'"></i> Discussion & Notes
+                                </h6>
+                                
+                                <span x-show="goalUnread" x-transition class="text-[9px] font-extrabold text-red-500 uppercase tracking-widest">
+                                    Hover here to clear notification
+                                </span>
+                            </div>
+
                             @include('components.comment-thread', ['item' => $goal])
                         </div>
 

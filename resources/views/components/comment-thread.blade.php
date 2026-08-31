@@ -4,13 +4,13 @@
     </div>
     
     <div class="card-body p-0">
-        <div class="chat-history p-4" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
+        <div id="chat-history-{{ $item->id }}" class="chat-history p-4" style="max-height: 400px; overflow-y: auto; background-color: #f8f9fa;">
             
             @forelse(collect($item->comments)->reverse() as $comment) 
                 <div class="mb-3 {{ $comment->user_id === Auth::id() ? 'text-end' : 'text-start' }}">
-    <div class="d-inline-block p-3 rounded shadow-sm" 
-         style="max-width: 80%; text-align: left; 
-         {{ $comment->user_id === Auth::id() ? 'background-color: #0d6efd; color: white;' : 'background-color: white; border: 1px solid #e9ecef;' }}">
+                    <div class="d-inline-block p-3 rounded shadow-sm" 
+                         style="max-width: 80%; text-align: left; 
+                         {{ $comment->user_id === Auth::id() ? 'background-color: #0d6efd; color: white;' : 'background-color: white; border: 1px solid #e9ecef;' }}">
                         
                         <strong style="font-size: 0.85rem; {{ $comment->user->role == 'guardian' ? 'color: #d0e8ff;' : 'color: #6c757d;' }}">
                             {{ $comment->user->name }}
@@ -31,14 +31,10 @@
         </div>
 
         <div class="p-3 bg-white border-top">
-            
-            <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-
-            <form action="{{ route('comments.store') }}" method="POST" id="comment-form-{{ $item->id }}" onsubmit="prepareComment('{{ $item->id }}')">
+            <form action="{{ route('comments.store') }}" method="POST" id="comment-form-{{ $item->id }}" onsubmit="submitCommentAjax(event, '{{ $item->id }}')">
                 @csrf
                 <input type="hidden" name="commentable_type" value="{{ get_class($item) }}">
                 <input type="hidden" name="commentable_id" value="{{ $item->id }}">
-                
                 <input type="hidden" name="body" id="hidden-body-{{ $item->id }}">
 
                 <div class="mb-2">
@@ -51,51 +47,107 @@
                     </button>
                 </div>
             </form>
-            
-            <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-            <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    // Initialize the editor with a specific ID so multiple boxes on one page don't break
-                    var quill = new Quill('#editor-{{ $item->id }}', {
-                        theme: 'snow',
-                        placeholder: 'Write a comment...',
-                        modules: {
-                            toolbar: [
-                                ['bold', 'italic', 'underline', 'strike'], // toggled buttons
-                                ['link', 'image', 'video']                 // link and media
-                            ]
-                        }
-                    });
-
-                    // Remove the top border radius of the toolbar to look clean
-                    document.querySelector('#editor-{{ $item->id }}').previousSibling.style.borderRadius = '5px 5px 0 0';
-                    document.querySelector('#editor-{{ $item->id }}').previousSibling.style.backgroundColor = '#f8f9fa';
-                });
-
-                // Before form submits, grab the HTML inside the editor and put it in our hidden input
-                function prepareComment(itemId) {
-                    var htmlContent = document.querySelector('#editor-' + itemId + ' .ql-editor').innerHTML;
-                    
-                    // Prevent empty submissions (Quill puts <p><br></p> when empty)
-                    if (htmlContent === '<p><br></p>') {
-                        document.getElementById('hidden-body-' + itemId).value = '';
-                    } else {
-                        document.getElementById('hidden-body-' + itemId).value = htmlContent;
-                    }
-                }
-            </script>
-
         </div>
     </div>
 </div>
 
 <style>
-    /* Ensure images pasted into the rich text editor don't overflow the chat bubbles */
-    .rich-text-content img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 5px;
-        margin-top: 10px;
-    }
+    .rich-text-content img { max-width: 100%; height: auto; border-radius: 5px; margin-top: 10px; }
     .rich-text-content p { margin-bottom: 0.5rem; }
 </style>
+
+@push('scripts')
+    @once
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+        <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll('[id^="editor-"]').forEach(function(editorEl) {
+                    if (!editorEl.classList.contains('ql-container')) {
+                        new Quill('#' + editorEl.id, {
+                            theme: 'snow',
+                            placeholder: 'Write a comment...',
+                            // Removed 'image' and 'video' from the toolbar array below
+                            modules: { toolbar: [ ['bold', 'italic', 'underline', 'strike'], ['link'] ] } 
+                        });
+                        if (editorEl.previousSibling) {
+                            editorEl.previousSibling.style.borderRadius = '5px 5px 0 0';
+                            editorEl.previousSibling.style.backgroundColor = '#f8f9fa';
+                        }
+                    }
+                });
+
+                document.querySelectorAll('.chat-history').forEach(function(box) {
+                    box.scrollTop = box.scrollHeight;
+                });
+            });
+
+            window.submitCommentAjax = async function(e, itemId) {
+                e.preventDefault(); 
+
+                let form = document.getElementById('comment-form-' + itemId);
+                let submitBtn = form.querySelector('button[type="submit"]');
+                let hiddenBody = document.getElementById('hidden-body-' + itemId);
+                let quillEditor = document.querySelector('#editor-' + itemId + ' .ql-editor');
+
+                let htmlContent = quillEditor.innerHTML;
+                if (htmlContent === '<p><br></p>' || htmlContent.trim() === '') return; 
+                
+                hiddenBody.value = htmlContent;
+
+                let originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = 'Posting...';
+                submitBtn.disabled = true;
+
+                try {
+                    let response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!response.ok) {
+                        alert('Backend error: Could not save comment.');
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+
+                    let text = await response.text();
+                    let doc = new DOMParser().parseFromString(text, 'text/html');
+
+                    let newChatHistory = doc.getElementById('chat-history-' + itemId);
+                    
+                    if (!newChatHistory) {
+                        let templates = doc.querySelectorAll('template');
+                        for (let t of templates) {
+                            let found = t.content.getElementById('chat-history-' + itemId);
+                            if (found) {
+                                newChatHistory = found;
+                                break;
+                            }
+                        }
+                    }
+
+                    let currentChatHistory = document.getElementById('chat-history-' + itemId);
+
+                    if (newChatHistory && currentChatHistory) {
+                        currentChatHistory.innerHTML = newChatHistory.innerHTML;
+                        quillEditor.innerHTML = '';
+                        hiddenBody.value = '';
+                        currentChatHistory.scrollTop = currentChatHistory.scrollHeight;
+                    } else {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error(error);
+                    form.submit();
+                } finally {
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                }
+            };
+        </script>
+    @endonce
+@endpush

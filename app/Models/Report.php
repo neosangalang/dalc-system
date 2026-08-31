@@ -30,4 +30,10 @@ class Report extends Model
     {
         return $this->belongsTo(User::class, 'teacher_id');
     }
+
+    // Link the report to its comments (Required for the comment thread to work)
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 }

@@ -220,18 +220,60 @@
 
         <div id="logs-feed-container" class="space-y-4 sm:space-y-6">
             @forelse($recentLogs as $log)
-                <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item" 
+                @php
+                    $unreadLogCommentsCount = $log->comments->filter(function($comment) {
+                        return $comment->user_id != Auth::id() && !$comment->is_teacher_read;
+                    })->count();
+                @endphp
+
+                <div x-data="{ 
+                        unreadCount: {{ (int) $unreadLogCommentsCount }}, 
+                        hasUnread: {{ $unreadLogCommentsCount > 0 ? 'true' : 'false' }},
+                        markAsRead() {
+                            if (this.hasUnread) {
+                                this.hasUnread = false;
+                                this.unreadCount = 0;
+                                fetch('{{ route('teacher.daily-logs.mark-read', $log->id) }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json'
+                                    }
+                                }).catch(e => console.error(e));
+                            }
+                        }
+                     }"
+                     class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item" 
                      data-student-id="{{ $log->student_id }}">
                     
                     <!-- Card Header -->
                     <div class="p-5 sm:px-6 border-b border-black/10 bg-[#F4F6FA] relative">
                         <div class="flex items-start gap-4 pr-10 sm:pr-0">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shrink-0 border border-black/10">
+                            <div class="relative w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shrink-0 border border-black/10">
                                 {{ strtoupper(substr($log->student->first_name, 0, 1)) }}
+
+                                <!-- Reactive Red Notification Dot on Avatar -->
+                                <span x-show="hasUnread" 
+                                      x-transition:leave="transition ease-in duration-200"
+                                      x-transition:leave-start="opacity-100 scale-100"
+                                      x-transition:leave-end="opacity-0 scale-75"
+                                      class="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full"></span>
                             </div>
                             <div class="flex-1 pt-0.5">
-                                <h6 class="text-[15px] font-extrabold text-[#1E2657] m-0 leading-tight mb-1.5">{{ $log->student->first_name }} {{ $log->student->last_name }}</h6>
-                                <div class="flex items-center gap-2 flex-wrap">
+                                <div class="flex items-center gap-2.5 flex-wrap">
+                                    <h6 class="text-[15px] font-extrabold text-[#1E2657] m-0 leading-tight">{{ $log->student->first_name }} {{ $log->student->last_name }}</h6>
+                                    
+                                    <!-- Reactive 'New Guardian Message' Badge -->
+                                    <span x-show="hasUnread" 
+                                          x-transition:leave="transition ease-in duration-200"
+                                          x-transition:leave-start="opacity-100 scale-100"
+                                          x-transition:leave-end="opacity-0 scale-75"
+                                          class="px-2.5 py-1 rounded-md bg-red-500 text-white text-[9px] font-extrabold uppercase tracking-widest shadow-sm animate-pulse flex items-center gap-1">
+                                        <i class="fa fa-envelope"></i> New Message
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 flex-wrap mt-1.5">
                                     <p class="text-[11px] font-extrabold text-[#9CA0AF] m-0 flex items-center uppercase tracking-widest">
                                         <i class="fa fa-calendar-alt mr-1.5"></i>{{ \Carbon\Carbon::parse($log->log_date)->format('M j, Y') }}
                                     </p>
@@ -274,10 +316,20 @@
                         @endif
                     </div>
 
-                    <!-- Comments Section -->
-                    <div class="px-5 py-4 sm:px-6 sm:py-5 bg-[#F4F6FA] border-t border-black/10">
-                        <div class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-3 flex items-center">
-                            <i class="fa fa-comments mr-1.5 text-[#3B82F6]"></i> Comments & Feedback
+                    <!-- Comments Section (Interactive trigger to mark as read) -->
+                    <div class="px-5 py-4 sm:px-6 sm:py-5 bg-[#F4F6FA] border-t border-black/10 transition-colors duration-500"
+                         :class="hasUnread ? 'bg-red-50/40' : 'bg-[#F4F6FA]'"
+                         @mouseenter.once="markAsRead()"
+                         @focusin.once="markAsRead()"
+                         @touchstart.once="markAsRead()">
+                        <div class="text-[10px] font-extrabold uppercase tracking-widest mb-3 flex items-center justify-between"
+                             :class="hasUnread ? 'text-red-500' : 'text-[#9CA0AF]'">
+                            <span class="flex items-center">
+                                <i class="fa fa-comments mr-1.5" :class="hasUnread ? 'text-red-500 animate-bounce' : 'text-[#3B82F6]'"></i> Comments & Feedback
+                            </span>
+                            <span x-show="hasUnread" class="text-[9px] font-extrabold text-red-500 uppercase tracking-widest">
+                                Hover to mark read
+                            </span>
                         </div>
                         <div class="bg-white p-0 sm:p-4 rounded-xl border border-black/15 shadow-sm">
                             @include('components.comment-thread', ['item' => $log])

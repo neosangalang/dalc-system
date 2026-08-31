@@ -51,10 +51,23 @@
         @endif
     </div>
 
+    <!-- NAVIGATION TABS -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-slate-200 pb-3 mb-6 sm:mb-8">
+        <div class="flex items-center gap-2">
+            <a href="{{ route('guardian.recommendations') }}" class="px-4 py-2 rounded-xl text-[13px] font-extrabold bg-emerald-600 text-white shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-sparkles text-amber-300"></i> Today's Active Session
+            </a>
+            <a href="{{ route('guardian.logs.archive') }}" class="px-4 py-2 rounded-xl text-[13px] font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-100 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-box-archive text-slate-400"></i> Archive & History ({{ $archivedCount ?? 0 }})
+            </a>
+        </div>
+    </div>
+
     @if(isset($activeChild))
     <div class="flex flex-col gap-6 sm:gap-8">
+        
         @forelse($recentRecommendations as $log)
-            <div class="bg-white rounded-[16px] sm:rounded-2xl shadow-sm border-2 border-slate-300 overflow-hidden border-t-4 border-t-indigo-600">
+            <div class="bg-white rounded-[16px] sm:rounded-2xl shadow-sm border-2 border-slate-300 overflow-hidden border-t-4 border-t-emerald-500">
                 
                 <!-- CARD HEADER -->
                 <div class="px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-slate-200 bg-white flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
@@ -62,10 +75,9 @@
                         <h5 class="font-extrabold text-slate-800 m-0 text-[15px] sm:text-lg flex items-center mb-1 leading-tight">
                             <i class="fa fa-star text-amber-400 mr-2"></i> {{ $log->student->first_name }}'s Daily Highlight
                         </h5>
-                        <p class="text-[11px] sm:text-xs font-bold text-slate-500 m-0">From the daily log on: {{ \Carbon\Carbon::parse($log->log_date)->format('F j, Y') }}</p>
+                        <p class="text-[11px] sm:text-xs font-bold text-slate-500 m-0">From today's session: {{ \Carbon\Carbon::parse($log->log_date)->format('F j, Y') }} ({{ \Carbon\Carbon::parse($log->log_date)->diffForHumans() }})</p>
                     </div>
-                    <!-- Quarter Badge: Aligns self to start on mobile, center on PC -->
-                    <span class="self-start sm:self-auto inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-indigo-50 text-indigo-700 font-bold text-[10px] sm:text-xs shadow-sm border-2 border-indigo-200 uppercase tracking-wide">
+                    <span class="self-start sm:self-auto inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] sm:text-xs shadow-sm border-2 border-emerald-200 uppercase tracking-wide">
                         {{ $log->quarter }}
                     </span>
                 </div>
@@ -83,13 +95,24 @@
                         </div>
                     @endif
 
-                    <div class="{{ $log->image_path ? 'md:col-span-7' : 'md:col-span-12' }}">
-                        <div class="h-full p-4 sm:p-6 flex flex-col justify-center bg-slate-50 rounded-xl border-y-2 border-r-2 border-l-4 border-slate-300 border-l-emerald-500">
-                            <h6 class="font-extrabold text-emerald-600 mb-3 sm:mb-4 flex items-center m-0 text-[14px] sm:text-base">
-                                <i class="fa fa-house-user mr-2 text-emerald-500"></i> Tonight's Suggested Activity:
-                            </h6>
-                            <p class="m-0 text-[14px] sm:text-[15px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->home_recommendations }}</p>
-                        </div>
+                    <div class="{{ $log->image_path ? 'md:col-span-7' : 'md:col-span-12' }} flex flex-col gap-4">
+                        @if($log->notes)
+                            <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-200">
+                                <h6 class="font-extrabold text-[#1E2657] mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
+                                    <i class="fa fa-pencil text-[#3B82F6] mr-2"></i> Teacher's Classroom Notes:
+                                </h6>
+                                <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->notes }}</p>
+                            </div>
+                        @endif
+
+                        @if($log->home_recommendations)
+                            <div class="p-4 sm:p-5 flex flex-col justify-center bg-slate-50 rounded-xl border-y-2 border-r-2 border-l-4 border-slate-300 border-l-emerald-500">
+                                <h6 class="font-extrabold text-emerald-600 mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
+                                    <i class="fa fa-house-user mr-2 text-emerald-500"></i> Tonight's Suggested Activity:
+                                </h6>
+                                <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->home_recommendations }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -100,18 +123,22 @@
 
             </div>
         @empty
-            <div class="w-full text-center py-12 sm:py-16 px-4 sm:px-6 bg-white rounded-[16px] sm:rounded-2xl shadow-sm border-[3px] border-dashed border-slate-300 bg-slate-50/50">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center mx-auto mb-4 sm:mb-5 text-slate-300 text-3xl sm:text-4xl shadow-sm">
-                    <i class="fa fa-bed"></i>
+            <div class="w-full text-center py-12 sm:py-16 px-4 sm:px-6 bg-white rounded-[16px] sm:rounded-2xl shadow-sm border-2 border-dashed border-slate-300">
+                <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4 text-emerald-600 text-3xl">
+                    <i class="fa-solid fa-sparkles"></i>
                 </div>
-                <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-2">No recommendations right now.</h5>
-                <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 max-w-md mx-auto">When the teacher logs today's progress, photos and personalized activities for {{ $activeChild->first_name }} will appear here!</p>
+                <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-1">No Active Home Activity For Today</h5>
+                <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 max-w-md mx-auto mb-5">When the teacher submits today's session, today's notes, photos, and suggested activities will appear here.</p>
+                <a href="{{ route('guardian.logs.archive') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-extrabold text-xs rounded-xl border border-indigo-200 transition-colors shadow-sm">
+                    <i class="fa-solid fa-box-archive"></i> Browse Past Log History & Archive ({{ $archivedCount ?? 0 }})
+                </a>
             </div>
         @endforelse
+
     </div>
     @else
         <div class="bg-sky-50 border-2 border-sky-300 text-sky-800 px-4 sm:px-5 py-3 sm:py-4 rounded-xl shadow-sm flex items-center gap-3">
-            <i class="fa fa-info-circle text-sky-600 text-lg sm:text-xl shrink-0"></i> 
+            <i class="fa-info-circle text-sky-600 text-lg sm:text-xl shrink-0"></i> 
             <span class="text-[13px] sm:text-sm font-bold leading-snug">No children are currently linked to your account.</span>
         </div>
     @endif

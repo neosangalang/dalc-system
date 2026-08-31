@@ -177,6 +177,13 @@
                                     <button @click="activeViewModal = {{ $report->id }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/30 transition-colors shadow-sm">
                                         <i class="fa fa-eye mr-1.5"></i> View
                                     </button>
+
+                                    <!-- CONDITIONAL EDIT BUTTON FOR REJECTED REPORTS -->
+                                    @if($report->status === 'rejected')
+                                        <a href="{{ route('teacher.reports.edit', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-[12px] font-extrabold rounded-xl hover:bg-amber-100 transition-colors shadow-sm decoration-transparent">
+                                            <i class="fa fa-pen-to-square mr-1.5"></i> Edit
+                                        </a>
+                                    @endif
                                     
                                     <a href="{{ route('teacher.reports.pdf', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
                                         <i class="fa fa-file-pdf mr-1.5"></i> PDF
@@ -193,42 +200,45 @@
                             </td>
                         </tr>
 
-                        <!-- VIEW MODAL -->
-                        <div x-show="activeViewModal === {{ $report->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                <div x-show="activeViewModal === {{ $report->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="activeViewModal = null"></div>
-                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                <div x-show="activeViewModal === {{ $report->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-black/15">
+                        <!-- VIEW MODAL (Teleported to root to fix table rendering issues) -->
+                        <template x-teleport="body">
+                            <div x-show="activeViewModal === {{ $report->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div x-show="activeViewModal === {{ $report->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="activeViewModal = null"></div>
+                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                                     
-                                    <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-start">
-                                        <div>
-                                            <h5 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ ucwords(str_replace('_', ' ', $report->report_type)) }}</h5>
-                                            <p class="text-[11px] font-extrabold text-[#9CA0AF] uppercase tracking-widest m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
-                                        </div>
-                                        <button type="button" @click="activeViewModal = null" class="text-[#9CA0AF] hover:text-[#1E2657] ml-4 transition-colors"><i class="fa fa-times text-xl"></i></button>
-                                    </div>
-                                    
-                                    <div class="p-5 sm:p-6">
-                                        <div class="p-5 bg-[#F4F6FA] rounded-xl border border-black/5 shadow-inner whitespace-pre-wrap text-[13px] font-medium text-[#1E2657] leading-relaxed max-h-[50vh] sm:max-h-[400px] overflow-y-auto">
-                                            {{ $report->content }}
+                                    <div x-show="activeViewModal === {{ $report->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-black/15 relative z-[101]">
+                                        
+                                        <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-start rounded-t-2xl">
+                                            <div>
+                                                <h5 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ ucwords(str_replace('_', ' ', $report->report_type)) }}</h5>
+                                                <p class="text-[11px] font-extrabold text-[#9CA0AF] uppercase tracking-widest m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
+                                            </div>
+                                            <button type="button" @click="activeViewModal = null" class="text-[#9CA0AF] hover:text-[#1E2657] ml-4 transition-colors"><i class="fa fa-times text-xl"></i></button>
                                         </div>
                                         
-                                        <div class="mt-6 pt-6 border-t border-dashed border-black/10">
-                                            @include('components.comment-thread', ['item' => $report])
+                                        <div class="p-5 sm:p-6">
+                                            <div class="p-5 bg-[#F4F6FA] rounded-xl border border-black/5 shadow-inner whitespace-pre-wrap text-[13px] font-medium text-[#1E2657] leading-relaxed max-h-[50vh] sm:max-h-[400px] overflow-y-auto">
+                                                {{ $report->content }}
+                                            </div>
+                                            
+                                            <div class="mt-6 pt-6 border-t border-dashed border-black/10 relative z-50">
+                                                @include('components.comment-thread', ['item' => $report])
+                                            </div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex flex-col-reverse sm:flex-row justify-between sm:items-center gap-3 w-full">
-                                        <button type="button" @click="activeViewModal = null" class="w-full sm:w-auto px-6 py-2.5 bg-white text-[#6B7086] text-[13px] font-extrabold rounded-xl hover:bg-slate-50 transition-colors shadow-sm border border-black/15">
-                                            Close
-                                        </button>
-                                        <a href="{{ route('teacher.reports.pdf', $report->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-rose-50 sm:bg-white border border-rose-200 text-rose-600 text-[13px] font-extrabold rounded-xl hover:bg-rose-100 sm:hover:bg-rose-50 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
-                                            <i class="fa fa-file-pdf mr-2"></i> Download as PDF
-                                        </a>
+                                        
+                                        <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex flex-col-reverse sm:flex-row justify-between sm:items-center gap-3 w-full rounded-b-2xl">
+                                            <button type="button" @click="activeViewModal = null" class="w-full sm:w-auto px-6 py-2.5 bg-white text-[#6B7086] text-[13px] font-extrabold rounded-xl hover:bg-slate-50 transition-colors shadow-sm border border-black/15">
+                                                Close
+                                            </button>
+                                            <a href="{{ route('teacher.reports.pdf', $report->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-rose-50 sm:bg-white border border-rose-200 text-rose-600 text-[13px] font-extrabold rounded-xl hover:bg-rose-100 sm:hover:bg-rose-50 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
+                                                <i class="fa fa-file-pdf mr-2"></i> Download as PDF
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </template>
 
                     @empty
                         <tr class="block md:table-row">

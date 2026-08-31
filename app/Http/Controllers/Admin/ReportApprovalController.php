@@ -6,19 +6,35 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Report;
 use App\Notifications\DocumentReadyNotification;
+use App\Notifications\SystemAlert; 
 
 class ReportApprovalController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource with search and filtering.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all reports that are waiting for the Principal/Admin to approve them
-        $pendingReports = Report::with(['student', 'teacher'])
-            ->where('status', 'pending_approval')
-            ->latest()
-            ->get();
+        $query = Report::with(['student', 'teacher'])
+            ->where('status', 'pending_approval');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('student', function($subQ) use ($search) {
+                    $subQ->where('first_name', 'like', "%{$search}%")
+                         ->orWhere('last_name', 'like', "%{$search}%");
+                })->orWhereHas('teacher', function($subQ) use ($search) {
+                    $subQ->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        if ($request->filled('type')) {
+            $query->where('report_type', $request->type);
+        }
+
+        $pendingReports = $query->latest('updated_at')->paginate(10)->withQueryString();
 
         return view('admin.report-approval.index', compact('pendingReports'));
     }
@@ -28,7 +44,6 @@ class ReportApprovalController extends Controller
      */
     public function show($id)
     {
-        // Find the report and eager load relationships to avoid N+1 queries
         $report = Report::with(['student', 'teacher', 'student.guardian'])
             ->findOrFail($id);
 
@@ -36,7 +51,7 @@ class ReportApprovalController extends Controller
     }
 
     /**
-     * Update the status of the report.
+     * Update the status of the report and trigger notifications.
      */
     public function updateStatus(Request $request, $id)
     {
@@ -44,38 +59,44 @@ class ReportApprovalController extends Controller
             'status' => 'required|in:approved,rejected'
         ]);
 
-        // Find the report and make sure we load the student's Guardian!
-        $report = Report::with('student.guardian')->findOrFail($id);
+        $report = Report::with(['student.guardian', 'teacher'])->findOrFail($id);
         
-        // Update the status in the database
         $report->status = $request->status;
         $report->save();
 
-        // ==========================================
-        // THE TRIGGER: Send the Email to the Parent!
-        // ==========================================
         if ($report->status === 'approved') {
             
-            // Check if the student actually has a guardian account linked
+            if ($report->teacher) {
+                $report->teacher->notify(new SystemAlert(
+                    'Your report for ' . $report->student->first_name . ' was approved.',
+                    route('teacher.reports.index') 
+                ));
+            }
+
             if ($report->student && $report->student->guardian) {
-                
-                // Format the document name nicely (e.g., "q1" becomes "Q1", "mid_year" becomes "Mid Year")
                 $documentType = strtoupper(str_replace('_', ' ', $report->report_type)) . ' Report';
 
-                // FIRE THE NOTIFICATION!
-                $report->student->guardian->notify(new DocumentReadyNotification(
-                    $documentType,
-                    $report->student->first_name,
-                    route('guardian.reports') // The link they will click in the email
+                $report->student->guardian->notify(new SystemAlert(
+                    "New {$documentType} for {$report->student->first_name} is approved and ready for viewing.",
+                    route('guardian.reports')
                 ));
                 
-                return redirect()->back()->with('success', 'Report Approved! An email notification has been sent to the Guardian.');
+                return redirect()->route('admin.report-approval.index')->with('success', 'Report Approved! Guardian and Teacher have been notified.');
             }
             
-            return redirect()->back()->with('warning', 'Report Approved, but this student has no Guardian account linked to receive the email.');
+            return redirect()->route('admin.report-approval.index')->with('warning', 'Report Approved and Teacher notified, but this student has no Guardian account linked.');
         }
 
-        // If rejected, it just sends it back to the Teacher's draft folder
-        return redirect()->back()->with('success', 'Report has been rejected and sent back to the Teacher for revisions.');
+        if ($report->status === 'rejected') {
+            
+            if ($report->teacher) {
+                $report->teacher->notify(new SystemAlert(
+                    'Revision Required: Your report for ' . $report->student->first_name . ' was rejected.',
+                    route('teacher.reports.index') 
+                ));
+            }
+
+            return redirect()->route('admin.report-approval.index')->with('success', 'Report has been rejected. The Teacher has been notified to make revisions.');
+        }
     }
 }

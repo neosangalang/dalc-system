@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Student;
 use App\Models\IepGoal;
+use App\Notifications\SystemAlert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class IepGoalController extends Controller
 {
@@ -17,10 +19,11 @@ class IepGoalController extends Controller
         // Get only the students assigned to this specific teacher
         $myStudents = Student::where('teacher_id', $teacherId)->where('status', 'active')->get();
         
-        // Get all IEP goals for these students
-        $goals = IepGoal::whereHas('student', function($query) use ($teacherId) {
-            $query->where('teacher_id', $teacherId);
-        })->latest()->get();
+        // FIX: Added with(['comments.user']) to fetch the guardian's messages
+        $goals = IepGoal::with(['comments.user'])
+            ->whereHas('student', function($query) use ($teacherId) {
+                $query->where('teacher_id', $teacherId);
+            })->latest()->get();
 
         return view('teacher.iep.index', compact('myStudents', 'goals'));
     }
@@ -47,6 +50,19 @@ class IepGoalController extends Controller
             'status'           => 'in_progress',
         ]);
 
+        // Notify the Guardian
+        try {
+            $student->load('guardian');
+            if ($student->guardian) {
+                $student->guardian->notify(new \App\Notifications\SystemAlert(
+                    "Teacher " . Auth::user()->name . " added a new IEP Goal for {$student->first_name}: {$request->domain}.",
+                    route('guardian.goals')
+                ));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Guardian notification failed on IEP create: ' . $e->getMessage());
+        }
+
         return redirect()->back()->with('success', 'New IEP Goal and Baseline PLOP successfully assigned!');
     }
 
@@ -65,7 +81,7 @@ class IepGoalController extends Controller
         }
 
         try {
-            // FIXED: Using the exact model ID with the openai/ prefix
+            // Using the exact model ID with the openai/ prefix
             $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
                     'model' => 'openai/gpt-oss-20b', 
@@ -121,6 +137,19 @@ class IepGoalController extends Controller
             'status' => $request->status,
         ]);
 
+        // Notify the Guardian
+        try {
+            $goal->student->load('guardian');
+            if ($goal->student && $goal->student->guardian) {
+                $goal->student->guardian->notify(new \App\Notifications\SystemAlert(
+                    "IEP Progress updated for {$goal->student->first_name}: {$goal->domain} ({$request->progress_percentage}%).",
+                    route('guardian.goals')
+                ));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Guardian notification failed on IEP update: ' . $e->getMessage());
+        }
+
         return redirect()->back()->with('success', 'IEP Progress updated successfully!');
     }
 
@@ -147,5 +176,20 @@ class IepGoalController extends Controller
         $fileName = 'IEP_' . $student->last_name . '_' . $student->first_name . '_SY2025-2026.pdf';
 
         return $pdf->stream($fileName); 
+    }
+
+    // ==========================================
+    // MARK COMMENTS AS READ
+    // ==========================================
+    public function markCommentsAsRead($id)
+    {
+        $goal = IepGoal::findOrFail($id);
+        
+        // Use 1 instead of true to ensure MySQL accepts the update
+        $goal->comments()
+             ->where('user_id', '!=', Auth::id())
+             ->update(['is_teacher_read' => 1]);
+
+        return response()->json(['success' => true]);
     }
 }

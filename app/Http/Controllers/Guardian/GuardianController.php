@@ -42,24 +42,33 @@ class GuardianController extends Controller
     // ==========================================
     public function dashboard()
     {
-        // 1. Fetch the latest 3 announcements for the swipeable carousel
         $featuredAnnouncements = Announcement::latest()->take(3)->get();
         
-        // Track when the user last viewed the announcements page to clear notification badges dynamically
         $lastSeen = session('last_seen_announcements', now()->subDays(3));
         $newAnnouncementsCount = Announcement::where('created_at', '>', $lastSeen)->count();
 
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
+        // 1. Initialize the unread count
+        $unreadIepCommentsCount = 0;
+
         if (!$activeChild) {
-            return view('guardian.dashboard', compact('myChildren', 'activeChild', 'featuredAnnouncements', 'newAnnouncementsCount'));
+            return view('guardian.dashboard', compact('myChildren', 'activeChild', 'featuredAnnouncements', 'newAnnouncementsCount', 'unreadIepCommentsCount'));
         }
 
-        // Fetch data ONLY for the active child
         $activeGoals = IepGoal::with('student')
             ->where('student_id', $activeChild->id)
             ->where('status', 'in_progress')
             ->get();
+
+        // 2. Count unread teacher replies for this specific child
+        $unreadIepCommentsCount = IepGoal::with('comments')
+            ->where('student_id', $activeChild->id)
+            ->get()
+            ->flatMap->comments
+            ->where('user_id', '!=', Auth::id())
+            ->where('is_guardian_read', 0)
+            ->count();
 
         $recentReports = Report::with('student')
             ->where('student_id', $activeChild->id)
@@ -68,13 +77,40 @@ class GuardianController extends Controller
             ->take(5)
             ->get();
 
-        $recentLogs = DailyLog::with(['student', 'teacher'])
+        // Active Daily Logs (Only logs posted within the last 24 hours or for today; older logs are archived)
+        $recentLogs = DailyLog::with(['student', 'teacher', 'comments.user'])
             ->where('student_id', $activeChild->id)
+            ->where(function($query) {
+                $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
+                      ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
+            })
             ->latest('log_date')
-            ->take(5)
             ->get();
 
-        return view('guardian.dashboard', compact('myChildren', 'activeChild', 'activeGoals', 'recentReports', 'recentLogs', 'featuredAnnouncements', 'newAnnouncementsCount'));
+        // Active Home Recommendations (Within last 24 hours or for today)
+        $homeActivities = DailyLog::where('student_id', $activeChild->id)
+            ->whereNotNull('home_recommendations')
+            ->where('home_recommendations', '!=', '')
+            ->where(function($query) {
+                $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
+                      ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
+            })
+            ->latest('log_date')
+            ->take(1)
+            ->get();
+
+        // 3. Pass the unread count and active items to the view
+        return view('guardian.dashboard', compact(
+            'myChildren', 
+            'activeChild', 
+            'activeGoals', 
+            'recentReports', 
+            'recentLogs', 
+            'homeActivities',
+            'featuredAnnouncements', 
+            'newAnnouncementsCount', 
+            'unreadIepCommentsCount'
+        ));
     }
 
     // ==========================================
@@ -161,24 +197,59 @@ class GuardianController extends Controller
     }
 
     // ==========================================
-    // RECOMMENDATIONS
+    // RECOMMENDATIONS / TODAY'S ACTIVE SESSION
     // ==========================================
     public function recommendations()
     {
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
         $recentRecommendations = collect();
+        $archivedCount = 0;
 
         if ($activeChild) {
-            $recentRecommendations = DailyLog::with('student')
+            // 1. Active Recommendations (Only within the last 24 hours or for today)
+            $recentRecommendations = DailyLog::with(['student', 'teacher', 'comments.user'])
                 ->where('student_id', $activeChild->id)
-                ->whereNotNull('home_recommendations')
+                ->where(function($query) {
+                    $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
+                          ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
+                })
                 ->latest('log_date')
-                ->take(5)
                 ->get();
+
+            // 2. Count Archived Past Due Logs for link badge
+            $archivedCount = DailyLog::where('student_id', $activeChild->id)
+                ->where('created_at', '<', \Carbon\Carbon::now()->subHours(24))
+                ->whereDate('log_date', '<', \Carbon\Carbon::today())
+                ->count();
         }
 
-        return view('guardian.recommendations', compact('recentRecommendations', 'myChildren', 'activeChild'));
+        return view('guardian.recommendations', compact('recentRecommendations', 'archivedCount', 'myChildren', 'activeChild'));
+    }
+
+    // ==========================================
+    // DEDICATED LOGS & ACTIVITIES ARCHIVE
+    // ==========================================
+    public function logsArchive(Request $request)
+    {
+        list($activeChild, $myChildren) = $this->getActiveChildData();
+
+        $archivedLogs = collect();
+
+        if ($activeChild) {
+            $query = DailyLog::with(['student', 'teacher', 'comments.user'])
+                ->where('student_id', $activeChild->id)
+                ->where('created_at', '<', \Carbon\Carbon::now()->subHours(24))
+                ->whereDate('log_date', '<', \Carbon\Carbon::today());
+
+            if ($request->filled('quarter')) {
+                $query->where('quarter', $request->quarter);
+            }
+
+            $archivedLogs = $query->latest('log_date')->get();
+        }
+
+        return view('guardian.logs-archive', compact('archivedLogs', 'myChildren', 'activeChild'));
     }
 
     // ==========================================
@@ -213,6 +284,23 @@ class GuardianController extends Controller
 
     public function notifications()
     {
-        return view('guardian.notifications');
+        $notifications = Auth::user()->notifications()->latest()->paginate(15);
+        list($activeChild, $myChildren) = $this->getActiveChildData();
+        return view('guardian.notifications', compact('notifications', 'activeChild', 'myChildren'));
+    }
+
+    // ==========================================
+    // MARK COMMENTS AS READ (GUARDIAN)
+    // ==========================================
+    public function markCommentsAsRead($id)
+    {
+        $goal = IepGoal::findOrFail($id);
+        
+        // Find any comments on this goal NOT written by the current guardian, and mark them read
+        $goal->comments()
+             ->where('user_id', '!=', Auth::id())
+             ->update(['is_guardian_read' => 1]);
+
+        return response()->json(['success' => true]);
     }
 }

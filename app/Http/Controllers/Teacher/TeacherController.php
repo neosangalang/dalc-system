@@ -11,7 +11,7 @@ use App\Models\IepGoal;
 use App\Models\Report;
 use App\Models\Announcement;
 use App\Models\AcademicQuarter;
-use Carbon\Carbon; // Required for week calculations
+use Carbon\Carbon;
 
 class TeacherController extends Controller
 {
@@ -25,7 +25,6 @@ class TeacherController extends Controller
             ->count();
 
         // 2. Count Logs THIS WEEK
-        // This looks at the 'log_date' and checks if it falls within the current Monday-Sunday
         $logsThisWeek = DailyLog::where('teacher_id', $teacherId)
             ->whereBetween('log_date', [
                 Carbon::now()->startOfWeek(),
@@ -49,13 +48,30 @@ class TeacherController extends Controller
         // 6. Fetch Academic Quarters for the Timeline
         $quarters = AcademicQuarter::orderBy('start_date', 'asc')->get();
 
+        // 7. Calculate unread IEP comments from guardians
+        $unreadIepCommentsCount = IepGoal::whereHas('student', function($query) use ($teacherId) {
+            $query->where('teacher_id', $teacherId);
+        })->with('comments')->get()->flatMap->comments
+          ->where('user_id', '!=', $teacherId)
+          ->where('is_teacher_read', 0)
+          ->count();
+
+        // 8. Calculate unread Daily Log comments from guardians
+        $unreadDailyLogCommentsCount = DailyLog::where('teacher_id', $teacherId)
+          ->with('comments')->get()->flatMap->comments
+          ->where('user_id', '!=', $teacherId)
+          ->where('is_teacher_read', 0)
+          ->count();
+
         return view('teacher.dashboard', compact(
             'myStudentsCount',
             'logsThisWeek',
             'activeGoals',
             'reportsDue',
             'newAnnouncementsCount',
-            'quarters'
+            'quarters',
+            'unreadIepCommentsCount',
+            'unreadDailyLogCommentsCount'
         ));
     }
 

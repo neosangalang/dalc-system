@@ -4,7 +4,7 @@
 
 @section('content')
 
-<!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
+<!-- Main Container -->
 <div class="w-full max-w-[1200px] mx-auto space-y-6">
 
     @if(session('success'))
@@ -31,9 +31,60 @@
         </div>
     @endif
 
+    <!-- FILTER SECTION -->
+    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden mb-6">
+        <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA]">
+            <h6 class="text-[13px] sm:text-sm font-extrabold text-[#1E2657] m-0 flex items-center">
+                <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Filter Pending Reports
+            </h6>
+        </div>
+        <div class="p-5 sm:p-6">
+            <form action="{{ route('admin.report-approval.index') }}" method="GET" class="m-0">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    
+                    <div class="md:col-span-5">
+                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                            <i class="fa fa-search mr-1.5 text-[#9CA0AF]"></i> Search Keyword
+                        </label>
+                        <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
+                                <i class="fa fa-font"></i>
+                            </span>
+                            <input type="text" name="search" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search student or teacher..." value="{{ request('search') }}">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-4">
+                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                            <i class="fa fa-file-alt mr-1.5 text-[#9CA0AF]"></i> Report Type
+                        </label>
+                        <select name="type" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                            <option value="">All Types</option>
+                            <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily</option>
+                            <option value="quarterly" {{ request('type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
+                            <option value="annual" {{ request('type') == 'annual' ? 'selected' : '' }}>Annual</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-3 flex gap-2 w-full mt-2 md:mt-0">
+                        <button type="submit" class="flex-1 inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
+                            Filter
+                        </button>
+                        
+                        @if(request('search') || request('type'))
+                            <a href="{{ route('admin.report-approval.index') }}" title="Clear Filters" class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-rose-300 text-rose-500 text-sm font-bold rounded-xl hover:bg-rose-50 transition-colors shadow-sm decoration-transparent shrink-0">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        @endif
+                    </div>
+                    
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TABLE SECTION -->
     <div class="bg-transparent md:bg-white md:rounded-2xl md:shadow-sm md:border border-black/15 overflow-hidden">
-        
-        <!-- Header Section -->
         <div class="p-5 sm:p-6 border-b border-black/10 flex items-center bg-white rounded-2xl md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
             <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
                 <div class="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] mr-3 shrink-0">
@@ -45,8 +96,6 @@
         
         <div class="w-full">
             <table class="w-full text-left border-collapse block md:table">
-                
-                <!-- TABLE HEADER -->
                 <thead class="hidden md:table-header-group bg-[#F4F6FA] border-b border-black/10">
                     <tr>
                         <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Student</th>
@@ -56,13 +105,10 @@
                         <th scope="col" class="px-6 py-4 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Actions</th>
                     </tr>
                 </thead>
-                
-                <!-- TABLE BODY -->
                 <tbody class="block md:table-row-group space-y-4 md:space-y-0 divide-y-0 md:divide-y divide-black/5 bg-transparent md:bg-white">
                     @forelse($pendingReports as $report)
                         <tr class="block md:table-row bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150">
                             
-                            <!-- 1. Student Name -->
                             <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none">
                                 <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Student</span>
                                 <div class="text-[13px] font-extrabold text-[#1E2657] text-right md:text-left">
@@ -70,7 +116,6 @@
                                 </div>
                             </td>
                             
-                            <!-- 2. Report Type -->
                             <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none">
                                 <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Type</span>
                                 <div class="text-right md:text-left">
@@ -80,7 +125,6 @@
                                 </div>
                             </td>
                             
-                            <!-- 3. Submitted By (Teacher) -->
                             <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none">
                                 <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Teacher</span>
                                 <div class="text-[12px] font-bold text-[#1E2657] flex items-center justify-end md:justify-start gap-1.5 md:gap-2">
@@ -89,7 +133,6 @@
                                 </div>
                             </td>
                             
-                            <!-- 4. Date Submitted -->
                             <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none">
                                 <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Date</span>
                                 <div class="text-[11px] font-medium text-[#6B7086] text-right md:text-left">
@@ -97,7 +140,6 @@
                                 </div>
                             </td>
                             
-                            <!-- 5. Actions Footer -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 bg-[#F4F6FA] md:bg-transparent rounded-b-2xl md:rounded-none border-t border-black/5 md:border-none">
                                 <div class="flex justify-between md:justify-end gap-2 w-full">
                                     
@@ -120,7 +162,6 @@
                                             <i class="fa fa-xmark mr-1.5"></i> Reject
                                         </button>
                                     </form>
-
                                 </div>
                             </td>
                         </tr>
@@ -138,6 +179,12 @@
                 </tbody>
             </table>
         </div>
+        
+        @if(method_exists($pendingReports, 'links'))
+            <div class="px-5 sm:px-6 py-4 border-t border-black/10 bg-[#F4F6FA] flex justify-center sm:justify-end">
+                {{ $pendingReports->links() }}
+            </div>
+        @endif
     </div>
 </div>
 

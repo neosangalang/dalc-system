@@ -11,60 +11,57 @@ use App\Models\IepGoal;
 use App\Models\Report;
 use App\Models\AcademicQuarter;
 use App\Models\DailyLog;
+use App\Models\User;
+use App\Notifications\SystemAlert;
 
 class ReportController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-  public function index(\Illuminate\Http\Request $request)
-{
-    $teacherId = auth()->id();
+    public function index(\Illuminate\Http\Request $request)
+    {
+        $teacherId = auth()->id();
 
-    // 1. Fetch the teacher's students for the dropdown menu
-    $myStudents = \App\Models\Student::where('teacher_id', $teacherId)->get();
+        // 1. Fetch the teacher's students for the dropdown menu
+        $myStudents = Student::where('teacher_id', $teacherId)->get();
 
-    // 2. Start the base query
-    $query = \App\Models\Report::whereHas('student', function($q) use ($teacherId) {
-        $q->where('teacher_id', $teacherId);
-    });
-
-    // 3. APPLY FILTERS
-    
-    // Filter by Keyword Search
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->whereHas('student', function($subQ) use ($search) {
-                $subQ->where('first_name', 'like', "%{$search}%")
-                     ->orWhere('last_name', 'like', "%{$search}%");
-            })->orWhere('report_type', 'like', "%{$search}%"); // <-- Fixed here
+        // 2. Start the base query
+        $query = Report::whereHas('student', function($q) use ($teacherId) {
+            $q->where('teacher_id', $teacherId);
         });
+
+        // 3. APPLY FILTERS
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('student', function($subQ) use ($search) {
+                    $subQ->where('first_name', 'like', "%{$search}%")
+                         ->orWhere('last_name', 'like', "%{$search}%");
+                })->orWhere('report_type', 'like', "%{$search}%"); 
+            });
+        }
+
+        if ($request->filled('student_id')) {
+            $query->where('student_id', $request->student_id);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('report_type', $request->type); 
+        }
+
+        // 4. Execute the query with Pagination
+        $reports = $query->latest()->paginate(10)->withQueryString();
+
+        return view('teacher.reports.index', compact('reports', 'myStudents'));
     }
 
-    // Filter by Specific Student
-    if ($request->filled('student_id')) {
-        $query->where('student_id', $request->student_id);
-    }
-
-    // Filter by Report Type
-    if ($request->filled('type')) {
-        $query->where('report_type', $request->type); // <-- Fixed here!
-    }
-
-    // 4. Execute the query with Pagination
-    $reports = $query->latest()->paginate(10)->withQueryString();
-
-    return view('teacher.reports.index', compact('reports', 'myStudents'));
-}
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        // Fetch students for the dropdown
         $myStudents = Student::all(); 
-        
         return view('teacher.reports.create', compact('myStudents'));
     }
 
@@ -82,7 +79,8 @@ class ReportController extends Controller
 
         $status = $request->action === 'submit' ? 'pending_approval' : 'draft';
 
-        Report::create([
+        // Capture the newly created report to use its ID for action routing
+        $report = Report::create([
             'student_id' => $request->student_id,
             'teacher_id' => auth()->id(),
             'report_type' => $request->report_type,
@@ -91,14 +89,77 @@ class ReportController extends Controller
             'status' => $status,
         ]);
 
+        // Notify the Admin and route them directly to this specific report
+        if ($status === 'pending_approval') {
+            $admin = User::where('role', 'admin')->first();
+            
+            if ($admin) {
+                $admin->notify(new SystemAlert(
+                    auth()->user()->name . ' submitted a new report for ' . $report->student->first_name . '.', 
+                    route('admin.report-approval.show', $report->id) 
+                ));
+            }
+        }
+
         $message = $status === 'draft' ? 'Report saved as a draft!' : 'Report successfully submitted to Administration for approval!';
 
         return redirect()->route('teacher.reports.create')->with('success', $message);
     }
 
     /**
-     * THE AI REPORT GENERATOR
-     * This talks to Gemini to draft the report based on the student's history and selected dates.
+     * Show the form for editing a rejected report.
+     */
+    public function edit(string $id)
+    {
+        $report = Report::where('teacher_id', auth()->id())->findOrFail($id);
+        
+        // Ensure only rejected/needs-revision reports can be edited through this flow
+        if ($report->status !== 'rejected') {
+            return redirect()->route('teacher.reports.index')->with('error', 'You can only edit reports that require revision.');
+        }
+
+        $myStudents = Student::where('teacher_id', auth()->id())->get();
+
+        return view('teacher.reports.edit', compact('report', 'myStudents'));
+    }
+
+    /**
+     * Update the revised report and resubmit to admin.
+     */
+    public function update(Request $request, string $id)
+    {
+        $report = Report::where('teacher_id', auth()->id())->findOrFail($id);
+
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'report_type' => 'required|string',
+            'content' => 'required|string',
+            'report_date' => 'nullable|date'
+        ]);
+
+        // Update report content and set status back to pending_approval for review
+        $report->update([
+            'student_id' => $request->student_id,
+            'report_type' => $request->report_type,
+            'report_date' => $request->report_date,
+            'content' => $request->content,
+            'status' => 'pending_approval',
+        ]);
+
+        // Notify Admin of the resubmission
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            $admin->notify(new SystemAlert(
+                auth()->user()->name . ' resubmitted a revised report for ' . $report->student->first_name . '.', 
+                route('admin.report-approval.show', $report->id) 
+            ));
+        }
+
+        return redirect()->route('teacher.reports.index')->with('success', 'Report successfully updated and resubmitted to Administration for approval!');
+    }
+
+    /**
+     * THE AI REPORT GENERATOR (Groq Llama 3)
      */
     public function generateAiReport(\Illuminate\Http\Request $request)
     {
@@ -109,15 +170,11 @@ class ReportController extends Controller
         ]);
 
         $student = Student::findOrFail($request->student_id);
-        $apiKey = env('GEMINI_API_KEY');
+        $apiKey = env('GROQ_API_KEY');
 
-        // 1. Grab Active IEP Goals
         $goals = IepGoal::where('student_id', $student->id)->where('status', 'in_progress')->get();
         $goalDescriptions = $goals->pluck('goal_description')->implode('; ');
 
-        // ==========================================
-        // 2. THE SMART DATABASE FILTER
-        // ==========================================
         $logsQuery = DailyLog::where('student_id', $student->id);
 
         if ($request->report_type === 'daily' && $request->report_date) {
@@ -134,17 +191,12 @@ class ReportController extends Controller
             } else {
                 $logsQuery->where('quarter', strtoupper($request->report_type));
             }
-            
         } else {
             $logsQuery->limit(100);
         }
 
         $dailyLogs = $logsQuery->orderBy('log_date', 'asc')->get();
 
-        // ==========================================
-        // NEW: THE GATEKEEPER
-        // Prevent AI from generating "fluff" if no logs exist for the period
-        // ==========================================
         if ($dailyLogs->isEmpty()) {
             return response()->json([
                 'success' => false, 
@@ -156,9 +208,6 @@ class ReportController extends Controller
             return "Date: {$log->log_date} | Notes: {$log->notes}";
         })->implode("\n");
         
-        // ==========================================
-        // 3. THE PROMPT LOGIC
-        // ==========================================
         $timeframe = strtoupper(str_replace('_', ' ', $request->report_type)); 
         
         if ($request->report_type === 'daily') {
@@ -190,17 +239,27 @@ class ReportController extends Controller
 
         try {
             $response = Http::withoutVerifying()
-                ->withHeaders(['Content-Type' => 'application/json'])
-                ->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey, [
-                    'contents' => [['parts' => [['text' => $prompt]]]]
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type' => 'application/json'
+                ])
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'openai/gpt-oss-20b', 
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => $prompt
+                        ]
+                    ],
+                    'temperature' => 0.7
                 ]);
 
             if ($response->successful()) {
-                $aiText = $response->json('candidates.0.content.parts.0.text');
+                $aiText = $response->json('choices.0.message.content');
                 return response()->json(['success' => true, 'report_content' => trim($aiText)]);
             }
 
-            return response()->json(['success' => false, 'message' => 'Google AI Error: ' . $response->body()], 500);
+            return response()->json(['success' => false, 'message' => 'Groq API Error: ' . $response->body()], 500);
 
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);

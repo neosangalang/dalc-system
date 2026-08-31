@@ -6,14 +6,13 @@
 
 <style>
     [x-cloak] { display: none !important; }
-    /* Custom scrollbar for the text areas */
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9CA0AF; }
 </style>
 
-<!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
+<!-- Main Container -->
 <div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8" 
      x-data="{ 
         showAddModal: false, 
@@ -65,17 +64,32 @@
             @php
                 $studentGoals = $goals->where('student_id', $student->id);
                 $activeCount = $studentGoals->where('status', 'in_progress')->count();
+                
+                // Bulletproof filter to bypass boolean vs integer mismatch in DB
+                $studentUnreadCount = $studentGoals->flatMap->comments->filter(function($comment) {
+                    return $comment->user_id != Auth::id() && !$comment->is_teacher_read;
+                })->count();
             @endphp
             
-            <div class="bg-white rounded-2xl border border-black/15 shadow-sm overflow-hidden transition-all duration-200 student-accordion-item" data-student-name="{{ strtolower($student->first_name . ' ' . $student->last_name) }}">
+            <!-- Student Accordion Wrapper with Reactive Unread State -->
+            <div x-data="{ studentUnreadCount: {{ (int) $studentUnreadCount }} }" 
+                 class="bg-white rounded-2xl border border-black/15 shadow-sm overflow-hidden transition-all duration-200 student-accordion-item" 
+                 data-student-name="{{ strtolower($student->first_name . ' ' . $student->last_name) }}">
                 
                 <button @click="activeAccordion = activeAccordion === {{ $student->id }} ? null : {{ $student->id }}" 
                         class="w-full px-4 py-4 sm:px-6 sm:py-5 flex flex-wrap sm:flex-nowrap items-center justify-between text-left transition-colors focus:outline-none"
                         :class="activeAccordion === {{ $student->id }} ? 'bg-slate-50/50 border-b border-black/10' : 'hover:bg-slate-50'">
                     
                     <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-0 w-full sm:w-auto">
-                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white font-extrabold text-sm sm:text-base shadow-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shrink-0 border border-black/10">
+                        <div class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white font-extrabold text-sm sm:text-base shadow-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shrink-0 border border-black/10">
                             {{ strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) }}
+                            
+                            <!-- Reactive Red Dot Indicator on the Avatar -->
+                            <span x-show="studentUnreadCount > 0" 
+                                  x-transition:leave="transition ease-in duration-200"
+                                  x-transition:leave-start="opacity-100 scale-100"
+                                  x-transition:leave-end="opacity-0 scale-75"
+                                  class="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full"></span>
                         </div>
                         <div>
                             <h6 class="text-[15px] sm:text-[16px] font-extrabold text-[#1E2657] m-0">{{ $student->first_name }} {{ $student->last_name }}</h6>
@@ -84,7 +98,18 @@
                     </div>
                     
                     <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-start sm:justify-end">
+                        
+                        <!-- Reactive 'New Message' Badge on the Header -->
+                        <span x-show="studentUnreadCount > 0" 
+                              x-transition:leave="transition ease-in duration-200"
+                              x-transition:leave-start="opacity-100 scale-100"
+                              x-transition:leave-end="opacity-0 scale-75"
+                              class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-md bg-red-500 text-white text-[9px] font-extrabold uppercase tracking-widest shadow-sm animate-pulse">
+                            <i class="fa fa-envelope mr-1"></i> New Message
+                        </span>
+
                         <span class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-md border border-black/10 bg-[#F4F6FA] text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest shadow-sm">{{ $studentGoals->count() }} Goals</span>
+                        
                         @if($activeCount > 0)
                             <span class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-md bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 text-[9px] font-extrabold uppercase tracking-widest shadow-sm"><i class="fa fa-spinner fa-spin mr-1"></i> {{ $activeCount }} Active</span>
                         @endif
@@ -109,7 +134,19 @@
                                     </thead>
                                     <tbody class="block sm:table-row-group space-y-4 sm:space-y-0 divide-y-0 sm:divide-y divide-black/5 bg-transparent sm:bg-white">
                                         @foreach($studentGoals as $goal)
-                                            <tr class="block sm:table-row bg-white sm:bg-transparent rounded-[16px] sm:rounded-none border border-black/15 sm:border-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors">
+                                            @php
+                                                // Bulletproof unread check for specific goal
+                                                $goalUnreadCount = $goal->comments->filter(function($comment) {
+                                                    return $comment->user_id != Auth::id() && !$comment->is_teacher_read;
+                                                })->count();
+                                            @endphp
+
+                                            <!-- Row with Reactive State per Goal -->
+                                            <tr x-data="{ 
+                                                    goalUnread: {{ $goalUnreadCount > 0 ? 'true' : 'false' }}, 
+                                                    unreadCount: {{ (int) $goalUnreadCount }} 
+                                                }" 
+                                                class="block sm:table-row bg-white sm:bg-transparent rounded-[16px] sm:rounded-none border border-black/15 sm:border-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors">
                                                 
                                                 <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 border-b border-black/5 sm:border-none align-top">
                                                     <span class="sm:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Domain</span>
@@ -129,7 +166,19 @@
                                                 </td>
                                                 
                                                 <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 border-b border-black/5 sm:border-none align-top">
-                                                    <span class="sm:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-2">Goal Description</span>
+                                                    <div class="flex items-center gap-2 mb-2 sm:mb-0">
+                                                        <span class="sm:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest">Goal Description</span>
+                                                        
+                                                        <!-- Reactive 'New Reply' Badge on Goal Objective -->
+                                                        <span x-show="goalUnread" 
+                                                              x-transition:leave="transition ease-in duration-200"
+                                                              x-transition:leave-start="opacity-100 scale-100"
+                                                              x-transition:leave-end="opacity-0 scale-75"
+                                                              class="inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-extrabold bg-red-500 text-white uppercase tracking-widest shadow-sm mb-1">
+                                                            <i class="fa-solid fa-bell mr-1"></i> New Reply
+                                                        </span>
+                                                    </div>
+
                                                     <div class="text-[12px] font-medium text-[#6B7086] whitespace-pre-line max-h-[180px] sm:max-h-[140px] overflow-y-auto pr-2 bg-[#F4F6FA] sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none border border-black/5 sm:border-none leading-relaxed custom-scrollbar" title="Goal Description">
                                                         {{ $goal->goal_description }}
                                                     </div>
@@ -158,9 +207,32 @@
                                                 
                                                 <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 bg-[#F4F6FA] sm:bg-transparent rounded-b-2xl sm:rounded-none align-top pt-5 sm:pt-4">
                                                     <div class="flex justify-end gap-2 w-full sm:w-auto">
-                                                        <button @click="activeEditModal = {{ $goal->id }}" class="flex-1 sm:flex-none inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-sm">
-                                                            <i class="fa fa-edit mr-1.5"></i> Edit / Track
-                                                        </button>
+                                                        
+                                                        <!-- Real-Time Read Trigger using bulletproof route() helper -->
+                                                    <button @click="activeEditModal = {{ $goal->id }}; 
+                                                                if(goalUnread) { 
+                                                                    goalUnread = false; 
+                                                                    studentUnreadCount = Math.max(0, studentUnreadCount - unreadCount);
+                                                                    unreadCount = 0;
+                                                                    fetch('{{ route('teacher.iep-goals.mark-read', $goal->id) }}', { 
+                                                                        method: 'POST', 
+                                                                        headers: { 
+                                                                            'X-CSRF-TOKEN': '{{ csrf_token() }}', 
+                                                                            'Accept': 'application/json',
+                                                                            'Content-Type': 'application/json'
+                                                                        } 
+                                                                    })
+                                                                    .then(response => {
+                                                                        if (!response.ok) throw new Error('Network response was not ok');
+                                                                        return response.json();
+                                                                    })
+                                                                    .then(data => console.log('Successfully marked as read!'))
+                                                                    .catch(err => console.error('Database Update Failed:', err)); 
+                                                                }" 
+                                                            class="flex-1 sm:flex-none inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-sm">
+                                                        <i class="fa fa-edit mr-1.5"></i> Edit / Track
+                                                    </button>
+
                                                         <form action="{{ route('teacher.iep-goals.destroy', $goal->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this goal? This cannot be undone.');" class="m-0 sm:flex-none flex shrink-0">
                                                             @csrf
                                                             @method('DELETE')
@@ -582,7 +654,6 @@ document.addEventListener("DOMContentLoaded", function() {
             if (totalBoxes > 0) {
                 let percent = Math.round((checkedBoxes / totalBoxes) * 100);
                 
-                // BULLETPROOF FIX: Use standard readonly so the browser always submits the value
                 progressInput.readOnly = true;
                 progressInput.value = percent;
                 progressInput.classList.add('bg-slate-100', 'text-slate-500', 'pointer-events-none'); 

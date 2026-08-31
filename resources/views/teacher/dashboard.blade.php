@@ -10,14 +10,17 @@
 
         <!-- 1. WELCOME HEADER -->
         <header class="mb-8">
-            <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-2 block">Good Morning</span>
+            <!-- Dynamic Time Greeting Span -->
+            <span id="dynamic-greeting" class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-2 block">Good Morning</span>
+            
             <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'teacher' }}.</h1>
             <p class="text-[#6B7086] text-sm font-medium">Here is your classroom overview for today.</p>
         </header>
 
-        <!-- 2. FOUR STAT CARDS -->
+        <!-- 2. FIVE STAT CARDS -->
         <section>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 w-full">
+            <!-- Updated to lg:grid-cols-5 so all 5 cards fit in one row -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 w-full">
                 
                 <!-- Card 1: My Students (Blue Theme) -->
                 <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-center h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)]">
@@ -39,28 +42,26 @@
                     <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Active IEP Goals</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
-                <!-- Announcements Stat Card -->
-                        <a href="/teacher/announcements" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-center relative overflow-hidden h-full block">
-                            
-                            <!-- Red Notification Badge -->
-                            @if($newAnnouncementsCount > 0)
-                                <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20">
-                                    {{ $newAnnouncementsCount }}
-                                </div>
-                            @endif
 
-                            <!-- Big Icon (Matches the big numbers on other cards) -->
-                            <h3 class="font-extrabold text-[32px] text-[#8B5CF6] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-none mb-2">
-                                <i class="fa-solid fa-bullhorn text-[28px]"></i>
-                            </h3>
-                            
-                            <!-- Uppercase Label -->
-                            <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Announcements</p>
+                <!-- Card 4: Announcements Stat Card -->
+                <a href="/teacher/announcements" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-center relative overflow-hidden h-[120px] block">
+                    
+                    @if(isset($newAnnouncementsCount) && $newAnnouncementsCount > 0)
+                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20">
+                            {{ $newAnnouncementsCount }}
+                        </div>
+                    @endif
 
-                            <!-- Bottom Hover Line -->
-                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
-                        </a>
-                <!-- Card 4: Reports Due (Orange/Amber Theme) -->
+                    <h3 class="font-extrabold text-[32px] text-[#8B5CF6] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-none mb-2">
+                        <i class="fa-solid fa-bullhorn text-[28px]"></i>
+                    </h3>
+                    
+                    <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Announcements</p>
+
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+
+                <!-- Card 5: Reports Due (Orange/Amber Theme) -->
                 @php $hasReports = ($reportsDue ?? 0) > 0; @endphp
                 <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-center h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 {{ $hasReports ? 'hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)]' : 'hover:border-black/30 hover:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.15)]' }}">
                     <h3 class="font-extrabold text-[32px] {{ $hasReports ? 'text-[#F59E0B]' : 'text-[#D1D5DB]' }} leading-none mb-2 counter" data-target="{{ $reportsDue ?? 0 }}">0</h3>
@@ -94,8 +95,15 @@
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
                 
-                <!-- IEP Goals -->
+                <!-- IEP Goals (Updated with Notification Badge) -->
                 <a href="{{ route('teacher.iep-goals.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    
+                    @if(isset($unreadIepCommentsCount) && $unreadIepCommentsCount > 0)
+                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20 animate-pulse">
+                            {{ $unreadIepCommentsCount }}
+                        </div>
+                    @endif
+
                     <div class="w-9 h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10">
                         <i class="fa-solid fa-bullseye text-[#8B5CF6] text-sm group-hover:text-white transition-colors"></i>
                     </div>
@@ -106,8 +114,15 @@
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
                 
-                <!-- Daily Logs -->
+                <!-- Daily Logs (Updated with Notification Badge) -->
                 <a href="{{ route('teacher.daily-logs.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    
+                    @if(isset($unreadDailyLogCommentsCount) && $unreadDailyLogCommentsCount > 0)
+                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20 animate-pulse">
+                            {{ $unreadDailyLogCommentsCount }}
+                        </div>
+                    @endif
+
                     <div class="w-9 h-9 rounded-full bg-[#10B981]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#10B981] relative z-10">
                         <i class="fa-solid fa-pencil text-[#10B981] text-sm group-hover:text-white transition-colors"></i>
                     </div>
@@ -238,6 +253,22 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        
+        // 1. DYNAMIC TIME GREETING LOGIC
+        const greetingElement = document.getElementById('dynamic-greeting');
+        if (greetingElement) {
+            const currentHour = new Date().getHours();
+            
+            if (currentHour < 12) {
+                greetingElement.innerText = "Good Morning";
+            } else if (currentHour < 18) {
+                greetingElement.innerText = "Good Afternoon";
+            } else {
+                greetingElement.innerText = "Good Evening";
+            }
+        }
+
+        // 2. COUNTER ANIMATION LOGIC
         const counters = document.querySelectorAll('.counter');
         counters.forEach(counter => {
             const updateCount = () => {

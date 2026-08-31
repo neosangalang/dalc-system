@@ -19,7 +19,6 @@
     </style>
 </head>
 
-<!-- Restored Original Colors -->
 <body class="font-['Nunito'] bg-gradient-to-br from-[#F4F1EA] via-[#EDF0F8] to-[#F4F1EA] text-[#2C2F45] antialiased min-h-screen bg-fixed">
 
     <!-- ========================================== -->
@@ -48,18 +47,66 @@
 
         <div class="flex items-center gap-3 sm:gap-4 shrink-0">
 
-            <!-- Notifications Menu -->
-            <div x-data="{ notifOpen: false }" class="relative">
-                <button @click="notifOpen = !notifOpen" @click.away="notifOpen = false" class="w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-sm transition">
+            <!-- Notifications Menu (Real-Time Poller) -->
+            <div x-data="{ 
+                    notifOpen: false, 
+                    unreadCount: 0, 
+                    notifications: [],
+                    fetchNotifs() {
+                        fetch('{{ route('notifications.fetch') }}')
+                            .then(res => res.json())
+                            .then(data => {
+                                this.unreadCount = data.count;
+                                this.notifications = data.items;
+                            });
+                    },
+                    markAllRead() {
+                        if(this.unreadCount > 0) {
+                            fetch('{{ route('notifications.markAllRead') }}', {
+                                method: 'POST',
+                                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                            }).then(() => {
+                                this.unreadCount = 0;
+                            });
+                        }
+                    }
+                }" 
+                x-init="fetchNotifs(); setInterval(() => fetchNotifs(), 15000);" 
+                class="relative">
+                
+                <!-- Bell Button -->
+                <button @click="notifOpen = !notifOpen; if(notifOpen) { fetchNotifs(); markAllRead(); }" @click.away="notifOpen = false" class="relative w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-sm transition">
                     <i class="fa fa-bell"></i>
+                    
+                    <!-- Dynamic Red Dot Indicator -->
+                    <span x-show="unreadCount > 0" x-text="unreadCount" x-transition x-cloak class="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-sm animate-pulse min-w-[18px]"></span>
                 </button>
-                <div x-show="notifOpen" x-transition x-cloak class="absolute right-0 mt-2 w-80 bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl overflow-hidden z-50">
+
+                <!-- Dropdown -->
+                <div x-show="notifOpen" x-transition x-cloak class="absolute right-0 mt-2 w-80 bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl overflow-hidden z-[100]">
                     <div class="bg-[#F8F9FD] px-4 py-3 border-b border-[#E8E5DC] flex justify-between items-center">
-                        <span class="font-bold text-sm text-[#1E2657]">Notifications</span>
+                        <span class="font-extrabold text-[13px] tracking-widest uppercase text-[#1E2657]">Notifications</span>
                     </div>
-                    <div class="px-4 py-8 text-center text-[#9CA0AF]">
-                        <i class="fa-regular fa-bell-slash text-lg mb-2 block"></i>
-                        <p class="text-xs font-medium m-0">You're all caught up!</p>
+                    
+                    <!-- Empty State -->
+                    <div x-show="notifications.length === 0" class="px-4 py-8 text-center text-[#9CA0AF]">
+                        <i class="fa-regular fa-bell-slash text-2xl mb-2 block text-[#E8E5DC]"></i>
+                        <p class="text-[12px] font-bold m-0">You're all caught up!</p>
+                    </div>
+
+                    <!-- List State -->
+                    <div x-show="notifications.length > 0" class="max-h-[300px] overflow-y-auto custom-scrollbar flex flex-col bg-white">
+                        <template x-for="notif in notifications" :key="notif.id">
+                            <!-- UPDATED HREF TO HIT THE MARK-AS-READ ROUTE -->
+                            <a :href="'/notifications/' + notif.id + '/read'" class="px-4 py-3.5 border-b border-black/5 hover:bg-[#F0F3FA] transition flex flex-col gap-1 decoration-transparent"
+                               :class="notif.is_read ? 'bg-white' : 'bg-blue-50/50'">
+                                <div class="flex items-start justify-between gap-2">
+                                    <span class="text-[13px] font-extrabold leading-tight" :class="notif.is_read ? 'text-[#6B7086]' : 'text-[#1E2657]'" x-text="notif.message"></span>
+                                    <span x-show="!notif.is_read" class="w-2 h-2 rounded-full bg-[#3B82F6] shrink-0 mt-1"></span>
+                                </div>
+                                <span class="text-[10px] text-[#9CA0AF] font-bold uppercase tracking-wider" x-text="notif.time"></span>
+                            </a>
+                        </template>
                     </div>
                 </div>
             </div>
