@@ -25,16 +25,19 @@ class MfaChallengeController extends Controller
         $isValid = $google2fa->verifyKey($user->two_factor_secret, $request->one_time_password);
 
         if ($isValid) {
-            // Check if they clicked the new "Remember this device" box
-            if ($request->has('remember_device')) {
-                // Give them a VIP Cookie that lasts 30 days (43,200 minutes)
-                \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200);
-            } else {
-                // Otherwise, just use the normal temporary session
-                session(['mfa_verified' => true]); 
+            session(['mfa_verified' => true]);
+
+            // Check if they clicked "Remember this device" or "Remember me" on login
+            if ($request->has('remember_device') || session('remember_login')) {
+                \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200); // 30 days
             }
-            
-            return redirect('/')->with('success', 'Authentication successful.');
+
+            return match($user->role) {
+                'admin'    => redirect()->route('admin.dashboard')->with('success', 'Authentication successful.'),
+                'teacher'  => redirect()->route('teacher.dashboard')->with('success', 'Authentication successful.'),
+                'guardian' => redirect()->route('guardian.dashboard')->with('success', 'Authentication successful.'),
+                default    => redirect('/')->with('success', 'Authentication successful.'),
+            };
         }
 
         return back()->withErrors(['one_time_password' => 'Invalid authentication code. Please try again.']);

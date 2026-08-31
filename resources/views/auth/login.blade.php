@@ -34,6 +34,13 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
+                @if (session('status'))
+                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-[12px] py-2.5 px-3 rounded-lg mb-4 font-bold flex items-start gap-2 shadow-sm">
+                        <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5 text-sm shrink-0"></i>
+                        <span>{{ session('status') }}</span>
+                    </div>
+                @endif
+
                 @if ($errors->any())
                     <div class="bg-red-50 border border-red-200 text-red-600 text-[12px] py-2 px-3 rounded-lg mb-4 font-medium flex items-start gap-2">
                         <span class="mt-0.5">❌</span>
@@ -55,13 +62,13 @@
                 </div>
 
                 <div class="flex justify-between items-center mb-5">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" name="remember" id="remember_me" 
-                            class="w-4 h-4 text-[#4F6AF5] border-[#E8ECF8] rounded focus:ring-[#4F6AF5]">
-                        <label for="remember_me" class="text-[12px] text-[#7B8DB7] cursor-pointer">
+                    <label for="remember_me" class="flex items-center gap-2 cursor-pointer select-none group">
+                        <input type="checkbox" name="remember" id="remember_me" value="1"
+                            class="w-4 h-4 text-[#4F6AF5] border-[#D1D5DB] rounded focus:ring-[#4F6AF5] cursor-pointer transition">
+                        <span class="text-[12px] font-semibold text-[#7B8DB7] group-hover:text-[#4F6AF5] transition-colors">
                             Remember me
-                        </label>
-                    </div>
+                        </span>
+                    </label>
 
                     @if (Route::has('password.request'))
                         <a href="{{ route('password.request') }}" class="text-[#4F6AF5] text-[12px] font-bold no-underline hover:underline transition-all">

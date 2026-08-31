@@ -30,6 +30,12 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // If user checked "Remember me" on the login screen
+        if ($request->boolean('remember')) {
+            session(['remember_login' => true]);
+            \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200); // 30 days
+        }
+
         // Redirect based on role
         return match($user->role) {
             'admin'    => redirect()->route('admin.dashboard'),
@@ -44,11 +50,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $userId = Auth::id();
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        // Clear MFA remember cookie on explicit logout
+        if ($userId) {
+            \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::forget('mfa_remember_' . $userId));
+        }
 
         return redirect('/');
     }

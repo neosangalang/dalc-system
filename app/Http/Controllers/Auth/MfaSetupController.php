@@ -65,8 +65,15 @@ class MfaSetupController extends Controller
             $user->update(['two_factor_secret' => $secretKey]);
             
             session()->forget('mfa_setup_secret');
+            session(['mfa_verified' => true]);
+            \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200); // 30 days
 
-            return redirect('/')->with('success', 'Security complete! Your account is now fully protected.');
+            return match($user->role) {
+                'admin'    => redirect()->route('admin.dashboard')->with('success', 'Security complete! Your account is now fully protected.'),
+                'teacher'  => redirect()->route('teacher.dashboard')->with('success', 'Security complete! Your account is now fully protected.'),
+                'guardian' => redirect()->route('guardian.dashboard')->with('success', 'Security complete! Your account is now fully protected.'),
+                default    => redirect('/')->with('success', 'Security complete! Your account is now fully protected.'),
+            };
         }
 
         return back()->withErrors(['one_time_password' => 'Invalid code. Please try again.']);
