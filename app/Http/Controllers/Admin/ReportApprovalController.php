@@ -56,12 +56,16 @@ class ReportApprovalController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:approved,rejected'
+            'status' => 'required|in:approved,rejected',
+            'revision_notes' => 'nullable|string|max:3000',
         ]);
 
         $report = Report::with(['student.guardian', 'teacher'])->findOrFail($id);
         
         $report->status = $request->status;
+        if ($request->status === 'rejected') {
+            $report->revision_notes = $request->revision_notes;
+        }
         $report->save();
 
         if ($report->status === 'approved') {
@@ -90,13 +94,14 @@ class ReportApprovalController extends Controller
         if ($report->status === 'rejected') {
             
             if ($report->teacher) {
+                $noteSnippet = $request->filled('revision_notes') ? ' (Notes: "' . \Illuminate\Support\Str::limit($request->revision_notes, 60) . '")' : '.';
                 $report->teacher->notify(new SystemAlert(
-                    'Revision Required: Your report for ' . $report->student->first_name . ' was rejected.',
-                    route('teacher.reports.index') 
+                    'Revision Required: Changes requested on ' . $report->student->first_name . '\'s report' . $noteSnippet,
+                    route('teacher.reports.edit', $report->id) 
                 ));
             }
 
-            return redirect()->route('admin.report-approval.index')->with('success', 'Report has been rejected. The Teacher has been notified to make revisions.');
+            return redirect()->route('admin.report-approval.index')->with('success', 'Report returned for revision with instructions. The Teacher has been notified.');
         }
     }
 }

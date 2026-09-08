@@ -123,12 +123,19 @@
                     @forelse($reports as $report)
                         <!-- MOBILE CARD / DESKTOP ROW -->
                         <tr class="block md:table-row relative bg-white md:bg-transparent rounded-[16px] md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150 pt-2 md:pt-0">
+                        <tr class="block md:table-row relative bg-white md:bg-transparent rounded-[16px] md:rounded-none shadow-sm md:shadow-none border md:border-none hover:bg-slate-50 transition-colors duration-150 pt-2 md:pt-0 {{ $report->status === 'rejected' ? 'border-l-4 border-l-rose-500 border-rose-200 md:border-l-4 md:border-l-rose-500' : 'border-black/15' }}">
                             
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-5 border-b border-black/5 md:border-none pr-28 md:pr-6">
                                 <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Student Name</span>
                                 <div class="text-[14px] font-extrabold text-[#1E2657] leading-tight">
                                     {{ $report->student->first_name }} {{ $report->student->last_name }}
                                 </div>
+                                @if($report->status === 'rejected' && $report->revision_notes)
+                                    <div class="mt-1.5 flex items-start gap-1.5 md:max-w-[280px]">
+                                        <i class="fa-solid fa-comment-dots text-rose-500 text-[10px] mt-0.5 shrink-0"></i>
+                                        <p class="text-[11px] font-bold text-rose-600 m-0 leading-snug line-clamp-2">{{ \Illuminate\Support\Str::limit($report->revision_notes, 80) }}</p>
+                                    </div>
+                                @endif
                             </td>
                             
                             <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-5 border-b border-black/5 md:border-none mt-1 md:mt-0">
@@ -164,14 +171,23 @@
                                         'approved' => 'Approved',
                                         'rejected' => 'Needs Revision',
                                     ];
+                                    $statusIcons = [
+                                        'draft' => 'fa-solid fa-file-pen',
+                                        'pending_approval' => 'fa-solid fa-clock',
+                                        'approved' => 'fa-solid fa-circle-check',
+                                        'rejected' => 'fa-solid fa-triangle-exclamation',
+                                    ];
                                 @endphp
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border shadow-sm {{ $statusClasses[$report->status] ?? 'bg-slate-100 text-[#6B7086] border-black/10' }}">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border shadow-sm {{ $statusClasses[$report->status] ?? 'bg-slate-100 text-[#6B7086] border-black/10' }}">
+                                    <i class="{{ $statusIcons[$report->status] ?? '' }} text-[8px]"></i>
                                     {{ $statusLabels[$report->status] ?? 'Unknown' }}
                                 </span>
                             </td>
                             
                             <!-- ACTIONS FOOTER -->
                             <td class="block md:table-cell px-4 py-4 md:px-6 md:py-5 bg-[#F4F6FA] md:bg-transparent rounded-b-[16px] md:rounded-none">
+                            <td class="block md:table-cell px-4 py-4 md:px-6 md:py-5 {{ $report->status === 'rejected' ? 'bg-rose-50/50' : 'bg-[#F4F6FA]' }} md:bg-transparent rounded-b-[16px] md:rounded-none">
                                 <div class="flex flex-wrap sm:flex-nowrap md:justify-end gap-2 w-full md:w-auto">
                                     
                                     <button @click="activeViewModal = {{ $report->id }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/30 transition-colors shadow-sm">
@@ -182,6 +198,8 @@
                                     @if($report->status === 'rejected')
                                         <a href="{{ route('teacher.reports.edit', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-[12px] font-extrabold rounded-xl hover:bg-amber-100 transition-colors shadow-sm decoration-transparent">
                                             <i class="fa fa-pen-to-square mr-1.5"></i> Edit
+                                        <a href="{{ route('teacher.reports.edit', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-rose-500 border border-rose-600 text-white text-[12px] font-extrabold rounded-xl hover:bg-rose-600 transition-colors shadow-sm decoration-transparent">
+                                            <i class="fa fa-pen-to-square mr-1.5"></i> Revise Now
                                         </a>
                                     @endif
                                     
@@ -218,6 +236,18 @@
                                         </div>
                                         
                                         <div class="p-5 sm:p-6">
+                                            @if($report->status === 'rejected' && $report->revision_notes)
+                                                <div class="mb-5 p-4 bg-rose-50 rounded-xl border border-rose-200 flex items-start gap-3">
+                                                    <div class="w-8 h-8 rounded-lg bg-rose-500 text-white flex items-center justify-center shrink-0 text-xs">
+                                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-xs font-extrabold text-rose-900 uppercase tracking-wider mb-1 m-0">Admin Revision Request:</h6>
+                                                        <p class="text-xs font-bold text-slate-800 m-0 leading-relaxed">{{ $report->revision_notes }}</p>
+                                                    </div>
+                                                </div>
+                                            @endif
+
                                             <div class="p-5 bg-[#F4F6FA] rounded-xl border border-black/5 shadow-inner whitespace-pre-wrap text-[13px] font-medium text-[#1E2657] leading-relaxed max-h-[50vh] sm:max-h-[400px] overflow-y-auto">
                                                 {{ $report->content }}
                                             </div>
@@ -231,9 +261,16 @@
                                             <button type="button" @click="activeViewModal = null" class="w-full sm:w-auto px-6 py-2.5 bg-white text-[#6B7086] text-[13px] font-extrabold rounded-xl hover:bg-slate-50 transition-colors shadow-sm border border-black/15">
                                                 Close
                                             </button>
-                                            <a href="{{ route('teacher.reports.pdf', $report->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-rose-50 sm:bg-white border border-rose-200 text-rose-600 text-[13px] font-extrabold rounded-xl hover:bg-rose-100 sm:hover:bg-rose-50 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
-                                                <i class="fa fa-file-pdf mr-2"></i> Download as PDF
-                                            </a>
+                                            <div class="flex items-center gap-2">
+                                                @if($report->status === 'rejected')
+                                                    <a href="{{ route('teacher.reports.edit', $report->id) }}" class="inline-flex items-center px-4 py-2.5 bg-amber-500 text-white text-[13px] font-extrabold rounded-xl hover:bg-amber-600 transition-colors shadow-sm">
+                                                        <i class="fa-solid fa-pen-to-square mr-2"></i> Edit & Revise Report
+                                                    </a>
+                                                @endif
+                                                <a href="{{ route('teacher.reports.pdf', $report->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-rose-50 sm:bg-white border border-rose-200 text-rose-600 text-[13px] font-extrabold rounded-xl hover:bg-rose-100 sm:hover:bg-rose-50 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
+                                                    <i class="fa fa-file-pdf mr-2"></i> Download PDF
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -17,6 +17,7 @@ class Report extends Model
         'report_date',
         'content',
         'status',
+        'revision_notes',
     ];
 
     // Link the report to the Student

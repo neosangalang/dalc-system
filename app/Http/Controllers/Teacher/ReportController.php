@@ -19,7 +19,7 @@ class ReportController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(\Illuminate\Http\Request $request)
+    public function index(Request $request)
     {
         $teacherId = auth()->id();
 
@@ -161,12 +161,14 @@ class ReportController extends Controller
     /**
      * THE AI REPORT GENERATOR (Groq Llama 3)
      */
-    public function generateAiReport(\Illuminate\Http\Request $request)
+    public function generateAiReport(Request $request)
     {
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'report_type' => 'required|string',
-            'report_date' => 'nullable|date'
+            'report_date' => 'nullable|date',
+            'revision_notes' => 'nullable|string',
+            'existing_content' => 'nullable|string',
         ]);
 
         $student = Student::findOrFail($request->student_id);
@@ -197,7 +199,7 @@ class ReportController extends Controller
 
         $dailyLogs = $logsQuery->orderBy('log_date', 'asc')->get();
 
-        if ($dailyLogs->isEmpty()) {
+        if ($dailyLogs->isEmpty() && empty($request->existing_content)) {
             return response()->json([
                 'success' => false, 
                 'message' => 'Cannot generate report: No daily logs found for this student during the selected timeframe. Please ensure daily logs are recorded before generating a summary.'
@@ -210,7 +212,33 @@ class ReportController extends Controller
         
         $timeframe = strtoupper(str_replace('_', ' ', $request->report_type)); 
         
-        if ($request->report_type === 'daily') {
+        // Check if this is an AI Revision based on Admin Notes
+        if ($request->filled('revision_notes')) {
+            $prompt = "You are an expert Special Education Teacher revising an official student report based on specific Administrative revision notes.
+
+STUDENT: {$student->first_name} {$student->last_name}
+REPORT TYPE / TIMEFRAME: {$timeframe}
+
+ADMINISTRATOR'S REQUIRED REVISIONS & INSTRUCTIONS:
+\"{$request->revision_notes}\"
+
+PREVIOUS REPORT DRAFT:
+\"{$request->existing_content}\"
+
+ACTIVE IEP GOALS:
+{$goalDescriptions}
+
+DAILY LOGS & CLASSROOM NOTES:
+{$logSummaries}
+
+STRICT REVISION RULES:
+1. Thoroughly incorporate and address all feedback and instructions provided by the Administrator.
+2. Refine, expand, or clarify the draft using supporting details from daily logs and IEP goals.
+3. Keep the format concise: write exactly 2 cohesive paragraphs (or 1 paragraph if daily report).
+4. Do NOT use headers, bullet points, asterisks, bold titles, or conversational filler. Output only clean narrative paragraphs.
+5. Maintain a compassionate, objective, and professional Special Education tone.";
+        }
+        elseif ($request->report_type === 'daily') {
             $prompt = "You are an expert Special Education teacher writing a daily update for a parent. 
             Read the following rough notes about the student ({$student->first_name}) and summarize them into ONE simple, warm, and professional paragraph. 
             

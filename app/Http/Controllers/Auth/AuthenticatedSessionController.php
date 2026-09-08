@@ -30,12 +30,6 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        // If user checked "Remember me" on the login screen
-        if ($request->boolean('remember')) {
-            session(['remember_login' => true]);
-            \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200); // 30 days
-        }
-
         // Redirect based on role
         return match($user->role) {
             'admin'    => redirect()->route('admin.dashboard'),

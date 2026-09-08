@@ -61,15 +61,7 @@
                         class="w-full border-2 border-[#E8ECF8] rounded-xl px-3.5 py-2.5 text-[13px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
                 </div>
 
-                <div class="flex justify-between items-center mb-5">
-                    <label for="remember_me" class="flex items-center gap-2 cursor-pointer select-none group">
-                        <input type="checkbox" name="remember" id="remember_me" value="1"
-                            class="w-4 h-4 text-[#4F6AF5] border-[#D1D5DB] rounded focus:ring-[#4F6AF5] cursor-pointer transition">
-                        <span class="text-[12px] font-semibold text-[#7B8DB7] group-hover:text-[#4F6AF5] transition-colors">
-                            Remember me
-                        </span>
-                    </label>
-
+                <div class="flex justify-end items-center mb-5">
                     @if (Route::has('password.request'))
                         <a href="{{ route('password.request') }}" class="text-[#4F6AF5] text-[12px] font-bold no-underline hover:underline transition-all">
                             Forgot password?
@@ -77,9 +69,9 @@
                     @endif
                 </div>
 
-                <!-- REDUCED: Button padding and text size -->
+                <!-- Sign In Button -->
                 <button type="submit" 
-                    class="w-full bg-gradient-to-br from-[#4F6AF5] to-[#3751D7] text-white rounded-xl py-2.5 px-6 font-bold text-[14px] shadow-[0_4px_16px_rgba(79,106,245,0.3)] transition-all duration-200 hover:shadow-[0_6px_20px_rgba(79,106,245,0.4)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                    class="w-full bg-gradient-to-br from-[#4F6AF5] to-[#3751D7] text-white rounded-xl py-2.5 px-6 font-bold text-[14px] shadow-[0_4px_16px_rgba(79,106,245,0.3)] transition-all duration-200 hover:shadow-[0_6px_20px_rgba(79,106,245,0.4)] hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa fa-sign-in-alt text-[13px]"></i> Sign In
                 </button>
             </form>
