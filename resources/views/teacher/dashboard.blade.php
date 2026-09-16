@@ -148,6 +148,103 @@
             </div>
         </section>
 
+        <!-- 3.5 ADMIN MODULES (Only visible if teacher has any admin-granted permissions) -->
+        @php
+            $user = Auth::user();
+            $hasAnyAdminPermission = $user->can_approve_reports || $user->can_manage_credentials || $user->can_manage_calendar || $user->can_create_profiles || $user->can_archive_students;
+        @endphp
+
+        @if($hasAnyAdminPermission)
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <span class="h-px w-8 bg-[#C4922E]/50"></span>
+                <h2 class="text-[11px] font-extrabold text-[#C4922E] uppercase tracking-widest">Admin Modules</h2>
+                <span class="text-[9px] font-bold text-[#C4922E]/60 uppercase tracking-wider bg-[#C4922E]/10 px-2.5 py-1 rounded-full border border-[#C4922E]/20">Granted by Administrator</span>
+                <span class="h-px flex-1 bg-black/10"></span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5 w-full">
+                
+                {{-- Report Approvals --}}
+                @if($user->can_approve_reports)
+                <a href="{{ route('admin.report-approval.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    {{-- Admin badge --}}
+                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-9 h-9 rounded-full bg-[#10B981]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#10B981] relative z-10">
+                        <i class="fa-solid fa-file-circle-check text-[#10B981] text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#10B981]">Approvals</h3>
+                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Review Reports</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+                @endif
+
+                {{-- User Accounts --}}
+                @if($user->can_manage_credentials)
+                <a href="{{ route('admin.accounts.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-9 h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10">
+                        <i class="fa-solid fa-user-shield text-[#8B5CF6] text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">User Accounts</h3>
+                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Manage Access</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+                @endif
+
+                {{-- Academic Calendar --}}
+                @if($user->can_manage_calendar)
+                <a href="{{ route('admin.quarters.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-9 h-9 rounded-full bg-[#F59E0B]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#F59E0B] relative z-10">
+                        <i class="fa-solid fa-calendar-days text-[#F59E0B] text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#F59E0B]">Calendar</h3>
+                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">System Terms</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#F59E0B] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+                @endif
+
+                {{-- Student Profiles (Create) --}}
+                @if($user->can_create_profiles)
+                <a href="{{ route('admin.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-9 h-9 rounded-full bg-[#3B82F6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#3B82F6] relative z-10">
+                        <i class="fa-solid fa-user-plus text-[#3B82F6] text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#3B82F6]">Student Profiles</h3>
+                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Create & Manage</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+                @endif
+
+                {{-- Archive --}}
+                @if($user->can_archive_students)
+                <a href="{{ route('admin.archive.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#6B7086]/30 hover:shadow-[0_8px_20px_-6px_rgba(107,112,134,0.2)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-9 h-9 rounded-full bg-[#6B7086]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#6B7086] relative z-10">
+                        <i class="fa-solid fa-box-archive text-[#6B7086] text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#1E2657]">Archive</h3>
+                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Past Records</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#6B7086] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+                @endif
+
+            </div>
+        </section>
+        @endif
+
         <!-- 4. ACADEMIC CALENDAR TIMELINE -->
         <section>
             <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden w-full mb-8">
