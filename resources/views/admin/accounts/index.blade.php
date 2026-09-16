@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    @if(Auth::user()->role === 'admin')
+    @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
     
     <!-- ================= TEACHER ACCOUNTS ================= -->
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
@@ -107,6 +107,7 @@
                                         <i class="fa fa-key mr-1.5 text-[#F59E0B]"></i> Password
                                     </button>
 
+                                    @if(Auth::user()->role === 'admin')
                                     <form action="{{ route('admin.accounts.toggle', $user->id) }}" method="POST" class="m-0 flex">
                                         @csrf
                                         @method('PATCH')
@@ -126,6 +127,7 @@
                                             <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
 
                                 <!-- EDIT INFO MODAL (TEACHER) -->
@@ -428,6 +430,7 @@
                                         <i class="fa fa-key md:mr-1.5 text-[#F59E0B]"></i> <span class="hidden md:inline">Password</span>
                                     </button>
 
+                                    @if(Auth::user()->role === 'admin')
                                     <form action="{{ route('admin.accounts.toggle', $user->id) }}" method="POST" class="m-0 flex">
                                         @csrf
                                         @method('PATCH')
@@ -443,6 +446,7 @@
                                             <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
 
                                 <!-- EDIT INFO MODAL (GUARDIAN) -->
