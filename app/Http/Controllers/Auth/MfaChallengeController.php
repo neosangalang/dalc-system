@@ -27,8 +27,8 @@ class MfaChallengeController extends Controller
         if ($isValid) {
             session(['mfa_verified' => true]);
 
-            // Check if they clicked "Remember this device" or "Remember me" on login
-            if ($request->has('remember_device') || session('remember_login')) {
+            // Set 30-day cookie if user checked "Remember this device"
+            if ($request->boolean('remember_device')) {
                 \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200); // 30 days
             }
 

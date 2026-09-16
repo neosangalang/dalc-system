@@ -32,7 +32,13 @@ class EnsureMfaIsVerified
                 $hasSession = session('mfa_verified');
                 $hasCookie = $request->cookie('mfa_remember_' . $user->id);
 
-                if (!$hasSession && !$hasCookie) {
+                if ($hasSession || $hasCookie) {
+                    // If the cookie remembers this device but the session expired (browser restarted),
+                    // restore the session so downstream code can rely on it
+                    if (!$hasSession && $hasCookie) {
+                        session(['mfa_verified' => true]);
+                    }
+                } else {
                     if (!$request->routeIs('security.mfa.challenge') && !$request->routeIs('security.mfa.verify-login') && !$request->routeIs('logout')) {
                         return redirect()->route('security.mfa.challenge');
                     }
