@@ -27,9 +27,19 @@ class MfaChallengeController extends Controller
         if ($isValid) {
             session(['mfa_verified' => true]);
 
+            // DEBUG: Log the remember_device checkbox value
+            \Illuminate\Support\Facades\Log::info('MFA VERIFY DEBUG', [
+                'user_id' => $user->id,
+                'remember_device_in_request' => $request->has('remember_device'),
+                'remember_device_boolean' => $request->boolean('remember_device'),
+                'remember_device_raw' => $request->input('remember_device'),
+                'all_input' => $request->all(),
+            ]);
+
             // Set 30-day cookie if user checked "Remember this device"
             if ($request->boolean('remember_device')) {
                 \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200); // 30 days
+                \Illuminate\Support\Facades\Log::info('MFA COOKIE SET for user ' . $user->id);
             }
 
             return match($user->role) {

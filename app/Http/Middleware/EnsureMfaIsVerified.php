@@ -32,6 +32,16 @@ class EnsureMfaIsVerified
                 $hasSession = session('mfa_verified');
                 $hasCookie = $request->cookie('mfa_remember_' . $user->id);
 
+                // DEBUG: Log what the middleware sees
+                \Illuminate\Support\Facades\Log::info('MFA MIDDLEWARE CHECK', [
+                    'user_id' => $user->id,
+                    'has_session' => $hasSession,
+                    'has_cookie' => $hasCookie,
+                    'cookie_name' => 'mfa_remember_' . $user->id,
+                    'all_cookies' => $request->cookies->all(),
+                    'route' => $request->route()?->getName(),
+                ]);
+
                 if ($hasSession || $hasCookie) {
                     // If the cookie remembers this device but the session expired (browser restarted),
                     // restore the session so downstream code can rely on it
