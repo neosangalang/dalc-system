@@ -44,18 +44,16 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $userId = Auth::id();
-
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        // Clear MFA remember cookie on explicit logout
-        if ($userId) {
-            \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::forget('mfa_remember_' . $userId));
-        }
+        // NOTE: We intentionally do NOT clear the mfa_remember cookie here.
+        // "Remember this device for 30 days" means the DEVICE stays trusted
+        // across login/logout cycles, just like Google's "Trust this computer".
+        // The cookie expires naturally after 30 days.
 
         return redirect('/');
     }
