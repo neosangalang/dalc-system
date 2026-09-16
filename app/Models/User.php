@@ -36,6 +36,11 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'can_edit_students' => 'boolean', 
+            'can_manage_credentials' => 'boolean',
+            'can_manage_calendar' => 'boolean',
+            'can_create_profiles' => 'boolean',
+            'can_archive_students' => 'boolean',
+            'can_approve_reports' => 'boolean',
         ];
     }
 
