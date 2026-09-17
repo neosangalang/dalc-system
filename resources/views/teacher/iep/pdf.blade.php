@@ -201,27 +201,26 @@
         </p>
     </div>
 
-    <!-- SIGNATURES & DIGITAL VERIFICATION STAMP -->
+    <!-- SIGNATURES -->
     <table class="signature-table">
         <tr>
-            <td style="vertical-align: top;">
-                <div style="font-size: 10pt; font-weight: bold; margin-bottom: 5px;">Prepared & Verified By:</div>
-                <div style="border: 1px solid #1E2657; border-radius: 6px; padding: 10px; background-color: #F8FAFC; width: 90%;">
-                    <div style="font-size: 8pt; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 0.5px;">✓ System Verified & Digitally Signed</div>
-                    <div style="font-size: 11pt; font-weight: bold; color: #1E2657; margin-top: 3px;">Margaret J. Cobarrubias, MA</div>
-                    <div style="font-size: 9pt; color: #475569;">Special Education Consultant</div>
-                    <div style="font-size: 8pt; color: #64748B; margin-top: 4px;">
-                        PRC Lic. # 1464922<br>
-                        Doc Ref: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-IEP-{{ strtoupper(substr(md5($student->id . date('Y-m-d')), 0, 8)) }}</span>
-                    </div>
+            <td style="vertical-align: bottom;">
+                <div>Prepared By:</div>
+                <div style="font-family: 'Georgia', cursive; font-size: 16pt; font-style: italic; color: #1E2657; font-weight: bold; margin-bottom: -5px; padding-left: 10px;">
+                    Margaret J. Cobarrubias
+                </div>
+                <div style="border-top: 1px solid #000; width: 85%; padding-top: 3px;">
+                    <span class="font-bold">Margaret J. Cobarrubias, MA</span><br>
+                    <span style="font-size: 9pt; color: #444;">Special Education Consultant</span><br>
+                    <span style="font-size: 9pt; color: #666;">PRC Lic. # 1464922</span>
                 </div>
             </td>
-            <td style="vertical-align: top;">
-                <div style="font-size: 10pt; font-weight: bold; margin-bottom: 5px;">Received By:</div>
-                <div style="padding-top: 35px;">
-                    _______________________<br>
+            <td style="vertical-align: bottom;">
+                <div>Received By:</div>
+                <div style="height: 30px;"></div>
+                <div style="border-top: 1px solid #000; width: 85%; padding-top: 3px;">
                     <span class="font-bold">{{ $student->guardian->name ?? 'Parent / Guardian' }}</span><br>
-                    <span style="font-size: 9pt; color: #555;">Parent / Guardian Signature</span>
+                    <span style="font-size: 9pt; color: #444;">Parent / Guardian</span>
                 </div>
             </td>
         </tr>

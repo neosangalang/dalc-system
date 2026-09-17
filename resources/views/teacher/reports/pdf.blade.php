@@ -104,23 +104,21 @@
         {!! nl2br(e($report->content)) !!}
     </div>
 
-    <!-- AUTOMATED DIGITAL SIGNATURE STAMP -->
-    <div class="digital-sig-container">
-        <div class="digital-sig-header">
-            ✓ System Verified & Digitally Signed
-        </div>
-        <div class="digital-sig-name">
+    <!-- TEACHER TRADITIONAL E-SIGNATURE -->
+    <div style="margin-top: 50px; float: right; width: 250px; text-align: center;">
+        @if($report->teacher && $report->teacher->signature_image && file_exists(public_path('storage/' . $report->teacher->signature_image)))
+            <img src="{{ public_path('storage/' . $report->teacher->signature_image) }}" style="max-height: 50px; max-width: 200px; margin-bottom: -15px;">
+        @else
+            <!-- Stylish Cursive E-Signature -->
+            <div style="font-family: 'DejaVu Sans', 'Georgia', cursive; font-size: 20px; font-style: italic; color: #1E2657; margin-bottom: -8px; font-weight: bold; letter-spacing: 1px;">
+                {{ $report->teacher->name }}
+            </div>
+        @endif
+        <div style="border-top: 1px solid #000; padding-top: 5px; font-weight: bold; font-size: 13px; color: #1E2657;">
             {{ $report->teacher->name }}
         </div>
-        <div class="digital-sig-role">
+        <div style="font-weight: normal; font-size: 11px; color: #666;">
             Special Education Teacher
-        </div>
-        <div>
-            <span class="digital-sig-badge">AUTHENTICATED REPORT</span>
-        </div>
-        <div class="digital-sig-meta">
-            Timestamp: {{ \Carbon\Carbon::parse($report->updated_at ?? $report->created_at)->format('M d, Y h:i A') }}<br>
-            Doc Ref: <span class="ref-code">DALC-REP-{{ strtoupper(substr(md5($report->id . $report->created_at), 0, 8)) }}</span>
         </div>
     </div>
 

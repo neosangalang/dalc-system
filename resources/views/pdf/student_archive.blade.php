@@ -502,22 +502,24 @@
             </table>
         @endif
 
-        {{-- ===== DIGITAL VERIFICATION STAMP ===== --}}
-        <div style="margin-top: 30px; border: 1.5px solid #1E2657; border-radius: 6px; padding: 12px 16px; background-color: #F8FAFC;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td>
-                        <div style="font-size: 9px; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 1px;">✓ Official System Archived Record & Digitally Authenticated</div>
-                        <div style="font-size: 12px; font-weight: bold; color: #1E2657; margin-top: 2px;">Dream Achievers Learning Center PH — Master Archive</div>
-                        <div style="font-size: 9px; color: #64748B; margin-top: 4px;">
-                            Archived Teacher: <strong>{{ $student->teacher->name ?? 'System Administrator' }}</strong> &nbsp;|&nbsp;
-                            Archived Date: <strong>{{ now()->format('F j, Y \a\t g:i A') }}</strong> &nbsp;|&nbsp;
-                            Verification Code: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-ARC-{{ strtoupper(substr(md5($student->id . $student->created_at), 0, 8)) }}</span>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+        {{-- ===== TRADITIONAL E-SIGNATURE BLOCK ===== --}}
+        <div style="margin-top: 40px; float: right; width: 250px; text-align: center;">
+            @if($student->teacher && $student->teacher->signature_image && file_exists(public_path('storage/' . $student->teacher->signature_image)))
+                <img src="{{ public_path('storage/' . $student->teacher->signature_image) }}" style="max-height: 50px; max-width: 200px; margin-bottom: -15px;">
+            @else
+                <div style="font-family: 'Georgia', cursive; font-size: 16px; font-style: italic; color: #1E2657; font-weight: bold; margin-bottom: -6px;">
+                    {{ $student->teacher->name ?? 'System Administrator' }}
+                </div>
+            @endif
+            <div style="border-top: 1px solid #1E2657; padding-top: 4px; font-weight: bold; font-size: 11px; color: #1E2657;">
+                {{ $student->teacher->name ?? 'System Administrator' }}
+            </div>
+            <div style="font-size: 10px; color: #64748B;">
+                Special Education Teacher
+            </div>
         </div>
+
+        <div style="clear: both;"></div>
 
     </div>
 

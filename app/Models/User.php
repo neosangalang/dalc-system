@@ -27,6 +27,7 @@ class User extends Authenticatable
         'can_create_profiles',
         'can_archive_students',
         'can_approve_reports',
+        'signature_image',
     ];
 
     protected function casts(): array
