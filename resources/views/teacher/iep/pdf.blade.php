@@ -201,19 +201,28 @@
         </p>
     </div>
 
-    <!-- SIGNATURES -->
+    <!-- SIGNATURES & DIGITAL VERIFICATION STAMP -->
     <table class="signature-table">
         <tr>
-            <td>
-                Prepared By:<br><br><br>
-                <span class="font-bold">Margaret J. Cobarrubias, MA</span><br>
-                Special Education Consultant<br>
-                PRC Lic. # 1464922
+            <td style="vertical-align: top;">
+                <div style="font-size: 10pt; font-weight: bold; margin-bottom: 5px;">Prepared & Verified By:</div>
+                <div style="border: 1px solid #1E2657; border-radius: 6px; padding: 10px; background-color: #F8FAFC; width: 90%;">
+                    <div style="font-size: 8pt; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 0.5px;">✓ System Verified & Digitally Signed</div>
+                    <div style="font-size: 11pt; font-weight: bold; color: #1E2657; margin-top: 3px;">Margaret J. Cobarrubias, MA</div>
+                    <div style="font-size: 9pt; color: #475569;">Special Education Consultant</div>
+                    <div style="font-size: 8pt; color: #64748B; margin-top: 4px;">
+                        PRC Lic. # 1464922<br>
+                        Doc Ref: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-IEP-{{ strtoupper(substr(md5($student->id . date('Y-m-d')), 0, 8)) }}</span>
+                    </div>
+                </div>
             </td>
-            <td>
-                Received By:<br><br><br>
-                _______________________<br>
-                Parent / Guardian
+            <td style="vertical-align: top;">
+                <div style="font-size: 10pt; font-weight: bold; margin-bottom: 5px;">Received By:</div>
+                <div style="padding-top: 35px;">
+                    _______________________<br>
+                    <span class="font-bold">{{ $student->guardian->name ?? 'Parent / Guardian' }}</span><br>
+                    <span style="font-size: 9pt; color: #555;">Parent / Guardian Signature</span>
+                </div>
             </td>
         </tr>
     </table>

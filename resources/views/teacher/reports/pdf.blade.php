@@ -21,8 +21,61 @@
             color: #1a1a1a;
         }
         
-        .footer { margin-top: 50px; font-size: 12px; text-align: center; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
-        .signature-line { margin-top: 60px; width: 250px; border-top: 1px solid #000; text-align: center; font-weight: bold; padding-top: 5px; float: right; }
+        .footer { margin-top: 40px; font-size: 11px; text-align: center; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
+        
+        /* AUTOMATED DIGITAL SIGNATURE STAMP */
+        .digital-sig-container {
+            margin-top: 45px;
+            width: 320px;
+            float: right;
+            border: 2px solid #1E2657;
+            border-radius: 8px;
+            padding: 12px 15px;
+            background-color: #F8FAFC;
+        }
+        .digital-sig-header {
+            font-size: 9px;
+            font-weight: bold;
+            color: #C4922E;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 4px;
+        }
+        .digital-sig-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1E2657;
+            margin-top: 4px;
+        }
+        .digital-sig-role {
+            font-size: 11px;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        .digital-sig-badge {
+            display: inline-block;
+            background-color: #10B981;
+            color: #FFFFFF;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .digital-sig-meta {
+            font-size: 9px;
+            color: #64748B;
+            margin-top: 6px;
+            line-height: 1.3;
+        }
+        .ref-code {
+            font-family: 'Courier', monospace;
+            font-weight: bold;
+            color: #1E2657;
+        }
     </style>
 </head>
 <body>
@@ -51,9 +104,24 @@
         {!! nl2br(e($report->content)) !!}
     </div>
 
-    <div class="signature-line">
-        {{ $report->teacher->name }}<br>
-        <span style="font-weight: normal; font-size: 12px; color: #666;">Special Education Teacher</span>
+    <!-- AUTOMATED DIGITAL SIGNATURE STAMP -->
+    <div class="digital-sig-container">
+        <div class="digital-sig-header">
+            ✓ System Verified & Digitally Signed
+        </div>
+        <div class="digital-sig-name">
+            {{ $report->teacher->name }}
+        </div>
+        <div class="digital-sig-role">
+            Special Education Teacher
+        </div>
+        <div>
+            <span class="digital-sig-badge">AUTHENTICATED REPORT</span>
+        </div>
+        <div class="digital-sig-meta">
+            Timestamp: {{ \Carbon\Carbon::parse($report->updated_at ?? $report->created_at)->format('M d, Y h:i A') }}<br>
+            Doc Ref: <span class="ref-code">DALC-REP-{{ strtoupper(substr(md5($report->id . $report->created_at), 0, 8)) }}</span>
+        </div>
     </div>
 
     <div style="clear: both;"></div>

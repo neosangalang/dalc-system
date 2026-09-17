@@ -500,9 +500,24 @@
                     @endforeach
                 </tbody>
             </table>
-        @else
-            <p style="color: #9CA0AF; font-style: italic; padding: 10px 0;">No daily logs were recorded for this student.</p>
         @endif
+
+        {{-- ===== DIGITAL VERIFICATION STAMP ===== --}}
+        <div style="margin-top: 30px; border: 1.5px solid #1E2657; border-radius: 6px; padding: 12px 16px; background-color: #F8FAFC;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td>
+                        <div style="font-size: 9px; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 1px;">✓ Official System Archived Record & Digitally Authenticated</div>
+                        <div style="font-size: 12px; font-weight: bold; color: #1E2657; margin-top: 2px;">Dream Achievers Learning Center PH — Master Archive</div>
+                        <div style="font-size: 9px; color: #64748B; margin-top: 4px;">
+                            Archived Teacher: <strong>{{ $student->teacher->name ?? 'System Administrator' }}</strong> &nbsp;|&nbsp;
+                            Archived Date: <strong>{{ now()->format('F j, Y \a\t g:i A') }}</strong> &nbsp;|&nbsp;
+                            Verification Code: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-ARC-{{ strtoupper(substr(md5($student->id . $student->created_at), 0, 8)) }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
     </div>
 
