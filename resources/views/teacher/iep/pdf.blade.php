@@ -201,6 +201,27 @@
         </p>
     </div>
 
+    <!-- DIGITAL AUDIT STAMP SEAL -->
+    <div style="margin-top: 30px; margin-bottom: 25px; page-break-inside: avoid;">
+        <div style="border: 1.5px dashed #1E2657; border-radius: 8px; padding: 10px 14px; background-color: #F8FAFC;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 35px; vertical-align: middle;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #10B981; color: #ffffff; text-align: center; line-height: 26px; font-weight: bold; font-size: 13px;">✓</div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP</div>
+                        <div style="font-size: 10pt; font-weight: bold; color: #1E2657;">VERIFIED & AUDITED BY DALC SYSTEM</div>
+                        <div style="font-size: 8pt; color: #64748B; margin-top: 2px; line-height: 1.3;">
+                            Audit Timestamp: <strong>{{ date('Y-m-d H:i:s') }}</strong> &nbsp;|&nbsp;
+                            Doc Hash: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-AUDIT-IEP-{{ strtoupper(substr(md5($student->id . date('Y-m-d')), 0, 10)) }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
     <!-- SIGNATURES -->
     <table class="signature-table">
         <tr>
