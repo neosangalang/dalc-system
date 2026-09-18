@@ -157,7 +157,7 @@ class GuardianController extends Controller
         $guardianId = Auth::id();
         $studentIds = Student::where('guardian_id', $guardianId)->pluck('id');
 
-        $report = Report::with(['student', 'teacher'])
+        $report = Report::with(['student', 'teacher', 'approver'])
             ->whereIn('student_id', $studentIds)
             ->where('status', 'approved')
             ->findOrFail($id);

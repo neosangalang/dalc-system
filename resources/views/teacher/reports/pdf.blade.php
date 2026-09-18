@@ -118,10 +118,16 @@
                                 </td>
                                 <td style="vertical-align: middle;">
                                     <div style="font-size: 9px; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP</div>
-                                    <div style="font-size: 10px; font-weight: bold; color: #1E2657;">VERIFIED BY DALC SYSTEM</div>
+                                    <div style="font-size: 10px; font-weight: bold; color: #1E2657;">
+                                        @if($report->status === 'approved')
+                                            APPROVED BY ADMIN: {{ $report->approver->name ?? 'Administrator' }}
+                                        @else
+                                            VERIFIED BY DALC SYSTEM
+                                        @endif
+                                    </div>
                                     <div style="font-size: 8px; color: #64748B; margin-top: 2px; line-height: 1.3;">
-                                        Audit Date: <strong>{{ \Carbon\Carbon::parse($report->updated_at ?? $report->created_at)->format('Y-m-d H:i:s') }}</strong><br>
-                                        Doc Hash: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-AUDIT-{{ strtoupper(substr(md5($report->id . $report->created_at), 0, 10)) }}</span>
+                                        Audit Date: <strong>{{ \Carbon\Carbon::parse($report->approved_at ?? ($report->updated_at ?? $report->created_at))->format('Y-m-d H:i:s') }}</strong><br>
+                                        Doc Hash: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-AUDIT-{{ strtoupper(substr(md5($report->id . ($report->approved_at ?? $report->created_at)), 0, 10)) }}</span>
                                     </div>
                                 </td>
                             </tr>

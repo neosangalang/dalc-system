@@ -308,7 +308,7 @@ STRICT REVISION RULES:
     
     public function downloadPdf($id)
     {
-        $report = Report::with(['student', 'teacher'])->findOrFail($id);
+        $report = Report::with(['student', 'teacher', 'approver'])->findOrFail($id);
         $pdf = Pdf::loadView('teacher.reports.pdf', compact('report'));
         $fileName = $report->student->last_name . '_' . $report->student->first_name . '_Report.pdf';
 

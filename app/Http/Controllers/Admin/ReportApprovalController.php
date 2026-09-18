@@ -63,7 +63,10 @@ class ReportApprovalController extends Controller
         $report = Report::with(['student.guardian', 'teacher'])->findOrFail($id);
         
         $report->status = $request->status;
-        if ($request->status === 'rejected') {
+        if ($request->status === 'approved') {
+            $report->approved_by = auth()->id();
+            $report->approved_at = now();
+        } elseif ($request->status === 'rejected') {
             $report->revision_notes = $request->revision_notes;
         }
         $report->save();
