@@ -104,56 +104,32 @@
         {!! nl2br(e($report->content)) !!}
     </div>
 
-    <!-- SIGNATURE & DIGITAL AUDIT STAMP SECTION -->
-    <div style="margin-top: 40px; width: 100%;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <!-- DIGITAL AUDIT STAMP SEAL (LEFT) -->
-                <td style="width: 55%; vertical-align: bottom;">
-                    <div style="border: 1.5px dashed #1E2657; border-radius: 8px; padding: 10px 14px; background-color: #F8FAFC; max-width: 320px;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr>
-                                <td style="width: 35px; vertical-align: middle;">
-                                    <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #10B981; color: #ffffff; text-align: center; line-height: 26px; font-weight: bold; font-size: 13px;">✓</div>
-                                </td>
-                                <td style="vertical-align: middle;">
-                                    <div style="font-size: 9px; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP</div>
-                                    <div style="font-size: 10px; font-weight: bold; color: #1E2657;">
-                                        @if($report->status === 'approved')
-                                            APPROVED BY ADMIN: {{ $report->approver->name ?? 'Administrator' }}
-                                        @else
-                                            VERIFIED BY DALC SYSTEM
-                                        @endif
-                                    </div>
-                                    <div style="font-size: 8px; color: #64748B; margin-top: 2px; line-height: 1.3;">
-                                        Audit Date: <strong>{{ \Carbon\Carbon::parse($report->approved_at ?? ($report->updated_at ?? $report->created_at))->format('Y-m-d H:i:s') }}</strong><br>
-                                        Doc Hash: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-AUDIT-{{ strtoupper(substr(md5($report->id . ($report->approved_at ?? $report->created_at)), 0, 10)) }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </td>
-                
-                <!-- TEACHER E-SIGNATURE (RIGHT) -->
-                <td style="width: 45%; vertical-align: bottom; text-align: center;">
-                    @if($report->teacher && $report->teacher->signature_image && file_exists(public_path('storage/' . $report->teacher->signature_image)))
-                        <img src="{{ public_path('storage/' . $report->teacher->signature_image) }}" style="max-height: 48px; max-width: 180px; margin-bottom: -12px;">
-                    @else
-                        <!-- Stylish Cursive E-Signature -->
-                        <div style="font-family: 'Georgia', cursive; font-size: 18px; font-style: italic; color: #1E2657; margin-bottom: -6px; font-weight: bold; letter-spacing: 1px;">
-                            {{ $report->teacher->name }}
+    <!-- OFFICIAL DIGITAL AUDIT STAMP SECTION -->
+    <div style="margin-top: 40px; width: 100%; page-break-inside: avoid;">
+        <div style="border: 2px solid #1E2657; border-radius: 10px; padding: 14px 18px; background-color: #F8FAFC; max-width: 480px; margin: 0 auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 45px; vertical-align: middle;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background-color: #10B981; color: #ffffff; text-align: center; line-height: 32px; font-weight: bold; font-size: 16px;">✓</div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                        <div style="font-size: 9px; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP</div>
+                        <div style="font-size: 11px; font-weight: bold; color: #1E2657;">
+                            @if($report->status === 'approved')
+                                APPROVED & AUDITED BY ADMIN: {{ $report->approver->name ?? 'Administrator' }}
+                            @else
+                                DIGITALLY VERIFIED BY DALC SYSTEM
+                            @endif
                         </div>
-                    @endif
-                    <div style="border-top: 1px solid #1E2657; padding-top: 4px; font-weight: bold; font-size: 12px; color: #1E2657;">
-                        {{ $report->teacher->name }}
-                    </div>
-                    <div style="font-weight: normal; font-size: 10px; color: #64748B;">
-                        Special Education Teacher
-                    </div>
-                </td>
-            </tr>
-        </table>
+                        <div style="font-size: 9px; color: #475569; margin-top: 3px; line-height: 1.4;">
+                            Prepared By: <strong>{{ $report->teacher->name ?? 'Special Education Teacher' }}</strong> (Special Education Teacher)<br>
+                            Audit Timestamp: <strong>{{ \Carbon\Carbon::parse($report->approved_at ?? ($report->updated_at ?? $report->created_at))->format('F d, Y \a\t h:i:s A') }}</strong><br>
+                            Document Security Hash: <span style="font-family: 'Courier', monospace; font-weight: bold; color: #1E2657;">DALC-AUDIT-{{ strtoupper(substr(md5($report->id . ($report->approved_at ?? $report->created_at)), 0, 10)) }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <div style="clear: both;"></div>

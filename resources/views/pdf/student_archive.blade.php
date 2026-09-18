@@ -502,49 +502,26 @@
             </table>
         @endif
 
-        {{-- ===== SIGNATURE & DIGITAL AUDIT STAMP SECTION ===== --}}
-        <div style="margin-top: 30px; width: 100%;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <!-- DIGITAL AUDIT STAMP SEAL (LEFT) -->
-                    <td style="width: 55%; vertical-align: bottom;">
-                        <div style="border: 1.5px dashed #1E2657; border-radius: 6px; padding: 10px 12px; background-color: #F8FAFC; max-width: 310px;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="width: 32px; vertical-align: middle;">
-                                        <div style="width: 24px; height: 24px; border-radius: 50%; background-color: #10B981; color: #ffffff; text-align: center; line-height: 24px; font-weight: bold; font-size: 12px;">✓</div>
-                                    </td>
-                                    <td style="vertical-align: middle;">
-                                        <div style="font-size: 8px; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP</div>
-                                        <div style="font-size: 9px; font-weight: bold; color: #1E2657;">VERIFIED & ARCHIVED BY DALC SYSTEM</div>
-                                        <div style="font-size: 8px; color: #64748B; margin-top: 2px; line-height: 1.3;">
-                                            Audit Date: <strong>{{ now()->format('Y-m-d H:i:s') }}</strong><br>
-                                            Doc Hash: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-ARC-{{ strtoupper(substr(md5($student->id . $student->created_at), 0, 10)) }}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
-                    
-                    <!-- TEACHER E-SIGNATURE (RIGHT) -->
-                    <td style="width: 45%; vertical-align: bottom; text-align: center;">
-                        @if($student->teacher && $student->teacher->signature_image && file_exists(public_path('storage/' . $student->teacher->signature_image)))
-                            <img src="{{ public_path('storage/' . $student->teacher->signature_image) }}" style="max-height: 48px; max-width: 180px; margin-bottom: -12px;">
-                        @else
-                            <div style="font-family: 'Georgia', cursive; font-size: 16px; font-style: italic; color: #1E2657; font-weight: bold; margin-bottom: -6px;">
-                                {{ $student->teacher->name ?? 'System Administrator' }}
+        {{-- ===== OFFICIAL DIGITAL AUDIT STAMP SECTION ===== --}}
+        <div style="margin-top: 30px; width: 100%; page-break-inside: avoid;">
+            <div style="border: 2px solid #1E2657; border-radius: 10px; padding: 14px 18px; background-color: #F8FAFC; max-width: 480px; margin: 0 auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 40px; vertical-align: middle;">
+                            <div style="width: 30px; height: 30px; border-radius: 50%; background-color: #10B981; color: #ffffff; text-align: center; line-height: 30px; font-weight: bold; font-size: 15px;">✓</div>
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <div style="font-size: 8pt; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP</div>
+                            <div style="font-size: 10pt; font-weight: bold; color: #1E2657;">VERIFIED & ARCHIVED BY DREAM ACHIEVERS LEARNING CENTER</div>
+                            <div style="font-size: 8pt; color: #475569; margin-top: 3px; line-height: 1.4;">
+                                Archived Teacher: <strong>{{ $student->teacher->name ?? 'System Administrator' }}</strong> (Special Education Teacher)<br>
+                                Audit Timestamp: <strong>{{ now()->format('F d, Y \a\t h:i:s A') }}</strong><br>
+                                Document Security Hash: <span style="font-family: 'Courier', monospace; font-weight: bold; color: #1E2657;">DALC-ARC-{{ strtoupper(substr(md5($student->id . $student->created_at), 0, 10)) }}</span>
                             </div>
-                        @endif
-                        <div style="border-top: 1px solid #1E2657; padding-top: 4px; font-weight: bold; font-size: 11px; color: #1E2657;">
-                            {{ $student->teacher->name ?? 'System Administrator' }}
-                        </div>
-                        <div style="font-size: 10px; color: #64748B;">
-                            Special Education Teacher
-                        </div>
-                    </td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div style="clear: both;"></div>

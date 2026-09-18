@@ -201,65 +201,29 @@
         </p>
     </div>
 
-    <!-- DIGITAL AUDIT STAMP SEAL -->
-    <div style="margin-top: 30px; margin-bottom: 20px; page-break-inside: avoid;">
-        <div style="border: 1.5px dashed #1E2657; border-radius: 8px; padding: 10px 14px; background-color: #F8FAFC;">
+    <!-- OFFICIAL DIGITAL AUDIT STAMP SECTION -->
+    <div style="margin-top: 30px; margin-bottom: 25px; page-break-inside: avoid;">
+        <div style="border: 2px solid #1E2657; border-radius: 10px; padding: 14px 18px; background-color: #F8FAFC;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <td style="width: 35px; vertical-align: middle;">
-                        <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #10B981; color: #ffffff; text-align: center; line-height: 26px; font-weight: bold; font-size: 13px;">✓</div>
+                    <td style="width: 40px; vertical-align: middle;">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background-color: #10B981; color: #ffffff; text-align: center; line-height: 30px; font-weight: bold; font-size: 15px;">✓</div>
                     </td>
                     <td style="vertical-align: middle;">
-                        <div style="font-size: 8pt; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP</div>
-                        <div style="font-size: 10pt; font-weight: bold; color: #1E2657;">VERIFIED & AUDITED BY DALC SYSTEM</div>
-                        <div style="font-size: 8pt; color: #64748B; margin-top: 2px; line-height: 1.3;">
-                            Audit Timestamp: <strong>{{ date('Y-m-d H:i:s') }}</strong> &nbsp;|&nbsp;
-                            Teacher: <strong>{{ $student->teacher->name ?? 'Special Education Teacher' }}</strong> &nbsp;|&nbsp;
-                            Doc Hash: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-AUDIT-IEP-{{ strtoupper(substr(md5($student->id . date('Y-m-d')), 0, 10)) }}</span>
+                        <div style="font-size: 8pt; font-weight: bold; color: #C4922E; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;">OFFICIAL DIGITAL AUDIT STAMP & VERIFICATION</div>
+                        <div style="font-size: 10pt; font-weight: bold; color: #1E2657;">VERIFIED & AUDITED BY DREAM ACHIEVERS LEARNING CENTER</div>
+                        <div style="font-size: 8pt; color: #475569; margin-top: 4px; line-height: 1.4;">
+                            Special Education Teacher: <strong>{{ $student->teacher->name ?? 'Special Education Teacher' }}</strong> &nbsp;|&nbsp; 
+                            SPED Consultant: <strong>Margaret J. Cobarrubias, MA (PRC Lic. # 1464922)</strong><br>
+                            Parent / Guardian: <strong>{{ $student->guardian->name ?? 'Parent / Guardian' }}</strong> &nbsp;|&nbsp; 
+                            Audit Timestamp: <strong>{{ date('F d, Y \a\t h:i:s A') }}</strong><br>
+                            Document Security Hash: <span style="font-family: monospace; font-weight: bold; color: #1E2657;">DALC-AUDIT-IEP-{{ strtoupper(substr(md5($student->id . date('Y-m-d')), 0, 10)) }}</span>
                         </div>
                     </td>
                 </tr>
             </table>
         </div>
     </div>
-
-    <!-- SIGNATURES -->
-    <table class="signature-table" style="width: 100%; margin-top: 20px;">
-        <tr>
-            <td style="vertical-align: bottom; width: 33%;">
-                <div style="font-size: 9pt; font-weight: bold; color: #64748B; margin-bottom: 4px;">PREPARED BY:</div>
-                @if($student->teacher && $student->teacher->signature_image && file_exists(public_path('storage/' . $student->teacher->signature_image)))
-                    <img src="{{ public_path('storage/' . $student->teacher->signature_image) }}" style="max-height: 40px; max-width: 160px; margin-bottom: -10px;">
-                @else
-                    <div style="font-family: 'Georgia', cursive; font-size: 14pt; font-style: italic; color: #1E2657; font-weight: bold; margin-bottom: -4px;">
-                        {{ $student->teacher->name ?? 'Teacher' }}
-                    </div>
-                @endif
-                <div style="border-top: 1px solid #1E2657; width: 90%; padding-top: 3px;">
-                    <span class="font-bold" style="font-size: 10pt; color: #1E2657;">{{ $student->teacher->name ?? 'Special Education Teacher' }}</span><br>
-                    <span style="font-size: 8pt; color: #64748B;">Special Education Teacher</span>
-                </div>
-            </td>
-            <td style="vertical-align: bottom; width: 34%;">
-                <div style="font-size: 9pt; font-weight: bold; color: #64748B; margin-bottom: 4px;">CONSULTANT VERIFIED:</div>
-                <div style="font-family: 'Georgia', cursive; font-size: 14pt; font-style: italic; color: #1E2657; font-weight: bold; margin-bottom: -4px;">
-                    Margaret J. Cobarrubias
-                </div>
-                <div style="border-top: 1px solid #1E2657; width: 90%; padding-top: 3px;">
-                    <span class="font-bold" style="font-size: 10pt; color: #1E2657;">Margaret J. Cobarrubias, MA</span><br>
-                    <span style="font-size: 8pt; color: #64748B;">SPED Consultant (PRC Lic. # 1464922)</span>
-                </div>
-            </td>
-            <td style="vertical-align: bottom; width: 33%;">
-                <div style="font-size: 9pt; font-weight: bold; color: #64748B; margin-bottom: 4px;">RECEIVED BY:</div>
-                <div style="height: 25px;"></div>
-                <div style="border-top: 1px solid #1E2657; width: 90%; padding-top: 3px;">
-                    <span class="font-bold" style="font-size: 10pt; color: #1E2657;">{{ $student->guardian->name ?? 'Parent / Guardian' }}</span><br>
-                    <span style="font-size: 8pt; color: #64748B;">Parent / Guardian</span>
-                </div>
-            </td>
-        </tr>
-    </table>
 
 </body>
 </html>
