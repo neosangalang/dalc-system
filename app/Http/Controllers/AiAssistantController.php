@@ -17,8 +17,7 @@ class AiAssistantController extends Controller
         $response = Http::withToken(config('services.groq.api_key'))
             ->post('https://api.groq.com/openai/v1/chat/completions', [
                 
-                // 👇 CHANGE THE MODEL STRING HERE 👇
-                'model' => 'gpt-oss-20b', 
+                'model' => 'llama-3.3-70b-versatile', 
                 
                 'messages' => [
                     [

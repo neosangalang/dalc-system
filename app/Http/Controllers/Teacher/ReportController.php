@@ -172,7 +172,7 @@ class ReportController extends Controller
         ]);
 
         $student = Student::findOrFail($request->student_id);
-        $apiKey = env('GROQ_API_KEY');
+        $apiKey = config('services.groq.api_key') ?? env('GROQ_API_KEY');
 
         $goals = IepGoal::where('student_id', $student->id)->where('status', 'in_progress')->get();
         $goalDescriptions = $goals->pluck('goal_description')->implode('; ');
@@ -272,7 +272,7 @@ STRICT REVISION RULES:
                     'Content-Type' => 'application/json'
                 ])
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
-                    'model' => 'openai/gpt-oss-20b', 
+                    'model' => 'llama-3.3-70b-versatile', 
                     'messages' => [
                         [
                             'role' => 'user',
