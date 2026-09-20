@@ -88,7 +88,7 @@ class DailyLogController extends Controller
                 ));
             }
         } catch (\Exception $e) {
-            \Log::error('Guardian notification failed on daily log create: ' . $e->getMessage());
+            Log::error('Guardian notification failed on daily log create: ' . $e->getMessage());
         }
 
         return redirect()->route('teacher.daily-logs.index')->with('success', 'Daily log saved successfully!');

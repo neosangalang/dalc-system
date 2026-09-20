@@ -60,7 +60,7 @@ class IepGoalController extends Controller
                 ));
             }
         } catch (\Exception $e) {
-            \Log::error('Guardian notification failed on IEP create: ' . $e->getMessage());
+            Log::error('Guardian notification failed on IEP create: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('success', 'New IEP Goal and Baseline PLOP successfully assigned!');
@@ -147,7 +147,7 @@ class IepGoalController extends Controller
                 ));
             }
         } catch (\Exception $e) {
-            \Log::error('Guardian notification failed on IEP update: ' . $e->getMessage());
+            Log::error('Guardian notification failed on IEP update: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('success', 'IEP Progress updated successfully!');

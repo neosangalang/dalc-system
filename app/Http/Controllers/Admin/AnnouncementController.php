@@ -51,7 +51,7 @@ class AnnouncementController extends Controller
                 ));
             }
         } catch (\Exception $e) {
-            \Log::error('Guardian notification failed on announcement create: ' . $e->getMessage());
+            Log::error('Guardian notification failed on announcement create: ' . $e->getMessage());
         }
 
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement posted successfully!');
