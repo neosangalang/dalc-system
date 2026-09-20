@@ -37,7 +37,15 @@
 
                         <!-- Content Bubble -->
                         <div class="bg-[#F4F6FA] border border-black/5 rounded-2xl rounded-tl-sm p-5 mt-2 ml-[56px]">
+                            @if($announcement->image_path)
+                                <div class="mb-5 rounded-xl overflow-hidden shadow-sm border border-black/5">
+                                    <img src="{{ asset('storage/' . $announcement->image_path) }}" alt="{{ $announcement->title }}" class="w-full h-auto max-h-[450px] object-cover object-center">
+                                </div>
+                            @endif
                             <p class="text-[14px] font-medium text-[#4B5563] leading-relaxed m-0 whitespace-pre-line">{{ $announcement->content }}</p>
+
+                            <!-- FACEBOOK-STYLE COMMENTS -->
+                            @include('partials.announcement-comments', ['announcement' => $announcement])
                         </div>
                     </div>
 

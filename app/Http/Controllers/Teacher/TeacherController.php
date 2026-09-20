@@ -77,7 +77,7 @@ class TeacherController extends Controller
 
     public function announcements()
     {
-        $announcements = Announcement::latest()->paginate(10);
+        $announcements = Announcement::with(['comments.user'])->latest()->paginate(10);
         return view('teacher.announcements', compact('announcements'));
     }
 }

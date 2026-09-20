@@ -118,7 +118,7 @@ class GuardianController extends Controller
     // ==========================================
     public function announcements()
     {
-        $announcements = Announcement::latest()->get();
+        $announcements = Announcement::with(['comments.user'])->latest()->get();
         list($activeChild, $myChildren) = $this->getActiveChildData();
         
         // Mark announcements as seen so the dashboard badge clears

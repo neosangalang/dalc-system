@@ -16,4 +16,9 @@ class Announcement extends Model
         'content',
         'image_path', 
     ];
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable')->oldest();
+    }
 }

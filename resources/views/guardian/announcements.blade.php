@@ -59,6 +59,9 @@
                             @endif
 
                             <p class="text-[14px] font-medium text-[#4B5563] leading-relaxed m-0 whitespace-pre-line">{{ $announcement->content }}</p>
+
+                            <!-- FACEBOOK-STYLE COMMENTS -->
+                            @include('partials.announcement-comments', ['announcement' => $announcement])
                         </div>
                     </div>
 

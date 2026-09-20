@@ -23,11 +23,12 @@ class CommentController extends Controller
             'commentable_type' => 'required|string',
         ]);
 
-        // 1. Allow IEP Goals, Reports, and Daily Logs to accept comments
+        // 1. Allow IEP Goals, Reports, Daily Logs, and Announcements to accept comments
         $allowedModels = [
             'App\Models\IepGoal', 
             'App\Models\Report', 
-            'App\Models\DailyLog'
+            'App\Models\DailyLog',
+            'App\Models\Announcement'
         ];
 
         if (!in_array($request->commentable_type, $allowedModels)) {

@@ -44,6 +44,10 @@
                         <td class="p-4 text-sm text-gray-500">{{ $announcement->created_at->format('M d, Y h:i A') }}</td>
                         <td class="p-4 text-center">
                             <div class="flex justify-center gap-2">
+                                <button type="button" onclick="openModal('commentsModal-{{ $announcement->id }}')" class="text-purple-600 hover:text-purple-800 font-medium text-sm bg-purple-50 px-3 py-1 rounded-md transition-colors flex items-center gap-1">
+                                    <i class="fa-solid fa-comments text-xs"></i> {{ $announcement->comments->count() }} Comments
+                                </button>
+
                                 <button type="button" onclick="openModal('editModal-{{ $announcement->id }}')" class="text-blue-500 hover:text-blue-700 font-medium text-sm bg-blue-50 px-3 py-1 rounded-md transition-colors">
                                     Edit
                                 </button>
@@ -169,6 +173,25 @@
                     <button type="submit" class="bg-[#4F46E5] hover:bg-[#4338ca] text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-save"></i> Update</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- COMMENTS MODAL FOR ADMIN -->
+    <div id="commentsModal-{{ $announcement->id }}" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center">
+        <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl p-6 m-4">
+            <button type="button" onclick="closeModal('commentsModal-{{ $announcement->id }}')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="flex items-center gap-2 border-b pb-3 mb-4">
+                <i class="fa-solid fa-comments text-[#8B5CF6] text-xl"></i>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">{{ $announcement->title }}</h3>
+                    <p class="text-xs text-gray-500">Announcement Comments & Discussion</p>
+                </div>
+            </div>
+
+            @include('partials.announcement-comments', ['announcement' => $announcement])
         </div>
     </div>
 @endforeach

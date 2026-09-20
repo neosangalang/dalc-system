@@ -14,7 +14,7 @@ class AnnouncementController extends Controller
 {
     public function index()
     {
-        $announcements = Announcement::latest()->get();
+        $announcements = Announcement::with(['comments.user'])->latest()->get();
         return view('admin.announcements.index', compact('announcements'));
     }
 
