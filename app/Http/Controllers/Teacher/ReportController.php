@@ -172,6 +172,7 @@ class ReportController extends Controller
         ]);
 
         $student = Student::findOrFail($request->student_id);
+        $apiKey = env('GROQ_API_KEY');
         $apiKey = trim(config('services.groq.api_key') ?? env('GROQ_API_KEY'), '"\' ');
 
         $goals = IepGoal::where('student_id', $student->id)->where('status', 'in_progress')->get();
