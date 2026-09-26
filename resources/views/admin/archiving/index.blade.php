@@ -4,6 +4,12 @@
 
 @section('content')
 
+@php
+    $curY = (int) date('Y');
+    $curM = (int) date('n');
+    $activeSchoolYear = ($curM >= 6) ? $curY . '-' . ($curY + 1) : ($curY - 1) . '-' . $curY;
+@endphp
+
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
 <div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
@@ -35,9 +41,9 @@
                         Year-End Archiving
                     </h3>
                     
-                    <form action="{{ route('admin.archive.run') }}" method="POST" class="m-0 w-full sm:w-auto" onsubmit="return confirm('Are you sure you want to run the year-end archive? This cannot be undone.');">
+                    <form action="{{ route('admin.archive.run') }}" method="POST" class="m-0 w-full sm:w-auto" onsubmit="return confirm('Are you sure you want to run the real-time year-end archive for SY {{ $activeSchoolYear }}? This cannot be undone.');">
                         @csrf
-                        <input type="hidden" name="school_year" value="2024-2025">
+                        <input type="hidden" name="school_year" value="{{ $activeSchoolYear }}">
                         <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1" onclick="runArchiveDemo()">
                             <i class="fa fa-play mr-2"></i> Run Archive
                         </button>
@@ -48,10 +54,10 @@
                     <!-- Warning Notice -->
                     <div class="bg-[#F59E0B]/10 border border-[#F59E0B]/20 p-4 rounded-xl mb-5 sm:mb-6 shadow-sm">
                         <strong class="flex items-center text-[13px] font-extrabold text-[#1E2657] mb-1">
-                            <i class="fa fa-triangle-exclamation text-[#F59E0B] mr-2"></i> Year-end Archive for SY 2024-2025
+                            <i class="fa fa-triangle-exclamation text-[#F59E0B] mr-2"></i> Real-Time Year-End Archive (SY {{ $activeSchoolYear }})
                         </strong>
                         <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed ml-0 sm:ml-6 mt-1.5 sm:mt-0">
-                            This will snapshot all student records into JSON format, generate master PDFs for safekeeping, and optionally deactivate teacher/guardian accounts.
+                            This will capture real-time student snapshots, generate master PDFs for safekeeping with live digital audit timestamps, and archive active records.
                         </p>
                     </div>
                     
@@ -143,7 +149,9 @@
                                         <span class="sm:hidden inline-block w-2 h-2 rounded-full bg-[#6B7086] mr-1.5 mb-[1px]"></span>
                                         {{ $archive->student->first_name ?? 'Unknown' }} {{ $archive->student->last_name ?? 'Student' }} – SY {{ $archive->school_year }}
                                     </h6>
-                                    <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] m-0">Archived on: {{ $archive->archived_at->format('M j, Y') }}</p>
+                                    <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] m-0">
+                                        <i class="fa-regular fa-clock mr-1"></i> Archived on: {{ ($archive->archived_at ?? $archive->created_at)->format('M j, Y h:i A') }} ({{ ($archive->archived_at ?? $archive->created_at)->diffForHumans() }})
+                                    </p>
                                 </div>
                             </div>
                             

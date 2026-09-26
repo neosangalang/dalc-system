@@ -47,10 +47,6 @@ class LoginRequest extends FormRequest
         }
 
         \Illuminate\Support\Facades\Auth::login($user, $this->boolean('remember'));
-        
-        // Enforce Single Device Login: Invalidate all other active sessions for this account
-        \Illuminate\Support\Facades\Auth::logoutOtherDevices($this->password);
-
         \Illuminate\Support\Facades\RateLimiter::clear($this->throttleKey());
     }
     public function ensureIsNotRateLimited(): void

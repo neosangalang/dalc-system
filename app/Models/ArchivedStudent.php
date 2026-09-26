@@ -10,13 +10,14 @@ class ArchivedStudent extends Model
     use HasFactory;
 
     protected $fillable = [
-    'student_id', 
-    'school_year', 
-    'student_snapshot', 
-    'iep_snapshot', 
-    'progress_snapshot', 
-    'master_pdf_path'
-];
+        'student_id', 
+        'school_year', 
+        'student_snapshot', 
+        'iep_snapshot', 
+        'progress_snapshot', 
+        'master_pdf_path',
+        'archived_at'
+    ];
 
     protected $casts = [
         'student_snapshot' => 'array',

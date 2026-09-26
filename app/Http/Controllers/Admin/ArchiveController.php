@@ -48,7 +48,15 @@ class ArchiveController extends Controller
     // ==========================================
     public function runArchive(Request $request)
     {
-        $schoolYear = '2024-2025'; 
+        // Calculate real-time school year dynamically based on current date
+        $currentYear = (int) date('Y');
+        $currentMonth = (int) date('n');
+        $defaultSchoolYear = ($currentMonth >= 6) 
+            ? $currentYear . '-' . ($currentYear + 1) 
+            : ($currentYear - 1) . '-' . $currentYear;
+
+        $schoolYear = $request->input('school_year') ?: $defaultSchoolYear;
+        $now = now();
 
         $activeStudents = Student::with(['iepGoals', 'dailyLogs', 'teacher', 'guardian'])
             ->where('status', 'active')
@@ -70,7 +78,7 @@ class ArchiveController extends Controller
             $fileName = 'archives/' . $schoolYear . '/' . $student->id . '_' . $student->last_name . '.pdf';
             Storage::disk('public')->put($fileName, $pdf->output());
 
-            // Save to Database
+            // Save to Database with real-time timestamp
             ArchivedStudent::create([
                 'student_id'        => $student->id,
                 'school_year'       => $schoolYear,
@@ -78,13 +86,14 @@ class ArchiveController extends Controller
                 'iep_snapshot'      => $iepSnapshot,
                 'progress_snapshot' => $progressSnapshot,
                 'master_pdf_path'   => $fileName,
+                'archived_at'       => $now,
             ]);
 
             // Update Status
             $student->update(['status' => 'archived']);
         }
 
-        return redirect()->back()->with('success', 'Year-End Archiving completed successfully!');
+        return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "!");
     }
 
     // ==========================================
