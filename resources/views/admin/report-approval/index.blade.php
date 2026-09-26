@@ -60,9 +60,13 @@
                         </label>
                         <select name="type" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                             <option value="">All Types</option>
-                            <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily</option>
-                            <option value="quarterly" {{ request('type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
-                            <option value="annual" {{ request('type') == 'annual' ? 'selected' : '' }}>Annual</option>
+                            <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily Report</option>
+                            <option value="q1" {{ request('type') == 'q1' ? 'selected' : '' }}>1st Quarter (Q1) Report</option>
+                            <option value="q2" {{ request('type') == 'q2' ? 'selected' : '' }}>2nd Quarter (Q2) Report</option>
+                            <option value="q3" {{ request('type') == 'q3' ? 'selected' : '' }}>3rd Quarter (Q3) Report</option>
+                            <option value="q4" {{ request('type') == 'q4' ? 'selected' : '' }}>4th Quarter (Q4) Report</option>
+                            <option value="mid_year" {{ request('type') == 'mid_year' ? 'selected' : '' }}>Mid-year Report</option>
+                            <option value="year_end" {{ request('type') == 'year_end' ? 'selected' : '' }}>Year-end Report</option>
                         </select>
                     </div>
 
@@ -119,8 +123,19 @@
                             <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none">
                                 <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Type</span>
                                 <div class="text-right md:text-left">
+                                    @php
+                                        $typeLabels = [
+                                            'daily' => 'Daily Report',
+                                            'q1' => '1st Quarter (Q1)',
+                                            'q2' => '2nd Quarter (Q2)',
+                                            'q3' => '3rd Quarter (Q3)',
+                                            'q4' => '4th Quarter (Q4)',
+                                            'mid_year' => 'Mid-Year Report',
+                                            'year_end' => 'Year-End Report',
+                                        ];
+                                    @endphp
                                     <span class="inline-flex px-2.5 py-1 text-[9px] font-extrabold rounded-md bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 uppercase tracking-widest">
-                                        {{ strtoupper(str_replace('_', ' ', $report->report_type)) }}
+                                        {{ $typeLabels[$report->report_type] ?? strtoupper(str_replace('_', ' ', $report->report_type)) }}
                                     </span>
                                 </div>
                             </td>

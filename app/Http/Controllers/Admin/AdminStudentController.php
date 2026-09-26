@@ -39,6 +39,11 @@ class AdminStudentController extends Controller
                 $medicalDocPath = $request->file('medical_document')->store('medical_documents', 'public');
             }
 
+            $diagnosisValue = $request->diagnosis;
+            if ($request->diagnosis === 'Other' && $request->filled('custom_diagnosis')) {
+                $diagnosisValue = $request->custom_diagnosis;
+            }
+
             Student::create([
                 'first_name'                => $request->first_name,
                 'last_name'                 => $request->last_name,
@@ -46,7 +51,7 @@ class AdminStudentController extends Controller
                 'class_name'                => $request->class_name,
                 'date_of_birth'             => $request->date_of_birth,
                 'gender'                    => $request->gender,
-                'diagnosis'                 => $request->diagnosis,
+                'diagnosis'                 => $diagnosisValue,
                 'medical_document'          => $medicalDocPath,
                 'teacher_id'                => $request->teacher_id,
                 'guardian_id'               => $request->guardian_id ?: null,
@@ -75,11 +80,17 @@ class AdminStudentController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $student) {
+            $diagnosisValue = $request->diagnosis;
+            if ($request->diagnosis === 'Other' && $request->filled('custom_diagnosis')) {
+                $diagnosisValue = $request->custom_diagnosis;
+            }
+
             // Include LRN and Guardian ID in the fields that are allowed to be updated
             $data = $request->only([
                 'first_name', 'last_name', 'learners_reference_number', 'class_name', 'date_of_birth',
-                'gender', 'diagnosis', 'teacher_id', 'guardian_id', 'status',
+                'gender', 'teacher_id', 'guardian_id', 'status',
             ]);
+            $data['diagnosis'] = $diagnosisValue;
 
             if ($request->hasFile('medical_document')) {
                 if ($student->medical_document) {

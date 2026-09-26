@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicQuarter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class AcademicQuarterController extends Controller
 {
@@ -21,6 +22,10 @@ class AcademicQuarterController extends Controller
             $quarters = AcademicQuarter::orderBy('name')->get();
         }
 
+        // Auto-sync active status based on today's date
+        AcademicQuarter::syncActiveStatus();
+        $quarters = AcademicQuarter::orderBy('name')->get();
+
         return view('admin.quarters.index', compact('quarters'));
     }
 
@@ -29,16 +34,31 @@ class AcademicQuarterController extends Controller
         $request->validate([
             'quarters' => 'required|array',
             'quarters.*.start_date' => 'nullable|date',
-            'quarters.*.end_date' => 'nullable|date',
-            'active_quarter_id' => 'nullable|exists:academic_quarters,id',
+            'quarters.*.end_date' => 'nullable|date|after_or_equal:quarters.*.start_date',
         ]);
 
-        // Set ALL quarters to inactive first
-        AcademicQuarter::query()->update(['is_active' => false]);
+        // Collect all submitted date ranges and validate no overlaps
+        $ranges = [];
+        foreach ($request->quarters as $id => $data) {
+            if (!empty($data['start_date']) && !empty($data['end_date'])) {
+                $start = Carbon::parse($data['start_date']);
+                $end   = Carbon::parse($data['end_date']);
 
-        // Activate the selected quarter if one was specified
-        if ($request->filled('active_quarter_id')) {
-            AcademicQuarter::where('id', $request->active_quarter_id)->update(['is_active' => true]);
+                // Check against all previously collected ranges
+                foreach ($ranges as $existingId => $existing) {
+                    if ($start->lte($existing['end']) && $end->gte($existing['start'])) {
+                        $existingQuarter = AcademicQuarter::find($existingId);
+                        $currentQuarter  = AcademicQuarter::find($id);
+                        return back()
+                            ->withInput()
+                            ->withErrors([
+                                'overlap' => "Date overlap detected: {$currentQuarter->name} overlaps with {$existingQuarter->name}. Each quarter must have non-overlapping dates."
+                            ]);
+                    }
+                }
+
+                $ranges[$id] = ['start' => $start, 'end' => $end];
+            }
         }
 
         // Update dates for each quarter
@@ -47,10 +67,13 @@ class AcademicQuarterController extends Controller
             if ($quarter) {
                 $quarter->update([
                     'start_date' => $data['start_date'],
-                    'end_date' => $data['end_date'],
+                    'end_date'   => $data['end_date'],
                 ]);
             }
         }
+
+        // Auto-sync active status based on today's date (no manual toggle)
+        AcademicQuarter::syncActiveStatus();
 
         return back()->with('success', 'Academic Calendar updated successfully!');
     }
