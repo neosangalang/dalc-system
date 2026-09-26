@@ -44,6 +44,16 @@ class AcademicQuarterController extends Controller
                 $start = Carbon::parse($data['start_date']);
                 $end   = Carbon::parse($data['end_date']);
 
+                // Validate start <= end
+                if ($start->gt($end)) {
+                    $quarter = AcademicQuarter::find($id);
+                    return back()
+                        ->withInput()
+                        ->withErrors([
+                            'overlap' => "Invalid date range: {$quarter->name} start date cannot be after end date."
+                        ]);
+                }
+
                 // Check against all previously collected ranges
                 foreach ($ranges as $existingId => $existing) {
                     if ($start->lte($existing['end']) && $end->gte($existing['start'])) {
@@ -52,7 +62,7 @@ class AcademicQuarterController extends Controller
                         return back()
                             ->withInput()
                             ->withErrors([
-                                'overlap' => "Date overlap detected: {$currentQuarter->name} overlaps with {$existingQuarter->name}. Each quarter must have non-overlapping dates."
+                                'overlap' => "Date overlap detected: {$currentQuarter->name} ({$start->format('M d, Y')} - {$end->format('M d, Y')}) overlaps with {$existingQuarter->name} ({$existing['start']->format('M d, Y')} - {$existing['end']->format('M d, Y')}). Each quarter must have non-overlapping dates."
                             ]);
                     }
                 }

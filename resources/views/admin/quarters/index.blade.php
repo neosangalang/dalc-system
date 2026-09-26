@@ -20,12 +20,12 @@
     @endif
 
     @if($errors->any())
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
+        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
             <div class="flex items-center">
-                <i class="fa fa-exclamation-circle mr-3 text-red-500 text-lg"></i>
+                <i class="fa fa-exclamation-triangle mr-3 text-rose-500 text-lg"></i>
                 <span class="font-extrabold text-sm">{{ $errors->first() }}</span>
             </div>
-            <button @click="show = false" type="button" class="text-red-500 hover:text-red-700 transition-colors">
+            <button @click="show = false" type="button" class="text-rose-500 hover:text-rose-700 transition-colors">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
@@ -39,12 +39,12 @@
             </div>
             Academic Calendar
         </h1>
-        <p class="text-[13px] font-medium text-[#6B7086] m-0 sm:ml-14">Set the start and end dates for each quarter. The active status is <strong>automatically determined</strong> based on today's date.</p>
+        <p class="text-[13px] font-medium text-[#6B7086] m-0 sm:ml-14">Set the start and end dates for each quarter. The active status is <strong>automatically determined</strong> based on today's date, and quarter dates <strong>cannot overlap</strong>.</p>
     </div>
 
     <!-- Calendar Table Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden">
-        <form action="{{ route('admin.quarters.update') }}" method="POST" class="m-0">
+        <form action="{{ route('admin.quarters.update') }}" method="POST" class="m-0" id="calendarForm">
             @csrf
 
             <div class="overflow-x-hidden md:overflow-x-auto w-full">
@@ -60,7 +60,7 @@
                     </thead>
 
                     <tbody class="block md:table-row-group divide-y divide-black/5 bg-white">
-                        @foreach($quarters as $quarter)
+                        @foreach($quarters as $index => $quarter)
                             @php
                                 $status = $quarter->computed_status;
                             @endphp
@@ -81,9 +81,10 @@
                                     <input type="date"
                                            id="start_date_{{ $quarter->id }}"
                                            name="quarters[{{ $quarter->id }}][start_date]"
-                                           value="{{ $quarter->start_date }}"
-                                           class="start-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
-                                           data-quarter-id="{{ $quarter->id }}">
+                                           value="{{ old('quarters.'.$quarter->id.'.start_date', $quarter->start_date) }}"
+                                           class="start-date-input quarter-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
+                                           data-quarter-id="{{ $quarter->id }}"
+                                           data-quarter-index="{{ $index }}">
                                 </td>
 
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-3 md:mb-0">
@@ -91,8 +92,10 @@
                                     <input type="date"
                                            id="end_date_{{ $quarter->id }}"
                                            name="quarters[{{ $quarter->id }}][end_date]"
-                                           value="{{ $quarter->end_date }}"
-                                           class="end-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors">
+                                           value="{{ old('quarters.'.$quarter->id.'.end_date', $quarter->end_date) }}"
+                                           class="end-date-input quarter-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
+                                           data-quarter-id="{{ $quarter->id }}"
+                                           data-quarter-index="{{ $index }}">
                                 </td>
 
                                 <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 text-left md:text-center absolute md:static top-4 right-4">
@@ -141,28 +144,47 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const startInputs = document.querySelectorAll('.start-date-input');
+        const startInputs = Array.from(document.querySelectorAll('.start-date-input'));
+        const endInputs   = Array.from(document.querySelectorAll('.end-date-input'));
 
-        function enforceMinEndDate(startInput) {
-            const quarterId = startInput.getAttribute('data-quarter-id');
-            const endInput = document.getElementById('end_date_' + quarterId);
+        function syncDateConstraints() {
+            startInputs.forEach((startInput, idx) => {
+                const endInput = endInputs[idx];
 
-            if (startInput.value) {
-                endInput.min = startInput.value;
-
-                if (endInput.value && endInput.value < startInput.value) {
-                    endInput.value = startInput.value;
+                // 1. Enforce End Date min >= Start Date
+                if (startInput.value) {
+                    endInput.min = startInput.value;
+                    if (endInput.value && endInput.value < startInput.value) {
+                        endInput.value = startInput.value;
+                    }
+                } else {
+                    endInput.min = '';
                 }
-            } else {
-                endInput.min = '';
-            }
+
+                // 2. Enforce Next Quarter Start Date min > Current Quarter End Date (prevents quarter date overlap)
+                if (idx < startInputs.length - 1) {
+                    const nextStartInput = startInputs[idx + 1];
+                    if (endInput.value) {
+                        // Next quarter start date must be at least the day after or same day (non-overlapping)
+                        const endDate = new Date(endInput.value);
+                        endDate.setDate(endDate.getDate() + 1);
+                        const minNextStart = endDate.toISOString().split('T')[0];
+                        
+                        nextStartInput.min = minNextStart;
+                        if (nextStartInput.value && nextStartInput.value < minNextStart) {
+                            nextStartInput.value = minNextStart;
+                        }
+                    }
+                }
+            });
         }
 
-        startInputs.forEach(input => {
-            enforceMinEndDate(input);
-            input.addEventListener('change', function() {
-                enforceMinEndDate(this);
-            });
+        // Run constraint sync on load
+        syncDateConstraints();
+
+        // Listen for date input changes
+        document.querySelectorAll('.quarter-date-input').forEach(input => {
+            input.addEventListener('change', syncDateConstraints);
         });
     });
 </script>

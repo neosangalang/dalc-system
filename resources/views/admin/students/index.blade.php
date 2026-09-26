@@ -331,26 +331,15 @@
 
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Diagnosis <span class="text-rose-500">*</span></label>
-                                                                @php
-                                                                    $standardDiagnoses = [
-                                                                        'Autism Spectrum Disorder (ASD)',
-                                                                        'Attention Deficit Hyperactivity Disorder (ADHD)',
-                                                                        'Down Syndrome',
-                                                                        'Intellectual Disability',
-                                                                        'Specific Learning Disability',
-                                                                        'Speech or Language Impairment',
-                                                                    ];
-                                                                    $isCustomDiag = !in_array($student->diagnosis, $standardDiagnoses) && !empty($student->diagnosis);
-                                                                @endphp
-                                                                <select name="diagnosis" onchange="toggleCustomDiagnosis(this)" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
-                                                                    @foreach($standardDiagnoses as $diagOption)
-                                                                        <option value="{{ $diagOption }}" {{ ($student->diagnosis == $diagOption && !$isCustomDiag) ? 'selected' : '' }}>{{ $diagOption }}</option>
-                                                                    @endforeach
-                                                                    <option value="Other" {{ $isCustomDiag || $student->diagnosis == 'Other' ? 'selected' : '' }}>Other</option>
+                                                                <select name="diagnosis" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                                                    <option value="Autism Spectrum Disorder (ASD)" {{ $student->diagnosis == 'Autism Spectrum Disorder (ASD)' ? 'selected' : '' }}>Autism Spectrum Disorder (ASD)</option>
+                                                                    <option value="Attention Deficit Hyperactivity Disorder (ADHD)" {{ $student->diagnosis == 'Attention Deficit Hyperactivity Disorder (ADHD)' ? 'selected' : '' }}>Attention Deficit Hyperactivity Disorder (ADHD)</option>
+                                                                    <option value="Down Syndrome" {{ $student->diagnosis == 'Down Syndrome' ? 'selected' : '' }}>Down Syndrome</option>
+                                                                    <option value="Intellectual Disability" {{ $student->diagnosis == 'Intellectual Disability' ? 'selected' : '' }}>Intellectual Disability</option>
+                                                                    <option value="Specific Learning Disability" {{ $student->diagnosis == 'Specific Learning Disability' ? 'selected' : '' }}>Specific Learning Disability</option>
+                                                                    <option value="Speech or Language Impairment" {{ $student->diagnosis == 'Speech or Language Impairment' ? 'selected' : '' }}>Speech or Language Impairment</option>
+                                                                    <option value="Other" {{ $student->diagnosis == 'Other' ? 'selected' : '' }}>Other</option>
                                                                 </select>
-                                                                <div class="custom-diagnosis-container mt-2" style="display: {{ $isCustomDiag || $student->diagnosis == 'Other' ? 'block' : 'none' }};">
-                                                                    <input type="text" name="custom_diagnosis" value="{{ $isCustomDiag ? $student->diagnosis : '' }}" placeholder="Please specify diagnosis..." class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] focus:border-[#3B82F6] shadow-sm">
-                                                                </div>
                                                             </div>
                                                             <div>
                                                                 <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name</label>
@@ -401,58 +390,13 @@
                                                         </h4>
                                                         
                                                         <div class="grid grid-cols-1 gap-5 mb-4">
-                                                            <div x-data="guardianPicker({{ json_encode($guardians->map(fn($g) => ['id' => $g->id, 'name' => $g->name, 'email' => $g->email])) }}, '{{ $student->guardian_id }}')" class="relative">
-                                                                <input type="hidden" name="guardian_id" :value="selectedId">
-
-                                                                <div class="relative">
-                                                                    <i class="fa fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA0AF] text-[13px]"></i>
-                                                                    <input type="text" 
-                                                                           x-model="searchTerm" 
-                                                                           @focus="isOpen = true"
-                                                                           @click.away="isOpen = false"
-                                                                           placeholder="🔍 Search guardian by name or email..."
-                                                                           class="w-full rounded-xl border border-[#9CA0AF] pl-9 pr-8 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm bg-white">
-                                                                    <button type="button" x-show="selectedId" @click="clearSelection()" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA0AF] hover:text-rose-500">
-                                                                        <i class="fa fa-times-circle"></i>
-                                                                    </button>
-                                                                </div>
-
-                                                                <template x-if="selectedGuardian">
-                                                                    <div class="mt-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between shadow-sm">
-                                                                        <div class="flex items-center gap-2.5">
-                                                                            <div class="w-8 h-8 rounded-full bg-[#10B981] text-white font-bold flex items-center justify-center text-[11px] shrink-0">
-                                                                                <i class="fa fa-user-check"></i>
-                                                                            </div>
-                                                                            <div>
-                                                                                <p class="text-[13px] font-extrabold text-[#1E2657] m-0" x-text="selectedGuardian.name"></p>
-                                                                                <p class="text-[11px] font-medium text-[#6B7086] m-0" x-text="selectedGuardian.email"></p>
-                                                                            </div>
-                                                                        </div>
-                                                                        <button type="button" @click="clearSelection()" class="text-xs font-extrabold text-rose-600 hover:underline px-2 py-1">
-                                                                            Change Guardian
-                                                                        </button>
-                                                                    </div>
-                                                                </template>
-
-                                                                <div x-show="isOpen" 
-                                                                     x-transition.opacity
-                                                                     class="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-black/15 max-h-48 overflow-y-auto divide-y divide-black/5">
-                                                                    <template x-for="g in filteredGuardians" :key="g.id">
-                                                                        <div @click="selectGuardian(g)" 
-                                                                             class="p-3 hover:bg-emerald-50/70 cursor-pointer transition-colors flex items-center justify-between">
-                                                                            <div>
-                                                                                <p class="text-[13px] font-bold text-[#1E2657] m-0" x-text="g.name"></p>
-                                                                                <p class="text-[11px] text-[#6B7086] m-0" x-text="g.email"></p>
-                                                                            </div>
-                                                                            <span x-show="selectedId == g.id" class="text-emerald-600 font-bold text-xs"><i class="fa fa-check"></i> Selected</span>
-                                                                        </div>
-                                                                    </template>
-                                                                    <template x-if="filteredGuardians.length === 0">
-                                                                        <div class="p-4 text-center text-[#9CA0AF] text-[12px] font-medium">
-                                                                            No guardian matches "<span x-text="searchTerm"></span>"
-                                                                        </div>
-                                                                    </template>
-                                                                </div>
+                                                            <div>
+                                                                <select name="guardian_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm">
+                                                                    <option value="">-- Select Existing Guardian --</option>
+                                                                    @foreach($guardians as $guardian)
+                                                                        <option value="{{ $guardian->id }}" {{ $student->guardian_id == $guardian->id ? 'selected' : '' }}>{{ $guardian->name }}</option>
+                                                                    @endforeach
+                                                                </select>
                                                             </div>
                                                         </div>
                                                         
@@ -557,7 +501,7 @@
 
                                 <div>
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Diagnosis <span class="text-rose-500">*</span></label>
-                                    <select name="diagnosis" onchange="toggleCustomDiagnosis(this)" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                    <select name="diagnosis" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                         <option value="Autism Spectrum Disorder (ASD)" selected>Autism Spectrum Disorder (ASD)</option>
                                         <option value="Attention Deficit Hyperactivity Disorder (ADHD)">Attention Deficit Hyperactivity Disorder (ADHD)</option>
                                         <option value="Down Syndrome">Down Syndrome</option>
@@ -566,9 +510,6 @@
                                         <option value="Speech or Language Impairment">Speech or Language Impairment</option>
                                         <option value="Other">Other</option>
                                     </select>
-                                    <div class="custom-diagnosis-container mt-2" style="display: none;">
-                                        <input type="text" name="custom_diagnosis" placeholder="Please specify diagnosis..." class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] focus:border-[#3B82F6] shadow-sm">
-                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name</label>
@@ -607,58 +548,13 @@
                             </h4>
                             
                             <div class="grid grid-cols-1 gap-5 mb-4">
-                                <div x-data="guardianPicker({{ json_encode($guardians->map(fn($g) => ['id' => $g->id, 'name' => $g->name, 'email' => $g->email])) }}, '')" class="relative">
-                                    <input type="hidden" name="guardian_id" :value="selectedId">
-
-                                    <div class="relative">
-                                        <i class="fa fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA0AF] text-[13px]"></i>
-                                        <input type="text" 
-                                               x-model="searchTerm" 
-                                               @focus="isOpen = true"
-                                               @click.away="isOpen = false"
-                                               placeholder="🔍 Search guardian by name or email..."
-                                               class="w-full rounded-xl border border-[#9CA0AF] pl-9 pr-8 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm bg-white">
-                                        <button type="button" x-show="selectedId" @click="clearSelection()" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA0AF] hover:text-rose-500">
-                                            <i class="fa fa-times-circle"></i>
-                                        </button>
-                                    </div>
-
-                                    <template x-if="selectedGuardian">
-                                        <div class="mt-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between shadow-sm">
-                                            <div class="flex items-center gap-2.5">
-                                                <div class="w-8 h-8 rounded-full bg-[#10B981] text-white font-bold flex items-center justify-center text-[11px] shrink-0">
-                                                    <i class="fa fa-user-check"></i>
-                                                </div>
-                                                <div>
-                                                    <p class="text-[13px] font-extrabold text-[#1E2657] m-0" x-text="selectedGuardian.name"></p>
-                                                    <p class="text-[11px] font-medium text-[#6B7086] m-0" x-text="selectedGuardian.email"></p>
-                                                </div>
-                                            </div>
-                                            <button type="button" @click="clearSelection()" class="text-xs font-extrabold text-rose-600 hover:underline px-2 py-1">
-                                                Change Guardian
-                                            </button>
-                                        </div>
-                                    </template>
-
-                                    <div x-show="isOpen" 
-                                         x-transition.opacity
-                                         class="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-black/15 max-h-48 overflow-y-auto divide-y divide-black/5">
-                                        <template x-for="g in filteredGuardians" :key="g.id">
-                                            <div @click="selectGuardian(g)" 
-                                                 class="p-3 hover:bg-emerald-50/70 cursor-pointer transition-colors flex items-center justify-between">
-                                                <div>
-                                                    <p class="text-[13px] font-bold text-[#1E2657] m-0" x-text="g.name"></p>
-                                                    <p class="text-[11px] text-[#6B7086] m-0" x-text="g.email"></p>
-                                                </div>
-                                                <span x-show="selectedId == g.id" class="text-emerald-600 font-bold text-xs"><i class="fa fa-check"></i> Selected</span>
-                                            </div>
-                                        </template>
-                                        <template x-if="filteredGuardians.length === 0">
-                                            <div class="p-4 text-center text-[#9CA0AF] text-[12px] font-medium">
-                                                No guardian matches "<span x-text="searchTerm"></span>"
-                                            </div>
-                                        </template>
-                                    </div>
+                                <div class="md:col-span-2">
+                                    <select name="guardian_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm">
+                                        <option value="" disabled selected>-- Select Existing Guardian --</option>
+                                        @foreach($guardians ?? [] as $guardian)
+                                            <option value="{{ $guardian->id }}">{{ $guardian->name }}</option>
+                                        @endforeach
+                                    </select>
                                     <p class="text-[11px] text-[#6B7086] font-medium mt-1.5 m-0">Optional — guardian accounts are created under User Management, then linked to a student here.</p>
                                 </div>
                             </div>
@@ -756,64 +652,5 @@ function resetFilters() {
 
     if (searchInput) searchInput.dispatchEvent(new Event('input'));
 }
-
-window.toggleCustomDiagnosis = function(selectEl) {
-    const parent = selectEl.closest('div');
-    const container = parent.querySelector('.custom-diagnosis-container');
-    const input = container ? container.querySelector('input') : null;
-    if (selectEl.value === 'Other') {
-        if (container) container.style.display = 'block';
-        if (input) input.setAttribute('required', 'required');
-    } else {
-        if (container) container.style.display = 'none';
-        if (input) {
-            input.removeAttribute('required');
-            input.value = '';
-        }
-    }
-};
-
-window.guardianPicker = function(guardiansList, initialGuardianId) {
-    return {
-        guardians: guardiansList || [],
-        selectedId: initialGuardianId || '',
-        searchTerm: '',
-        isOpen: false,
-
-        init() {
-            if (this.selectedId) {
-                const found = this.guardians.find(g => g.id == this.selectedId);
-                if (found) {
-                    this.searchTerm = found.name;
-                }
-            }
-        },
-
-        get selectedGuardian() {
-            return this.guardians.find(g => g.id == this.selectedId) || null;
-        },
-
-        get filteredGuardians() {
-            if (!this.searchTerm) return this.guardians;
-            const term = this.searchTerm.toLowerCase();
-            return this.guardians.filter(g => 
-                (g.name && g.name.toLowerCase().includes(term)) || 
-                (g.email && g.email.toLowerCase().includes(term))
-            );
-        },
-
-        selectGuardian(g) {
-            this.selectedId = g.id;
-            this.searchTerm = g.name;
-            this.isOpen = false;
-        },
-
-        clearSelection() {
-            this.selectedId = '';
-            this.searchTerm = '';
-            this.isOpen = false;
-        }
-    };
-};
 </script>
 @endpush
