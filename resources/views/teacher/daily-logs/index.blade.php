@@ -533,29 +533,6 @@ document.getElementById('btnGenerateRecommendations').addEventListener('click', 
         btn.disabled = false;
     });
 });
-
-// --- DYNAMIC QUARTER SELECTION BASED ON LOG DATE ---
-document.addEventListener('DOMContentLoaded', function() {
-    const calendarQuarters = @json(($quarters ?? collect())->map(fn($q) => ['name' => $q->name, 'start' => $q->start_date, 'end' => $q->end_date]));
-    const logDateInput = document.querySelector('input[name="log_date"]');
-    const quarterSelect = document.querySelector('select[name="quarter"]');
-
-    function syncQuarterWithDate() {
-        if (!logDateInput || !quarterSelect || !calendarQuarters.length) return;
-        const chosenDate = logDateInput.value;
-        if (!chosenDate) return;
-
-        const matchedQuarter = calendarQuarters.find(q => q.start && q.end && chosenDate >= q.start && chosenDate <= q.end);
-        if (matchedQuarter) {
-            quarterSelect.value = matchedQuarter.name;
-        }
-    }
-
-    if (logDateInput) {
-        logDateInput.addEventListener('change', syncQuarterWithDate);
-        syncQuarterWithDate();
-    }
-});
 </script>
 @endpush
 @endsection

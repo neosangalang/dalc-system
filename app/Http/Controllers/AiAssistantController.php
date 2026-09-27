@@ -16,25 +16,30 @@ class AiAssistantController extends Controller
         $apiKey = trim(config('services.groq.api_key') ?? env('GROQ_API_KEY'), '"\' ');
 
         // Hit the OpenAI-compatible Groq endpoint
+        $response = Http::withToken(config('services.groq.api_key'))
+            ->post('https://api.groq.com/openai/v1/chat/completions', [
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DALC-System/1.0',
             'Content-Type' => 'application/json',
         ])
         ->post('https://api.groq.com/openai/v1/chat/completions', [
-            'model' => 'openai/gpt-oss-20b', 
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are a professional Special Education teaching assistant. Rewrite the following rough notes into a professional, clear, and compassionate daily log entry for a parent. Keep it concise.'
+                
+                // 👇 CHANGE THE MODEL STRING HERE 👇
+                'model' => 'openai/gpt-oss-20b', 
+                
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are a professional Special Education teaching assistant. Rewrite the following rough notes into a professional, clear, and compassionate daily log entry for a parent. Keep it concise.'
+                    ],
+                    [
+                        'role' => 'user', 
+                        'content' => $request->raw_notes
+                    ]
                 ],
-                [
-                    'role' => 'user', 
-                    'content' => $request->raw_notes
-                ]
-            ],
-            'temperature' => 0.7,
-        ]);
+                'temperature' => 0.7,
+            ]);
             
         if ($response->successful()) {
             $result = $response->json();
