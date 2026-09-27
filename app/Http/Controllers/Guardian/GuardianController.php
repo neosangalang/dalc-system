@@ -73,6 +73,7 @@ class GuardianController extends Controller
         $recentReports = Report::with('student')
             ->where('student_id', $activeChild->id)
             ->where('status', 'approved')
+            ->whereIn('report_type', ['q1', 'q2', 'q3', 'q4'])
             ->latest()
             ->take(5)
             ->get();
@@ -141,7 +142,8 @@ class GuardianController extends Controller
 
         $query = Report::with(['student', 'teacher'])
             ->where('student_id', $activeChild->id)
-            ->where('status', 'approved');
+            ->where('status', 'approved')
+            ->whereIn('report_type', ['q1', 'q2', 'q3', 'q4']);
 
         if ($request->has('type')) {
             $query->where('report_type', $request->type);

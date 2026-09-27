@@ -308,7 +308,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 md:w-8 md:h-8 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6]"><i class="fa-solid fa-calendar-day text-sm md:text-xs"></i></div>
-                        <h2 class="text-[17px] md:text-[15px] font-extrabold text-[#1E2657]">Today's Daily Summary & Home Activity</h2>
+                        <h2 class="text-[17px] md:text-[15px] font-extrabold text-[#1E2657]">Today's Session & Home Activity</h2>
                     </div>
 
                     <a href="{{ route('guardian.logs.archive') }}" class="inline-flex items-center gap-1.5 text-[12px] font-extrabold text-[#6B7086] hover:text-[#3B82F6] transition-colors">
@@ -344,10 +344,10 @@
                             <!-- Unified Card Body -->
                             <div class="p-5 sm:p-6 flex flex-col gap-4">
                                 
-                                <!-- 1. Daily Summary Block -->
+                                <!-- 1. Classroom Notes Block -->
                                 <div class="bg-[#F8FAFC] border border-black/10 rounded-2xl p-4 sm:p-5">
                                     <h5 class="text-[11px] font-extrabold uppercase tracking-widest text-[#3B82F6] mb-2 flex items-center gap-2">
-                                        <i class="fa-solid fa-file-lines"></i> Daily Summary
+                                        <i class="fa-solid fa-pencil"></i> Classroom Notes
                                     </h5>
                                     <p class="text-[14px] md:text-[13px] font-medium text-[#1E2657] leading-relaxed m-0 whitespace-pre-line">{{ $log->notes }}</p>
                                 </div>
