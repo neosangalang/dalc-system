@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\DailyLog;
 use App\Models\Report; 
+use App\Models\AcademicQuarter;
 use App\Notifications\SystemAlert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,9 @@ class DailyLogController extends Controller
         // Fetch students for the dropdown
         $myStudents = Student::where('teacher_id', $teacherId)->where('status', 'active')->get();
         
+        // Fetch academic quarters for dynamic client-side quarter selection by date
+        $quarters = AcademicQuarter::whereNotNull('start_date')->whereNotNull('end_date')->get();
+
         // Fetch recent logs with comments and student info to display on the feed
         $recentLogs = DailyLog::with(['student', 'comments.user'])
             ->where('teacher_id', $teacherId)
@@ -27,7 +31,7 @@ class DailyLogController extends Controller
             ->take(15)
             ->get();
 
-        return view('teacher.daily-logs.index', compact('myStudents', 'recentLogs'));
+        return view('teacher.daily-logs.index', compact('myStudents', 'recentLogs', 'quarters'));
     }
 
     public function markCommentsAsRead($id)
@@ -45,7 +49,7 @@ class DailyLogController extends Controller
         return response()->json(['success' => true]);
     }
 
-   public function store(Request $request) {
+    public function store(Request $request) {
     
         $request->validate([
             'student_id' => 'required|exists:students,id',
@@ -62,21 +66,44 @@ class DailyLogController extends Controller
 
         $finalNotes = $request->filled('notes') ? $request->notes : $request->raw_notes;
 
+        // Auto-detect matching quarter from Academic Calendar by log_date
+        $autoQuarter = AcademicQuarter::getQuarterForDate($request->log_date);
+        $quarterToStore = $autoQuarter ?: $request->quarter;
+
         // SECURE VAULT STORAGE
         $imagePath = null;
         if ($request->hasFile('photo')) {
             $imagePath = $request->file('photo')->store('private_log_photos', 'local');
         }
 
-        $dailyLog = DailyLog::create([
-            'student_id' => $student->id,
-            'teacher_id' => Auth::id(),
-            'log_date'   => $request->log_date,
-            'quarter'    => $request->quarter,
-            'notes'      => $finalNotes, 
-            'home_recommendations' => $request->home_recommendations,
-            'image_path' => $imagePath, 
-        ]);
+        // Store or update log entry based on student_id and log_date
+        $existingLog = DailyLog::where('student_id', $student->id)
+            ->where('log_date', $request->log_date)
+            ->first();
+
+        if ($existingLog) {
+            $updateData = [
+                'teacher_id' => Auth::id(),
+                'quarter'    => $quarterToStore,
+                'notes'      => $finalNotes,
+                'home_recommendations' => $request->filled('home_recommendations') ? $request->home_recommendations : $existingLog->home_recommendations,
+            ];
+            if ($imagePath) {
+                $updateData['image_path'] = $imagePath;
+            }
+            $existingLog->update($updateData);
+            $dailyLog = $existingLog;
+        } else {
+            $dailyLog = DailyLog::create([
+                'student_id' => $student->id,
+                'teacher_id' => Auth::id(),
+                'log_date'   => $request->log_date,
+                'quarter'    => $quarterToStore,
+                'notes'      => $finalNotes, 
+                'home_recommendations' => $request->home_recommendations,
+                'image_path' => $imagePath, 
+            ]);
+        }
 
         // Notify the Guardian
         try {
@@ -91,7 +118,7 @@ class DailyLogController extends Controller
             Log::error('Guardian notification failed on daily log create: ' . $e->getMessage());
         }
 
-        return redirect()->route('teacher.daily-logs.index')->with('success', 'Daily log saved successfully!');
+        return redirect()->route('teacher.daily-logs.index')->with('success', 'Daily log saved successfully for ' . \Carbon\Carbon::parse($request->log_date)->format('M d, Y') . '!');
     }
 
     public function generateAiReport(\Illuminate\Http\Request $request)
@@ -107,7 +134,6 @@ class DailyLogController extends Controller
         }
 
         try {
-            // FIXED: Using the exact model ID with the openai/ prefix
             $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
                     'model' => 'openai/gpt-oss-20b',
@@ -191,7 +217,6 @@ class DailyLogController extends Controller
         $contextPrompt .= "Based on the formal goals, recent history, and especially TODAY'S new notes, write the recommendation to the parents.";
 
         try {
-            // FIXED: Using the exact model ID with the openai/ prefix
             $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
                     'model' => 'openai/gpt-oss-20b',

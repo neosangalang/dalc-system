@@ -29,6 +29,24 @@ class AcademicQuarter extends Model
     }
 
     /**
+     * Get the quarter name (Q1, Q2, Q3, Q4) matching a specific date.
+     */
+    public static function getQuarterForDate(?string $date): ?string
+    {
+        if (empty($date)) {
+            return null;
+        }
+
+        $quarter = static::whereNotNull('start_date')
+            ->whereNotNull('end_date')
+            ->where('start_date', '<=', $date)
+            ->where('end_date', '>=', $date)
+            ->first();
+
+        return $quarter ? $quarter->name : null;
+    }
+
+    /**
      * Computed status accessor for display purposes.
      * Returns: 'active', 'completed', 'upcoming', or 'not_set'
      */
