@@ -13,23 +13,20 @@ use PragmaRX\Google2FA\Google2FA;
 class AccountController extends Controller
 {
     public function index() {
-        // Teachers managing credentials can ONLY view Guardian accounts
-        if (Auth::user()->role === 'teacher') {
-            $users = User::where('role', 'guardian')->get();
-        } else {
-            $users = User::whereIn('role', ['teacher', 'guardian'])->get();
-        }
+        // Grab all users who are either teachers or guardians
+        $users = User::whereIn('role', ['teacher', 'guardian'])->get();
 
         // Grab all students
         $students = Student::orderBy('last_name')->get();
         
+        // Pass them to the view using the exact names '$users' and '$students'
         return view('admin.accounts.index', compact('users', 'students'));
     }
 
     public function store(Request $request) {
         // SECURITY CHECK: Teachers cannot create other Teachers
-        if (Auth::user()->role === 'teacher') {
-            $request->merge(['role' => 'guardian']);
+        if (Auth::user()->role === 'teacher' && $request->role === 'teacher') {
+            abort(403, 'Security Violation: Teachers can only create Guardian accounts.');
         }
 
         $validated = $request->validate([
@@ -55,7 +52,7 @@ class AccountController extends Controller
         ]);
 
         return redirect()->back()
-            ->with('success', 'Guardian Account created successfully!');
+            ->with('success', 'Account created successfully!');
     }
     
     public function toggleStatus(User $account) {
@@ -105,20 +102,74 @@ class AccountController extends Controller
         }
 
         $account->delete();
-
+        
         return redirect()->back()
-            ->with('success', 'Account deleted successfully.');
+            ->with('success', "Account permanently deleted.");
+    }
+
+    public function updateCredentials(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $admin = Auth::user(); 
+
+        // SECURITY CHECK: Teachers cannot reset passwords for other Teachers
+        if ($admin->role === 'teacher' && $user->role === 'teacher') {
+            abort(403, 'Security Violation: Teachers cannot modify Teacher login credentials.');
+        }
+
+        // 1. VALIDATE INCOMING DATA (INCLUDING MFA CODE & UNIQUE CONSTRAINTS)
+        $request->validate([
+            'username'       => 'required|string|max:255|unique:users,username,' . $id,
+            'email'          => 'required|email|max:255|unique:users,email,' . $id,
+            'contact_number' => 'nullable|regex:/^09[0-9]{9}$/|unique:users,contact_number,' . $id,
+            'password'       => 'nullable|string|min:8',
+            'mfa_code'       => 'required|numeric|digits:6',
+        ], [
+            'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
+            'contact_number.unique' => 'This contact number is already registered to another account.',
+        ]);
+
+        // 2. SECURITY CHECK: VERIFY ADMIN'S MFA CODE
+        $google2fa = new Google2FA();
+        
+        if (empty($admin->two_factor_secret)) {
+            return back()->withErrors(['mfa_code' => 'Two-Factor Authentication is not configured for your account. Please set it up in your profile first.'])->withInput();
+        }
+
+        try {
+            $isMfaValid = $google2fa->verifyKey($admin->two_factor_secret, $request->mfa_code);
+        } catch (\Exception $e) {
+            return back()->withErrors(['mfa_code' => 'There is a problem with your MFA configuration.'])->withInput();
+        }
+
+        if (!$isMfaValid) {
+            return back()->withErrors(['mfa_code' => 'Security verification failed. Invalid Authenticator Code.'])->withInput();
+        }
+
+        // 3. APPLY CHANGES IF MFA PASSES
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->contact_number = $request->contact_number;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+            $user->password_changed_at = null; 
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', "Login credentials for {$user->name} have been successfully updated!");
     }
 
     public function updatePermissions(Request $request, $id)
     {
-        // SECURITY CHECK: Only Master Admins can modify permissions
+        // SECURITY CHECK: Only Master Admins can modify advanced module permissions
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Security Violation: Only system administrators can modify module permissions.');
         }
 
         $user = User::findOrFail($id);
-
+        
         $user->update([
             'can_manage_credentials' => $request->has('can_manage_credentials'),
             'can_manage_calendar'    => $request->has('can_manage_calendar'),
@@ -127,56 +178,6 @@ class AccountController extends Controller
             'can_approve_reports'    => $request->has('can_approve_reports'),
         ]);
 
-        return redirect()->back()->with('success', "Permissions updated for {$user->name}.");
-    }
-
-    public function updateCredentials(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-
-        // SECURITY CHECK: Teachers cannot modify other Teachers
-        if (Auth::user()->role === 'teacher' && $user->role === 'teacher') {
-            abort(403, 'Security Violation: Teachers can only update Guardian accounts.');
-        }
-
-        // Validate basic fields
-        $rules = [
-            'email'          => 'required|email|max:255|unique:users,email,' . $id,
-            'contact_number' => 'required|regex:/^09[0-9]{9}$/|unique:users,contact_number,' . $id,
-            'username'       => 'required|string|max:255|unique:users,username,' . $id,
-            'mfa_code'       => 'required|digits:6',
-        ];
-
-        if ($request->filled('password')) {
-            $rules['password'] = 'required|string|min:8';
-        }
-
-        $request->validate($rules, [
-            'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
-            'contact_number.unique' => 'This contact number is already registered to another account.',
-        ]);
-
-        // Verify Admin/User MFA code
-        $admin = Auth::user();
-        if ($admin->google2fa_secret) {
-            $google2fa = new Google2FA();
-            $valid = $google2fa->verifyKey($admin->google2fa_secret, $request->mfa_code);
-            if (!$valid) {
-                return back()->withInput()->withErrors(['mfa_code' => 'Invalid 6-digit MFA code. Verification failed.']);
-            }
-        }
-
-        $user->email = $request->email;
-        $user->contact_number = $request->contact_number;
-        $user->username = $request->username;
-
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-            $user->must_change_password = true;
-        }
-
-        $user->save();
-
-        return redirect()->back()->with('success', "Account credentials updated successfully for {$user->name}.");
+        return redirect()->back()->with('success', "Special permissions updated for {$user->name}.");
     }
 }

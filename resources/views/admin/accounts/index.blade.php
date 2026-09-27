@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div class="w-full max-w-[1200px] mx-auto space-y-6" x-data="{ activeTab: '{{ Auth::user()->role === 'admin' ? 'teachers' : 'guardians' }}', teacherSearch: '', guardianSearch: '', showCreateModal: {{ ($errors->any() && !old('_method')) ? 'true' : 'false' }} }">
+<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ showCreateModal: {{ ($errors->any() && !old('_method')) ? 'true' : 'false' }} }">
 
     <!-- ALERTS -->
     @if(session('success'))
@@ -22,44 +22,8 @@
 
     @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
     
-    <!-- ACCOUNT ROLE SELECTION TABS -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-2.5 rounded-2xl border border-black/15 shadow-sm">
-        <div class="flex items-center gap-2 bg-[#F4F6FA] p-1.5 rounded-xl border border-black/5 w-full sm:w-auto">
-            @if(Auth::user()->role === 'admin')
-            <button type="button" 
-                    @click="activeTab = 'teachers'" 
-                    :class="activeTab === 'teachers' ? 'bg-white text-[#3B82F6] shadow-sm font-extrabold border border-black/10' : 'text-[#6B7086] font-bold hover:text-[#1E2657]'" 
-                    class="flex-1 sm:flex-none px-5 py-2.5 rounded-lg text-[13px] transition-all flex items-center justify-center gap-2">
-                <i class="fa fa-chalkboard-teacher text-sm"></i>
-                Teacher Accounts
-                <span class="px-2 py-0.5 text-[11px] font-extrabold rounded-full transition-colors" 
-                      :class="activeTab === 'teachers' ? 'bg-[#3B82F6]/10 text-[#3B82F6]' : 'bg-slate-200 text-slate-600'">
-                    {{ $users->where('role', 'teacher')->count() }}
-                </span>
-            </button>
-            @endif
-
-            <button type="button" 
-                    @click="activeTab = 'guardians'" 
-                    :class="activeTab === 'guardians' ? 'bg-white text-[#10B981] shadow-sm font-extrabold border border-black/10' : 'text-[#6B7086] font-bold hover:text-[#1E2657]'" 
-                    class="flex-1 sm:flex-none px-5 py-2.5 rounded-lg text-[13px] transition-all flex items-center justify-center gap-2">
-                <i class="fa fa-user-shield text-sm"></i>
-                Guardian Accounts
-                <span class="px-2 py-0.5 text-[11px] font-extrabold rounded-full transition-colors" 
-                      :class="activeTab === 'guardians' ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-slate-200 text-slate-600'">
-                    {{ $users->where('role', 'guardian')->count() }}
-                </span>
-            </button>
-        </div>
-
-        <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 shrink-0">
-            <i class="fa fa-plus mr-2"></i> Generate Guardian Account
-        </button>
-    </div>
-
-    @if(Auth::user()->role === 'admin')
     <!-- ================= TEACHER ACCOUNTS ================= -->
-    <div x-show="activeTab === 'teachers'" class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
+    <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
         <div class="px-5 sm:px-6 py-5 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4 sm:gap-0">
@@ -69,6 +33,9 @@
                 </div>
                 Teacher Accounts
             </h3>
+            <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
+                <i class="fa fa-plus mr-2"></i> Generate Account
+            </button>
         </div>
         
         <div class="w-full overflow-x-auto">
@@ -377,7 +344,6 @@
             </table>
         </div>
     </div>
-    @endif
 
     <!-- ================= GUARDIAN ACCOUNTS ================= -->
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
@@ -658,18 +624,11 @@
 
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Account Role <span class="text-rose-500">*</span></label>
-                            @if(Auth::user()->role === 'admin')
-                                <select name="role" id="create_role" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
-                                    <option value="" disabled selected>Select Role...</option>
-                                    <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher</option>
-                                    <option value="guardian" {{ old('role') == 'guardian' ? 'selected' : '' }}>Guardian</option>
-                                </select>
-                            @else
-                                <input type="hidden" name="role" id="create_role" value="guardian">
-                                <div class="w-full rounded-xl border border-black/15 bg-slate-50 px-3.5 py-2.5 text-[13px] font-extrabold text-[#10B981] flex items-center gap-2">
-                                    <i class="fa fa-user-shield"></i> Guardian Account
-                                </div>
-                            @endif
+                            <select name="role" id="create_role" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
+                                <option value="" disabled selected>Select Role...</option>
+                                <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher</option>
+                                <option value="guardian" {{ old('role') == 'guardian' ? 'selected' : '' }}>Guardian</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Full Name <span class="text-rose-500">*</span></label>

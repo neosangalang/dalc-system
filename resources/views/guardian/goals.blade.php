@@ -74,6 +74,43 @@
                         $goalUnreadCount = $goal->comments->filter(function($comment) {
                             return $comment->user_id != Auth::id() && !$comment->is_guardian_read;
                         })->count();
+
+                        $domainBadge = match($goal->domain) {
+                            'Language-Communication' => 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20',
+                            'Self-Help'              => 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
+                            'Perceptuo-Cognitive'    => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+                            'Socio-Emotional'        => 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
+                            'Psychomotor'            => 'bg-rose-50 text-rose-600 border-rose-200',
+                            default                  => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+                        };
+                        $domainTextColor = match($goal->domain) {
+                            'Language-Communication' => 'text-[#3B82F6]',
+                            'Self-Help'              => 'text-[#10B981]',
+                            'Perceptuo-Cognitive'    => 'text-[#8B5CF6]',
+                            'Socio-Emotional'        => 'text-[#F59E0B]',
+                            'Psychomotor'            => 'text-rose-600',
+                            default                  => 'text-[#8B5CF6]',
+                        };
+                        $borderLClass = match($goal->domain) {
+                            'Language-Communication' => 'border-l-[#3B82F6]',
+                            'Self-Help'              => 'border-l-[#10B981]',
+                            'Perceptuo-Cognitive'    => 'border-l-[#8B5CF6]',
+                            'Socio-Emotional'        => 'border-l-[#F59E0B]',
+                            'Psychomotor'            => 'border-l-rose-500',
+                            default                  => 'border-l-[#8B5CF6]',
+                        };
+                        $barColor = match($goal->domain) {
+                            'Language-Communication' => 'bg-[#3B82F6]',
+                            'Self-Help'              => 'bg-[#10B981]',
+                            'Perceptuo-Cognitive'    => 'bg-[#8B5CF6]',
+                            'Socio-Emotional'        => 'bg-[#F59E0B]',
+                            'Psychomotor'            => 'bg-rose-500',
+                            default                  => 'bg-[#8B5CF6]',
+                        };
+                        if ($goal->progress_percentage == 100) {
+                            $barColor = 'bg-[#10B981]';
+                            $domainTextColor = 'text-[#10B981]';
+                        }
                     @endphp
 
                     <!-- GOAL CARD: Reactive Alpine State Wrapper -->
@@ -100,11 +137,11 @@
                         <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-black/10 bg-white flex flex-wrap justify-between items-center gap-2 sm:gap-0 transition-colors duration-500"
                              :class="goalUnread ? 'bg-red-50/30' : 'bg-white'">
                             
-                            <h6 class="m-0 font-extrabold text-[#1E2657] flex items-center gap-3 text-[14px] sm:text-base">
-                                <div class="w-8 h-8 bg-[#F4F6FA] text-[#8B5CF6] border border-black/5 rounded-lg flex items-center justify-center shrink-0">
-                                    <i class="fa fa-layer-group text-[13px]"></i>
-                                </div>
-                                {{ $goal->domain }}
+                            <h6 class="m-0 font-extrabold text-[#1E2657] flex items-center gap-2 sm:gap-3 text-[14px] sm:text-base">
+                                <span class="inline-flex items-center px-3 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-widest border shadow-sm {{ $domainBadge }}">
+                                    <i class="fa fa-layer-group text-[10px] mr-1.5"></i>
+                                    {{ str_replace('-', ' - ', $goal->domain) }}
+                                </span>
                                 
                                 <!-- Reactive New Reply Badge -->
                                 <span x-show="goalUnread" 
@@ -150,8 +187,8 @@
                                     }
 
                                     // Build objective card box
-                                    $parsedHtml .= '<div class="bg-white border-y border-r border-l-4 border-black/15 border-l-[#8B5CF6] rounded-r-xl p-5 mb-4 shadow-sm">';
-                                    $parsedHtml .= '<h6 class="uppercase text-[#8B5CF6] font-extrabold text-[10px] tracking-widest mb-2 flex items-center m-0"><i class="fa fa-bullseye mr-1.5 text-[#8B5CF6]"></i> Objective</h6>';
+                                    $parsedHtml .= '<div class="bg-white border-y border-r border-l-4 border-black/15 ' . $borderLClass . ' rounded-r-xl p-5 mb-4 shadow-sm">';
+                                    $parsedHtml .= '<h6 class="uppercase ' . $domainTextColor . ' font-extrabold text-[10px] tracking-widest mb-2 flex items-center m-0"><i class="fa fa-bullseye mr-1.5 ' . $domainTextColor . '"></i> Objective</h6>';
                                     $parsedHtml .= '<p class="m-0 text-[#1E2657] text-[14px] font-extrabold leading-relaxed">' . htmlspecialchars($objText) . '</p>';
                                     $parsedHtml .= '</div>';
 
@@ -200,10 +237,10 @@
                             <div class="bg-white p-5 border border-black/15 rounded-2xl mt-6 shadow-sm">
                                 <div class="flex justify-between items-end mb-3">
                                     <span class="font-extrabold text-[#1E2657] uppercase text-[10px] tracking-widest">Mastery Level</span>
-                                    <span class="font-extrabold text-lg leading-none {{ $goal->progress_percentage == 100 ? 'text-[#10B981]' : 'text-[#8B5CF6]' }}">{{ $goal->progress_percentage }}%</span>
+                                    <span class="font-extrabold text-lg leading-none {{ $domainTextColor }}">{{ $goal->progress_percentage }}%</span>
                                 </div>
                                 <div class="h-2.5 rounded-full bg-[#E8E5DC] shadow-inner overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-1000 ease-out {{ $goal->progress_percentage == 100 ? 'bg-[#10B981]' : 'bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] relative' }}" style="width: {{ $goal->progress_percentage }}%">
+                                    <div class="h-full rounded-full transition-all duration-1000 ease-out {{ $barColor }}" style="width: {{ $goal->progress_percentage }}%">
                                     </div>
                                 </div>
                             </div>

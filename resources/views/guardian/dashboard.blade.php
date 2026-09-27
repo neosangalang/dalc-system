@@ -17,7 +17,7 @@
         <!-- WELCOME HEADER & PILL STUDENT SELECTOR -->
         <header class="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div class="flex flex-col gap-2">
-                <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-1 block">Guardian Portal</span>
+                <span id="dynamic-greeting" class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-1 block">Good Morning</span>
                 <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h1>
                 <p class="text-[#6B7086] text-sm font-medium leading-relaxed">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
             </div>
@@ -275,18 +275,59 @@
 
                 <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-5 sm:p-6 flex flex-col gap-6">
                     @forelse($activeGoals ?? [] as $goal)
+                        @php
+                            $domainBadge = match($goal->domain) {
+                                'Language-Communication' => 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20',
+                                'Self-Help'              => 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
+                                'Perceptuo-Cognitive'    => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+                                'Socio-Emotional'        => 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
+                                'Psychomotor'            => 'bg-rose-50 text-rose-600 border-rose-200',
+                                default                  => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+                            };
+                            $domainTextColor = match($goal->domain) {
+                                'Language-Communication' => 'text-[#3B82F6]',
+                                'Self-Help'              => 'text-[#10B981]',
+                                'Perceptuo-Cognitive'    => 'text-[#8B5CF6]',
+                                'Socio-Emotional'        => 'text-[#F59E0B]',
+                                'Psychomotor'            => 'text-rose-600',
+                                default                  => 'text-[#8B5CF6]',
+                            };
+                            $barColor = match($goal->domain) {
+                                'Language-Communication' => 'bg-[#3B82F6]',
+                                'Self-Help'              => 'bg-[#10B981]',
+                                'Perceptuo-Cognitive'    => 'bg-[#8B5CF6]',
+                                'Socio-Emotional'        => 'bg-[#F59E0B]',
+                                'Psychomotor'            => 'bg-rose-500',
+                                default                  => 'bg-[#8B5CF6]',
+                            };
+                            if (($goal->progress_percentage ?? 0) == 100) {
+                                $domainTextColor = 'text-[#10B981]';
+                                $barColor = 'bg-[#10B981]';
+                            }
+                        @endphp
                         <div class="flex flex-col gap-3">
-                            <span class="inline-block bg-[#8B5CF6]/10 text-[#8B5CF6] text-[10px] md:text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-md w-max">
-                                {{ $goal->domain ?? 'Development Area' }}
-                            </span>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="inline-flex items-center px-3 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border shadow-sm {{ $domainBadge }}">
+                                    {{ str_replace('-', ' - ', $goal->domain ?? 'Development Area') }}
+                                </span>
+                                @if(($goal->status ?? '') === 'in_progress')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 uppercase tracking-widest">
+                                        In Progress
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest">
+                                        Achieved
+                                    </span>
+                                @endif
+                            </div>
                             
                             <div class="flex justify-between items-end mt-1">
                                 <h3 class="text-[15px] md:text-[14px] font-extrabold text-[#1E2657] line-clamp-2 pr-4">{{ $goal->goal_description }}</h3>
-                                <span class="text-[17px] md:text-[16px] font-extrabold text-[#8B5CF6] shrink-0">{{ $goal->progress_percentage ?? 0 }}%</span>
+                                <span class="text-[17px] md:text-[16px] font-extrabold shrink-0 {{ $domainTextColor }}">{{ $goal->progress_percentage ?? 0 }}%</span>
                             </div>
                             
                             <div class="h-[10px] md:h-[8px] w-full bg-[#F4F6FA] rounded-full overflow-hidden">
-                                <div class="h-full bg-[#8B5CF6] rounded-full transition-all duration-1000 ease-out" style="width: {{ $goal->progress_percentage ?? 0 }}%;"></div>
+                                <div class="h-full rounded-full transition-all duration-1000 ease-out {{ $barColor }}" style="width: {{ $goal->progress_percentage ?? 0 }}%;"></div>
                             </div>
                         </div>
 
@@ -453,3 +494,21 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const greetingElement = document.getElementById('dynamic-greeting');
+        if (greetingElement) {
+            const currentHour = new Date().getHours();
+            if (currentHour < 12) {
+                greetingElement.innerText = "Good Morning";
+            } else if (currentHour < 18) {
+                greetingElement.innerText = "Good Afternoon";
+            } else {
+                greetingElement.innerText = "Good Evening";
+            }
+        }
+    });
+</script>
+@endpush
