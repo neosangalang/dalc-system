@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Daily Logs & Activities Archive')
+@section('title', 'Daily Summaries & Activities Archive')
 
 @section('content')
 
@@ -18,8 +18,8 @@
                     <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Today's Session
                 </a>
             </div>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 m-0 leading-tight">Daily Logs & Activities Archive</h3>
-            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Complete historical archive of past classroom notes and home activities for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 m-0 leading-tight">Daily Summaries & Activities Archive</h3>
+            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Complete historical archive of past daily summaries and home activities for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
         </div>
 
         @if(isset($activeChild) && isset($myChildren))

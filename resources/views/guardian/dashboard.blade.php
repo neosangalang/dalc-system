@@ -128,7 +128,6 @@
                         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                     </button>
                     <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-white border border-black/15 shadow-xl rounded-2xl z-[60] p-3 text-left overflow-hidden">
-                        <a href="{{ route('guardian.reports', ['type' => 'daily']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Daily Summaries <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 1 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
@@ -136,14 +135,14 @@
                     </div>
                 </div>
 
-                <!-- Daily Logs & Home Activities -->
+                <!-- Daily Summaries & Home Activities -->
                 <a href="{{ route('guardian.recommendations') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:-translate-y-1 transition-all duration-300 p-5 sm:p-6 flex flex-col items-start gap-4 relative overflow-hidden h-full">
                     <div class="w-12 h-12 sm:w-10 sm:h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] transition-colors duration-300 group-hover:bg-[#10B981] group-hover:text-white relative z-10">
                         <i class="fa-solid fa-book-open-reader text-[18px] sm:text-[16px]"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[17px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300">Daily Logs & Home Recommendation</h3>
-                        <p class="text-[13px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Logs & home activities.</p>
+                        <h3 class="text-[17px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300">Daily Summaries & Home Recommendation</h3>
+                        <p class="text-[13px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Daily summaries & home activities.</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>

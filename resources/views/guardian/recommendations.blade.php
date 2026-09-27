@@ -13,8 +13,8 @@
     <!-- HEADER SECTION -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 sm:mb-8 gap-4 w-full">
         <div>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1 m-0 leading-tight">Personalized Home Activities</h3>
-            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Dynamic recommendations and daily highlights based on <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}'s</strong> progress.</p>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1 m-0 leading-tight">Daily Summaries & Home Recommendations</h3>
+            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Daily teacher summaries and personalized home activities for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
         </div>
 
         @if(isset($activeChild) && isset($myChildren))
