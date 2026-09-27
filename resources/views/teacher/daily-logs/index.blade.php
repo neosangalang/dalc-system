@@ -155,9 +155,9 @@
 
                             <div>
                                 <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
-                                    <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation
+                                    <i class="fa fa-file-alt mr-1.5"></i> 2. Daily Summary
                                 </label>
-                                <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here...">{{ old('notes') }}</textarea>
+                                <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized summary will appear here...">{{ old('notes') }}</textarea>
                             </div>
                         </div>
 
@@ -302,6 +302,11 @@
                             </div>
                         @endif
 
+                        <div class="mb-2">
+                            <span class="font-extrabold text-[#3B82F6] text-[10px] uppercase tracking-widest flex items-center mb-1">
+                                <i class="fa fa-file-lines mr-1.5"></i> Daily Summary
+                            </span>
+                        </div>
                         <div class="whitespace-pre-line text-[#1E2657]">
                             {{ $log->notes }}
                         </div>

@@ -67,10 +67,11 @@
                             <i class="fa fa-file-alt mr-1.5 text-[#9CA0AF]"></i> Report Type
                         </label>
                         <select name="type" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
-                            <option value="">All Types</option>
-                            <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily</option>
-                            <option value="quarterly" {{ request('type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
-                            <option value="annual" {{ request('type') == 'annual' ? 'selected' : '' }}>Annual</option>
+                            <option value="">All Quarters</option>
+                            <option value="q1" {{ request('type') == 'q1' ? 'selected' : '' }}>1st Quarter (Q1)</option>
+                            <option value="q2" {{ request('type') == 'q2' ? 'selected' : '' }}>2nd Quarter (Q2)</option>
+                            <option value="q3" {{ request('type') == 'q3' ? 'selected' : '' }}>3rd Quarter (Q3)</option>
+                            <option value="q4" {{ request('type') == 'q4' ? 'selected' : '' }}>4th Quarter (Q4)</option>
                         </select>
                     </div>
 
