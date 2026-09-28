@@ -118,11 +118,12 @@
                                 </div>
                                 <div>
                                     <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Quarter</label>
+                                    @php $selectedQ = old('quarter', $activeQuarterName ?? 'Q1'); @endphp
                                     <select name="quarter" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" required>
-                                        <option value="Q1" {{ old('quarter') == 'Q1' ? 'selected' : '' }}>Q1</option>
-                                        <option value="Q2" {{ old('quarter') == 'Q2' ? 'selected' : '' }}>Q2</option>
-                                        <option value="Q3" {{ old('quarter') == 'Q3' ? 'selected' : '' }}>Q3</option>
-                                        <option value="Q4" {{ old('quarter') == 'Q4' ? 'selected' : '' }}>Q4</option>
+                                        <option value="Q1" {{ $selectedQ == 'Q1' ? 'selected' : '' }}>Q1</option>
+                                        <option value="Q2" {{ $selectedQ == 'Q2' ? 'selected' : '' }}>Q2</option>
+                                        <option value="Q3" {{ $selectedQ == 'Q3' ? 'selected' : '' }}>Q3</option>
+                                        <option value="Q4" {{ $selectedQ == 'Q4' ? 'selected' : '' }}>Q4</option>
                                     </select>
                                 </div>
                             </div>

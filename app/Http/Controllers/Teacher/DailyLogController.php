@@ -27,7 +27,12 @@ class DailyLogController extends Controller
             ->take(15)
             ->get();
 
-        return view('teacher.daily-logs.index', compact('myStudents', 'recentLogs'));
+        // Fetch active quarter for auto-selecting in log form
+        \App\Models\AcademicQuarter::syncActiveStatus();
+        $activeQuarter = \App\Models\AcademicQuarter::where('is_active', true)->first();
+        $activeQuarterName = $activeQuarter ? strtoupper($activeQuarter->name) : 'Q1';
+
+        return view('teacher.daily-logs.index', compact('myStudents', 'recentLogs', 'activeQuarterName'));
     }
 
     public function markCommentsAsRead($id)

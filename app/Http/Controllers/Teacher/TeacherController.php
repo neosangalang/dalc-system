@@ -46,7 +46,8 @@ class TeacherController extends Controller
         $newAnnouncementsCount = Announcement::where('created_at', '>=', Carbon::now()->subDays(7))->count();
 
         // 6. Fetch Academic Quarters for the Timeline
-        $quarters = AcademicQuarter::orderBy('start_date', 'asc')->get();
+        AcademicQuarter::syncActiveStatus();
+        $quarters = AcademicQuarter::orderBy('id', 'asc')->get();
 
         // 7. Calculate unread IEP comments from guardians
         $unreadIepCommentsCount = IepGoal::whereHas('student', function($query) use ($teacherId) {

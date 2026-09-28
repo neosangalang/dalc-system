@@ -11,7 +11,7 @@ class AcademicQuarterController extends Controller
 {
     public function index()
     {
-        $quarters = AcademicQuarter::orderBy('name')->get();
+        $quarters = AcademicQuarter::orderBy('id', 'asc')->get();
 
         // Clever auto-setup: If the table is empty, create the 4 default quarters automatically
         if ($quarters->isEmpty()) {
@@ -19,12 +19,12 @@ class AcademicQuarterController extends Controller
             foreach ($defaults as $q) {
                 AcademicQuarter::create(['name' => $q]);
             }
-            $quarters = AcademicQuarter::orderBy('name')->get();
+            $quarters = AcademicQuarter::orderBy('id', 'asc')->get();
         }
 
         // Auto-sync active status based on today's date
         AcademicQuarter::syncActiveStatus();
-        $quarters = AcademicQuarter::orderBy('name')->get();
+        $quarters = AcademicQuarter::orderBy('id', 'asc')->get();
 
         return view('admin.quarters.index', compact('quarters'));
     }
