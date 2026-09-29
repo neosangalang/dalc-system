@@ -12,10 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
-            \Illuminate\Session\Middleware\AuthenticateSession::class,
-        ]);
-
         // Register your custom role middleware alias here
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
