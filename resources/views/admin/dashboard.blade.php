@@ -9,10 +9,38 @@
     <div class="max-w-[1200px] mx-auto space-y-10">
 
         <!-- 1. WELCOME HEADER -->
-        <header class="mb-8">
-            <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-2 block">Good Morning</span>
-            <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, admin.</h1>
-            <p class="text-[#6B7086] text-sm font-medium">Here is your system overview for today.</p>
+        <header class="mb-8" x-data="{
+            greeting: '',
+            currentTime: '',
+            updateGreeting() {
+                const now = new Date();
+                const hrs = now.getHours();
+                if (hrs < 12) {
+                    this.greeting = 'Good Morning';
+                } else if (hrs < 18) {
+                    this.greeting = 'Good Afternoon';
+                } else {
+                    this.greeting = 'Good Evening';
+                }
+                this.currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+        }" x-init="updateGreeting(); setInterval(() => updateGreeting(), 1000)">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-2 block flex items-center gap-1.5">
+                        <i class="fa-regular fa-sun text-[#F59E0B]" x-show="greeting === 'Good Morning'"></i>
+                        <i class="fa-regular fa-sun text-[#EF4444]" x-show="greeting === 'Good Afternoon'"></i>
+                        <i class="fa-regular fa-moon text-[#8B5CF6]" x-show="greeting === 'Good Evening'"></i>
+                        <span x-text="greeting">Good Morning</span>
+                    </span>
+                    <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Admin' }}.</h1>
+                    <p class="text-[#6B7086] text-sm font-medium m-0">Here is your system overview for today.</p>
+                </div>
+                <div class="bg-white border border-black/15 rounded-2xl px-5 py-3 text-left sm:text-right shadow-sm self-start sm:self-auto flex items-center gap-3 sm:block">
+                    <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest block">Local System Time</span>
+                    <span class="text-base font-extrabold text-[#1E2657] font-mono" x-text="currentTime"></span>
+                </div>
+            </div>
         </header>
 
         <!-- 2. STAT CARDS -->
