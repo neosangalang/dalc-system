@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ showCreateModal: {{ ($errors->any() && !old('_method')) ? 'true' : 'false' }} }">
+<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ activeTab: 'teachers', guardianSearch: '', showCreateModal: {{ ($errors->any() && !old('_method')) ? 'true' : 'false' }} }">
 
     <!-- ALERTS -->
     @if(session('success'))
@@ -22,7 +22,31 @@
 
     @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
     
-    <!-- ================= TEACHER ACCOUNTS ================= -->
+    <!-- ACCOUNT ROLE TABS SWITCHER -->
+    <div class="flex items-center gap-3 bg-white p-2 rounded-2xl border border-black/15 shadow-sm mb-6">
+        <button @click="activeTab = 'teachers'" 
+                :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
+                class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
+            <i class="fa fa-chalkboard-teacher text-sm"></i>
+            Teacher Accounts
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
+                {{ $users->where('role', 'teacher')->count() }}
+            </span>
+        </button>
+        
+        <button @click="activeTab = 'guardians'" 
+                :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
+                class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
+            <i class="fa fa-user-shield text-sm"></i>
+            Guardian Accounts
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
+                {{ $users->where('role', 'guardian')->count() }}
+            </span>
+        </button>
+    </div>
+
+    <!-- ================= TEACHER ACCOUNTS SECTION ================= -->
+    <div x-show="activeTab === 'teachers'" x-transition.opacity>
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
@@ -345,7 +369,10 @@
         </div>
     </div>
 
-    <!-- ================= GUARDIAN ACCOUNTS ================= -->
+    </div>
+
+    <!-- ================= GUARDIAN ACCOUNTS SECTION ================= -->
+    <div x-show="activeTab === 'guardians'" x-transition.opacity>
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
@@ -376,7 +403,7 @@
                     @forelse($users->where('role', 'guardian') as $user)
                         
                         <!-- ROW -->
-                        <tr x-data="{ showEditInfoModal: false, showResetModal: false }" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
+                        <tr x-data="{ showEditInfoModal: false, showResetModal: false }" x-show="guardianSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username)) }}'.includes(guardianSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
                             
                             <!-- 1. Avatar, Name & Username -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6 align-middle">
