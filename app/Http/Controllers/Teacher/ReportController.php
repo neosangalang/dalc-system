@@ -194,6 +194,22 @@ class ReportController extends Controller
             } else {
                 $logsQuery->where('quarter', strtoupper($request->report_type));
             }
+        } elseif ($request->report_type === 'mid_year') {
+            $q1 = AcademicQuarter::where('name', 'Q1')->first();
+            $q2 = AcademicQuarter::where('name', 'Q2')->first();
+            if ($q1 && $q2 && $q1->start_date && $q2->end_date) {
+                $logsQuery->whereBetween('log_date', [$q1->start_date, $q2->end_date]);
+            } else {
+                $logsQuery->whereIn('quarter', ['Q1', 'Q2']);
+            }
+        } elseif ($request->report_type === 'year_end') {
+            $q1 = AcademicQuarter::where('name', 'Q1')->first();
+            $q4 = AcademicQuarter::where('name', 'Q4')->first();
+            if ($q1 && $q4 && $q1->start_date && $q4->end_date) {
+                $logsQuery->whereBetween('log_date', [$q1->start_date, $q4->end_date]);
+            } else {
+                $logsQuery->whereIn('quarter', ['Q1', 'Q2', 'Q3', 'Q4']);
+            }
         } else {
             $logsQuery->limit(100);
         }
