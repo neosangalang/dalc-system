@@ -27,10 +27,9 @@
 
     @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
     
-    @if(Auth::user()->role === 'admin')
     <!-- ACCOUNT ROLE TABS SWITCHER -->
     <div class="flex items-center gap-3 bg-white p-2 rounded-2xl border border-black/15 shadow-sm mb-6">
-        <button type="button" @click="activeTab = 'teachers'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
+        <button @click="activeTab = 'teachers'" 
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
             <i class="fa fa-chalkboard-teacher text-sm"></i>
@@ -40,7 +39,7 @@
             </span>
         </button>
         
-        <button type="button" @click="activeTab = 'guardians'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
+        <button @click="activeTab = 'guardians'" 
                 :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
             <i class="fa fa-user-shield text-sm"></i>
@@ -64,7 +63,7 @@
                 Teacher Accounts
             </h3>
             @if(Auth::user()->role === 'admin')
-            <button type="button" @click="showCreateTeacherModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 cursor-pointer">
+            <button @click="showCreateTeacherModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 cursor-pointer">
                 <i class="fa fa-plus mr-2"></i> Generate Teacher Account
             </button>
             @endif
@@ -378,7 +377,6 @@
     </div>
 
     </div>
-    @endif
 
     <!-- ================= GUARDIAN ACCOUNTS SECTION ================= -->
     <div x-show="activeTab === 'guardians'" x-transition.opacity>
@@ -396,7 +394,7 @@
                 <p class="text-[12px] font-medium text-[#9CA0AF] mt-1 sm:ml-[52px] leading-tight">Guardians can only view profiles and leave feedback.</p>
             </div>
             @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
-            <button type="button" @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer">
+            <button @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer">
                 <i class="fa fa-plus mr-2"></i> Generate Guardian Account
             </button>
             @endif
@@ -636,24 +634,23 @@
         </div>
     </div>
 
-    @if(Auth::user()->role === 'admin')
     <!-- ================= CREATE TEACHER ACCOUNT MODAL ================= -->
     <div x-show="showCreateTeacherModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showCreateTeacherModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false"></div>
+            <div x-show="showCreateTeacherModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showCreateTeacherModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showCreateTeacherModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
+            <div x-show="showCreateTeacherModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full z-10">
                 <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
                     @csrf
                     <input type="hidden" name="role" value="teacher">
                     
                     <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
                         <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-chalkboard-teacher text-[#3B82F6] mr-2"></i> Generate Teacher Account</h5>
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
+                        <button type="button" @click="showCreateTeacherModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
                     <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
 
-                        @if ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher')
+                        @if ($errors->any() && !old('_method') && old('role') === 'teacher')
                             <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
                                 <div class="flex items-center mb-1 font-extrabold text-[13px]">
                                     <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
@@ -709,28 +706,27 @@
                         </div>
                     </div>
                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
+                        <button type="button" @click="showCreateTeacherModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
                         <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Teacher Account</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    @endif
 
     <!-- ================= CREATE GUARDIAN ACCOUNT MODAL ================= -->
     <div x-show="showCreateGuardianModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showCreateGuardianModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false"></div>
+            <div x-show="showCreateGuardianModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showCreateGuardianModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showCreateGuardianModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
+            <div x-show="showCreateGuardianModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full z-10">
                 <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
                     @csrf
                     <input type="hidden" name="role" value="guardian">
                     
                     <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
                         <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-shield text-[#10B981] mr-2"></i> Generate Guardian Account</h5>
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
+                        <button type="button" @click="showCreateGuardianModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
                     <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
 
@@ -790,7 +786,7 @@
                         </div>
                     </div>
                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
+                        <button type="button" @click="showCreateGuardianModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
                         <button type="submit" class="px-4 py-2 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Guardian Account</button>
                     </div>
                 </form>
