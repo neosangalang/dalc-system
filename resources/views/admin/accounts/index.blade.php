@@ -5,7 +5,12 @@
 @section('content')
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ activeTab: 'teachers', guardianSearch: '', showCreateModal: {{ ($errors->any() && !old('_method')) ? 'true' : 'false' }} }">
+<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ 
+    activeTab: '{{ old('role') === 'guardian' ? 'guardians' : 'teachers' }}', 
+    guardianSearch: '', 
+    showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher') ? 'true' : 'false' }},
+    showCreateGuardianModal: {{ ($errors->any() && !old('_method') && old('role') === 'guardian') ? 'true' : 'false' }}
+}">
 
     <!-- ALERTS -->
     @if(session('success'))
@@ -57,9 +62,11 @@
                 </div>
                 Teacher Accounts
             </h3>
-            <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
-                <i class="fa fa-plus mr-2"></i> Generate Account
+            @if(Auth::user()->role === 'admin')
+            <button @click="showCreateTeacherModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 cursor-pointer">
+                <i class="fa fa-plus mr-2"></i> Generate Teacher Account
             </button>
+            @endif
         </div>
         
         <div class="w-full overflow-x-auto">
@@ -386,6 +393,11 @@
                 </h3>
                 <p class="text-[12px] font-medium text-[#9CA0AF] mt-1 sm:ml-[52px] leading-tight">Guardians can only view profiles and leave feedback.</p>
             </div>
+            @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
+            <button @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer">
+                <i class="fa fa-plus mr-2"></i> Generate Guardian Account
+            </button>
+            @endif
         </div>
         
         <div class="w-full overflow-x-auto">
@@ -622,21 +634,23 @@
         </div>
     </div>
 
-    <!-- ================= CREATE ACCOUNT MODAL ================= -->
-    <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- ================= CREATE TEACHER ACCOUNT MODAL ================= -->
+    <div x-show="showCreateTeacherModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showCreateModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateModal = false"></div>
+            <div x-show="showCreateTeacherModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showCreateModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
+            <div x-show="showCreateTeacherModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
                 <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
                     @csrf
+                    <input type="hidden" name="role" value="teacher">
+                    
                     <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
-                        <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-plus text-[#3B82F6] mr-2"></i> Generate Account</h5>
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
+                        <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-chalkboard-teacher text-[#3B82F6] mr-2"></i> Generate Teacher Account</h5>
+                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
                     <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
 
-                        @if ($errors->any() && !old('_method'))
+                        @if ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher')
                             <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
                                 <div class="flex items-center mb-1 font-extrabold text-[13px]">
                                     <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
@@ -649,54 +663,131 @@
                             </div>
                         @endif
 
-                        <div>
-                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Account Role <span class="text-rose-500">*</span></label>
-                            <select name="role" id="create_role" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
-                                <option value="" disabled selected>Select Role...</option>
-                                <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Teacher</option>
-                                <option value="guardian" {{ old('role') == 'guardian' ? 'selected' : '' }}>Guardian</option>
-                            </select>
+                        <div class="bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#1E2657] px-4 py-2.5 rounded-xl text-[12px] font-bold leading-snug flex items-center gap-2">
+                            <i class="fa fa-info-circle text-[#3B82F6] text-sm"></i>
+                            Creating a new Teacher account with student & IEP management capabilities.
                         </div>
+
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Full Name <span class="text-rose-500">*</span></label>
-                            <input type="text" name="name" id="create_name" value="{{ old('name') }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="e.g., Juan Dela Cruz">
+                            <input type="text" name="name" id="create_teacher_name" value="{{ old('role') === 'teacher' ? old('name') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="e.g., Maria Santos">
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Email Address <span class="text-rose-500">*</span></label>
-                            <input type="email" name="email" id="create_email" value="{{ old('email') }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="e.g., juan@dalc.com">
+                            <input type="email" name="email" id="create_teacher_email" value="{{ old('role') === 'teacher' ? old('email') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="e.g., maria@dalc.com">
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Contact Number <span class="text-rose-500">*</span></label>
-                            <input type="text" name="contact_number" id="create_contact" value="{{ old('contact_number') }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="09123456789" pattern="09[0-9]{9}" maxlength="11" title="Please enter a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789)">
+                            <input type="text" name="contact_number" id="create_teacher_contact" value="{{ old('role') === 'teacher' ? old('contact_number') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="09123456789" pattern="09[0-9]{9}" maxlength="11" title="Please enter a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789)">
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Username <span class="text-rose-500">*</span></label>
-                            <input type="text" name="username" id="create_username" value="{{ old('username') }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="e.g., juandc">
+                            <input type="text" name="username" id="create_teacher_username" value="{{ old('role') === 'teacher' ? old('username') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="e.g., marias">
                         </div>
                         
                         <div class="border-t border-black/5 pt-4 mt-2">
                             <div class="flex justify-between items-center mb-2">
                                 <label class="block text-[13px] font-extrabold text-[#F59E0B] m-0"><i class="fa fa-lock mr-1.5"></i> Temporary Password <span class="text-rose-500">*</span></label>
                                 
-                                <button type="button" onclick="generateCreatePassword()" class="text-[#3B82F6] hover:text-blue-800 text-[12px] font-extrabold transition-colors">
+                                <button type="button" onclick="generateCreateTeacherPassword()" class="text-[#3B82F6] hover:text-blue-800 text-[12px] font-extrabold transition-colors">
                                     <i class="fa fa-magic mr-1"></i> Auto-Generate
                                 </button>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-2 mb-3">
-                                <input type="text" name="password" id="create_password" class="w-full sm:flex-1 rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#F59E0B]" placeholder="Min. 8 characters" required>
-                                <button type="button" onclick="copyCreateCredentials()" class="w-full sm:w-auto px-4 py-2 bg-white border border-black/15 text-[#6B7086] font-extrabold text-[13px] rounded-xl hover:bg-slate-50 transition-colors shrink-0 shadow-sm flex justify-center items-center">
+                                <input type="text" name="password" id="create_teacher_password" class="w-full sm:flex-1 rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#F59E0B]" placeholder="Min. 8 characters" required>
+                                <button type="button" onclick="copyCreateTeacherCredentials()" class="w-full sm:w-auto px-4 py-2 bg-white border border-black/15 text-[#6B7086] font-extrabold text-[13px] rounded-xl hover:bg-slate-50 transition-colors shrink-0 shadow-sm flex justify-center items-center">
                                     <i class="fa fa-copy mr-1.5"></i> Copy Login
                                 </button>
                             </div>
                             
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Confirm Password <span class="text-rose-500">*</span></label>
-                            <input type="text" name="password_confirmation" id="create_password_confirmation" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#3B82F6] shadow-sm" required placeholder="Type it again">
+                            <input type="text" name="password_confirmation" id="create_teacher_password_confirmation" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#3B82F6] shadow-sm" required placeholder="Type it again">
                             <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be forced to change this upon first login.</p>
                         </div>
                     </div>
                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create</button>
+                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Teacher Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= CREATE GUARDIAN ACCOUNT MODAL ================= -->
+    <div x-show="showCreateGuardianModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showCreateGuardianModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div x-show="showCreateGuardianModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
+                <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
+                    @csrf
+                    <input type="hidden" name="role" value="guardian">
+                    
+                    <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                        <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-shield text-[#10B981] mr-2"></i> Generate Guardian Account</h5>
+                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
+                    </div>
+                    <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
+
+                        @if ($errors->any() && !old('_method') && old('role') === 'guardian')
+                            <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
+                                <div class="flex items-center mb-1 font-extrabold text-[13px]">
+                                    <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
+                                </div>
+                                <ul class="list-disc pl-5 text-[12px] font-medium m-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <div class="bg-[#10B981]/10 border border-[#10B981]/20 text-[#1E2657] px-4 py-2.5 rounded-xl text-[12px] font-bold leading-snug flex items-center gap-2">
+                            <i class="fa fa-info-circle text-[#10B981] text-sm"></i>
+                            Creating a new Guardian account for monitoring student reports and daily logs.
+                        </div>
+
+                        <div>
+                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Full Name <span class="text-rose-500">*</span></label>
+                            <input type="text" name="name" id="create_guardian_name" value="{{ old('role') === 'guardian' ? old('name') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="e.g., Juan Dela Cruz">
+                        </div>
+                        <div>
+                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Email Address <span class="text-rose-500">*</span></label>
+                            <input type="email" name="email" id="create_guardian_email" value="{{ old('role') === 'guardian' ? old('email') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="e.g., juan@dalc.com">
+                        </div>
+                        <div>
+                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Contact Number <span class="text-rose-500">*</span></label>
+                            <input type="text" name="contact_number" id="create_guardian_contact" value="{{ old('role') === 'guardian' ? old('contact_number') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="09123456789" pattern="09[0-9]{9}" maxlength="11" title="Please enter a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789)">
+                        </div>
+                        <div>
+                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Username <span class="text-rose-500">*</span></label>
+                            <input type="text" name="username" id="create_guardian_username" value="{{ old('role') === 'guardian' ? old('username') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="e.g., juandc">
+                        </div>
+                        
+                        <div class="border-t border-black/5 pt-4 mt-2">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-[13px] font-extrabold text-[#F59E0B] m-0"><i class="fa fa-lock mr-1.5"></i> Temporary Password <span class="text-rose-500">*</span></label>
+                                
+                                <button type="button" onclick="generateCreateGuardianPassword()" class="text-[#10B981] hover:text-emerald-700 text-[12px] font-extrabold transition-colors">
+                                    <i class="fa fa-magic mr-1"></i> Auto-Generate
+                                </button>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                                <input type="text" name="password" id="create_guardian_password" class="w-full sm:flex-1 rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#F59E0B]" placeholder="Min. 8 characters" required>
+                                <button type="button" onclick="copyCreateGuardianCredentials()" class="w-full sm:w-auto px-4 py-2 bg-white border border-black/15 text-[#6B7086] font-extrabold text-[13px] rounded-xl hover:bg-slate-50 transition-colors shrink-0 shadow-sm flex justify-center items-center">
+                                    <i class="fa fa-copy mr-1.5"></i> Copy Login
+                                </button>
+                            </div>
+                            
+                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Confirm Password <span class="text-rose-500">*</span></label>
+                            <input type="text" name="password_confirmation" id="create_guardian_password_confirmation" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="Type it again">
+                            <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be forced to change this upon first login.</p>
+                        </div>
+                    </div>
+                    <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
+                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Guardian Account</button>
                     </div>
                 </form>
             </div>
@@ -767,16 +858,16 @@
         copyToClipboardRobust(textToCopy, 'Login credentials copied to clipboard! You can now click "Save Password".');
     }
 
-    function generateCreatePassword() {
+    function generateCreateTeacherPassword() {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
         let pass = "DALC-";
         for (let i = 0; i < 6; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
         
-        document.getElementById('create_password').value = pass;
-        document.getElementById('create_password_confirmation').value = pass;
+        document.getElementById('create_teacher_password').value = pass;
+        document.getElementById('create_teacher_password_confirmation').value = pass;
         
-        let nameInput = document.getElementById('create_name').value;
-        let usernameInput = document.getElementById('create_username');
+        let nameInput = document.getElementById('create_teacher_name').value;
+        let usernameInput = document.getElementById('create_teacher_username');
         if(nameInput && !usernameInput.value) {
             let cleanName = nameInput.toLowerCase().replace(/[^a-z]/g, '');
             let randNum = Math.floor(Math.random() * 900) + 100;
@@ -784,19 +875,49 @@
         }
     }
 
-    function copyCreateCredentials() {
-        let role = document.getElementById('create_role').value;
-        let name = document.getElementById('create_name').value;
-        let username = document.getElementById('create_username').value;
-        let passField = document.getElementById('create_password');
+    function copyCreateTeacherCredentials() {
+        let name = document.getElementById('create_teacher_name').value;
+        let username = document.getElementById('create_teacher_username').value;
+        let passField = document.getElementById('create_teacher_password');
         
         if(!username || passField.value === '') {
             alert("Please fill out the username and password (or click Auto-Generate) first before copying!");
             return;
         }
         
-        const textToCopy = `Dream Achievers Learning Center PH - Portal Access\n\nRole: ${role ? role.toUpperCase() : 'USER'}\nName: ${name}\nUsername: ${username}\nTemporary Password: ${passField.value}\n\nPlease log in and change this password immediately.`;
-        copyToClipboardRobust(textToCopy, 'New account credentials copied to clipboard! You can now paste this to the user and click "Create".');
+        const textToCopy = `Dream Achievers Learning Center PH - Portal Access\n\nRole: TEACHER\nName: ${name}\nUsername: ${username}\nTemporary Password: ${passField.value}\n\nPlease log in and change this password immediately.`;
+        copyToClipboardRobust(textToCopy, 'New teacher account credentials copied to clipboard! You can now paste this to the user and click "Create Teacher Account".');
+    }
+
+    function generateCreateGuardianPassword() {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+        let pass = "DALC-";
+        for (let i = 0; i < 6; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        
+        document.getElementById('create_guardian_password').value = pass;
+        document.getElementById('create_guardian_password_confirmation').value = pass;
+        
+        let nameInput = document.getElementById('create_guardian_name').value;
+        let usernameInput = document.getElementById('create_guardian_username');
+        if(nameInput && !usernameInput.value) {
+            let cleanName = nameInput.toLowerCase().replace(/[^a-z]/g, '');
+            let randNum = Math.floor(Math.random() * 900) + 100;
+            usernameInput.value = cleanName + randNum;
+        }
+    }
+
+    function copyCreateGuardianCredentials() {
+        let name = document.getElementById('create_guardian_name').value;
+        let username = document.getElementById('create_guardian_username').value;
+        let passField = document.getElementById('create_guardian_password');
+        
+        if(!username || passField.value === '') {
+            alert("Please fill out the username and password (or click Auto-Generate) first before copying!");
+            return;
+        }
+        
+        const textToCopy = `Dream Achievers Learning Center PH - Portal Access\n\nRole: GUARDIAN\nName: ${name}\nUsername: ${username}\nTemporary Password: ${passField.value}\n\nPlease log in and change this password immediately.`;
+        copyToClipboardRobust(textToCopy, 'New guardian account credentials copied to clipboard! You can now paste this to the user and click "Create Guardian Account".');
     }
 </script>
 @endpush
