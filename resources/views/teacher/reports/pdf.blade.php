@@ -96,18 +96,7 @@
             <td class="label">Prepared By:</td>
             <td>{{ $report->teacher->name }}</td>
             <td class="label">Report Type:</td>
-            @php
-                $reportTypeMap = [
-                    'daily' => 'Daily Report',
-                    'q1' => '1st Quarter (Q1) Report',
-                    'q2' => '2nd Quarter (Q2) Report',
-                    'q3' => '3rd Quarter (Q3) Report',
-                    'q4' => '4th Quarter (Q4) Report',
-                    'mid_year' => 'Mid-Year Report',
-                    'year_end' => 'Year-End Report',
-                ];
-            @endphp
-            <td>{{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}</td>
+            <td style="text-transform: capitalize;">{{ str_replace('_', ' ', $report->report_type) }}</td>
         </tr>
     </table>
 

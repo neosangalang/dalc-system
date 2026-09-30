@@ -51,13 +51,42 @@
         @endif
     </div>
 
+@php
+    $reportTypeMap = [
+        'daily' => 'Daily Report',
+        'q1' => '1st Quarter Report',
+        'q2' => '2nd Quarter Report',
+        'q3' => '3rd Quarter Report',
+        'q4' => '4th Quarter Report',
+        'mid_year' => 'Mid-Year Report',
+        'year_end' => 'Year-End Report',
+    ];
+@endphp
+
     @if(isset($activeChild))
     <div class="bg-transparent md:bg-white md:rounded-2xl md:shadow-sm md:border-2 border-slate-300 overflow-hidden md:border-t-4 border-t-indigo-600">
         
-        <div class="px-4 sm:px-6 py-4 sm:py-5 border-2 md:border-x-0 md:border-t-0 border-slate-200 border-t-4 border-t-indigo-600 md:border-b-2 bg-white rounded-[16px] md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
+        <div class="px-4 sm:px-6 py-4 sm:py-5 border-2 md:border-x-0 md:border-t-0 border-slate-200 border-t-4 border-t-indigo-600 md:border-b-2 bg-white rounded-[16px] md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h5 class="font-extrabold text-slate-800 m-0 text-base sm:text-lg flex items-center">
                 <i class="fa fa-file-signature text-indigo-600 mr-2.5"></i> Document Library
             </h5>
+
+            <form method="GET" action="{{ route('guardian.reports') }}" class="flex items-center gap-2">
+                <label for="type" class="text-xs font-extrabold text-slate-500 whitespace-nowrap">Filter Type:</label>
+                <select name="type" id="type" onchange="this.form.submit()" class="px-3 py-1.5 bg-slate-50 border-2 border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">All Report Types</option>
+                    <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily Report</option>
+                    <option value="q1" {{ request('type') == 'q1' ? 'selected' : '' }}>1st Quarter (Q1) Report</option>
+                    <option value="q2" {{ request('type') == 'q2' ? 'selected' : '' }}>2nd Quarter (Q2) Report</option>
+                    <option value="q3" {{ request('type') == 'q3' ? 'selected' : '' }}>3rd Quarter (Q3) Report</option>
+                    <option value="q4" {{ request('type') == 'q4' ? 'selected' : '' }}>4th Quarter (Q4) Report</option>
+                    <option value="mid_year" {{ request('type') == 'mid_year' ? 'selected' : '' }}>Mid-Year Report</option>
+                    <option value="year_end" {{ request('type') == 'year_end' ? 'selected' : '' }}>Year-End Report</option>
+                </select>
+                @if(request('type'))
+                    <a href="{{ route('guardian.reports') }}" class="text-xs text-rose-500 hover:text-rose-700 font-extrabold underline ml-1">Clear</a>
+                @endif
+            </form>
         </div>
         
         <div class="w-full">
@@ -88,17 +117,6 @@
                             <!-- 2. Report Type -->
                             <td class="flex justify-between items-center md:table-cell px-4 py-2.5 md:px-6 md:py-4 border-b border-slate-100 md:border-none mt-1 md:mt-0">
                                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider md:hidden">Report Type</span>
-                                @php
-                                    $reportTypeMap = [
-                                        'daily' => 'Daily Report',
-                                        'q1' => '1st Quarter (Q1) Report',
-                                        'q2' => '2nd Quarter (Q2) Report',
-                                        'q3' => '3rd Quarter (Q3) Report',
-                                        'q4' => '4th Quarter (Q4) Report',
-                                        'mid_year' => 'Mid-Year Report',
-                                        'year_end' => 'Year-End Report',
-                                    ];
-                                @endphp
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border-2 border-indigo-200 uppercase tracking-widest shadow-sm">
                                     {{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}
                                 </span>
@@ -148,7 +166,7 @@
                                     <!-- Modal Header -->
                                     <div class="px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-slate-200 bg-slate-50 flex justify-between items-start shrink-0">
                                         <div>
-                                            <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ $reportTypeMap[$report->report_type] ?? (ucwords(str_replace('_', ' ', $report->report_type)) . ' Report') }}</h5>
+                                            <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}</h5>
                                             <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
                                         </div>
                                         <button type="button" @click="activeViewModal = null" class="text-slate-400 hover:text-slate-700 ml-4"><i class="fa fa-times text-xl"></i></button>

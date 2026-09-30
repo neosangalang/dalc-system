@@ -81,16 +81,7 @@ class ReportApprovalController extends Controller
             }
 
             if ($report->student && $report->student->guardian) {
-                $typeMap = [
-                    'daily' => 'Daily Report',
-                    'q1' => '1st Quarter (Q1) Report',
-                    'q2' => '2nd Quarter (Q2) Report',
-                    'q3' => '3rd Quarter (Q3) Report',
-                    'q4' => '4th Quarter (Q4) Report',
-                    'mid_year' => 'Mid-Year Report',
-                    'year_end' => 'Year-End Report',
-                ];
-                $documentType = $typeMap[$report->report_type] ?? (ucwords(str_replace('_', ' ', $report->report_type)) . ' Report');
+                $documentType = strtoupper(str_replace('_', ' ', $report->report_type)) . ' Report';
 
                 $report->student->guardian->notify(new SystemAlert(
                     "New {$documentType} for {$report->student->first_name} is approved and ready for viewing.",
