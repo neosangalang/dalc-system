@@ -30,7 +30,7 @@
     @if(Auth::user()->role === 'admin')
     <!-- ACCOUNT ROLE TABS SWITCHER -->
     <div class="flex items-center gap-3 bg-white p-2 rounded-2xl border border-black/15 shadow-sm mb-6">
-        <button @click="activeTab = 'teachers'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
+        <button type="button" @click="activeTab = 'teachers'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
             <i class="fa fa-chalkboard-teacher text-sm"></i>
@@ -40,7 +40,7 @@
             </span>
         </button>
         
-        <button @click="activeTab = 'guardians'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
+        <button type="button" @click="activeTab = 'guardians'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
                 :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
             <i class="fa fa-user-shield text-sm"></i>
@@ -64,7 +64,7 @@
                 Teacher Accounts
             </h3>
             @if(Auth::user()->role === 'admin')
-            <button @click="showCreateTeacherModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 cursor-pointer">
+            <button type="button" @click="showCreateTeacherModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 cursor-pointer">
                 <i class="fa fa-plus mr-2"></i> Generate Teacher Account
             </button>
             @endif
@@ -396,7 +396,7 @@
                 <p class="text-[12px] font-medium text-[#9CA0AF] mt-1 sm:ml-[52px] leading-tight">Guardians can only view profiles and leave feedback.</p>
             </div>
             @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
-            <button @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer">
+            <button type="button" @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer">
                 <i class="fa fa-plus mr-2"></i> Generate Guardian Account
             </button>
             @endif
