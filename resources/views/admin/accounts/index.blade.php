@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ activeTab: 'teachers', guardianSearch: '', showCreateModal: {{ ($errors->any() && !old('_method')) ? 'true' : 'false' }} }">
+<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ activeTab: '{{ Auth::user()->role === 'teacher' ? 'guardians' : 'teachers' }}', guardianSearch: '', showCreateModal: {{ ($errors->any() && !old('_method')) ? 'true' : 'false' }} }">
 
     <!-- ALERTS -->
     @if(session('success'))
@@ -22,7 +22,8 @@
 
     @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
     
-    <!-- ACCOUNT ROLE TABS SWITCHER -->
+    @if(Auth::user()->role === 'admin')
+    <!-- ACCOUNT ROLE TABS SWITCHER (ADMIN ONLY) -->
     <div class="flex items-center gap-3 bg-white p-2 rounded-2xl border border-black/15 shadow-sm mb-6">
         <button @click="activeTab = 'teachers'" 
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
@@ -370,6 +371,8 @@
     </div>
 
     </div>
+
+    @endif
 
     <!-- ================= GUARDIAN ACCOUNTS SECTION ================= -->
     <div x-show="activeTab === 'guardians'" x-transition.opacity>

@@ -17,7 +17,7 @@
         <!-- WELCOME HEADER & PILL STUDENT SELECTOR -->
         <header class="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div class="flex flex-col gap-2">
-                <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-1 block">Guardian Portal</span>
+                <span id="dynamic-greeting" class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-1 block">Good Morning</span>
                 <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h1>
                 <p class="text-[#6B7086] text-sm font-medium leading-relaxed">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
             </div>
@@ -453,3 +453,21 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const greetingElement = document.getElementById('dynamic-greeting');
+        if (greetingElement) {
+            const currentHour = new Date().getHours();
+            if (currentHour < 12) {
+                greetingElement.innerText = "Good Morning";
+            } else if (currentHour < 18) {
+                greetingElement.innerText = "Good Afternoon";
+            } else {
+                greetingElement.innerText = "Good Evening";
+            }
+        }
+    });
+</script>
+@endpush
