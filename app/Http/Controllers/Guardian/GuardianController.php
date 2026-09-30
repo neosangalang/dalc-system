@@ -142,9 +142,9 @@ class GuardianController extends Controller
         $query = Report::with(['student', 'teacher'])
             ->where('student_id', $activeChild->id)
             ->where('status', 'approved')
-            ->where('report_type', '!=', 'daily');
+            ->whereIn('report_type', ['q1', 'q2', 'q3', 'q4']);
 
-        if ($request->filled('type')) {
+        if ($request->filled('type') && in_array($request->type, ['q1', 'q2', 'q3', 'q4'])) {
             $query->where('report_type', $request->type);
         }
 
@@ -218,6 +218,20 @@ class GuardianController extends Controller
                 ->latest('log_date')
                 ->get();
 
+            // Attach approved daily reports to daily logs
+            $dailyReports = Report::where('student_id', $activeChild->id)
+                ->where('report_type', 'daily')
+                ->where('status', 'approved')
+                ->get()
+                ->keyBy(function($report) {
+                    return $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
+                });
+
+            foreach ($recentRecommendations as $log) {
+                $logDateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+                $log->daily_report = $dailyReports->get($logDateStr);
+            }
+
             // 2. Count Archived Past Due Logs for link badge
             $archivedCount = DailyLog::where('student_id', $activeChild->id)
                 ->where('created_at', '<', \Carbon\Carbon::now()->subHours(24))
@@ -248,6 +262,20 @@ class GuardianController extends Controller
             }
 
             $archivedLogs = $query->latest('log_date')->get();
+
+            // Attach approved daily reports to archived daily logs
+            $dailyReports = Report::where('student_id', $activeChild->id)
+                ->where('report_type', 'daily')
+                ->where('status', 'approved')
+                ->get()
+                ->keyBy(function($report) {
+                    return $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
+                });
+
+            foreach ($archivedLogs as $log) {
+                $logDateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+                $log->daily_report = $dailyReports->get($logDateStr);
+            }
         }
 
         return view('guardian.logs-archive', compact('archivedLogs', 'myChildren', 'activeChild'));

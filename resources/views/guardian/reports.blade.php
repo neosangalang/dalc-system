@@ -10,12 +10,10 @@
 
 @php
     $reportTypeMap = [
-        'q1' => '1st Quarter Report',
-        'q2' => '2nd Quarter Report',
-        'q3' => '3rd Quarter Report',
-        'q4' => '4th Quarter Report',
-        'mid_year' => 'Mid-Year Report',
-        'year_end' => 'Year-End Report',
+        'q1' => '1st Quarter (Q1) Report',
+        'q2' => '2nd Quarter (Q2) Report',
+        'q3' => '3rd Quarter (Q3) Report',
+        'q4' => '4th Quarter (Q4) Report',
     ];
 
     $currentType = request('type', 'all');
@@ -27,7 +25,7 @@
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 sm:mb-8 gap-4 w-full">
         <div>
             <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1 m-0 leading-tight">Official Student Reports</h3>
-            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Review formal evaluations and academic reports for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
+            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Review formal evaluations and quarterly progress reports for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
         </div>
         
         @if(isset($activeChild) && isset($myChildren))
@@ -66,28 +64,22 @@
 
     @if(isset($activeChild))
 
-    <!-- SEPARATE REPORT CATEGORY NAVIGATION TABS -->
+    <!-- SEPARATE QUARTER REPORT TABS (EXCLUDING MID-YEAR & YEAR-END) -->
     <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
-        <a href="{{ route('guardian.reports') }}" class="px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'all' || empty($currentType) ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+        <a href="{{ route('guardian.reports') }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'all' || empty($currentType) ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
             <i class="fa-solid fa-layer-group"></i> All Formal Reports
         </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q1' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q1' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
             <i class="fa-solid fa-calendar-check"></i> Quarter 1 (Q1)
         </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q2' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q2' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
             <i class="fa-solid fa-calendar-check"></i> Quarter 2 (Q2)
         </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q3' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q3' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
             <i class="fa-solid fa-calendar-check"></i> Quarter 3 (Q3)
         </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q4' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q4' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
             <i class="fa-solid fa-calendar-check"></i> Quarter 4 (Q4)
-        </a>
-        <a href="{{ route('guardian.reports', ['type' => 'mid_year']) }}" class="px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'mid_year' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
-            <i class="fa-solid fa-award"></i> Mid-Year Report
-        </a>
-        <a href="{{ route('guardian.reports', ['type' => 'year_end']) }}" class="px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'year_end' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
-            <i class="fa-solid fa-graduation-cap"></i> Year-End Report
         </a>
     </div>
 
@@ -216,10 +208,10 @@
                                         @if($currentType !== 'all' && isset($reportTypeMap[$currentType]))
                                             No {{ $reportTypeMap[$currentType] }}s available
                                         @else
-                                            No formal reports available
+                                            No quarterly reports available
                                         @endif
                                     </h6>
-                                    <p class="text-[12px] sm:text-sm font-medium text-slate-500 m-0">No approved official reports are available in this category for {{ $activeChild->first_name ?? 'this student' }} yet.</p>
+                                    <p class="text-[12px] sm:text-sm font-medium text-slate-500 m-0">No approved official quarterly reports are available in this category for {{ $activeChild->first_name ?? 'this student' }} yet.</p>
                                 </div>
                             </td>
                         </tr>

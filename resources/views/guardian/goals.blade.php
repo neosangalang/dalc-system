@@ -97,26 +97,14 @@
                          :class="goalUnread ? 'border-red-400 ring-2 ring-red-400/20' : 'border-black/15'">
                         
                         <!-- GOAL HEADER -->
-                        @php
-                            $domainBadgeStyle = match($goal->domain) {
-                                'Language-Communication' => 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20',
-                                'Self-Help'              => 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
-                                'Perceptuo-Cognitive'    => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
-                                'Socio-Emotional'        => 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
-                                'Psychomotor'            => 'bg-rose-50 text-rose-600 border-rose-200',
-                                default                  => 'bg-[#F4F6FA] text-[#6B7086] border-black/10',
-                            };
-                        @endphp
                         <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-black/10 bg-white flex flex-wrap justify-between items-center gap-2 sm:gap-0 transition-colors duration-500"
                              :class="goalUnread ? 'bg-red-50/30' : 'bg-white'">
                             
                             <h6 class="m-0 font-extrabold text-[#1E2657] flex items-center gap-3 text-[14px] sm:text-base">
-                                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border {{ $domainBadgeStyle }}">
+                                <div class="w-8 h-8 bg-[#F4F6FA] text-[#8B5CF6] border border-black/5 rounded-lg flex items-center justify-center shrink-0">
                                     <i class="fa fa-layer-group text-[13px]"></i>
                                 </div>
-                                <span class="inline-flex items-center px-3 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-widest border shadow-sm {{ $domainBadgeStyle }}">
-                                    {{ str_replace('-', ' - ', $goal->domain) }}
-                                </span>
+                                {{ $goal->domain }}
                                 
                                 <!-- Reactive New Reply Badge -->
                                 <span x-show="goalUnread" 
@@ -131,7 +119,7 @@
                                     <i class="fa fa-check-circle mr-1.5"></i> Achieved
                                 </span>
                             @else
-                                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] font-extrabold text-[10px] shadow-sm border border-[#F59E0B]/20 uppercase tracking-widest">
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-[#3B82F6]/10 text-[#3B82F6] font-extrabold text-[10px] shadow-sm border border-[#3B82F6]/20 uppercase tracking-widest">
                                     <i class="fa fa-spinner fa-spin mr-1.5"></i> In Progress
                                 </span>
                             @endif
