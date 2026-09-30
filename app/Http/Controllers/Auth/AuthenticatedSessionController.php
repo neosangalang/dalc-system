@@ -28,9 +28,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Enforce single active session per account across devices
-        Auth::logoutOtherDevices($request->input('password'));
-
         $user = $request->user();
 
         // Redirect based on role
