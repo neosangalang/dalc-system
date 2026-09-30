@@ -633,11 +633,12 @@
             </table>
         </div>
     </div>
+    </div>
 
     <!-- ================= CREATE TEACHER ACCOUNT MODAL ================= -->
     <div x-show="showCreateTeacherModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showCreateTeacherModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false"></div>
+            <div x-show="showCreateTeacherModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showCreateTeacherModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div x-show="showCreateTeacherModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
                 <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
@@ -646,7 +647,7 @@
                     
                     <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
                         <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-chalkboard-teacher text-[#3B82F6] mr-2"></i> Generate Teacher Account</h5>
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
+                        <button type="button" @click="showCreateTeacherModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
                     <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
 
@@ -706,7 +707,7 @@
                         </div>
                     </div>
                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
+                        <button type="button" @click="showCreateTeacherModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
                         <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Teacher Account</button>
                     </div>
                 </form>
@@ -717,7 +718,7 @@
     <!-- ================= CREATE GUARDIAN ACCOUNT MODAL ================= -->
     <div x-show="showCreateGuardianModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showCreateGuardianModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false"></div>
+            <div x-show="showCreateGuardianModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showCreateGuardianModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div x-show="showCreateGuardianModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
                 <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
@@ -726,7 +727,7 @@
                     
                     <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
                         <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-shield text-[#10B981] mr-2"></i> Generate Guardian Account</h5>
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
+                        <button type="button" @click="showCreateGuardianModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
                     <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
 
@@ -786,14 +787,14 @@
                         </div>
                     </div>
                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
+                        <button type="button" @click="showCreateGuardianModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
                         <button type="submit" class="px-4 py-2 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Guardian Account</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    
+
     @endif
 
 </div>
