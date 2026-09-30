@@ -88,8 +88,19 @@
                             <!-- 2. Report Type -->
                             <td class="flex justify-between items-center md:table-cell px-4 py-2.5 md:px-6 md:py-4 border-b border-slate-100 md:border-none mt-1 md:mt-0">
                                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider md:hidden">Report Type</span>
+                                @php
+                                    $reportTypeMap = [
+                                        'daily' => 'Daily Report',
+                                        'q1' => '1st Quarter (Q1) Report',
+                                        'q2' => '2nd Quarter (Q2) Report',
+                                        'q3' => '3rd Quarter (Q3) Report',
+                                        'q4' => '4th Quarter (Q4) Report',
+                                        'mid_year' => 'Mid-Year Report',
+                                        'year_end' => 'Year-End Report',
+                                    ];
+                                @endphp
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border-2 border-indigo-200 uppercase tracking-widest shadow-sm">
-                                    {{ ucwords(str_replace('_', ' ', $report->report_type)) }}
+                                    {{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}
                                 </span>
                             </td>
                             
@@ -137,7 +148,7 @@
                                     <!-- Modal Header -->
                                     <div class="px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-slate-200 bg-slate-50 flex justify-between items-start shrink-0">
                                         <div>
-                                            <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ ucwords(str_replace('_', ' ', $report->report_type)) }} Report</h5>
+                                            <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ $reportTypeMap[$report->report_type] ?? (ucwords(str_replace('_', ' ', $report->report_type)) . ' Report') }}</h5>
                                             <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
                                         </div>
                                         <button type="button" @click="activeViewModal = null" class="text-slate-400 hover:text-slate-700 ml-4"><i class="fa fa-times text-xl"></i></button>

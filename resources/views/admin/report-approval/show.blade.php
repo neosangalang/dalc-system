@@ -26,8 +26,19 @@
                     </p>
                 </div>
                 <div class="text-right">
+                     @php
+                        $reportTypeMap = [
+                            'daily' => 'Daily Report',
+                            'q1' => '1st Quarter (Q1) Report',
+                            'q2' => '2nd Quarter (Q2) Report',
+                            'q3' => '3rd Quarter (Q3) Report',
+                            'q4' => '4th Quarter (Q4) Report',
+                            'mid_year' => 'Mid-Year Report',
+                            'year_end' => 'Year-End Report',
+                        ];
+                     @endphp
                      <span class="inline-flex items-center px-4 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-extrabold rounded-full border border-indigo-100 uppercase tracking-widest">
-                        {{ strtoupper(str_replace('_', ' ', $report->report_type)) }}
+                        {{ strtoupper($reportTypeMap[$report->report_type] ?? str_replace('_', ' ', $report->report_type)) }}
                     </span>
                 </div>
             </div>

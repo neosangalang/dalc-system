@@ -6,7 +6,7 @@
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
 <div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ 
-    activeTab: '{{ Auth::user()->role === 'teacher' ? 'guardians' : (old('role') === 'guardian' ? 'guardians' : 'teachers') }}',
+    activeTab: '{{ old('role') === 'guardian' ? 'guardians' : 'teachers' }}',
     guardianSearch: '', 
     showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher') ? 'true' : 'false' }},
     showCreateGuardianModal: {{ ($errors->any() && !old('_method') && old('role') === 'guardian') ? 'true' : 'false' }}

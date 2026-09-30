@@ -58,7 +58,18 @@
 
             <div>
                 <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-2">Report Classification</label>
-                <input type="text" disabled value="{{ ucwords(str_replace('_', ' ', $report->report_type)) }} Report" class="w-full rounded-xl border-black/15 bg-slate-100 px-4 py-2.5 text-[13px] font-bold text-[#6B7086]">
+                @php
+                    $reportTypeMap = [
+                        'daily' => 'Daily Report',
+                        'q1' => '1st Quarter (Q1) Report',
+                        'q2' => '2nd Quarter (Q2) Report',
+                        'q3' => '3rd Quarter (Q3) Report',
+                        'q4' => '4th Quarter (Q4) Report',
+                        'mid_year' => 'Mid-Year Report',
+                        'year_end' => 'Year-End Report',
+                    ];
+                @endphp
+                <input type="text" disabled value="{{ $reportTypeMap[$report->report_type] ?? (ucwords(str_replace('_', ' ', $report->report_type)) . ' Report') }}" class="w-full rounded-xl border-black/15 bg-slate-100 px-4 py-2.5 text-[13px] font-bold text-[#6B7086]">
             </div>
 
             <div>

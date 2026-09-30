@@ -14,7 +14,7 @@
                 </div>
                 AI-Assisted Report
             </h4>
-            <p class="text-slate-500 text-[13px] sm:text-sm font-medium mt-1 ml-[52px] m-0 leading-tight">Select a student and timeframe to automatically draft a formal progress summary.</p>
+            <p class="text-slate-500 text-[13px] sm:text-sm font-medium mt-1 ml-[52px] m-0 leading-tight">Select a student and timeframe to automatically draft a formal progress report.</p>
         </div>
         <a href="{{ route('teacher.reports.index') }}" class="w-full md:w-auto inline-flex justify-center items-center px-4 py-2.5 sm:py-2 bg-white border border-slate-300 text-slate-600 text-[13px] sm:text-sm font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm decoration-transparent mt-2 md:mt-0">
             <i class="fa fa-arrow-left mr-2"></i> Back to Reports
@@ -46,13 +46,13 @@
                         </label>
                         <select name="report_type" id="report_type" class="w-full rounded-xl border-slate-300 px-3.5 sm:px-4 py-3 sm:py-2.5 text-[13px] sm:text-sm font-bold text-slate-700 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm bg-white" required>
                             <option value="" disabled selected>Select report type...</option>
-                            <option value="daily">Daily Log Summary</option>
+                            <option value="daily">Daily Report</option>
                             <option value="q1">1st Quarter (Q1) Report</option>
                             <option value="q2">2nd Quarter (Q2) Report</option>
                             <option value="q3">3rd Quarter (Q3) Report</option>
                             <option value="q4">4th Quarter (Q4) Report</option>
-                            <option value="mid_year">Mid-Year Summary</option>
-                            <option value="year_end">Year-End Summary</option>
+                            <option value="mid_year">Mid-Year Report</option>
+                            <option value="year_end">Year-End Report</option>
                         </select>
                     </div>
                 </div>
