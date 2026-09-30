@@ -62,31 +62,15 @@
                         </select>
                     </div>
 
-@php
-    $reportTypeMap = [
-        'daily' => 'Daily Report',
-        'q1' => '1st Quarter Report',
-        'q2' => '2nd Quarter Report',
-        'q3' => '3rd Quarter Report',
-        'q4' => '4th Quarter Report',
-        'mid_year' => 'Mid-Year Report',
-        'year_end' => 'Year-End Report',
-    ];
-@endphp
-
                     <div class="md:col-span-3">
                         <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
                             <i class="fa fa-file-alt mr-1.5 text-[#9CA0AF]"></i> Report Type
                         </label>
                         <select name="type" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                             <option value="">All Types</option>
-                            <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily Report</option>
-                            <option value="q1" {{ request('type') == 'q1' ? 'selected' : '' }}>1st Quarter (Q1) Report</option>
-                            <option value="q2" {{ request('type') == 'q2' ? 'selected' : '' }}>2nd Quarter (Q2) Report</option>
-                            <option value="q3" {{ request('type') == 'q3' ? 'selected' : '' }}>3rd Quarter (Q3) Report</option>
-                            <option value="q4" {{ request('type') == 'q4' ? 'selected' : '' }}>4th Quarter (Q4) Report</option>
-                            <option value="mid_year" {{ request('type') == 'mid_year' ? 'selected' : '' }}>Mid-Year Report</option>
-                            <option value="year_end" {{ request('type') == 'year_end' ? 'selected' : '' }}>Year-End Report</option>
+                            <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily</option>
+                            <option value="quarterly" {{ request('type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
+                            <option value="annual" {{ request('type') == 'annual' ? 'selected' : '' }}>Annual</option>
                         </select>
                     </div>
 
@@ -157,7 +141,7 @@
                             <td class="flex justify-between items-center md:table-cell px-4 py-3 md:px-6 md:py-5 border-b border-black/5 md:border-none mt-1 md:mt-0">
                                 <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest md:hidden">Report Type</span>
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 uppercase tracking-widest shadow-sm">
-                                    {{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}
+                                    {{ ucwords(str_replace('_', ' ', $report->report_type)) }}
                                 </span>
                             </td>
                             
@@ -245,7 +229,7 @@
                                         
                                         <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-start rounded-t-2xl">
                                             <div>
-                                                <h5 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}</h5>
+                                                <h5 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ ucwords(str_replace('_', ' ', $report->report_type)) }}</h5>
                                                 <p class="text-[11px] font-extrabold text-[#9CA0AF] uppercase tracking-widest m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
                                             </div>
                                             <button type="button" @click="activeViewModal = null" class="text-[#9CA0AF] hover:text-[#1E2657] ml-4 transition-colors"><i class="fa fa-times text-xl"></i></button>

@@ -25,21 +25,9 @@
                         on {{ $report->created_at->format('M d, Y, h:i A') }}
                     </p>
                 </div>
-@php
-    $reportTypeMap = [
-        'daily' => 'Daily Report',
-        'q1' => '1st Quarter Report',
-        'q2' => '2nd Quarter Report',
-        'q3' => '3rd Quarter Report',
-        'q4' => '4th Quarter Report',
-        'mid_year' => 'Mid-Year Report',
-        'year_end' => 'Year-End Report',
-    ];
-@endphp
-
                 <div class="text-right">
                      <span class="inline-flex items-center px-4 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-extrabold rounded-full border border-indigo-100 uppercase tracking-widest">
-                        {{ $reportTypeMap[$report->report_type] ?? strtoupper(str_replace('_', ' ', $report->report_type)) }}
+                        {{ strtoupper(str_replace('_', ' ', $report->report_type)) }}
                     </span>
                 </div>
             </div>

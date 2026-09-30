@@ -141,9 +141,10 @@ class GuardianController extends Controller
 
         $query = Report::with(['student', 'teacher'])
             ->where('student_id', $activeChild->id)
-            ->where('status', 'approved');
+            ->where('status', 'approved')
+            ->where('report_type', '!=', 'daily');
 
-        if ($request->has('type')) {
+        if ($request->filled('type')) {
             $query->where('report_type', $request->type);
         }
 

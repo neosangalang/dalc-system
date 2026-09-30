@@ -95,19 +95,8 @@
         <tr>
             <td class="label">Prepared By:</td>
             <td>{{ $report->teacher->name }}</td>
-@php
-    $reportTypeMap = [
-        'daily' => 'Daily Report',
-        'q1' => '1st Quarter Report',
-        'q2' => '2nd Quarter Report',
-        'q3' => '3rd Quarter Report',
-        'q4' => '4th Quarter Report',
-        'mid_year' => 'Mid-Year Report',
-        'year_end' => 'Year-End Report',
-    ];
-@endphp
             <td class="label">Report Type:</td>
-            <td style="text-transform: capitalize;">{{ $reportTypeMap[$report->report_type] ?? str_replace('_', ' ', $report->report_type) }}</td>
+            <td style="text-transform: capitalize;">{{ str_replace('_', ' ', $report->report_type) }}</td>
         </tr>
     </table>
 

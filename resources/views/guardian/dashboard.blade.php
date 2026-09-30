@@ -127,12 +127,13 @@
                         </div>
                         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                     </button>
-                    <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-white border border-black/15 shadow-xl rounded-2xl z-[60] p-3 text-left overflow-hidden">
-                        <a href="{{ route('guardian.reports', ['type' => 'daily']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Daily Reports <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                    <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-white border border-black/15 shadow-xl rounded-2xl z-[60] p-3 text-left overflow-hidden max-h-72 overflow-y-auto">
                         <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 1 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 4 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'mid_year']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Mid-Year Report <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'year_end']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Year-End Report <i class="fa-solid fa-angle-right opacity-50"></i></a>
                     </div>
                 </div>
 
@@ -275,18 +276,31 @@
 
                 <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-5 sm:p-6 flex flex-col gap-6">
                     @forelse($activeGoals ?? [] as $goal)
+                        @php
+                            $domainBadgeClass = match($goal->domain ?? '') {
+                                'Language-Communication' => 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20',
+                                'Self-Help'              => 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
+                                'Perceptuo-Cognitive'    => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+                                'Socio-Emotional'        => 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
+                                'Psychomotor'            => 'bg-rose-50 text-rose-600 border-rose-200',
+                                default                  => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+                            };
+                            $isAchieved = ($goal->progress_percentage ?? 0) >= 100;
+                            $barColor = $isAchieved ? 'bg-[#10B981]' : 'bg-[#3B82F6]';
+                            $textColor = $isAchieved ? 'text-[#10B981]' : 'text-[#3B82F6]';
+                        @endphp
                         <div class="flex flex-col gap-3">
-                            <span class="inline-block bg-[#8B5CF6]/10 text-[#8B5CF6] text-[10px] md:text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-md w-max">
-                                {{ $goal->domain ?? 'Development Area' }}
+                            <span class="inline-block {{ $domainBadgeClass }} text-[10px] md:text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-md w-max border shadow-sm">
+                                {{ str_replace('-', ' - ', $goal->domain ?? 'Development Area') }}
                             </span>
                             
                             <div class="flex justify-between items-end mt-1">
                                 <h3 class="text-[15px] md:text-[14px] font-extrabold text-[#1E2657] line-clamp-2 pr-4">{{ $goal->goal_description }}</h3>
-                                <span class="text-[17px] md:text-[16px] font-extrabold text-[#8B5CF6] shrink-0">{{ $goal->progress_percentage ?? 0 }}%</span>
+                                <span class="text-[17px] md:text-[16px] font-extrabold {{ $textColor }} shrink-0">{{ $isAchieved ? '100% ✓' : ($goal->progress_percentage ?? 0) . '%' }}</span>
                             </div>
                             
-                            <div class="h-[10px] md:h-[8px] w-full bg-[#F4F6FA] rounded-full overflow-hidden">
-                                <div class="h-full bg-[#8B5CF6] rounded-full transition-all duration-1000 ease-out" style="width: {{ $goal->progress_percentage ?? 0 }}%;"></div>
+                            <div class="h-[10px] md:h-[8px] w-full bg-[#F4F6FA] rounded-full overflow-hidden shadow-inner border border-black/5">
+                                <div class="h-full {{ $barColor }} rounded-full transition-all duration-1000 ease-out" style="width: {{ $goal->progress_percentage ?? 0 }}%;"></div>
                             </div>
                         </div>
 
