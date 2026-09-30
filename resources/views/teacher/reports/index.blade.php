@@ -252,8 +252,6 @@
                                                 {{ $report->content }}
                                             </div>
                                             
-                                            <div class="mt-6 pt-6 border-t border-dashed border-black/10 relative z-50">
-                                                @include('components.comment-thread', ['item' => $report])
                                             </div>
                                         </div>
                                         
