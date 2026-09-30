@@ -6,9 +6,9 @@
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
 <div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ 
-    activeTab: '{{ old('role') === 'guardian' ? 'guardians' : 'teachers' }}', 
+    activeTab: '{{ Auth::user()->role === 'teacher' ? 'guardians' : (old('role') === 'guardian' ? 'guardians' : 'teachers') }}', 
     guardianSearch: '', 
-    showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher') ? 'true' : 'false' }},
+    showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role') === 'teacher') ? 'true' : 'false' }},
     showCreateGuardianModal: {{ ($errors->any() && !old('_method') && old('role') === 'guardian') ? 'true' : 'false' }}
 }">
 
@@ -27,9 +27,10 @@
 
     @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
     
+    @if(Auth::user()->role === 'admin')
     <!-- ACCOUNT ROLE TABS SWITCHER -->
     <div class="flex items-center gap-3 bg-white p-2 rounded-2xl border border-black/15 shadow-sm mb-6">
-        <button @click="activeTab = 'teachers'" 
+        <button @click="activeTab = 'teachers'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
             <i class="fa fa-chalkboard-teacher text-sm"></i>
@@ -39,7 +40,7 @@
             </span>
         </button>
         
-        <button @click="activeTab = 'guardians'" 
+        <button @click="activeTab = 'guardians'; showCreateTeacherModal = false; showCreateGuardianModal = false" 
                 :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
             <i class="fa fa-user-shield text-sm"></i>
@@ -377,6 +378,7 @@
     </div>
 
     </div>
+    @endif
 
     <!-- ================= GUARDIAN ACCOUNTS SECTION ================= -->
     <div x-show="activeTab === 'guardians'" x-transition.opacity>
@@ -634,6 +636,7 @@
         </div>
     </div>
 
+    @if(Auth::user()->role === 'admin')
     <!-- ================= CREATE TEACHER ACCOUNT MODAL ================= -->
     <div x-show="showCreateTeacherModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -713,6 +716,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- ================= CREATE GUARDIAN ACCOUNT MODAL ================= -->
     <div x-show="showCreateGuardianModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">

@@ -13,8 +13,12 @@ use PragmaRX\Google2FA\Google2FA;
 class AccountController extends Controller
 {
     public function index() {
-        // Grab all users who are either teachers or guardians
-        $users = User::whereIn('role', ['teacher', 'guardian'])->get();
+        // Teachers can only view guardian accounts; Admins view teachers & guardians
+        if (Auth::user()->role === 'teacher') {
+            $users = User::where('role', 'guardian')->get();
+        } else {
+            $users = User::whereIn('role', ['teacher', 'guardian'])->get();
+        }
 
         // Grab all students
         $students = Student::orderBy('last_name')->get();
