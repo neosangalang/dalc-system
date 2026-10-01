@@ -50,15 +50,13 @@ class DailyLogController extends Controller
         return response()->json(['success' => true]);
     }
 
-   public function store(Request $request) {
-    
+    public function store(Request $request) {
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'log_date'   => 'required|date',
             'quarter'    => 'required|string',
             'raw_notes'  => 'required|string',
             'notes'      => 'nullable|string',
-            'home_recommendations' => 'nullable|string',
             'photo'      => 'nullable|image|mimes:jpeg,png,jpg|max:5120', 
         ]);
 
@@ -79,7 +77,7 @@ class DailyLogController extends Controller
             'log_date'   => $request->log_date,
             'quarter'    => $request->quarter,
             'notes'      => $finalNotes, 
-            'home_recommendations' => $request->home_recommendations,
+            'home_recommendations' => $request->home_recommendations ?? null,
             'image_path' => $imagePath, 
         ]);
 

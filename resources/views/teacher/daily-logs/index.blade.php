@@ -19,7 +19,7 @@
     <!-- BACK BUTTON -->
     <div class="flex">
         <a href="{{ route('teacher.students.index') }}" class="inline-flex items-center px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 hover:text-[#1E2657] shadow-sm transition-colors decoration-transparent focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
-            <i class="fa fa-arrow-left mr-2"></i> Back to Students
+            <i class="fa fa-arrow-left mr-2"></i> Student List
         </a>
     </div>
 
@@ -56,7 +56,7 @@
                 </div>
                 Daily Logging
             </h1>
-            <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-14 m-0 leading-tight">Record observations and generate formal documentation.</p>
+            <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-14 m-0 leading-tight">Record observations and confirm formal documentation.</p>
         </div>
 
         <!-- TAB NAVIGATION -->
@@ -64,19 +64,18 @@
             <button @click="activeTab = 'create'" 
                     :class="activeTab === 'create' ? 'bg-white text-[#3B82F6] shadow-sm border border-black/5' : 'text-[#6B7086] hover:text-[#1E2657]'" 
                     class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
-                <i class="fa fa-pen mr-2"></i> New Log
+                <i class="fa fa-pen mr-2"></i> Create Observation
             </button>
             <button @click="activeTab = 'history'" 
                     :class="activeTab === 'history' ? 'bg-white text-[#3B82F6] shadow-sm border border-black/5' : 'text-[#6B7086] hover:text-[#1E2657]'" 
                     class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
-                <i class="fa fa-clock-rotate-left mr-2"></i> Recent History
+                <i class="fa fa-file-contract mr-2"></i> Formal Documentation List
             </button>
         </div>
     </div>
 
     @php
         $selectedStudentId = old('student_id', request('student_id'));
-        $selectedStudent = $myStudents->firstWhere('id', $selectedStudentId);
     @endphp
 
     <!-- TAB 1: CREATE NEW LOG FORM -->
@@ -89,132 +88,129 @@
             </div>
             
             <div class="p-5 sm:p-8">
-                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0">
+                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0 space-y-6">
                     @csrf
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                    <!-- STUDENT SELECTION DROPDOWN -->
+                    <div class="p-4 bg-[#F4F6FA] border border-black/10 rounded-2xl shadow-sm">
+                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                            <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> Select Student
+                        </label>
+                        <select name="student_id" id="student_id" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer" required>
+                            <option value="" disabled {{ empty($selectedStudentId) ? 'selected' : '' }}>Select a student to log for...</option>
+                            @foreach($myStudents as $student)
+                                <option value="{{ $student->id }}" {{ $selectedStudentId == $student->id ? 'selected' : '' }}>
+                                    {{ $student->first_name }} {{ $student->last_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Date</label>
+                            <input type="date" name="log_date" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" value="{{ old('log_date', date('Y-m-d')) }}" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Quarter</label>
+                            @php $selectedQ = old('quarter', $activeQuarterName ?? 'Q1'); @endphp
+                            <select name="quarter" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" required>
+                                <option value="Q1" {{ $selectedQ == 'Q1' ? 'selected' : '' }}>Q1</option>
+                                <option value="Q2" {{ $selectedQ == 'Q2' ? 'selected' : '' }}>Q2</option>
+                                <option value="Q3" {{ $selectedQ == 'Q3' ? 'selected' : '' }}>Q3</option>
+                                <option value="Q4" {{ $selectedQ == 'Q4' ? 'selected' : '' }}>Q4</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                            <i class="fa fa-camera text-[#9CA0AF] mr-1.5"></i> Attach Photo (Optional)
+                        </label>
+                        <input type="file" name="photo" id="photoInput" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-black/15 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png">
+                    </div>
+
+                    <hr class="border-black/10 my-6">
+
+                    <div class="p-5 bg-[#F4F6FA] border border-dashed border-[#3B82F6]/30 rounded-2xl relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-[12px] font-extrabold text-[#3B82F6] uppercase tracking-widest m-0 flex items-center">
+                                <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
+                            </label>
+                        </div>
+                        <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white" rows="4" required placeholder="e.g., he ate snacks, played with blocks, got distracted...">{{ old('raw_notes') }}</textarea>
                         
-                        <!-- LEFT COLUMN: Main Form Content -->
-                        <div class="lg:col-span-7">
-                            
-                            <input type="hidden" name="student_id" id="student_id" value="{{ $selectedStudentId }}">
+                        <button type="button" id="generateAiBtn" class="w-full inline-flex items-center justify-center px-4 py-3 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
+                            <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally
+                        </button>
 
-                            @if($selectedStudent)
-                                <div class="mb-5 flex items-center gap-4 bg-[#F4F6FA] border border-black/10 p-3 sm:p-4 rounded-2xl shadow-sm">
-                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow-sm bg-gradient-to-br from-[#1E2657] to-[#12163A] shrink-0 border border-black/10">
-                                        {{ strtoupper(substr($selectedStudent->first_name, 0, 1) . substr($selectedStudent->last_name, 0, 1)) }}
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest m-0 mb-0.5">Logging Observation For</p>
-                                        <p class="text-[16px] font-extrabold text-[#1E2657] m-0 leading-tight">{{ $selectedStudent->first_name }} {{ $selectedStudent->last_name }}</p>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Date</label>
-                                    <input type="date" name="log_date" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" value="{{ old('log_date', date('Y-m-d')) }}" required>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Quarter</label>
-                                    @php $selectedQ = old('quarter', $activeQuarterName ?? 'Q1'); @endphp
-                                    <select name="quarter" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" required>
-                                        <option value="Q1" {{ $selectedQ == 'Q1' ? 'selected' : '' }}>Q1</option>
-                                        <option value="Q2" {{ $selectedQ == 'Q2' ? 'selected' : '' }}>Q2</option>
-                                        <option value="Q3" {{ $selectedQ == 'Q3' ? 'selected' : '' }}>Q3</option>
-                                        <option value="Q4" {{ $selectedQ == 'Q4' ? 'selected' : '' }}>Q4</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
-                                    <i class="fa fa-camera text-[#9CA0AF] mr-1.5"></i> Attach Photo (Optional)
-                                </label>
-                                <input type="file" name="photo" id="photoInput" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-black/15 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png">
-                            </div>
-
-                            <hr class="border-black/10 my-6">
-
-                            <div class="p-5 mb-6 bg-[#F4F6FA] border border-dashed border-[#3B82F6]/30 rounded-2xl relative overflow-hidden">
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="text-[12px] font-extrabold text-[#3B82F6] uppercase tracking-widest m-0 flex items-center">
-                                        <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
-                                    </label>
-                                </div>
-                                <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white" rows="4" required placeholder="e.g., he ate snacks, played with blocks, got distracted...">{{ old('raw_notes') }}</textarea>
-                                
-                                <button type="button" id="generateAiBtn" class="w-full inline-flex items-center justify-center px-4 py-3 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
-                                    <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally
-                                </button>
-
-                                <div id="aiLoading" class="text-center text-[#3B82F6] text-[12px] mt-4 font-extrabold hidden">
-                                    <i class="fa fa-spinner fa-spin mr-1.5"></i> AI is thinking...
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
-                                    <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation
-                                </label>
-                                <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here...">{{ old('notes') }}</textarea>
-                            </div>
+                        <div id="aiLoading" class="text-center text-[#3B82F6] text-[12px] mt-4 font-extrabold hidden">
+                            <i class="fa fa-spinner fa-spin mr-1.5"></i> AI is thinking...
                         </div>
+                    </div>
 
-                        <!-- RIGHT COLUMN: Home Recommendations -->
-                        <div class="lg:col-span-5 flex flex-col h-full">
-                            <div class="p-5 bg-[#10B981]/10 border border-dashed border-[#10B981]/30 rounded-2xl relative overflow-hidden flex-1 flex flex-col min-h-[300px]">
-                                <div class="flex justify-between items-center mb-3">
-                                    <label class="text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest m-0 flex items-center">
-                                        <i class="fa fa-home mr-1.5"></i> 3. Home Recommendations
-                                    </label>
-                                </div>
-                                
-                                <textarea name="home_recommendations" id="home_recommendations" class="flex-1 w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm mb-4 custom-scrollbar resize-none" placeholder="AI will generate home activities here...">{{ old('home_recommendations') }}</textarea>
-                                
-                                <button type="button" id="btnGenerateRecommendations" class="mt-auto w-full inline-flex items-center justify-center px-4 py-3 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1">
-                                    <i class="fa fa-lightbulb mr-1.5"></i> Generate Home Activities
-                                </button>
-                            </div>
-                        </div>
+                    <div>
+                        <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
+                            <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation (Standardized Notes)
+                        </label>
+                        <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here...">{{ old('notes') }}</textarea>
+                    </div>
 
-                        <!-- SUBMIT BUTTON -->
-                        <div class="lg:col-span-12 mt-4 border-t border-black/10 pt-6 sm:pt-8">
-                            <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-4 bg-[#1E2657] text-white text-[14px] font-extrabold rounded-xl hover:bg-[#12163A] transition-colors shadow-sm">
-                                <i class="fa fa-save mr-2"></i> Save Daily Log
-                            </button>
-                        </div>
+                    <!-- SUBMIT BUTTON -->
+                    <div class="border-t border-black/10 pt-6">
+                        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-4 bg-[#1E2657] text-white text-[14px] font-extrabold rounded-xl hover:bg-[#12163A] transition-colors shadow-sm">
+                            <i class="fa fa-save mr-2"></i> Save Daily Log & Send to Formal Documentation
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: RECENT LOGS HISTORY -->
-    <div x-show="activeTab === 'history'" x-transition.opacity.duration.300ms x-cloak class="max-w-4xl mx-auto">
+    <!-- TAB 2: FORMAL DOCUMENTATION LIST -->
+    <div x-show="activeTab === 'history'" x-transition.opacity.duration.300ms x-cloak class="w-full">
         
-        <!-- FILTER BAR -->
-        <div class="flex flex-col space-y-3 mb-6 px-1">
-            <h6 class="text-[13px] font-extrabold text-[#1E2657] m-0">Previously Submitted Logs</h6>
+        <!-- FILTER BAR WITH SORTING OPTIONS -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-black/15 mb-6 space-y-3">
+            <h6 class="text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
+                <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Formal Documentation Filter & Search
+            </h6>
             
-            <div class="flex flex-col sm:flex-row gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
                 <!-- Student Filter -->
-                <select id="filterStudent" class="w-full sm:w-64 rounded-xl border-black/15 px-3 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
-                    <option value="all">All Assigned Students</option>
-                    @foreach($myStudents as $student)
-                        <option value="{{ $student->id }}" {{ $selectedStudentId == $student->id ? 'selected' : '' }}>
-                            {{ $student->first_name }} {{ $student->last_name }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="sm:col-span-4">
+                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Student</label>
+                    <select id="filterStudent" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                        <option value="all">All Assigned Students</option>
+                        @foreach($myStudents as $student)
+                            <option value="{{ $student->id }}" {{ $selectedStudentId == $student->id ? 'selected' : '' }}>
+                                {{ $student->first_name }} {{ $student->last_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                <!-- Search -->
-                <div class="relative w-full sm:flex-1 shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
-                        <i class="fa fa-search"></i>
-                    </span>
-                    <input type="text" id="logSearch" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search content...">
+                <!-- Quarter Filter -->
+                <div class="sm:col-span-3">
+                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Quarter</label>
+                    <select id="filterQuarter" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                        <option value="all">All Quarters</option>
+                        <option value="Q1">Quarter 1 (Q1)</option>
+                        <option value="Q2">Quarter 2 (Q2)</option>
+                        <option value="Q3">Quarter 3 (Q3)</option>
+                        <option value="Q4">Quarter 4 (Q4)</option>
+                    </select>
+                </div>
+
+                <!-- Search Input -->
+                <div class="sm:col-span-5">
+                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Search Keywords</label>
+                    <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
+                            <i class="fa fa-search text-xs"></i>
+                        </span>
+                        <input type="text" id="logSearch" class="w-full border-0 py-2 pl-9 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search documentation content...">
+                    </div>
                 </div>
             </div>
         </div>
@@ -246,7 +242,8 @@
                         }
                      }"
                      class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item" 
-                     data-student-id="{{ $log->student_id }}">
+                     data-student-id="{{ $log->student_id }}"
+                     data-quarter="{{ $log->quarter }}">
                     
                     <!-- Card Header -->
                     <div class="p-5 sm:px-6 border-b border-black/10 bg-[#F4F6FA] relative">
@@ -286,10 +283,10 @@
                             </div>
                         </div>
                         
-                        <form action="{{ route('teacher.daily-logs.destroy', $log->id) }}" method="POST" class="absolute top-4 sm:top-5 right-4 sm:right-5 m-0" onsubmit="return confirm('Are you sure you want to permanently delete this daily log?');">
+                        <form action="{{ route('teacher.daily-logs.destroy', $log->id) }}" method="POST" class="absolute top-4 sm:top-5 right-4 sm:right-5 m-0" onsubmit="return confirm('Are you sure you want to permanently delete this documentation entry?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="flex items-center justify-center w-8 h-8 rounded-full bg-white border border-black/10 text-[#9CA0AF] hover:text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm" title="Delete Log">
+                            <button type="submit" class="flex items-center justify-center w-8 h-8 rounded-full bg-white border border-black/10 text-[#9CA0AF] hover:text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm" title="Delete Entry">
                                 <i class="fa fa-trash-alt text-[12px]"></i>
                             </button>
                         </form>
@@ -298,53 +295,31 @@
                     <!-- Card Body -->
                     <div class="p-5 sm:p-6 text-[13px] sm:text-[14px] text-[#6B7086] leading-relaxed bg-white font-medium">
                         @if($log->image_path)
-                            <div class="mb-5 text-center bg-[#F4F6FA] rounded-xl p-3 border border-dashed border-black/15">
-                                <img src="{{ route('secure.log-photo', $log->id) }}" alt="Activity Photo" class="max-h-48 sm:max-h-64 w-auto mx-auto rounded-lg shadow-sm border border-black/10 object-contain">
+                            <div class="mb-4 text-center">
+                                <img src="{{ route('secure.log-photo', $log->id) }}" alt="Observation Photo" class="max-h-[220px] w-auto mx-auto rounded-xl shadow-sm border border-black/10 object-cover">
                             </div>
                         @endif
 
-                        <div class="whitespace-pre-line text-[#1E2657]">
-                            {{ $log->notes }}
-                        </div>
-                        
-                        @if($log->home_recommendations)
-                            <div class="mt-6 p-5 rounded-xl bg-[#10B981]/5 border border-[#10B981]/20 border-l-4 border-l-[#10B981]">
-                                <span class="font-extrabold text-[#10B981] text-[10px] uppercase tracking-widest flex items-center mb-2">
-                                    <i class="fa fa-check-circle mr-1.5"></i> Home Recommendations
-                                </span>
-                                <p class="mb-0 text-[#1E2657] font-medium whitespace-pre-line text-[13px] leading-relaxed">{{ $log->home_recommendations }}</p>
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- Comments Section (Interactive trigger to mark as read) -->
-                    <div class="px-5 py-4 sm:px-6 sm:py-5 bg-[#F4F6FA] border-t border-black/10 transition-colors duration-500"
-                         :class="hasUnread ? 'bg-red-50/40' : 'bg-[#F4F6FA]'"
-                         @mouseenter.once="markAsRead()"
-                         @focusin.once="markAsRead()"
-                         @touchstart.once="markAsRead()">
-                        <div class="text-[10px] font-extrabold uppercase tracking-widest mb-3 flex items-center justify-between"
-                             :class="hasUnread ? 'text-red-500' : 'text-[#9CA0AF]'">
-                            <span class="flex items-center">
-                                <i class="fa fa-comments mr-1.5" :class="hasUnread ? 'text-red-500 animate-bounce' : 'text-[#3B82F6]'"></i> Comments & Feedback
-                            </span>
-                            <span x-show="hasUnread" class="text-[9px] font-extrabold text-red-500 uppercase tracking-widest">
-                                Hover to mark read
-                            </span>
-                        </div>
-                        <div class="bg-white p-0 sm:p-4 rounded-xl border border-black/15 shadow-sm">
-                            @include('components.comment-thread', ['item' => $log])
+                        <div class="p-4 bg-[#F4F6FA] rounded-xl border border-black/10 text-[#1E2657]">
+                            <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest mb-1 flex items-center">
+                                <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
+                            </h6>
+                            <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
                     </div>
 
+                    <!-- Card Comments / Thread -->
+                    <div class="px-5 sm:px-6 py-4 border-t border-black/10 bg-[#F4F6FA]/50">
+                        @include('components.comment-thread', ['item' => $log])
+                    </div>
                 </div>
             @empty
-                <div class="text-center py-16 px-6 bg-white rounded-2xl shadow-sm border border-black/15">
-                    <div class="w-16 h-16 rounded-full bg-[#F4F6FA] border border-black/5 text-[#9CA0AF] flex items-center justify-center mx-auto mb-4">
-                        <i class="fa fa-clock-rotate-left text-2xl"></i>
+                <div class="w-full text-center py-12 bg-white rounded-2xl border-2 border-dashed border-black/15 p-6">
+                    <div class="w-14 h-14 rounded-full bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center mx-auto mb-3 text-2xl">
+                        <i class="fa fa-file-contract"></i>
                     </div>
-                    <h6 class="text-[15px] font-extrabold text-[#1E2657] m-0 mb-1">No History Found</h6>
-                    <p class="text-[13px] font-medium text-[#6B7086] m-0">You haven't submitted any daily logs yet.</p>
+                    <h6 class="text-[15px] font-extrabold text-[#1E2657] m-0 mb-1">No formal documentation records found</h6>
+                    <p class="text-[13px] font-medium text-[#9CA0AF] m-0">Submitted observation entries and standardized notes will automatically populate here.</p>
                 </div>
             @endforelse
         </div>
@@ -358,28 +333,23 @@ document.addEventListener("DOMContentLoaded", function() {
     const studentIdInput = document.getElementById('student_id');
     const rawNotes = document.getElementById('rawNotes');
     const formalNotes = document.getElementById('formalNotes');
-    const homeRecs = document.getElementById('home_recommendations');
     const form = document.getElementById('dailyLogForm');
 
     if (studentIdInput && studentIdInput.value) {
         const sid = studentIdInput.value;
         const rawKey = `dalc_draft_raw_${sid}`;
         const formalKey = `dalc_draft_formal_${sid}`;
-        const homeKey = `dalc_draft_home_${sid}`;
 
         if (localStorage.getItem(rawKey) && !rawNotes.value) rawNotes.value = localStorage.getItem(rawKey);
         if (localStorage.getItem(formalKey) && !formalNotes.value) formalNotes.value = localStorage.getItem(formalKey);
-        if (localStorage.getItem(homeKey) && !homeRecs.value) homeRecs.value = localStorage.getItem(homeKey);
 
         rawNotes.addEventListener('input', () => localStorage.setItem(rawKey, rawNotes.value));
         formalNotes.addEventListener('input', () => localStorage.setItem(formalKey, formalNotes.value));
-        homeRecs.addEventListener('input', () => localStorage.setItem(homeKey, homeRecs.value));
 
         if (form) {
             form.addEventListener('submit', function() {
                 localStorage.removeItem(rawKey);
                 localStorage.removeItem(formalKey);
-                localStorage.removeItem(homeKey);
             });
         }
     }
@@ -405,24 +375,28 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// --- FEED SEARCH FILTER LOGIC ---
+// --- FEED SEARCH & FILTER LOGIC ---
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('logSearch');
     const filterStudent = document.getElementById('filterStudent');
+    const filterQuarter = document.getElementById('filterQuarter');
     const logItems = document.querySelectorAll('.log-item');
 
     function applyFilters() {
         const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const studentId = filterStudent ? filterStudent.value : 'all';
+        const quarter = filterQuarter ? filterQuarter.value : 'all';
 
         logItems.forEach(card => {
             const text = card.textContent.toLowerCase();
             const cardStudentId = card.getAttribute('data-student-id');
+            const cardQuarter = card.getAttribute('data-quarter');
 
             const matchesSearch = text.includes(term);
             const matchesStudent = (studentId === 'all' || cardStudentId === studentId);
+            const matchesQuarter = (quarter === 'all' || cardQuarter === quarter);
 
-            if (matchesSearch && matchesStudent) {
+            if (matchesSearch && matchesStudent && matchesQuarter) {
                 card.style.display = '';
             } else {
                 card.style.display = 'none';
@@ -432,8 +406,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (searchInput) searchInput.addEventListener('input', applyFilters);
     if (filterStudent) filterStudent.addEventListener('change', applyFilters);
+    if (filterQuarter) filterQuarter.addEventListener('change', applyFilters);
 
-    // Initial run to apply the auto-selected student filter on page load
     applyFilters();
 });
 
@@ -480,58 +454,6 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
     .finally(() => {
         btn.disabled = false;
         loading.classList.add('hidden'); 
-    });
-});
-
-// --- AI HOME RECOMMENDATIONS LOGIC ---
-document.getElementById('btnGenerateRecommendations').addEventListener('click', function() {
-    let rawNotes = document.getElementById('rawNotes').value;
-    let studentId = document.getElementById('student_id').value; 
-    let btn = this;
-    let targetBox = document.getElementById('home_recommendations');
-
-    if (!studentId) {
-        alert('Please return to the student list and select a student first!');
-        return;
-    }
-
-    if (!rawNotes.trim()) {
-        alert('Please write some informal notes first so the AI knows what to recommend!');
-        return;
-    }
-
-    let originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Generating Activities...';
-    btn.disabled = true;
-
-    fetch('{{ route('teacher.daily-logs.generate-recommendations') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ 
-            notes: rawNotes,
-            student_id: studentId 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            targetBox.value = data.recommendation;
-            
-            if(studentId) localStorage.setItem(`dalc_draft_home_${studentId}`, data.recommendation);
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while generating recommendations.');
-    })
-    .finally(() => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
     });
 });
 </script>

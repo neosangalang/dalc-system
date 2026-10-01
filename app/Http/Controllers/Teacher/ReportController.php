@@ -101,6 +101,21 @@ class ReportController extends Controller
             }
         }
 
+        // If Daily Report, sync home recommendations to daily log for parents
+        if ($request->report_type === 'daily') {
+            $logDate = $request->report_date ?: date('Y-m-d');
+            $log = DailyLog::where('student_id', $request->student_id)
+                ->whereDate('log_date', $logDate)
+                ->first();
+
+            if (preg_match('/Tonight\'s Suggested Activity:?\s*(.*)/is', $request->content, $matches)) {
+                $homeRecs = trim($matches[1]);
+                if ($log) {
+                    $log->update(['home_recommendations' => $homeRecs]);
+                }
+            }
+        }
+
         $message = $status === 'draft' ? 'Report saved as a draft!' : 'Report successfully submitted to Administration for approval!';
 
         return redirect()->route('teacher.reports.create')->with('success', $message);
@@ -256,15 +271,13 @@ STRICT REVISION RULES:
 5. Maintain a compassionate, objective, and professional Special Education tone.";
         }
         elseif ($request->report_type === 'daily') {
-            $prompt = "You are an expert Special Education teacher writing a daily update for a parent. 
-            Read the following rough notes about the student ({$student->first_name}) and summarize them into ONE simple, warm, and professional paragraph. 
+            $prompt = "You are an expert Special Education teacher writing a formal Daily Report for a student named ({$student->first_name}).
+            Read the following daily observation notes and generate a comprehensive Daily Report that includes:
             
-            Strict Rules:
-            - Do NOT use bullet points, lists, or headers.
-            - Do NOT write more than one paragraph.
-            - Keep the tone encouraging but factual.
+            1. A clear, warm, and professional classroom summary paragraph of the student's observations and progress today.
+            2. A dedicated section titled 'Tonight's Suggested Activity:' with 1-2 easy, practical home activities for the parents to practice tonight with their child.
             
-            Rough Notes:
+            Rough Observation Notes:
             " . $logSummaries;
         } 
         else {

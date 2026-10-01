@@ -116,17 +116,10 @@
                     @endif
 
                     <div class="{{ $log->image_path ? 'md:col-span-7' : 'md:col-span-12' }} flex flex-col gap-4">
-                        @if(isset($log->daily_report) && $log->daily_report)
-                            <div class="p-4 sm:p-5 bg-indigo-50/60 rounded-xl border-2 border-indigo-200">
-                                <h6 class="font-extrabold text-indigo-800 mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                    <i class="fa-solid fa-file-lines text-indigo-600 mr-2"></i> Daily Report:
-                                </h6>
-                                <div class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->daily_report->content }}</div>
-                            </div>
-                        @elseif($log->notes)
+                        @if($log->notes)
                             <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-200">
                                 <h6 class="font-extrabold text-[#1E2657] mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                    <i class="fa fa-pencil text-[#3B82F6] mr-2"></i> Daily Classroom Notes:
+                                    <i class="fa fa-pencil text-[#3B82F6] mr-2"></i> Classroom Notes:
                                 </h6>
                                 <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->notes }}</p>
                             </div>

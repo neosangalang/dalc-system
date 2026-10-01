@@ -8,24 +8,13 @@
     [x-cloak] { display: none !important; }
 </style>
 
-@php
-    $reportTypeMap = [
-        'q1' => '1st Quarter (Q1) Report',
-        'q2' => '2nd Quarter (Q2) Report',
-        'q3' => '3rd Quarter (Q3) Report',
-        'q4' => '4th Quarter (Q4) Report',
-    ];
-
-    $currentType = request('type', 'all');
-@endphp
-
 <div class="font-['Inter'] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block min-h-[100dvh]" x-data="{ activeViewModal: null }">
 
     <!-- HEADER SECTION -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 sm:mb-8 gap-4 w-full">
         <div>
             <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1 m-0 leading-tight">Official Student Reports</h3>
-            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Review formal evaluations and quarterly progress reports for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
+            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Review progress summaries and official documentation for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
         </div>
         
         @if(isset($activeChild) && isset($myChildren))
@@ -63,40 +52,12 @@
     </div>
 
     @if(isset($activeChild))
-
-    <!-- SEPARATE QUARTER REPORT TABS (EXCLUDING MID-YEAR & YEAR-END) -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
-        <a href="{{ route('guardian.reports') }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'all' || empty($currentType) ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
-            <i class="fa-solid fa-layer-group"></i> All Formal Reports
-        </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q1' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
-            <i class="fa-solid fa-calendar-check"></i> Quarter 1 (Q1)
-        </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q2' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
-            <i class="fa-solid fa-calendar-check"></i> Quarter 2 (Q2)
-        </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q3' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
-            <i class="fa-solid fa-calendar-check"></i> Quarter 3 (Q3)
-        </a>
-        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="px-4 py-2.5 rounded-xl text-[12px] sm:text-[13px] font-extrabold whitespace-nowrap transition-all shadow-sm decoration-transparent flex items-center gap-1.5 {{ $currentType === 'q4' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50' }}">
-            <i class="fa-solid fa-calendar-check"></i> Quarter 4 (Q4)
-        </a>
-    </div>
-
     <div class="bg-transparent md:bg-white md:rounded-2xl md:shadow-sm md:border-2 border-slate-300 overflow-hidden md:border-t-4 border-t-indigo-600">
         
-        <div class="px-4 sm:px-6 py-4 sm:py-5 border-2 md:border-x-0 md:border-t-0 border-slate-200 border-t-4 border-t-indigo-600 md:border-b-2 bg-white rounded-[16px] md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0 flex items-center justify-between">
+        <div class="px-4 sm:px-6 py-4 sm:py-5 border-2 md:border-x-0 md:border-t-0 border-slate-200 border-t-4 border-t-indigo-600 md:border-b-2 bg-white rounded-[16px] md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
             <h5 class="font-extrabold text-slate-800 m-0 text-base sm:text-lg flex items-center">
-                <i class="fa fa-file-signature text-indigo-600 mr-2.5"></i> 
-                @if($currentType !== 'all' && isset($reportTypeMap[$currentType]))
-                    {{ $reportTypeMap[$currentType] }} Library
-                @else
-                    Official Document Library
-                @endif
+                <i class="fa fa-file-signature text-indigo-600 mr-2.5"></i> Document Library
             </h5>
-            <span class="text-xs font-extrabold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200">
-                {{ $reports->count() }} {{ \Illuminate\Support\Str::plural('document', $reports->count()) }}
-            </span>
         </div>
         
         <div class="w-full">
@@ -128,7 +89,7 @@
                             <td class="flex justify-between items-center md:table-cell px-4 py-2.5 md:px-6 md:py-4 border-b border-slate-100 md:border-none mt-1 md:mt-0">
                                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider md:hidden">Report Type</span>
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border-2 border-indigo-200 uppercase tracking-widest shadow-sm">
-                                    {{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}
+                                    {{ ucwords(str_replace('_', ' ', $report->report_type)) }}
                                 </span>
                             </td>
                             
@@ -144,11 +105,15 @@
                             <td class="flex justify-between items-center md:table-cell px-4 py-2.5 md:px-6 md:py-4 border-b border-slate-100 md:border-none">
                                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider md:hidden">Date Generated</span>
                                 <span class="text-[12px] sm:text-xs font-bold text-slate-600">
-                                    {{ $report->created_at->format('M d, Y') }}
+                                    @if($report->report_type === 'daily' && $report->report_date)
+                                        {{ \Carbon\Carbon::parse($report->report_date)->format('M d, Y') }}
+                                    @else
+                                        {{ $report->created_at->format('M d, Y') }}
+                                    @endif
                                 </span>
                             </td>
                             
-                            <!-- 5. Actions Footer -->
+                            <!-- 5. Actions Footer (2-col Grid on mobile) -->
                             <td class="block md:table-cell px-4 py-4 md:px-6 md:py-4 bg-slate-50 md:bg-transparent rounded-b-[16px] md:rounded-none">
                                 <div class="grid grid-cols-2 md:flex md:justify-end gap-2 w-full md:w-auto">
                                     <button @click="activeViewModal = {{ $report->id }}" class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 md:py-1.5 bg-white md:bg-indigo-50 border-2 border-slate-300 md:border-indigo-300 text-indigo-600 md:text-indigo-700 text-[13px] md:text-xs font-bold rounded-lg hover:bg-slate-50 md:hover:bg-indigo-100 transition-colors shadow-sm">
@@ -162,7 +127,7 @@
                             </td>
                         </tr>
 
-                        <!-- READING MODAL -->
+                        <!-- READING MODAL (Mobile Optimized) -->
                         <div x-show="activeViewModal === {{ $report->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                                 <div x-show="activeViewModal === {{ $report->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="activeViewModal = null"></div>
@@ -172,7 +137,7 @@
                                     <!-- Modal Header -->
                                     <div class="px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-slate-200 bg-slate-50 flex justify-between items-start shrink-0">
                                         <div>
-                                            <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ $reportTypeMap[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) }}</h5>
+                                            <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ ucwords(str_replace('_', ' ', $report->report_type)) }} Report</h5>
                                             <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
                                         </div>
                                         <button type="button" @click="activeViewModal = null" class="text-slate-400 hover:text-slate-700 ml-4"><i class="fa fa-times text-xl"></i></button>
@@ -180,7 +145,30 @@
                                     
                                     <!-- Modal Body (Scrollable) -->
                                     <div class="p-4 sm:p-6 max-h-[60vh] sm:max-h-[600px] overflow-y-auto bg-white [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-thumb]:bg-slate-300">
-                                        <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border-2 border-slate-300 whitespace-pre-wrap text-[13px] sm:text-sm text-slate-700 leading-relaxed">{{ $report->content }}</div>
+                                        @if($report->report_type === 'daily')
+                                            <p class="mb-3 sm:mb-4 text-slate-800 font-extrabold text-[14px] sm:text-base">Dear Parent/Guardian,</p>
+                                            
+                                            @php
+                                                $reportDate = $report->report_date ? $report->report_date : $report->created_at->format('Y-m-d');
+                                                $dailyLogWithPhoto = \App\Models\DailyLog::where('student_id', $report->student_id)
+                                                    ->whereDate('log_date', $reportDate)
+                                                    ->whereNotNull('image_path')
+                                                    ->latest()
+                                                    ->first();
+                                            @endphp
+
+                                            @if($dailyLogWithPhoto)
+                                                <div class="text-center mb-5 sm:mb-6 p-2 sm:p-3 bg-slate-50 rounded-xl border-[3px] border-dashed border-slate-300">
+                                                    <img src="{{ asset('storage/' . $dailyLogWithPhoto->image_path) }}" alt="Student Progress Photo" class="max-h-56 sm:max-h-72 w-auto mx-auto rounded-lg shadow-sm border-4 border-white outline outline-1 outline-slate-200">
+                                                </div>
+                                            @endif
+                                            
+                                            <div class="p-4 sm:p-5 shadow-sm bg-white rounded-xl text-[13px] sm:text-base leading-relaxed border-y-2 border-r-2 border-l-4 border-slate-200 border-l-indigo-600 text-slate-700 whitespace-pre-wrap">{{ $report->content }}</div>
+                                            
+                                            <p class="mt-5 sm:mt-6 mb-0 text-slate-600 font-medium italic text-[13px] sm:text-base">Warmly,<br>Teacher {{ $report->teacher->name ?? 'Staff' }}</p>
+                                        @else
+                                            <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border-2 border-slate-300 whitespace-pre-wrap text-[13px] sm:text-sm text-slate-700 leading-relaxed">{{ $report->content }}</div>
+                                        @endif
 
                                         <div class="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t-[3px] border-dashed border-slate-300">
                                             @include('components.comment-thread', ['item' => $report])
@@ -204,14 +192,8 @@
                                     <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-indigo-50 flex items-center justify-center mx-auto mb-3 sm:mb-4 border-2 border-indigo-200">
                                         <i class="fa fa-folder-open text-2xl sm:text-3xl text-indigo-400"></i>
                                     </div>
-                                    <h6 class="text-[14px] sm:text-base font-extrabold text-slate-800 m-0 mb-1">
-                                        @if($currentType !== 'all' && isset($reportTypeMap[$currentType]))
-                                            No {{ $reportTypeMap[$currentType] }}s available
-                                        @else
-                                            No quarterly reports available
-                                        @endif
-                                    </h6>
-                                    <p class="text-[12px] sm:text-sm font-medium text-slate-500 m-0">No approved official quarterly reports are available in this category for {{ $activeChild->first_name ?? 'this student' }} yet.</p>
+                                    <h6 class="text-[14px] sm:text-base font-extrabold text-slate-800 m-0 mb-1">No reports available</h6>
+                                    <p class="text-[12px] sm:text-sm font-medium text-slate-500 m-0">No official reports have been published for {{ $activeChild->first_name ?? 'this student' }} yet.</p>
                                 </div>
                             </td>
                         </tr>
