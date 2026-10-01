@@ -15,9 +15,6 @@ class AiAssistantController extends Controller
 
         $apiKey = trim(config('services.groq.api_key') ?? env('GROQ_API_KEY'), '"\' ');
 
-        // Hit the OpenAI-compatible Groq endpoint
-        $response = Http::withToken(config('services.groq.api_key'))
-            ->post('https://api.groq.com/openai/v1/chat/completions', [
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DALC-System/1.0',

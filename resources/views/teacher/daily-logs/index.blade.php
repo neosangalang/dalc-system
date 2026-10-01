@@ -178,7 +178,7 @@
             
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
                 <!-- Student Filter -->
-                <div class="sm:col-span-4">
+                <div class="sm:col-span-3">
                     <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Student</label>
                     <select id="filterStudent" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
                         <option value="all">All Assigned Students</option>
@@ -190,20 +190,26 @@
                     </select>
                 </div>
 
-                <!-- Quarter Filter -->
+                <!-- Date Filter -->
                 <div class="sm:col-span-3">
+                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Date</label>
+                    <input type="date" id="filterDate" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                </div>
+
+                <!-- Quarter Filter -->
+                <div class="sm:col-span-2">
                     <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Quarter</label>
                     <select id="filterQuarter" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
                         <option value="all">All Quarters</option>
-                        <option value="Q1">Quarter 1 (Q1)</option>
-                        <option value="Q2">Quarter 2 (Q2)</option>
-                        <option value="Q3">Quarter 3 (Q3)</option>
-                        <option value="Q4">Quarter 4 (Q4)</option>
+                        <option value="Q1">Q1</option>
+                        <option value="Q2">Q2</option>
+                        <option value="Q3">Q3</option>
+                        <option value="Q4">Q4</option>
                     </select>
                 </div>
 
                 <!-- Search Input -->
-                <div class="sm:col-span-5">
+                <div class="sm:col-span-4">
                     <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Search Keywords</label>
                     <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
@@ -243,6 +249,7 @@
                      }"
                      class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item" 
                      data-student-id="{{ $log->student_id }}"
+                     data-log-date="{{ $log->log_date }}"
                      data-quarter="{{ $log->quarter }}">
                     
                     <!-- Card Header -->
@@ -306,11 +313,6 @@
                             </h6>
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
-                    </div>
-
-                    <!-- Card Comments / Thread -->
-                    <div class="px-5 sm:px-6 py-4 border-t border-black/10 bg-[#F4F6FA]/50">
-                        @include('components.comment-thread', ['item' => $log])
                     </div>
                 </div>
             @empty
@@ -379,24 +381,28 @@ document.addEventListener("DOMContentLoaded", function() {
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('logSearch');
     const filterStudent = document.getElementById('filterStudent');
+    const filterDate = document.getElementById('filterDate');
     const filterQuarter = document.getElementById('filterQuarter');
     const logItems = document.querySelectorAll('.log-item');
 
     function applyFilters() {
         const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const studentId = filterStudent ? filterStudent.value : 'all';
+        const dateVal = filterDate ? filterDate.value : '';
         const quarter = filterQuarter ? filterQuarter.value : 'all';
 
         logItems.forEach(card => {
             const text = card.textContent.toLowerCase();
             const cardStudentId = card.getAttribute('data-student-id');
+            const cardLogDate = card.getAttribute('data-log-date');
             const cardQuarter = card.getAttribute('data-quarter');
 
             const matchesSearch = text.includes(term);
             const matchesStudent = (studentId === 'all' || cardStudentId === studentId);
+            const matchesDate = (!dateVal || cardLogDate === dateVal);
             const matchesQuarter = (quarter === 'all' || cardQuarter === quarter);
 
-            if (matchesSearch && matchesStudent && matchesQuarter) {
+            if (matchesSearch && matchesStudent && matchesDate && matchesQuarter) {
                 card.style.display = '';
             } else {
                 card.style.display = 'none';
@@ -406,6 +412,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (searchInput) searchInput.addEventListener('input', applyFilters);
     if (filterStudent) filterStudent.addEventListener('change', applyFilters);
+    if (filterDate) filterDate.addEventListener('change', applyFilters);
     if (filterQuarter) filterQuarter.addEventListener('change', applyFilters);
 
     applyFilters();

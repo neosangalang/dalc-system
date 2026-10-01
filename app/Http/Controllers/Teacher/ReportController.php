@@ -74,10 +74,21 @@ class ReportController extends Controller
             'student_id' => 'required|exists:students,id',
             'report_type' => 'required|string',
             'content' => 'required|string',
+            'home_recommendations' => 'nullable|string',
             'action' => 'required|in:draft,submit'
         ]);
 
-        $status = $request->action === 'submit' ? 'pending_approval' : 'draft';
+        if ($request->report_type === 'daily') {
+            // Daily reports skip admin review and are published directly to guardians
+            $status = $request->action === 'submit' ? 'approved' : 'draft';
+        } else {
+            $status = $request->action === 'submit' ? 'pending_approval' : 'draft';
+        }
+
+        $finalContent = $request->content;
+        if ($request->report_type === 'daily' && $request->filled('home_recommendations') && !str_contains($finalContent, "Tonight's Suggested Activity")) {
+            $finalContent .= "\n\nTonight's Suggested Activity:\n" . trim($request->home_recommendations);
+        }
 
         // Capture the newly created report to use its ID for action routing
         $report = Report::create([
@@ -85,11 +96,11 @@ class ReportController extends Controller
             'teacher_id' => auth()->id(),
             'report_type' => $request->report_type,
             'report_date' => $request->report_date,
-            'content' => $request->content,
+            'content' => $finalContent,
             'status' => $status,
         ]);
 
-        // Notify the Admin and route them directly to this specific report
+        // Notify the Admin and route them directly to this specific report if pending approval
         if ($status === 'pending_approval') {
             $admin = User::where('role', 'admin')->first();
             
@@ -102,21 +113,24 @@ class ReportController extends Controller
         }
 
         // If Daily Report, sync home recommendations to daily log for parents
-        if ($request->report_type === 'daily') {
+        if ($request->report_type === 'daily' && $request->filled('home_recommendations')) {
             $logDate = $request->report_date ?: date('Y-m-d');
             $log = DailyLog::where('student_id', $request->student_id)
                 ->whereDate('log_date', $logDate)
                 ->first();
 
-            if (preg_match('/Tonight\'s Suggested Activity:?\s*(.*)/is', $request->content, $matches)) {
-                $homeRecs = trim($matches[1]);
-                if ($log) {
-                    $log->update(['home_recommendations' => $homeRecs]);
-                }
+            if ($log) {
+                $log->update(['home_recommendations' => trim($request->home_recommendations)]);
             }
         }
 
-        $message = $status === 'draft' ? 'Report saved as a draft!' : 'Report successfully submitted to Administration for approval!';
+        if ($status === 'draft') {
+            $message = 'Report saved as a draft!';
+        } elseif ($request->report_type === 'daily') {
+            $message = 'Daily report published directly to guardian!';
+        } else {
+            $message = 'Report successfully submitted to Administration for approval!';
+        }
 
         return redirect()->route('teacher.reports.create')->with('success', $message);
     }
@@ -182,6 +196,7 @@ class ReportController extends Controller
             'student_id' => 'required|exists:students,id',
             'report_type' => 'required|string',
             'report_date' => 'nullable|date',
+            'section' => 'nullable|string',
             'revision_notes' => 'nullable|string',
             'existing_content' => 'nullable|string',
         ]);
@@ -271,14 +286,21 @@ STRICT REVISION RULES:
 5. Maintain a compassionate, objective, and professional Special Education tone.";
         }
         elseif ($request->report_type === 'daily') {
-            $prompt = "You are an expert Special Education teacher writing a formal Daily Report for a student named ({$student->first_name}).
-            Read the following daily observation notes and generate a comprehensive Daily Report that includes:
-            
-            1. A clear, warm, and professional classroom summary paragraph of the student's observations and progress today.
-            2. A dedicated section titled 'Tonight's Suggested Activity:' with 1-2 easy, practical home activities for the parents to practice tonight with their child.
-            
-            Rough Observation Notes:
-            " . $logSummaries;
+            if ($request->section === 'home_recommendation') {
+                $prompt = "You are an expert Special Education teacher writing home-based recommendations for a student named {$student->first_name}.
+                Read the following daily observation notes and generate 1-2 easy, practical, and engaging home activities for the parents to practice tonight with their child.
+                Do NOT output headers or daily report narratives. Output only 1-2 practical home-based activities for tonight.
+                
+                Rough Observation Notes:
+                " . $logSummaries;
+            } else {
+                $prompt = "You are an expert Special Education teacher writing a formal Daily Report summary for a student named {$student->first_name}.
+                Read the following daily observation notes and generate a clear, warm, and professional daily report narrative paragraph summarizing the student's observations, activities, and progress today.
+                Do NOT include home recommendations or activity lists. Output only the classroom progress summary.
+                
+                Rough Observation Notes:
+                " . $logSummaries;
+            }
         } 
         else {
             $prompt = "You are an expert Special Education Teacher. Write a highly professional {$timeframe} report for a student named {$student->first_name} {$student->last_name}. 
