@@ -142,6 +142,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_create_profiles'])->group(function() {
+        Route::post('/students/{id}/re-enroll', [AdminStudentController::class, 'reEnroll'])->name('students.re-enroll');
         Route::delete('/students/{id}/delete-document', [AdminStudentController::class, 'deleteDocument'])->name('students.delete-document');
         Route::resource('students', AdminStudentController::class);
     });

@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\Auth;
 class TeacherStudentController extends Controller
 {
     public function index() {
-        // Fetch only the students assigned to this specific teacher
+        // Fetch only active students assigned to this specific teacher
         $students = Student::where('teacher_id', Auth::id())
+                           ->where('status', 'active')
                            ->orderBy('last_name', 'asc')
                            ->get();
 
@@ -20,9 +21,10 @@ class TeacherStudentController extends Controller
 
     public function show($id)
     {
-        // Fetch the student, ensuring they belong to the currently logged-in teacher
+        // Fetch the active student, ensuring they belong to the currently logged-in teacher
         $student = Student::where('id', $id)
             ->where('teacher_id', Auth::id())
+            ->where('status', 'active')
             ->firstOrFail();
 
         // Return the read-only profile view we just created
@@ -38,6 +40,7 @@ class TeacherStudentController extends Controller
 
         $student = Student::where('id', $id)
             ->where('teacher_id', Auth::id())
+            ->where('status', 'active')
             ->firstOrFail();
 
         return view('teacher.students.edit', compact('student'));

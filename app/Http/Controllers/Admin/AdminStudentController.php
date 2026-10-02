@@ -86,26 +86,49 @@ class AdminStudentController extends Controller
                     Storage::disk('public')->delete($student->medical_document);
                 }
                 $data['medical_document'] = $request->file('medical_document')->store('medical_documents', 'public');
-            } elseif ($request->boolean('delete_medical_document')) {
-                if ($student->medical_document) {
-                    Storage::disk('public')->delete($student->medical_document);
-                }
-                $data['medical_document'] = null;
             }
 
             $student->update($data);
+            // Note: Old manual guardian update logic removed because Guardian linking is now just an ID dropdown!
         });
 
         return redirect()->back()->with('success', 'Student profile updated successfully!');
     }
 
-    public function deleteDocument($id) {
+    public function reEnroll(Request $request, $id) {
         $student = Student::findOrFail($id);
-        if ($student->medical_document) {
-            Storage::disk('public')->delete($student->medical_document);
-            $student->update(['medical_document' => null]);
-        }
-        return redirect()->back()->with('success', 'Medical document deleted successfully.');
+
+        $request->validate([
+            'first_name'                => 'required|string|max:255',
+            'last_name'                 => 'required|string|max:255',
+            'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number,' . $id,
+            'class_name'                => 'nullable|string|max:255',
+            'date_of_birth'             => 'required|date',
+            'gender'                    => 'required|in:Male,Female',
+            'diagnosis'                 => 'required|string',
+            'teacher_id'                => 'required|exists:users,id',
+            'guardian_id'               => 'nullable|exists:users,id',
+            'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ]);
+
+        DB::transaction(function () use ($request, $student) {
+            $data = $request->only([
+                'first_name', 'last_name', 'learners_reference_number', 'class_name', 'date_of_birth',
+                'gender', 'diagnosis', 'teacher_id', 'guardian_id',
+            ]);
+            $data['status'] = 'active';
+
+            if ($request->hasFile('medical_document')) {
+                if ($student->medical_document) {
+                    Storage::disk('public')->delete($student->medical_document);
+                }
+                $data['medical_document'] = $request->file('medical_document')->store('medical_documents', 'public');
+            }
+
+            $student->update($data);
+        });
+
+        return redirect()->back()->with('success', "Student {$student->first_name} {$student->last_name} has been successfully re-enrolled and reactivated for the new school year!");
     }
 
     public function show($id) {

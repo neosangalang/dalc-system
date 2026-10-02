@@ -29,4 +29,12 @@ class ArchivedStudent extends Model
     public function student() {
         return $this->belongsTo(Student::class);
     }
+
+    public function getStudentNameAttribute() {
+        if ($this->student) {
+            return $this->student->first_name . ' ' . $this->student->last_name;
+        }
+        $snap = $this->student_snapshot ?? [];
+        return ($snap['first_name'] ?? 'Unknown') . ' ' . ($snap['last_name'] ?? 'Student');
+    }
 }

@@ -89,11 +89,11 @@ class ArchiveController extends Controller
                 'archived_at'       => $now,
             ]);
 
-            // Update Status
-            $student->update(['status' => 'archived']);
+            // Update Status to Inactive (Frozen)
+            $student->update(['status' => 'inactive']);
         }
 
-        return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "!");
+        return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "! Active student profiles are now transition to Inactive (Frozen) status.");
     }
 
     // ==========================================
@@ -113,9 +113,24 @@ class ArchiveController extends Controller
     {
         $archive = ArchivedStudent::findOrFail($id);
 
-        // Set the student back to active
-        Student::where('id', $archive->student_id)
-            ->update(['status' => 'active']);
+        // Reactivate existing student or recreate profile if previously deleted
+        if ($archive->student_id && Student::where('id', $archive->student_id)->exists()) {
+            Student::where('id', $archive->student_id)->update(['status' => 'active']);
+        } else {
+            $snap = $archive->student_snapshot ?? [];
+            Student::create([
+                'first_name'                => $snap['first_name'] ?? 'Restored',
+                'last_name'                 => $snap['last_name'] ?? 'Student',
+                'learners_reference_number' => $snap['learners_reference_number'] ?? null,
+                'class_name'                => $snap['class_name'] ?? null,
+                'date_of_birth'             => $snap['date_of_birth'] ?? now()->toDateString(),
+                'gender'                    => $snap['gender'] ?? 'Male',
+                'diagnosis'                 => $snap['diagnosis'] ?? ($snap['exceptionality'] ?? 'Restored Profile'),
+                'teacher_id'                => $snap['teacher_id'] ?? null,
+                'guardian_id'               => $snap['guardian_id'] ?? null,
+                'status'                    => 'active',
+            ]);
+        }
 
         // Delete the PDF file if it exists
         if ($archive->master_pdf_path && Storage::disk('public')->exists($archive->master_pdf_path)) {
@@ -126,7 +141,7 @@ class ArchiveController extends Controller
         $archive->delete();
 
         return redirect()->route('admin.archive.index')
-            ->with('success', 'Student has been restored to active status successfully!');
+            ->with('success', 'Student profile has been reactivated to active status successfully!');
     }
 
     public function archiveQuarterlyReports(\Illuminate\Http\Request $request)

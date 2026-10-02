@@ -34,7 +34,7 @@
     @endif
 
     <div class="bg-white rounded-[16px] sm:rounded-2xl shadow-sm sm:shadow-md border border-slate-300 overflow-hidden">
-        <form action="{{ route('teacher.reports.store') }}" method="POST" enctype="multipart/form-data" id="report-generation-form" class="m-0">
+        <form action="{{ route('teacher.reports.store') }}" method="POST" id="report-generation-form" class="m-0">
             @csrf
             
             <!-- Hidden field for final compiled content -->
@@ -128,31 +128,6 @@
                         <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-slate-300 px-4 py-4 text-[13px] sm:text-sm font-medium text-slate-700 bg-white focus:border-amber-500 focus:ring-amber-500 shadow-inner custom-scrollbar" rows="4" placeholder="Home-based recommendations will appear here (optional)..."></textarea>
                     </div>
 
-                    <!-- 3. Attach Photo for Daily Report (Optional) -->
-                    <div class="p-5 sm:p-6 bg-slate-50 border border-dashed border-indigo-300 rounded-xl relative overflow-hidden">
-                        <div class="flex justify-between items-center mb-2">
-                            <h6 class="text-[13px] sm:text-sm font-extrabold text-indigo-700 m-0 flex items-center">
-                                <i class="fa fa-camera mr-2"></i> 3. Attach Photo for Daily Report (Optional)
-                            </h6>
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 bg-slate-200 px-2.5 py-1 rounded-full">Optional</span>
-                        </div>
-                        <p class="text-[11px] sm:text-xs font-medium text-slate-500 mb-3 m-0">Attach an observation or progress photo for today's daily report.</p>
-                        
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                            <input type="file" name="photo" id="photo_input" accept="image/jpeg, image/png" class="block w-full text-[13px] font-medium text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 border border-slate-300 rounded-xl cursor-pointer shadow-sm bg-white">
-                            
-                            <!-- Delete Photo Button -->
-                            <button type="button" id="remove_photo_btn" class="hidden shrink-0 inline-flex items-center justify-center px-4 py-2.5 bg-rose-50 border border-rose-200 text-rose-600 text-[12px] font-extrabold rounded-xl hover:bg-rose-100 transition-colors shadow-sm cursor-pointer">
-                                <i class="fa fa-trash-alt mr-1.5"></i> Delete Photo
-                            </button>
-                        </div>
-
-                        <!-- File Info Preview -->
-                        <div id="photo_preview_info" class="hidden mt-2.5 text-[12px] font-bold text-emerald-600 flex items-center">
-                            <i class="fa fa-check-circle mr-1.5"></i> Photo attached: <span id="photo_filename_span" class="ml-1 text-slate-700 font-semibold"></span>
-                        </div>
-                    </div>
-
                 </div>
 
                 <!-- ================= NON-DAILY REPORT SECTION (Visible for Quarterly, Mid-Year, Year-End) ================= -->
@@ -220,11 +195,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const generalContent = document.getElementById('general_content');
     const finalContentInput = document.getElementById('final_content_input');
 
-    const photoInput = document.getElementById('photo_input');
-    const removePhotoBtn = document.getElementById('remove_photo_btn');
-    const photoPreviewInfo = document.getElementById('photo_preview_info');
-    const photoFilenameSpan = document.getElementById('photo_filename_span');
-
     const triggerDailyBtn = document.getElementById('trigger-daily-ai-btn');
     const triggerHomeBtn = document.getElementById('trigger-home-ai-btn');
     const triggerGeneralBtn = document.getElementById('trigger-general-ai-btn');
@@ -241,8 +211,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Cache structure: cache[cacheKey] = { dailyContent, homeRec, generalContent, dailyGen, homeGen, generalGen }
     const cache = {};
-    let previousCacheKey = getCacheKey();
-    let isSubmitting = false;
 
     function getCacheKey() {
         const studentId = studentSelect.value || 'none';
@@ -255,18 +223,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function saveCurrentToCache() {
-        if (!previousCacheKey) return;
-        if (!cache[previousCacheKey]) cache[previousCacheKey] = {};
-        cache[previousCacheKey].dailyContent = dailyContent.value;
-        cache[previousCacheKey].homeRec = homeRec.value;
-        cache[previousCacheKey].generalContent = generalContent.value;
-    }
-
-    function clearPhotoAttachment() {
-        if (photoInput) photoInput.value = '';
-        if (removePhotoBtn) removePhotoBtn.classList.add('hidden');
-        if (photoPreviewInfo) photoPreviewInfo.classList.add('hidden');
-        if (photoFilenameSpan) photoFilenameSpan.innerText = '';
+        const key = getCacheKey();
+        if (!cache[key]) cache[key] = {};
+        
+        cache[key].dailyContent = dailyContent.value;
+        cache[key].homeRec = homeRec.value;
+        cache[key].generalContent = generalContent.value;
     }
 
     function setBtnState(btn, stateType, defaultText, iconClass) {
@@ -348,103 +310,26 @@ document.addEventListener("DOMContentLoaded", function() {
         reviewActionSection.classList.remove('hidden');
     }
 
-    function handleSelectionOrDateChange() {
+    // EVENT: Student Selection Change
+    studentSelect.addEventListener('change', function() {
         saveCurrentToCache();
-        previousCacheKey = getCacheKey();
-        clearPhotoAttachment(); // Storage Optimization: Attached files cleared on date or report type switch
         syncState();
-    }
-
-    // Keep cache updated when user types
-    [dailyContent, homeRec, generalContent].forEach(el => {
-        if (el) {
-            el.addEventListener('input', function() {
-                const key = getCacheKey();
-                if (!cache[key]) cache[key] = {};
-                cache[key].dailyContent = dailyContent.value;
-                cache[key].homeRec = homeRec.value;
-                cache[key].generalContent = generalContent.value;
-            });
-        }
     });
 
-    // EVENT: Student Selection Change
-    studentSelect.addEventListener('change', handleSelectionOrDateChange);
-
     // EVENT: Report Type Change
-    reportTypeSelect.addEventListener('change', handleSelectionOrDateChange);
+    reportTypeSelect.addEventListener('change', function() {
+        saveCurrentToCache();
+        syncState();
+    });
 
     // EVENT: Date Picker Change
     dateInput.addEventListener('change', function() {
+        saveCurrentToCache();
         if (this.value) {
             lastSelectedDate = this.value;
         }
-        handleSelectionOrDateChange();
+        syncState();
     });
-
-    // PHOTO INPUT & DELETE BUTTON HANDLING (Item 2 & 3)
-    if (photoInput) {
-        photoInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const validTypes = ['image/jpeg', 'image/png'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Please select a valid image file (JPEG or PNG only).');
-                    clearPhotoAttachment();
-                    return;
-                } else if (file.size > 5 * 1024 * 1024) {
-                    alert('File is too large. Please select an image smaller than 5MB.');
-                    clearPhotoAttachment();
-                    return;
-                }
-                if (removePhotoBtn) removePhotoBtn.classList.remove('hidden');
-                if (photoPreviewInfo) photoPreviewInfo.classList.remove('hidden');
-                if (photoFilenameSpan) photoFilenameSpan.innerText = file.name;
-            } else {
-                clearPhotoAttachment();
-            }
-        });
-    }
-
-    if (removePhotoBtn) {
-        removePhotoBtn.addEventListener('click', function() {
-            clearPhotoAttachment();
-        });
-    }
-
-    // UNSAVED CHANGES WARNING (Item 6)
-    function hasUnsavedReportData() {
-        if (dailyContent && dailyContent.value.trim() !== '') return true;
-        if (homeRec && homeRec.value.trim() !== '') return true;
-        if (generalContent && generalContent.value.trim() !== '') return true;
-        if (photoInput && photoInput.files && photoInput.files.length > 0) return true;
-        
-        for (let k in cache) {
-            if (cache[k].dailyContent || cache[k].homeRec || cache[k].generalContent) return true;
-        }
-        return false;
-    }
-
-    function clearAllReportData() {
-        dailyContent.value = '';
-        homeRec.value = '';
-        generalContent.value = '';
-        clearPhotoAttachment();
-        for (let k in cache) delete cache[k];
-    }
-
-    const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
-    if (backToDashboardBtn) {
-        backToDashboardBtn.addEventListener('click', function(e) {
-            if (!isSubmitting && hasUnsavedReportData()) {
-                if (!confirm("You have unsaved changes. Are you sure you want to leave?")) {
-                    e.preventDefault();
-                    return false;
-                }
-                clearAllReportData();
-            }
-        });
-    }
 
     // GENERIC AI FETCH HELPER
     function runAiGeneration(btn, sectionType) {
@@ -464,6 +349,7 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        // DATE VALIDATION: Check if date is selected when generating Daily Report
         if (type === 'daily' && (!date || date.trim() === '')) {
             alert('Please select a valid date before generating the Daily Report.');
             dateInput.focus();
@@ -567,7 +453,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             finalContentInput.value = compiled;
         }
-        isSubmitting = true;
     });
 
     // Initial sync

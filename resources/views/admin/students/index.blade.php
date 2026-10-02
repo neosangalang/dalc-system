@@ -29,7 +29,7 @@
         </div>
     @endif
 
-    <div x-data="{ showCreateModal: false }">
+    <div x-data="{ showCreateModal: false, showReEnrollModal: false }">
 
         <!-- HEADER SECTION -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -38,9 +38,14 @@
                 <p class="text-[13px] font-medium text-[#6B7086] mt-1 m-0">Manage all enrolled students, assignments, and medical records.</p>
             </div>
             
-            <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#4F46E5] text-white text-[13px] font-extrabold rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
-                <i class="fa fa-user-plus mr-2"></i> Enroll Student
-            </button>
+            <div class="flex flex-wrap gap-2.5 w-full sm:w-auto">
+                <button @click="showReEnrollModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-all shadow-sm">
+                    <i class="fa fa-user-check mr-2"></i> Re-Enroll Student
+                </button>
+                <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#4F46E5] text-white text-[13px] font-extrabold rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
+                    <i class="fa fa-user-plus mr-2"></i> Enroll Student
+                </button>
+            </div>
         </div>
 
         <!-- FILTERS -->
@@ -178,6 +183,8 @@
                                         <div class="md:hidden shrink-0 mt-1">
                                             @if($student->status === 'active')
                                                 <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest">Active</span>
+                                            @elseif($student->status === 'inactive')
+                                                <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-widest">Inactive (Frozen)</span>
                                             @else
                                                 <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-slate-100 text-slate-500 uppercase tracking-widest">Archived</span>
                                             @endif
@@ -227,6 +234,8 @@
                                     <div class="flex flex-col gap-2 items-start">
                                         @if($student->status === 'active')
                                             <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest shadow-sm">Active</span>
+                                        @elseif($student->status === 'inactive')
+                                            <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-widest shadow-sm">Inactive (Frozen)</span>
                                         @else
                                             <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-500 uppercase tracking-widest shadow-sm">Archived</span>
                                         @endif
@@ -408,7 +417,16 @@
                                                                         </button>
                                                                     </div>
                                                                 @endif
-                                                                <input type="file" name="medical_document" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
+                                                                <input type="file" name="medical_document" id="edit_med_doc_input_{{ $student->id }}" onchange="handleFileInputChange(this, 'edit_med_doc_preview_{{ $student->id }}', 'edit_med_doc_filename_{{ $student->id }}')" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
+                                                                <div id="edit_med_doc_preview_{{ $student->id }}" class="hidden mt-2 p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">
+                                                                    <div class="flex items-center gap-2 overflow-hidden">
+                                                                        <i class="fa fa-file-lines text-[#3B82F6] text-sm"></i>
+                                                                        <span id="edit_med_doc_filename_{{ $student->id }}" class="text-[12px] font-extrabold text-[#1E2657] truncate"></span>
+                                                                    </div>
+                                                                    <button type="button" onclick="clearSelectedFile('edit_med_doc_input_{{ $student->id }}', 'edit_med_doc_preview_{{ $student->id }}')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
+                                                                        <i class="fa fa-times text-xs"></i> Remove
+                                                                    </button>
+                                                                </div>
                                                                 <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Upload a new file to replace the existing one. Accepted formats: PDF, JPG, PNG (Max 5MB).</p>
                                                             </div>
                                                         </div>
@@ -611,7 +629,16 @@
 
                                 <div class="md:col-span-2">
                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Medical Document Upload (Optional)</label>
-                                    <input type="file" name="medical_document" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
+                                    <input type="file" name="medical_document" id="create_medical_doc_input" onchange="handleFileInputChange(this, 'create_med_doc_preview', 'create_med_doc_filename')" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
+                                    <div id="create_med_doc_preview" class="hidden mt-2 p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">
+                                        <div class="flex items-center gap-2 overflow-hidden">
+                                            <i class="fa fa-file-lines text-[#3B82F6] text-sm"></i>
+                                            <span id="create_med_doc_filename" class="text-[12px] font-extrabold text-[#1E2657] truncate"></span>
+                                        </div>
+                                        <button type="button" onclick="clearSelectedFile('create_medical_doc_input', 'create_med_doc_preview')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
+                                            <i class="fa fa-times text-xs"></i> Remove
+                                        </button>
+                                    </div>
                                     <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Accepted formats: PDF, JPG, PNG (Max 5MB).</p>
                                 </div>
                             </div>
@@ -679,6 +706,149 @@
                     </form>
                 </div>
             </div>
+        <!-- ========================================== -->
+        <!-- RE-ENROLL STUDENT MODAL                    -->
+        <!-- ========================================== -->
+        <div x-show="showReEnrollModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div @click.away="showReEnrollModal = false" class="bg-white rounded-2xl shadow-xl border border-black/15 w-full max-w-3xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
+                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-b border-black/10 flex justify-between items-center">
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
+                        <i class="fa fa-user-check text-[#10B981] mr-2.5"></i> Re-Enroll Student for New School Year
+                    </h3>
+                    <button type="button" @click="showReEnrollModal = false" class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
+                        <i class="fa fa-times text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="p-5 sm:p-6 overflow-y-auto custom-scrollbar space-y-5">
+                    <!-- Step 1 & 2: Select Student -->
+                    <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl">
+                        <label class="block text-[12px] font-extrabold text-emerald-900 uppercase tracking-wider mb-2 flex items-center">
+                            <i class="fa fa-search text-emerald-600 mr-2"></i> Step 1 & 2: Search & Choose Existing Student Profile
+                        </label>
+                        <select id="reEnrollStudentSelect" onchange="autoPopulateReEnrollForm(this)" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#10B981] shadow-sm bg-white cursor-pointer">
+                            <option value="">-- Select an Existing / Frozen Student --</option>
+                            @foreach($students as $st)
+                                <option value="{{ $st->id }}" data-student="{{ json_encode($st) }}">
+                                    {{ $st->first_name }} {{ $st->last_name }} (LRN: {{ $st->learners_reference_number ?? 'N/A' }}) — Status: {{ $st->status === 'inactive' ? 'Inactive (Frozen)' : ucfirst($st->status) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Step 3, 4 & 5: Form -->
+                    <form id="reEnrollForm" method="POST" action="" enctype="multipart/form-data">
+                        @csrf
+
+                        <div id="reEnrollFieldsNotice" class="text-center py-8 text-[#9CA0AF] font-bold text-sm bg-slate-50 border border-dashed border-slate-200 rounded-xl">
+                            <i class="fa fa-hand-pointer text-xl mb-2 block text-[#10B981]"></i>
+                            Please select a student from the dropdown above to automatically populate enrollment details.
+                        </div>
+
+                        <div id="reEnrollFormFields" class="hidden space-y-5">
+                            <div class="bg-blue-50/70 border border-blue-200 p-3 rounded-xl text-[12px] font-bold text-[#1E2657] flex items-center">
+                                <i class="fa fa-magic text-[#3B82F6] mr-2"></i> <span><strong>Step 3:</strong> Details automatically populated! Review and update any changed information for the new school year.</span>
+                            </div>
+
+                            <!-- Student Personal Info -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">First Name <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="first_name" id="re_first_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                                </div>
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Last Name <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="last_name" id="re_last_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">LRN (12 Digits) <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="learners_reference_number" id="re_lrn" maxlength="12" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                                </div>
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Date of Birth <span class="text-rose-500">*</span></label>
+                                    <input type="date" name="date_of_birth" id="re_dob" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                                </div>
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Gender <span class="text-rose-500">*</span></label>
+                                    <select name="gender" id="re_gender" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Diagnosis <span class="text-rose-500">*</span></label>
+                                <input type="text" name="diagnosis" id="re_diagnosis" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                            </div>
+
+                            <!-- Class & Teacher Assignment -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">New Target Class / Grade <span class="text-rose-500">*</span></label>
+                                    <select name="class_name" id="re_class_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                                        <option value="Playgroup Morning (Love A)">Playgroup Morning</option>
+                                        <option value="Playgroup Afternoon (Love B)">Playgroup Afternoon</option>
+                                        <option value="Kinder Self-Control">Kinder Self-Control</option>
+                                        <option value="Grade 1 - Joy">Grade 1 - Joy</option>
+                                        <option value="Grade 2 - Peace">Grade 2 - Peace</option>
+                                        <option value="Grade 3 - Patience">Grade 3 - Patience</option>
+                                        <option value="Grade 4 - Kindness">Grade 4 - Kindness</option>
+                                        <option value="Grade 5 - Goodness">Grade 5 - Goodness</option>
+                                        <option value="Grade 6 - Faithfulness">Grade 6 - Faithfulness</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Assigned Teacher <span class="text-rose-500">*</span></label>
+                                    <select name="teacher_id" id="re_teacher_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]" required>
+                                        <option value="">-- Select Teacher --</option>
+                                        @foreach($teachers ?? [] as $teacher)
+                                            <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Guardian Link -->
+                            <div>
+                                <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Link Guardian (Optional)</label>
+                                <select name="guardian_id" id="re_guardian_id" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2 text-[13px] font-bold text-[#1E2657]">
+                                    <option value="">-- No Guardian Linked --</option>
+                                    @foreach($guardians ?? [] as $guardian)
+                                        <option value="{{ $guardian->id }}">{{ $guardian->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- File Upload with Remove Option -->
+                            <div>
+                                <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Medical Document Upload (Optional)</label>
+                                <input type="file" name="medical_document" id="re_medical_doc_input" onchange="handleFileInputChange(this, 're_med_doc_preview', 're_med_doc_filename')" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
+                                <div id="re_med_doc_preview" class="hidden mt-2 p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">
+                                    <div class="flex items-center gap-2 overflow-hidden">
+                                        <i class="fa fa-file-lines text-[#3B82F6] text-sm"></i>
+                                        <span id="re_med_doc_filename" class="text-[12px] font-extrabold text-[#1E2657] truncate"></span>
+                                    </div>
+                                    <button type="button" onclick="clearSelectedFile('re_medical_doc_input', 're_med_doc_preview')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
+                                        <i class="fa fa-times text-xs"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-black/10 flex justify-end gap-3">
+                                <button type="button" @click="showReEnrollModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 transition-colors">Cancel</button>
+                                <button type="submit" class="px-5 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
+                                    <i class="fa fa-check-circle"></i> Step 5: Confirm & Re-Enroll Student
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -693,6 +863,34 @@
 
 @push('scripts')
 <script>
+function autoPopulateReEnrollForm(selectEl) {
+    const selectedOption = selectEl.options[selectEl.selectedIndex];
+    if (!selectEl.value || !selectedOption || !selectedOption.dataset.student) {
+        document.getElementById('reEnrollFormFields').classList.add('hidden');
+        document.getElementById('reEnrollFieldsNotice').classList.remove('hidden');
+        return;
+    }
+    const student = JSON.parse(selectedOption.dataset.student);
+    document.getElementById('reEnrollForm').action = '/admin/students/' + student.id + '/re-enroll';
+    document.getElementById('re_first_name').value = student.first_name || '';
+    document.getElementById('re_last_name').value = student.last_name || '';
+    document.getElementById('re_lrn').value = student.learners_reference_number || '';
+    document.getElementById('re_dob').value = student.date_of_birth ? student.date_of_birth.substring(0, 10) : '';
+    document.getElementById('re_gender').value = student.gender || 'Male';
+    document.getElementById('re_diagnosis').value = student.diagnosis || '';
+    if (student.class_name) {
+        document.getElementById('re_class_name').value = student.class_name;
+    }
+    if (student.teacher_id) {
+        document.getElementById('re_teacher_id').value = student.teacher_id;
+    }
+    if (student.guardian_id) {
+        document.getElementById('re_guardian_id').value = student.guardian_id;
+    }
+    document.getElementById('reEnrollFormFields').classList.remove('hidden');
+    document.getElementById('reEnrollFieldsNotice').classList.add('hidden');
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('filterSearchInput');
     const classFilter = document.getElementById('filterClass');

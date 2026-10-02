@@ -21,7 +21,7 @@ class GuardianController extends Controller
     {
         $guardianId = Auth::id();
         
-        $myChildren = Student::with('teacher')->where('guardian_id', $guardianId)->get();
+        $myChildren = Student::with('teacher')->where('guardian_id', $guardianId)->where('status', 'active')->get();
         $activeChild = null;
 
         if ($myChildren->isNotEmpty()) {

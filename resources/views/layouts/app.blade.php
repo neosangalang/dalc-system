@@ -28,18 +28,18 @@
 
         <!-- Logo and Brand -->
         <div class="flex items-center gap-4 sm:gap-6 min-w-0">
-            <div class="flex items-center gap-3 shrink-0">
+            <a href="{{ Auth::check() ? route(strtolower(Auth::user()->role) . '.dashboard') : route('home') }}" class="flex items-center gap-3 shrink-0 group decoration-transparent">
                 <div class="relative w-9 h-9 hidden sm:block">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E2657] to-[#12163A] flex items-center justify-center text-white font-black text-sm shadow-md">DA</div>
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E2657] to-[#12163A] flex items-center justify-center text-white font-black text-sm shadow-md group-hover:scale-105 transition-transform">DA</div>
                     <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#C4922E] border-2 border-white flex items-center justify-center">
                         <i class="fa-solid fa-star text-white text-[6px]"></i>
                     </div>
                 </div>
                 <div class="leading-none">
-                    <h1 class="text-[#1E2657] font-extrabold text-[15px] m-0 tracking-tight">Dream Achievers</h1>
+                    <h1 class="text-[#1E2657] font-extrabold text-[15px] m-0 tracking-tight group-hover:text-[#3B82F6] transition-colors">Dream Achievers</h1>
                     <span class="text-[#C4922E] font-bold text-[10px] uppercase tracking-widest">Learning Center PH</span>
                 </div>
-            </div>
+            </a>
 
             <div class="h-6 w-px bg-[#E8E5DC] hidden md:block shrink-0"></div>
             <h2 class="text-sm font-extrabold text-[#6B7086] m-0 hidden md:block uppercase tracking-wider truncate">@yield('title', 'System Module')</h2>
@@ -144,7 +144,7 @@
         <!-- BACK BUTTON: Shows only when inside a system module (not on the main dashboard) -->
         @if(!$isDashboard && Auth::check())
             <div class="mb-6 flex">
-                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" id="back-to-dashboard-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
+                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
                     <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                 </a>
             </div>
@@ -158,6 +158,29 @@
         </div>
 
     </main>
+
+    <script>
+        function handleFileInputChange(inputEl, previewContainerId, fileNameId) {
+            if (inputEl && inputEl.files && inputEl.files[0]) {
+                const file = inputEl.files[0];
+                const fileNameEl = document.getElementById(fileNameId);
+                const containerEl = document.getElementById(previewContainerId);
+                if (fileNameEl) fileNameEl.textContent = file.name;
+                if (containerEl) containerEl.classList.remove('hidden');
+            }
+        }
+
+        function clearSelectedFile(inputId, previewContainerId) {
+            const inputEl = document.getElementById(inputId);
+            if (inputEl) {
+                inputEl.value = '';
+            }
+            const containerEl = document.getElementById(previewContainerId);
+            if (containerEl) {
+                containerEl.classList.add('hidden');
+            }
+        }
+    </script>
 
 @stack('scripts')
 </body>

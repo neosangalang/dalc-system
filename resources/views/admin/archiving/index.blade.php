@@ -78,8 +78,8 @@
                         
                         <div class="relative pl-6 sm:pl-8">
                             <span id="step3Dot" class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#E8E5DC] border-4 border-white shadow-sm transition-colors duration-500"></span>
-                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Soft-Delete Records</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Mark processed students as archived in the active database</p>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">State Freezing (End School Year)</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Transition active student profiles to Inactive (Frozen) status to reset rosters while keeping historical snapshots permanently safe</p>
                         </div>
                         
                     </div>
@@ -147,7 +147,7 @@
                                 <div class="flex-1">
                                     <h6 class="font-extrabold text-[13px] sm:text-sm text-[#1E2657] m-0 mb-1 leading-tight">
                                         <span class="sm:hidden inline-block w-2 h-2 rounded-full bg-[#6B7086] mr-1.5 mb-[1px]"></span>
-                                        {{ $archive->student->first_name ?? 'Unknown' }} {{ $archive->student->last_name ?? 'Student' }} – SY {{ $archive->school_year }}
+                                        {{ $archive->student_name }} – SY {{ $archive->school_year }}
                                     </h6>
                                     <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] m-0">
                                         <i class="fa-regular fa-clock mr-1"></i> Archived on: {{ ($archive->archived_at ?? $archive->created_at)->format('M j, Y h:i A') }} ({{ ($archive->archived_at ?? $archive->created_at)->diffForHumans() }})

@@ -74,18 +74,9 @@
                         </span>
                         
                         @if($student->medical_document)
-                            <div class="flex flex-col sm:flex-row gap-2">
-                                <a href="{{ asset('storage/' . $student->medical_document) }}" target="_blank" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-white border border-[#9CA0AF] rounded-xl text-[13px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
-                                    <i class="fa fa-download mr-2"></i> View / Download File
-                                </a>
-                                <form action="{{ route('admin.students.delete-document', $student->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to delete this medical document?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="w-full sm:w-auto px-4 py-3 bg-rose-50 border border-rose-300 rounded-xl text-[13px] font-extrabold text-rose-600 hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer flex items-center justify-center">
-                                        <i class="fa fa-trash-alt mr-2"></i> Delete Document
-                                    </button>
-                                </form>
-                            </div>
+                            <a href="{{ asset('storage/' . $student->medical_document) }}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-3 bg-white border border-[#9CA0AF] rounded-xl text-[13px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
+                                <i class="fa fa-download mr-2"></i> View / Download File
+                            </a>
                         @else
                             <div class="bg-[#F4F6FA] border border-black/5 rounded-xl p-4 text-center">
                                 <p class="text-[12px] font-medium text-[#9CA0AF] m-0">No medical document uploaded.</p>

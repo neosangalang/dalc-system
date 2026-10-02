@@ -35,25 +35,6 @@
 
         <div class="px-8 py-8">
             <h4 class="font-extrabold text-slate-400 text-[10px] uppercase tracking-widest mb-4">Report Details</h4>
-            @if($report->image_path)
-                <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        <img src="{{ asset('storage/' . $report->image_path) }}" alt="Report photo" class="max-h-24 w-auto rounded-xl border border-slate-200 shadow-sm object-cover">
-                        <div>
-                            <h6 class="text-xs font-extrabold text-slate-800 m-0">Attached Observation Photo</h6>
-                            <p class="text-[11px] font-medium text-slate-500 m-0">Photo attached to this daily report.</p>
-                        </div>
-                    </div>
-                    <form action="{{ route('teacher.reports.delete-attachment', $report->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to delete this attached photo?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="px-3.5 py-2 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa fa-trash-alt text-[11px]"></i> Delete Attachment
-                        </button>
-                    </form>
-                </div>
-            @endif
-
             <div class="p-8 bg-slate-50 rounded-2xl border border-slate-200 shadow-inner">
                 <div class="prose max-w-none text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
                     {{ $report->content }}

@@ -66,7 +66,7 @@
                     class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
                 <i class="fa fa-pen mr-2"></i> Create Observation
             </button>
-            <button @click="activeTab = 'history'; syncStudentFilter();" 
+            <button @click="activeTab = 'history'" 
                     :class="activeTab === 'history' ? 'bg-white text-[#3B82F6] shadow-sm border border-black/5' : 'text-[#6B7086] hover:text-[#1E2657]'" 
                     class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
                 <i class="fa fa-file-contract mr-2"></i> Formal Documentation List
@@ -88,7 +88,7 @@
             </div>
             
             <div class="p-5 sm:p-8">
-                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" class="m-0 space-y-6">
+                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0 space-y-6">
                     @csrf
                     
                     <!-- STUDENT SELECTION DROPDOWN -->
@@ -120,6 +120,22 @@
                                 <option value="Q3" {{ $selectedQ == 'Q3' ? 'selected' : '' }}>Q3</option>
                                 <option value="Q4" {{ $selectedQ == 'Q4' ? 'selected' : '' }}>Q4</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                            <i class="fa fa-camera text-[#9CA0AF] mr-1.5"></i> Attach Photo (Optional)
+                        </label>
+                        <input type="file" name="photo" id="photoInput" onchange="handleFileInputChange(this, 'photo_input_preview', 'photo_input_filename')" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-black/15 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png">
+                        <div id="photo_input_preview" class="hidden mt-2 p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <i class="fa fa-camera text-[#3B82F6] text-sm"></i>
+                                <span id="photo_input_filename" class="text-[12px] font-extrabold text-[#1E2657] truncate"></span>
+                            </div>
+                            <button type="button" onclick="clearSelectedFile('photoInput', 'photo_input_preview')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
+                                <i class="fa fa-times text-xs"></i> Remove
+                            </button>
                         </div>
                     </div>
 
@@ -350,22 +366,23 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// --- STUDENT SELECTION CONTINUITY LOGIC ---
-function syncStudentFilter() {
-    const studentSelect = document.getElementById('student_id');
-    const filterStudent = document.getElementById('filterStudent');
-    if (studentSelect && filterStudent && studentSelect.value) {
-        filterStudent.value = studentSelect.value;
-        if (typeof applyFilters === 'function') {
-            applyFilters();
-        }
-    }
-}
-
+// --- FRONTEND IMAGE VALIDATION LOGIC ---
 document.addEventListener("DOMContentLoaded", function() {
-    const studentSelect = document.getElementById('student_id');
-    if (studentSelect) {
-        studentSelect.addEventListener('change', syncStudentFilter);
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const validTypes = ['image/jpeg', 'image/png'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPEG or PNG only).');
+                    this.value = '';
+                } else if (file.size > 5 * 1024 * 1024) {
+                    alert('File is too large. Please select an image smaller than 5MB.');
+                    this.value = ''; 
+                }
+            }
+        });
     }
 });
 
