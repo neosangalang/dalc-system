@@ -75,6 +75,7 @@ class ReportController extends Controller
             'report_type' => 'required|string',
             'content' => 'required|string',
             'home_recommendations' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
             'action' => 'required|in:draft,submit'
         ]);
 
@@ -90,6 +91,11 @@ class ReportController extends Controller
             $finalContent .= "\n\nTonight's Suggested Activity:\n" . trim($request->home_recommendations);
         }
 
+        $imagePath = null;
+        if ($request->hasFile('photo')) {
+            $imagePath = $request->file('photo')->store('reports', 'public');
+        }
+
         // Capture the newly created report to use its ID for action routing
         $report = Report::create([
             'student_id' => $request->student_id,
@@ -97,6 +103,7 @@ class ReportController extends Controller
             'report_type' => $request->report_type,
             'report_date' => $request->report_date,
             'content' => $finalContent,
+            'image_path' => $imagePath,
             'status' => $status,
         ]);
 
@@ -112,15 +119,22 @@ class ReportController extends Controller
             }
         }
 
-        // If Daily Report, sync home recommendations to daily log for parents
-        if ($request->report_type === 'daily' && $request->filled('home_recommendations')) {
+        // If Daily Report, sync home recommendations and photo to daily log if log exists
+        if ($request->report_type === 'daily') {
             $logDate = $request->report_date ?: date('Y-m-d');
             $log = DailyLog::where('student_id', $request->student_id)
                 ->whereDate('log_date', $logDate)
                 ->first();
 
-            if ($log) {
-                $log->update(['home_recommendations' => trim($request->home_recommendations)]);
+            $updateData = [];
+            if ($request->filled('home_recommendations')) {
+                $updateData['home_recommendations'] = trim($request->home_recommendations);
+            }
+            if ($imagePath) {
+                $updateData['image_path'] = $imagePath;
+            }
+            if (!empty($updateData) && $log) {
+                $log->update($updateData);
             }
         }
 
@@ -133,6 +147,22 @@ class ReportController extends Controller
         }
 
         return redirect()->route('teacher.reports.create')->with('success', $message);
+    }
+
+    public function deleteAttachment(string $id)
+    {
+        $report = Report::findOrFail($id);
+
+        if ($report->teacher_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+
+        if ($report->image_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($report->image_path);
+            $report->update(['image_path' => null]);
+        }
+
+        return redirect()->back()->with('success', 'Attachment deleted successfully.');
     }
 
     /**

@@ -248,6 +248,25 @@
                                                 </div>
                                             @endif
 
+                                            @if($report->image_path)
+                                                <div class="mb-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                                                    <div class="flex items-center gap-3 min-w-0">
+                                                        <img src="{{ asset('storage/' . $report->image_path) }}" alt="Attached photo" class="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm shrink-0">
+                                                        <div>
+                                                            <h6 class="text-xs font-extrabold text-slate-800 m-0">Attached Observation Photo</h6>
+                                                            <p class="text-[11px] font-medium text-slate-500 m-0">Photo attached to this daily report.</p>
+                                                        </div>
+                                                    </div>
+                                                    <form action="{{ route('teacher.reports.delete-attachment', $report->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to delete this attached photo?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="px-3 py-1.5 bg-rose-50 border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer flex items-center">
+                                                            <i class="fa fa-trash-alt mr-1.5"></i> Delete Photo
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @endif
+
                                             <div class="p-5 bg-[#F4F6FA] rounded-xl border border-black/5 shadow-inner whitespace-pre-wrap text-[13px] font-medium text-[#1E2657] leading-relaxed max-h-[50vh] sm:max-h-[400px] overflow-y-auto">
                                                 {{ $report->content }}
                                             </div>

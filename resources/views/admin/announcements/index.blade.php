@@ -155,7 +155,12 @@
                         <label class="block text-sm font-bold text-gray-700 mb-2">Banner Image</label>
                         <input type="file" name="image" accept="image/jpeg, image/png" class="w-full px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4F46E5] text-sm announcement-image-input">
                         @if($announcement->image_path)
-                            <p class="text-[10px] text-green-600 mt-1"><i class="fa-solid fa-check-circle"></i> Image currently attached</p>
+                            <div class="flex items-center justify-between mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                                <span class="text-[11px] text-green-700 font-bold flex items-center"><i class="fa-solid fa-check-circle mr-1"></i> Image attached</span>
+                                <button type="button" onclick="if(confirm('Are you sure you want to delete this announcement image?')) { document.getElementById('delete-announcement-image-{{ $announcement->id }}').submit(); }" class="text-[11px] font-bold text-rose-600 hover:text-rose-800 bg-white border border-rose-300 px-2 py-0.5 rounded shadow-sm cursor-pointer">
+                                    <i class="fa-solid fa-trash-can mr-1"></i> Delete Image
+                                </button>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -172,6 +177,10 @@
                     <button type="button" onclick="closeModal('editModal-{{ $announcement->id }}')" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition-colors">Cancel</button>
                     <button type="submit" class="bg-[#4F46E5] hover:bg-[#4338ca] text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-save"></i> Update</button>
                 </div>
+            </form>
+            <form id="delete-announcement-image-{{ $announcement->id }}" action="{{ route('admin.announcements.delete-image', $announcement->id) }}" method="POST" class="hidden">
+                @csrf
+                @method('DELETE')
             </form>
         </div>
     </div>

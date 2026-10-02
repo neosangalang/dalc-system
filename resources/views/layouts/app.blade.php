@@ -144,7 +144,7 @@
         <!-- BACK BUTTON: Shows only when inside a system module (not on the main dashboard) -->
         @if(!$isDashboard && Auth::check())
             <div class="mb-6 flex">
-                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
+                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" id="back-to-dashboard-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
                     <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                 </a>
             </div>

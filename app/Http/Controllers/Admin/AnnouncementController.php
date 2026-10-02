@@ -77,6 +77,11 @@ class AnnouncementController extends Controller
             
             // Store the new image
             $announcement->image_path = $request->file('image')->store('announcements', 'public');
+        } elseif ($request->boolean('delete_image')) {
+            if ($announcement->image_path) {
+                Storage::disk('public')->delete($announcement->image_path);
+            }
+            $announcement->image_path = null;
         }
 
         // Added 'type' update assignment
@@ -86,6 +91,19 @@ class AnnouncementController extends Controller
         $announcement->save();
 
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement updated successfully!');
+    }
+
+    public function deleteImage($id)
+    {
+        $announcement = Announcement::findOrFail($id);
+
+        if ($announcement->image_path) {
+            Storage::disk('public')->delete($announcement->image_path);
+            $announcement->image_path = null;
+            $announcement->save();
+        }
+
+        return redirect()->route('admin.announcements.index')->with('success', 'Announcement image deleted successfully!');
     }
 
     public function destroy($id)

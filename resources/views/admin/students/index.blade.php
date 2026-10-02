@@ -398,6 +398,16 @@
                                                                         <span class="text-[10px] text-[#10B981] font-extrabold uppercase tracking-widest"><i class="fa fa-check mr-1"></i> Document on file</span>
                                                                     @endif
                                                                 </label>
+                                                                @if($student->medical_document)
+                                                                    <div class="mb-3 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between">
+                                                                        <a href="{{ asset('storage/' . $student->medical_document) }}" target="_blank" class="text-[12px] font-extrabold text-rose-700 hover:underline flex items-center">
+                                                                            <i class="fa fa-file-medical mr-2 text-rose-500"></i> View Current Document
+                                                                        </a>
+                                                                        <button type="button" onclick="if(confirm('Are you sure you want to delete this medical document?')) { document.getElementById('delete-doc-form-{{ $student->id }}').submit(); }" class="px-2.5 py-1 bg-white border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer">
+                                                                            <i class="fa fa-trash-alt mr-1"></i> Delete Document
+                                                                        </button>
+                                                                    </div>
+                                                                @endif
                                                                 <input type="file" name="medical_document" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
                                                                 <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Upload a new file to replace the existing one. Accepted formats: PDF, JPG, PNG (Max 5MB).</p>
                                                             </div>
@@ -464,6 +474,10 @@
                                                             <i class="fa fa-save mr-1.5"></i> Save Changes
                                                         </button>
                                                     </div>
+                                                </form>
+                                                <form id="delete-doc-form-{{ $student->id }}" action="{{ route('admin.students.delete-document', $student->id) }}" method="POST" class="hidden">
+                                                    @csrf
+                                                    @method('DELETE')
                                                 </form>
                                             </div>
                                         </div>

@@ -86,13 +86,26 @@ class AdminStudentController extends Controller
                     Storage::disk('public')->delete($student->medical_document);
                 }
                 $data['medical_document'] = $request->file('medical_document')->store('medical_documents', 'public');
+            } elseif ($request->boolean('delete_medical_document')) {
+                if ($student->medical_document) {
+                    Storage::disk('public')->delete($student->medical_document);
+                }
+                $data['medical_document'] = null;
             }
 
             $student->update($data);
-            // Note: Old manual guardian update logic removed because Guardian linking is now just an ID dropdown!
         });
 
         return redirect()->back()->with('success', 'Student profile updated successfully!');
+    }
+
+    public function deleteDocument($id) {
+        $student = Student::findOrFail($id);
+        if ($student->medical_document) {
+            Storage::disk('public')->delete($student->medical_document);
+            $student->update(['medical_document' => null]);
+        }
+        return redirect()->back()->with('success', 'Medical document deleted successfully.');
     }
 
     public function show($id) {

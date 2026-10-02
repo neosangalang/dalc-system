@@ -16,6 +16,7 @@ class Report extends Model
         'report_type',
         'report_date',
         'content',
+        'image_path',
         'status',
         'revision_notes',
         'approved_by',

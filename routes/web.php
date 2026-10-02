@@ -121,6 +121,7 @@ Route::middleware(['auth', 'role:admin', \App\Http\Middleware\ForcePasswordChang
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
     Route::get('/announcements/{id}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
     Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
+    Route::delete('/announcements/{id}/delete-image', [AnnouncementController::class, 'deleteImage'])->name('announcements.delete-image');
     Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 });
 
@@ -141,6 +142,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_create_profiles'])->group(function() {
+        Route::delete('/students/{id}/delete-document', [AdminStudentController::class, 'deleteDocument'])->name('students.delete-document');
         Route::resource('students', AdminStudentController::class);
     });
 
@@ -188,6 +190,7 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     Route::post('/iep-goals/{id}/mark-read', [IepGoalController::class, 'markCommentsAsRead'])->name('iep-goals.mark-read');
     
     Route::get('/reports/{id}/pdf', [ReportController::class, 'downloadPdf'])->name('reports.pdf');
+    Route::delete('/reports/{id}/delete-attachment', [ReportController::class, 'deleteAttachment'])->name('reports.delete-attachment');
     Route::get('/students/{student}/iep-pdf', [IepGoalController::class, 'downloadIepPdf'])->name('iep-goals.pdf');
 
     Route::resource('students', TeacherStudentController::class);
