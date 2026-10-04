@@ -67,7 +67,7 @@
                         <div class="relative pl-6 sm:pl-8">
                             <span class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#3B82F6] border-4 border-white shadow-sm"></span>
                             <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Snapshot Student Data</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Capture all profiles, IEP goals, and progress notes</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Capture student profiles, IEP goals, and summary reports (Quarterly, Mid-Year, Annual)</p>
                         </div>
                         
                         <div class="relative pl-6 sm:pl-8">
@@ -94,7 +94,11 @@
                 <div>
                     <h5 class="font-extrabold text-[14px] sm:text-[15px] text-[#1E2657] mb-1 sm:mb-1.5 m-0 leading-tight">Automated Quarterly Rollover Active</h5>
                     <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed">
-                        This system is configured with automated background tasks (Cron Jobs). The system will securely archive all approved daily reports and clear active Teacher dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
+                        @if(Auth::user()->role === 'admin')
+                            This system is configured with automated background tasks (Cron Jobs). The system will securely archive daily reports for the Guardian only to clear their dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
+                        @else
+                            This system is configured with automated background tasks (Cron Jobs). The system will securely archive daily reports for both the Teacher and the Guardian to clear their active dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
+                        @endif
                     </p>
                 </div>
             </div>

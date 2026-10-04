@@ -319,7 +319,7 @@
         </p>
         <h1>Student Master Archive</h1>
         <p>{{ $student->first_name }} {{ $student->last_name }}</p>
-        <span class="school-year">SY 2024–2025</span>
+        <span class="school-year">SY {{ $schoolYear ?? '2024–2025' }}</span>
     </div>
 
     <div class="content">
@@ -364,13 +364,12 @@
                 <span class="stat-number">{{ $student->iepGoals->where('status', 'achieved')->count() }}</span>
                 <span class="stat-label"> Achieved</span>
             </span>
+            @php
+                $summaryList = $summaries ?? ($student->reports ?? collect())->whereIn('report_type', ['q1', 'q2', 'q3', 'q4', 'quarterly', 'mid_year', 'year_end', 'annual']);
+            @endphp
             <span class="stat">
-                <span class="stat-number">{{ $student->dailyLogs->count() }}</span>
-                <span class="stat-label"> Daily Logs</span>
-            </span>
-            <span class="stat">
-                <span class="stat-number">{{ $student->dailyLogs->pluck('quarter')->unique()->count() }}</span>
-                <span class="stat-label"> Quarters Covered</span>
+                <span class="stat-number">{{ $summaryList->count() }}</span>
+                <span class="stat-label"> Summary Reports</span>
             </span>
         </div>
 
@@ -476,30 +475,41 @@
             <p style="color: #9CA0AF; font-style: italic; padding: 10px 0;">No IEP goals were recorded for this student.</p>
         @endif
 
-        {{-- ===== DAILY LOGS ===== --}}
-        <div class="section-title">Daily Activity Logs</div>
+        {{-- ===== OFFICIAL SUMMARY REPORTS ===== --}}
+        <div class="section-title">Academic & Progress Summaries</div>
 
-        @if($student->dailyLogs->count() > 0)
-            <table class="logs-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Date</th>
-                        <th>Quarter</th>
-                        <th>Notes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($student->dailyLogs->sortByDesc('log_date') as $index => $log)
-                        <tr>
-                            <td style="text-align: center;">{{ $index + 1 }}</td>
-                            <td style="white-space: nowrap;">{{ \Carbon\Carbon::parse($log->log_date)->format('M j, Y') }}</td>
-                            <td>{{ $log->quarter }}</td>
-                            <td>{{ $log->notes }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        @php
+            $officialSummaries = $summaries ?? ($student->reports ?? collect())->whereIn('report_type', ['q1', 'q2', 'q3', 'q4', 'quarterly', 'mid_year', 'year_end', 'annual']);
+            $typeNames = [
+                'q1' => '1st Quarter (Q1) Progress Summary',
+                'q2' => '2nd Quarter (Q2) Progress Summary',
+                'q3' => '3rd Quarter (Q3) Progress Summary',
+                'q4' => '4th Quarter (Q4) Progress Summary',
+                'quarterly' => 'Quarterly Progress Summary',
+                'mid_year' => 'Mid-Year Comprehensive Summary',
+                'year_end' => 'Annual / Year-End Comprehensive Summary',
+                'annual' => 'Annual / Year-End Comprehensive Summary',
+            ];
+        @endphp
+
+        @if($officialSummaries->count() > 0)
+            @foreach($officialSummaries as $report)
+                <div class="goal-card" style="page-break-inside: avoid; margin-bottom: 16px;">
+                    <div class="goal-card-header" style="background-color: #F4F6FA; padding: 10px 14px; border-bottom: 1px solid #E2E4EC;">
+                        <span style="font-weight: 800; font-size: 11px; color: #1E2657; text-transform: uppercase; letter-spacing: 0.5px;">
+                            {{ $typeNames[$report->report_type] ?? ucwords(str_replace('_', ' ', $report->report_type)) . ' Summary' }}
+                        </span>
+                        <span style="float: right; font-size: 10px; font-weight: 700; color: #6B7086;">
+                            Date: {{ $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('M d, Y') : ($report->created_at ? $report->created_at->format('M d, Y') : 'N/A') }}
+                        </span>
+                    </div>
+                    <div class="goal-card-body" style="padding: 12px 14px; font-size: 10.5px; line-height: 1.6; color: #1E2657; white-space: pre-wrap;">
+{{ $report->content }}
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <p style="color: #9CA0AF; font-style: italic; padding: 10px 0;">No official summary reports recorded for this school year.</p>
         @endif
 
         {{-- ===== OFFICIAL DIGITAL AUDIT STAMP SECTION ===== --}}

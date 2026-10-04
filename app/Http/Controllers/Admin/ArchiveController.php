@@ -58,7 +58,7 @@ class ArchiveController extends Controller
         $schoolYear = $request->input('school_year') ?: $defaultSchoolYear;
         $now = now();
 
-        $activeStudents = Student::with(['iepGoals', 'dailyLogs', 'teacher', 'guardian'])
+        $activeStudents = Student::with(['iepGoals', 'teacher', 'guardian'])
             ->where('status', 'active')
             ->get();
 
@@ -67,14 +67,23 @@ class ArchiveController extends Controller
         }
 
         foreach ($activeStudents as $student) {
-            
-            // Convert to array to match Model $casts
+            // Fetch official summaries only (strictly exclude daily logs)
+            $summaryReports = \App\Models\Report::where('student_id', $student->id)
+                ->whereIn('report_type', ['q1', 'q2', 'q3', 'q4', 'quarterly', 'mid_year', 'year_end', 'annual'])
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            // Convert to array to match Model $casts (IEP + Summaries, removing daily logs)
             $studentSnapshot = $student->toArray();
             $iepSnapshot = $student->iepGoals->toArray();
-            $progressSnapshot = $student->dailyLogs->toArray();
+            $progressSnapshot = $summaryReports->toArray();
 
-            // Generate PDF
-            $pdf = Pdf::loadView('pdf.student_archive', ['student' => $student]);
+            // Generate Master PDF containing only IEP and Official Summaries
+            $pdf = Pdf::loadView('pdf.student_archive', [
+                'student'    => $student,
+                'summaries'  => $summaryReports,
+                'schoolYear' => $schoolYear,
+            ]);
             $fileName = 'archives/' . $schoolYear . '/' . $student->id . '_' . $student->last_name . '.pdf';
             Storage::disk('public')->put($fileName, $pdf->output());
 

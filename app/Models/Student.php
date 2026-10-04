@@ -38,4 +38,7 @@ class Student extends Model
         return $this->hasMany(DailyLog::class); 
     }
     
+    public function reports() { 
+        return $this->hasMany(Report::class); 
+    }
 }

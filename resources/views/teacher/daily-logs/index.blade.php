@@ -93,9 +93,15 @@
                     
                     <!-- STUDENT SELECTION DROPDOWN -->
                     <div class="p-4 bg-[#F4F6FA] border border-black/10 rounded-2xl shadow-sm">
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
-                            <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> Select Student
-                        </label>
+                        <div class="flex items-center mb-2">
+                            <label class="text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0 flex items-center">
+                                <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> Select Student
+                            </label>
+                            <span class="text-black/20 mx-2 text-[11px] font-normal select-none">|</span>
+                            <a href="{{ route('teacher.students.index') }}" class="text-[11px] font-bold text-[#3B82F6] hover:text-[#1E2657] transition-colors inline-flex items-center gap-1 decoration-transparent">
+                                <i class="fa fa-cog text-[10px]"></i> Manage Student List
+                            </a>
+                        </div>
                         <select name="student_id" id="student_id" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer" required>
                             <option value="" disabled {{ empty($selectedStudentId) ? 'selected' : '' }}>Select a student to log for...</option>
                             @foreach($myStudents as $student)
@@ -160,7 +166,7 @@
 
                     <div>
                         <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
-                            <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation (Standardized Notes)
+                            <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation
                         </label>
                         <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here...">{{ old('notes') }}</textarea>
                     </div>
@@ -317,9 +323,18 @@
                         @endif
 
                         <div class="p-4 bg-[#F4F6FA] rounded-xl border border-black/10 text-[#1E2657]">
-                            <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest mb-1 flex items-center">
-                                <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
-                            </h6>
+                            <div class="flex items-center justify-between mb-2">
+                                <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest m-0 flex items-center">
+                                    <i class="fa-solid fa-file-contract mr-1.5"></i> Formal Documentation
+                                </h6>
+                                <button type="button" 
+                                        onclick="copyFormalText(this, {{ json_encode($log->notes) }})" 
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-extrabold text-[#1E2657] bg-white border border-black/10 rounded-lg hover:bg-slate-50 hover:text-[#3B82F6] transition-colors shadow-sm cursor-pointer"
+                                        title="Copy finalized text to clipboard">
+                                    <i class="fa fa-copy"></i>
+                                    <span>Copy Text</span>
+                                </button>
+                            </div>
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
                     </div>
@@ -472,6 +487,42 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         loading.classList.add('hidden'); 
     });
 });
+
+// --- COPY FORMAL TEXT LOGIC ---
+function copyFormalText(btn, text) {
+    const originalHtml = btn.innerHTML;
+    const showSuccess = () => {
+        btn.innerHTML = '<i class="fa fa-check text-emerald-600"></i> <span class="text-emerald-600">Copied!</span>';
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+        }, 2000);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(showSuccess).catch(() => {
+            fallbackCopyFormalText(text, showSuccess);
+        });
+    } else {
+        fallbackCopyFormalText(text, showSuccess);
+    }
+}
+
+function fallbackCopyFormalText(text, callback) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        if (callback) callback();
+    } catch (err) {
+        alert('Failed to copy text. Please copy manually.');
+    }
+    document.body.removeChild(textArea);
+}
 </script>
 @endpush
 @endsection
