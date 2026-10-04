@@ -318,7 +318,7 @@
                                                                 <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_manage_credentials ? 'bg-[#8B5CF6]' : '' }}"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_manage_credentials ? 'transform translate-x-4' : '' }}"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">1. Login Credentials Configuration (Guardian)</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">1. Login Credentials Configuration</div>
                                                         </label>
                                                         <!-- Remaining checkboxes are the same -->
                                                         <label class="flex items-center cursor-pointer">
@@ -339,11 +339,19 @@
                                                         </label>
                                                         <label class="flex items-center cursor-pointer">
                                                             <div class="relative shrink-0">
+                                                                <input type="checkbox" name="can_archive_students" value="1" class="sr-only" {{ $user->can_archive_students ? 'checked' : '' }}>
+                                                                <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_archive_students ? 'bg-[#8B5CF6]' : '' }}"></div>
+                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_archive_students ? 'transform translate-x-4' : '' }}"></div>
+                                                            </div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">4. Archiving Module</div>
+                                                        </label>
+                                                        <label class="flex items-center cursor-pointer">
+                                                            <div class="relative shrink-0">
                                                                 <input type="checkbox" name="can_approve_reports" value="1" class="sr-only" {{ $user->can_approve_reports ? 'checked' : '' }}>
                                                                 <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_approve_reports ? 'bg-[#8B5CF6]' : '' }}"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_approve_reports ? 'transform translate-x-4' : '' }}"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">4. Admin Approval for Summaries</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">5. Admin Approval for Summaries</div>
                                                         </label>
                                                     </div>
                                                 </div>

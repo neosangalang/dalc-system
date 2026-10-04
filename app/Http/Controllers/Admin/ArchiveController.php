@@ -48,6 +48,20 @@ class ArchiveController extends Controller
     // ==========================================
     public function runArchive(Request $request)
     {
+        $request->validate([
+            'one_time_password' => 'required|digits:6',
+        ], [
+            'one_time_password.required' => 'Please enter your 2-Factor Authentication code.',
+            'one_time_password.digits'   => 'The authentication code must be exactly 6 digits.',
+        ]);
+
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $admin = $request->user();
+
+        if (empty($admin->two_factor_secret) || !$google2fa->verifyKey($admin->two_factor_secret, $request->one_time_password)) {
+            return back()->withErrors(['one_time_password' => 'Invalid 2-Factor Authentication code. Please try again.'])->withInput();
+        }
+
         // Calculate real-time school year dynamically based on current date
         $currentYear = (int) date('Y');
         $currentMonth = (int) date('n');
@@ -58,7 +72,7 @@ class ArchiveController extends Controller
         $schoolYear = $request->input('school_year') ?: $defaultSchoolYear;
         $now = now();
 
-        $activeStudents = Student::with(['iepGoals', 'teacher', 'guardian'])
+        $activeStudents = Student::with(['iepGoals', 'dailyLogs', 'teacher', 'guardian'])
             ->where('status', 'active')
             ->get();
 
@@ -67,23 +81,14 @@ class ArchiveController extends Controller
         }
 
         foreach ($activeStudents as $student) {
-            // Fetch official summaries only (strictly exclude daily logs)
-            $summaryReports = \App\Models\Report::where('student_id', $student->id)
-                ->whereIn('report_type', ['q1', 'q2', 'q3', 'q4', 'quarterly', 'mid_year', 'year_end', 'annual'])
-                ->orderBy('created_at', 'asc')
-                ->get();
-
-            // Convert to array to match Model $casts (IEP + Summaries, removing daily logs)
+            
+            // Convert to array to match Model $casts
             $studentSnapshot = $student->toArray();
             $iepSnapshot = $student->iepGoals->toArray();
-            $progressSnapshot = $summaryReports->toArray();
+            $progressSnapshot = $student->dailyLogs->toArray();
 
-            // Generate Master PDF containing only IEP and Official Summaries
-            $pdf = Pdf::loadView('pdf.student_archive', [
-                'student'    => $student,
-                'summaries'  => $summaryReports,
-                'schoolYear' => $schoolYear,
-            ]);
+            // Generate PDF
+            $pdf = Pdf::loadView('pdf.student_archive', ['student' => $student]);
             $fileName = 'archives/' . $schoolYear . '/' . $student->id . '_' . $student->last_name . '.pdf';
             Storage::disk('public')->put($fileName, $pdf->output());
 

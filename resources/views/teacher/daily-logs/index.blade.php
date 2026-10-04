@@ -16,13 +16,6 @@
 <!-- Main Container -->
 <div x-data="{ activeTab: 'create' }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
-    <!-- BACK BUTTON -->
-    <div class="flex">
-        <a href="{{ route('teacher.students.index') }}" class="inline-flex items-center px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 hover:text-[#1E2657] shadow-sm transition-colors decoration-transparent focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
-            <i class="fa fa-arrow-left mr-2"></i> Student List
-        </a>
-    </div>
-
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down mb-6">
             <div class="flex items-center">
@@ -66,7 +59,7 @@
                     class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
                 <i class="fa fa-pen mr-2"></i> Create Observation
             </button>
-            <button @click="activeTab = 'history'" 
+            <button @click="activeTab = 'history'; if(typeof window.syncStudentFilter === 'function') window.syncStudentFilter();" 
                     :class="activeTab === 'history' ? 'bg-white text-[#3B82F6] shadow-sm border border-black/5' : 'text-[#6B7086] hover:text-[#1E2657]'" 
                     class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
                 <i class="fa fa-file-contract mr-2"></i> Formal Documentation List
@@ -88,20 +81,14 @@
             </div>
             
             <div class="p-5 sm:p-8">
-                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0 space-y-6">
+                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" class="m-0 space-y-6">
                     @csrf
                     
                     <!-- STUDENT SELECTION DROPDOWN -->
                     <div class="p-4 bg-[#F4F6FA] border border-black/10 rounded-2xl shadow-sm">
-                        <div class="flex items-center mb-2">
-                            <label class="text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0 flex items-center">
-                                <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> Select Student
-                            </label>
-                            <span class="text-black/20 mx-2 text-[11px] font-normal select-none">|</span>
-                            <a href="{{ route('teacher.students.index') }}" class="text-[11px] font-bold text-[#3B82F6] hover:text-[#1E2657] transition-colors inline-flex items-center gap-1 decoration-transparent">
-                                <i class="fa fa-cog text-[10px]"></i> Manage Student List
-                            </a>
-                        </div>
+                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                            <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> Select Student
+                        </label>
                         <select name="student_id" id="student_id" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer" required>
                             <option value="" disabled {{ empty($selectedStudentId) ? 'selected' : '' }}>Select a student to log for...</option>
                             @foreach($myStudents as $student)
@@ -115,7 +102,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Date</label>
-                            <input type="date" name="log_date" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" value="{{ old('log_date', date('Y-m-d')) }}" required>
+                            <input type="date" name="log_date" id="log_date" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" value="{{ old('log_date', date('Y-m-d')) }}" required>
                         </div>
                         <div>
                             <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Quarter</label>
@@ -126,22 +113,6 @@
                                 <option value="Q3" {{ $selectedQ == 'Q3' ? 'selected' : '' }}>Q3</option>
                                 <option value="Q4" {{ $selectedQ == 'Q4' ? 'selected' : '' }}>Q4</option>
                             </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
-                            <i class="fa fa-camera text-[#9CA0AF] mr-1.5"></i> Attach Photo (Optional)
-                        </label>
-                        <input type="file" name="photo" id="photoInput" onchange="handleFileInputChange(this, 'photo_input_preview', 'photo_input_filename')" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-black/15 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png">
-                        <div id="photo_input_preview" class="hidden mt-2 p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <i class="fa fa-camera text-[#3B82F6] text-sm"></i>
-                                <span id="photo_input_filename" class="text-[12px] font-extrabold text-[#1E2657] truncate"></span>
-                            </div>
-                            <button type="button" onclick="clearSelectedFile('photoInput', 'photo_input_preview')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
-                                <i class="fa fa-times text-xs"></i> Remove
-                            </button>
                         </div>
                     </div>
 
@@ -166,7 +137,7 @@
 
                     <div>
                         <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
-                            <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation
+                            <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation (Standardized Notes)
                         </label>
                         <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here...">{{ old('notes') }}</textarea>
                     </div>
@@ -323,18 +294,9 @@
                         @endif
 
                         <div class="p-4 bg-[#F4F6FA] rounded-xl border border-black/10 text-[#1E2657]">
-                            <div class="flex items-center justify-between mb-2">
-                                <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest m-0 flex items-center">
-                                    <i class="fa-solid fa-file-contract mr-1.5"></i> Formal Documentation
-                                </h6>
-                                <button type="button" 
-                                        onclick="copyFormalText(this, {{ json_encode($log->notes) }})" 
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-extrabold text-[#1E2657] bg-white border border-black/10 rounded-lg hover:bg-slate-50 hover:text-[#3B82F6] transition-colors shadow-sm cursor-pointer"
-                                        title="Copy finalized text to clipboard">
-                                    <i class="fa fa-copy"></i>
-                                    <span>Copy Text</span>
-                                </button>
-                            </div>
+                            <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest mb-1 flex items-center">
+                                <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
+                            </h6>
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
                     </div>
@@ -355,48 +317,91 @@
 @push('scripts')
 <script>
 // --- AUTO-SAVE DRAFT LOGIC ---
+// --- STRICT DATE BINDING & FILTER SYNC LOGIC ---
+const dailyLogCache = {};
+let currentDailyLogKey = '';
+
 document.addEventListener("DOMContentLoaded", function() {
     const studentIdInput = document.getElementById('student_id');
+    const logDateInput = document.getElementById('log_date');
     const rawNotes = document.getElementById('rawNotes');
     const formalNotes = document.getElementById('formalNotes');
     const form = document.getElementById('dailyLogForm');
+    const filterStudent = document.getElementById('filterStudent');
 
-    if (studentIdInput && studentIdInput.value) {
-        const sid = studentIdInput.value;
-        const rawKey = `dalc_draft_raw_${sid}`;
-        const formalKey = `dalc_draft_formal_${sid}`;
+    function getCacheKey() {
+        const sid = studentIdInput ? studentIdInput.value : '';
+        const date = logDateInput ? logDateInput.value : '';
+        if (!sid || !date) return '';
+        return `${sid}_${date}`;
+    }
 
-        if (localStorage.getItem(rawKey) && !rawNotes.value) rawNotes.value = localStorage.getItem(rawKey);
-        if (localStorage.getItem(formalKey) && !formalNotes.value) formalNotes.value = localStorage.getItem(formalKey);
+    function saveCurrentToCache() {
+        if (!currentDailyLogKey) return;
+        if (!dailyLogCache[currentDailyLogKey]) dailyLogCache[currentDailyLogKey] = {};
+        if (rawNotes) dailyLogCache[currentDailyLogKey].rawNotes = rawNotes.value;
+        if (formalNotes) dailyLogCache[currentDailyLogKey].formalNotes = formalNotes.value;
+    }
 
-        rawNotes.addEventListener('input', () => localStorage.setItem(rawKey, rawNotes.value));
-        formalNotes.addEventListener('input', () => localStorage.setItem(formalKey, formalNotes.value));
+    function loadFromCache() {
+        const newKey = getCacheKey();
+        if (currentDailyLogKey && currentDailyLogKey !== newKey) {
+            saveCurrentToCache();
+        }
+        currentDailyLogKey = newKey;
 
-        if (form) {
-            form.addEventListener('submit', function() {
-                localStorage.removeItem(rawKey);
-                localStorage.removeItem(formalKey);
-            });
+        if (!newKey) return;
+
+        const cached = dailyLogCache[newKey];
+        if (cached) {
+            if (rawNotes) rawNotes.value = cached.rawNotes || '';
+            if (formalNotes) formalNotes.value = cached.formalNotes || '';
+        } else {
+            if (rawNotes) rawNotes.value = '';
+            if (formalNotes) formalNotes.value = '';
         }
     }
-});
 
-// --- FRONTEND IMAGE VALIDATION LOGIC ---
-document.addEventListener("DOMContentLoaded", function() {
-    const photoInput = document.getElementById('photoInput');
-    if (photoInput) {
-        photoInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const validTypes = ['image/jpeg', 'image/png'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Please select a valid image file (JPEG or PNG only).');
-                    this.value = '';
-                } else if (file.size > 5 * 1024 * 1024) {
-                    alert('File is too large. Please select an image smaller than 5MB.');
-                    this.value = ''; 
-                }
+    // Save initial state if preset
+    currentDailyLogKey = getCacheKey();
+    if (currentDailyLogKey) {
+        dailyLogCache[currentDailyLogKey] = {
+            rawNotes: rawNotes ? rawNotes.value : '',
+            formalNotes: formalNotes ? formalNotes.value : ''
+        };
+    }
+
+    if (rawNotes) rawNotes.addEventListener('input', saveCurrentToCache);
+    if (formalNotes) formalNotes.addEventListener('input', saveCurrentToCache);
+
+    if (logDateInput) {
+        logDateInput.addEventListener('change', loadFromCache);
+        logDateInput.addEventListener('input', loadFromCache);
+    }
+
+    window.syncStudentFilter = function() {
+        if (studentIdInput && studentIdInput.value && filterStudent) {
+            filterStudent.value = studentIdInput.value;
+            if (typeof window.applyFilters === 'function') {
+                window.applyFilters();
             }
+        }
+    };
+
+    if (studentIdInput) {
+        studentIdInput.addEventListener('change', function() {
+            loadFromCache();
+            window.syncStudentFilter();
+        });
+        // Initial sync if student already pre-selected
+        if (studentIdInput.value) {
+            window.syncStudentFilter();
+        }
+    }
+
+    if (form) {
+        form.addEventListener('submit', function() {
+            window.hasUnsavedAiChanges = false;
         });
     }
 });
@@ -409,7 +414,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const filterQuarter = document.getElementById('filterQuarter');
     const logItems = document.querySelectorAll('.log-item');
 
-    function applyFilters() {
+    window.applyFilters = function() {
         const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const studentId = filterStudent ? filterStudent.value : 'all';
         const dateVal = filterDate ? filterDate.value : '';
@@ -432,14 +437,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 card.style.display = 'none';
             }
         });
-    }
+    };
 
-    if (searchInput) searchInput.addEventListener('input', applyFilters);
-    if (filterStudent) filterStudent.addEventListener('change', applyFilters);
-    if (filterDate) filterDate.addEventListener('change', applyFilters);
-    if (filterQuarter) filterQuarter.addEventListener('change', applyFilters);
+    if (searchInput) searchInput.addEventListener('input', window.applyFilters);
+    if (filterStudent) filterStudent.addEventListener('change', window.applyFilters);
+    if (filterDate) filterDate.addEventListener('change', window.applyFilters);
+    if (filterQuarter) filterQuarter.addEventListener('change', window.applyFilters);
 
-    applyFilters();
+    window.applyFilters();
 });
 
 // --- AI REWRITE LOGIC ---
@@ -473,9 +478,17 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
             output.value = "";
         } else {
             output.value = data.formal_note;
-            
+            window.hasUnsavedAiChanges = true;
+
             let sid = document.getElementById('student_id').value;
-            if(sid) localStorage.setItem(`dalc_draft_formal_${sid}`, data.formal_note);
+            let date = document.getElementById('log_date').value;
+            if (sid && date) {
+                let key = `${sid}_${date}`;
+                if (!dailyLogCache[key]) dailyLogCache[key] = {};
+                dailyLogCache[key].formalNotes = data.formal_note;
+                dailyLogCache[key].rawNotes = document.getElementById('rawNotes').value;
+                currentDailyLogKey = key;
+            }
         }
     })
     .catch(error => {
@@ -487,42 +500,6 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         loading.classList.add('hidden'); 
     });
 });
-
-// --- COPY FORMAL TEXT LOGIC ---
-function copyFormalText(btn, text) {
-    const originalHtml = btn.innerHTML;
-    const showSuccess = () => {
-        btn.innerHTML = '<i class="fa fa-check text-emerald-600"></i> <span class="text-emerald-600">Copied!</span>';
-        setTimeout(() => {
-            btn.innerHTML = originalHtml;
-        }, 2000);
-    };
-
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(showSuccess).catch(() => {
-            fallbackCopyFormalText(text, showSuccess);
-        });
-    } else {
-        fallbackCopyFormalText(text, showSuccess);
-    }
-}
-
-function fallbackCopyFormalText(text, callback) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-9999px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try {
-        document.execCommand('copy');
-        if (callback) callback();
-    } catch (err) {
-        alert('Failed to copy text. Please copy manually.');
-    }
-    document.body.removeChild(textArea);
-}
 </script>
 @endpush
 @endsection

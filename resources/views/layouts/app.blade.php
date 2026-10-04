@@ -144,7 +144,7 @@
         <!-- BACK BUTTON: Shows only when inside a system module (not on the main dashboard) -->
         @if(!$isDashboard && Auth::check())
             <div class="mb-6 flex">
-                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
+                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" id="back-to-dashboard-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all">
                     <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                 </a>
             </div>
@@ -160,6 +160,18 @@
     </main>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', function(e) {
+                const backBtn = e.target.closest('#back-to-dashboard-btn, a[href*="dashboard"]');
+                if (backBtn && window.hasUnsavedAiChanges) {
+                    if (!confirm("You have unsaved changes. Are you sure you want to leave?")) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }
+            }, true);
+        });
+
         function handleFileInputChange(inputEl, previewContainerId, fileNameId) {
             if (inputEl && inputEl.files && inputEl.files[0]) {
                 const file = inputEl.files[0];

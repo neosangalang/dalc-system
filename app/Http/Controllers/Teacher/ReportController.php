@@ -90,6 +90,14 @@ class ReportController extends Controller
             $finalContent .= "\n\nTonight's Suggested Activity:\n" . trim($request->home_recommendations);
         }
 
+        $imagePath = null;
+        if ($request->report_type === 'daily' && $request->hasFile('photo')) {
+            $request->validate([
+                'photo' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            ]);
+            $imagePath = $request->file('photo')->store('reports', 'public');
+        }
+
         // Capture the newly created report to use its ID for action routing
         $report = Report::create([
             'student_id' => $request->student_id,
@@ -97,6 +105,7 @@ class ReportController extends Controller
             'report_type' => $request->report_type,
             'report_date' => $request->report_date,
             'content' => $finalContent,
+            'image_path' => $imagePath,
             'status' => $status,
         ]);
 

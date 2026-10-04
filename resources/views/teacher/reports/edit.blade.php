@@ -115,6 +115,7 @@
                     let data = await response.json();
                     if(data.success) {
                         this.content = data.report_content;
+                        window.hasUnsavedAiChanges = true;
                     } else {
                         alert(data.message || 'Failed to generate AI content.');
                     }
@@ -127,6 +128,15 @@
             }
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector('form[action*="reports"]');
+        if (form) {
+            form.addEventListener('submit', function() {
+                window.hasUnsavedAiChanges = false;
+            });
+        }
+    });
 </script>
 @endpush
 

@@ -34,7 +34,7 @@
     @endif
 
     <div class="bg-white rounded-[16px] sm:rounded-2xl shadow-sm sm:shadow-md border border-slate-300 overflow-hidden">
-        <form action="{{ route('teacher.reports.store') }}" method="POST" id="report-generation-form" class="m-0">
+        <form action="{{ route('teacher.reports.store') }}" method="POST" id="report-generation-form" enctype="multipart/form-data" class="m-0">
             @csrf
             
             <!-- Hidden field for final compiled content -->
@@ -126,6 +126,23 @@
                             Home-Based Recommendations (Optional)
                         </label>
                         <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-slate-300 px-4 py-4 text-[13px] sm:text-sm font-medium text-slate-700 bg-white focus:border-amber-500 focus:ring-amber-500 shadow-inner custom-scrollbar" rows="4" placeholder="Home-based recommendations will appear here (optional)..."></textarea>
+                    </div>
+
+                    <!-- 3. Photo Attachment (Exclusive to Daily Report) -->
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                        <label class="block text-[11px] font-extrabold text-indigo-600 uppercase tracking-wider mb-1.5 flex items-center">
+                            <i class="fa fa-camera text-indigo-500 mr-1.5"></i> Attach Photo (Optional - Daily Report Only)
+                        </label>
+                        <input type="file" name="photo" id="photoInput" onchange="handleFileInputChange(this, 'photo_input_preview', 'photo_input_filename')" class="block w-full text-[13px] font-medium text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 border border-slate-300 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png">
+                        <div id="photo_input_preview" class="hidden mt-2 p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-xl flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <i class="fa fa-camera text-indigo-600 text-sm"></i>
+                                <span id="photo_input_filename" class="text-[12px] font-extrabold text-slate-800 truncate"></span>
+                            </div>
+                            <button type="button" onclick="clearSelectedFile('photoInput', 'photo_input_preview')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
+                                <i class="fa fa-times text-xs"></i> Remove
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -310,6 +327,11 @@ document.addEventListener("DOMContentLoaded", function() {
         reviewActionSection.classList.remove('hidden');
     }
 
+    // Save manual text edits to cache
+    if (dailyContent) dailyContent.addEventListener('input', saveCurrentToCache);
+    if (homeRec) homeRec.addEventListener('input', saveCurrentToCache);
+    if (generalContent) generalContent.addEventListener('input', saveCurrentToCache);
+
     // EVENT: Student Selection Change
     studentSelect.addEventListener('change', function() {
         saveCurrentToCache();
@@ -322,14 +344,16 @@ document.addEventListener("DOMContentLoaded", function() {
         syncState();
     });
 
-    // EVENT: Date Picker Change
-    dateInput.addEventListener('change', function() {
+    // EVENT: Date Picker Change / Input
+    function handleDateChange() {
         saveCurrentToCache();
-        if (this.value) {
-            lastSelectedDate = this.value;
+        if (dateInput.value) {
+            lastSelectedDate = dateInput.value;
         }
         syncState();
-    });
+    }
+    dateInput.addEventListener('change', handleDateChange);
+    dateInput.addEventListener('input', handleDateChange);
 
     // GENERIC AI FETCH HELPER
     function runAiGeneration(btn, sectionType) {
@@ -380,6 +404,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
+                window.hasUnsavedAiChanges = true;
                 const key = getCacheKey();
                 if (!cache[key]) cache[key] = {};
 
@@ -453,6 +478,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             finalContentInput.value = compiled;
         }
+        window.hasUnsavedAiChanges = false;
     });
 
     // Initial sync

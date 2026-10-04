@@ -39,10 +39,10 @@
             </div>
             
             <div class="flex flex-wrap gap-2.5 w-full sm:w-auto">
-                <button type="button" @click="showReEnrollModal = true; showCreateModal = false" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-all shadow-sm cursor-pointer">
+                <button @click="showReEnrollModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-all shadow-sm">
                     <i class="fa fa-user-check mr-2"></i> Re-Enroll Student
                 </button>
-                <button type="button" @click="showCreateModal = true; showReEnrollModal = false" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#4F46E5] text-white text-[13px] font-extrabold rounded-xl hover:bg-indigo-700 transition-all shadow-sm cursor-pointer">
+                <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#4F46E5] text-white text-[13px] font-extrabold rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
                     <i class="fa fa-user-plus mr-2"></i> Enroll Student
                 </button>
             </div>
@@ -706,12 +706,10 @@
                     </form>
                 </div>
             </div>
-        </div>
-
         <!-- ========================================== -->
         <!-- RE-ENROLL STUDENT MODAL                    -->
         <!-- ========================================== -->
-        <div x-show="showReEnrollModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div x-show="showReEnrollModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
             <div @click.away="showReEnrollModal = false" class="bg-white rounded-2xl shadow-xl border border-black/15 w-full max-w-3xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
                 <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-b border-black/10 flex justify-between items-center">
                     <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">

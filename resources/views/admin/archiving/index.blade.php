@@ -11,7 +11,7 @@
 @endphp
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+<div x-data="{ show2faModal: {{ $errors->has('one_time_password') ? 'true' : 'false' }} }}" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down mb-6">
@@ -41,13 +41,61 @@
                         Year-End Archiving
                     </h3>
                     
-                    <form action="{{ route('admin.archive.run') }}" method="POST" class="m-0 w-full sm:w-auto" onsubmit="return confirm('Are you sure you want to run the real-time year-end archive for SY {{ $activeSchoolYear }}? This cannot be undone.');">
-                        @csrf
-                        <input type="hidden" name="school_year" value="{{ $activeSchoolYear }}">
-                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1" onclick="runArchiveDemo()">
-                            <i class="fa fa-play mr-2"></i> Run Archive
-                        </button>
-                    </form>
+                    <button type="button" @click="show2faModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
+                        <i class="fa fa-play mr-2"></i> Run Archive
+                    </button>
+                </div>
+
+                <!-- 2FA CONFIRMATION MODAL -->
+                <div x-show="show2faModal" x-cloak x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div @click.away="show2faModal = false" class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 space-y-6 border border-black/10">
+                        
+                        <div class="text-center">
+                            <div class="w-14 h-14 rounded-full bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center mx-auto mb-4 text-2xl border border-[#3B82F6]/20">
+                                <i class="fa fa-shield-halved"></i>
+                            </div>
+                            <h4 class="text-xl font-extrabold text-[#1E2657] m-0">2-Factor Authentication Required</h4>
+                            <p class="text-xs font-medium text-[#6B7086] mt-2 mb-0">
+                                Please enter your 6-digit authentication code from your authenticator app to run the year-end archive for SY {{ $activeSchoolYear }}.
+                            </p>
+                        </div>
+
+                        @if($errors->has('one_time_password'))
+                            <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-xs font-bold flex items-center">
+                                <i class="fa fa-exclamation-circle mr-2 text-rose-500"></i>
+                                {{ $errors->first('one_time_password') }}
+                            </div>
+                        @endif
+
+                        <form action="{{ route('admin.archive.run') }}" method="POST" class="space-y-5 m-0" onsubmit="runArchiveDemo()">
+                            @csrf
+                            <input type="hidden" name="school_year" value="{{ $activeSchoolYear }}">
+
+                            <div>
+                                <label class="block text-xs font-extrabold text-[#1E2657] uppercase tracking-wider mb-2 text-center">
+                                    Authentication Code
+                                </label>
+                                <input type="text" 
+                                       name="one_time_password" 
+                                       class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 px-4 rounded-xl border border-black/20 focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" 
+                                       required 
+                                       placeholder="• • • • • •" 
+                                       maxlength="6" 
+                                       autofocus>
+                            </div>
+
+                            <!-- NOTE: NO "Remember me" option for maximum archiving security -->
+
+                            <div class="flex gap-3 pt-2">
+                                <button type="button" @click="show2faModal = false" class="flex-1 px-4 py-3 bg-slate-100 text-[#6B7086] text-xs font-extrabold rounded-xl hover:bg-slate-200 transition-colors">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="flex-1 px-4 py-3 bg-[#3B82F6] text-white text-xs font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2">
+                                    <i class="fa fa-unlock-alt"></i> Verify & Run
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 
                 <div class="p-5 sm:p-6">
@@ -67,7 +115,7 @@
                         <div class="relative pl-6 sm:pl-8">
                             <span class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#3B82F6] border-4 border-white shadow-sm"></span>
                             <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Snapshot Student Data</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Capture student profiles, IEP goals, and summary reports (Quarterly, Mid-Year, Annual)</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Capture all profiles, IEP goals, and progress notes</p>
                         </div>
                         
                         <div class="relative pl-6 sm:pl-8">
@@ -94,11 +142,7 @@
                 <div>
                     <h5 class="font-extrabold text-[14px] sm:text-[15px] text-[#1E2657] mb-1 sm:mb-1.5 m-0 leading-tight">Automated Quarterly Rollover Active</h5>
                     <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed">
-                        @if(Auth::user()->role === 'admin')
-                            This system is configured with automated background tasks (Cron Jobs). The system will securely archive daily reports for the Guardian only to clear their dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
-                        @else
-                            This system is configured with automated background tasks (Cron Jobs). The system will securely archive daily reports for both the Teacher and the Guardian to clear their active dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
-                        @endif
+                        This system is configured with automated background tasks (Cron Jobs). The system will securely archive all approved daily reports and clear active Teacher dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
                     </p>
                 </div>
             </div>

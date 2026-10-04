@@ -36,10 +36,6 @@
                     <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Admin' }}.</h1>
                     <p class="text-[#6B7086] text-sm font-medium m-0">Here is your system overview for today.</p>
                 </div>
-                <div class="bg-white border border-black/15 rounded-2xl px-5 py-3 text-left sm:text-right shadow-sm self-start sm:self-auto flex items-center gap-3 sm:block">
-                    <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest block">Local System Time</span>
-                    <span class="text-base font-extrabold text-[#1E2657] font-mono" x-text="currentTime"></span>
-                </div>
             </div>
         </header>
 
