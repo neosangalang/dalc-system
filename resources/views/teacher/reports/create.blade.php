@@ -232,11 +232,8 @@ document.addEventListener("DOMContentLoaded", function() {
     function getCacheKey() {
         const studentId = studentSelect.value || 'none';
         const type = reportTypeSelect.value || 'none';
-        if (type === 'daily') {
-            const d = dateInput.value || 'nodate';
-            return `${studentId}_daily_${d}`;
-        }
-        return `${studentId}_${type}_all`;
+        const d = dateInput.value || 'nodate';
+        return `${studentId}_${type}_${d}`;
     }
 
     function saveCurrentToCache() {
@@ -283,16 +280,16 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        // Always show date selection & preset/retain date for ALL report types
+        dateRow.classList.remove('hidden');
+        if (!dateInput.value) {
+            dateInput.value = lastSelectedDate || todayStr;
+        }
+
         const key = getCacheKey();
         const cached = cache[key] || {};
 
         if (type === 'daily') {
-            // Show date selection & preset/retain date
-            dateRow.classList.remove('hidden');
-            if (!dateInput.value) {
-                dateInput.value = lastSelectedDate || todayStr;
-            }
-
             dailyWrapper.classList.remove('hidden');
             generalWrapper.classList.add('hidden');
 
@@ -308,7 +305,6 @@ document.addEventListener("DOMContentLoaded", function() {
             setBtnState(triggerHomeBtn, cached.homeGen ? 'success' : 'ready', 'Generate Home-Based Recommendations via AI', 'fa-solid fa-lightbulb mr-2');
         } else {
             // Non-daily report (Quarterly, Mid-Year, Year-End)
-            dateRow.classList.add('hidden');
             dailyWrapper.classList.add('hidden');
             generalWrapper.classList.remove('hidden');
 

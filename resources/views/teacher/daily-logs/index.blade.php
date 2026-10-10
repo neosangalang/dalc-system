@@ -86,9 +86,15 @@
                     
                     <!-- STUDENT SELECTION DROPDOWN -->
                     <div class="p-4 bg-[#F4F6FA] border border-black/10 rounded-2xl shadow-sm">
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
-                            <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> Select Student
-                        </label>
+                        <div class="flex items-center mb-1.5">
+                            <label class="text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest flex items-center m-0">
+                                <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> Select Student
+                            </label>
+                            <span class="mx-2.5 text-black/20">|</span>
+                            <a href="{{ route('teacher.students.index') }}" class="text-[10px] font-extrabold text-[#6B7086] hover:text-[#3B82F6] transition-colors uppercase tracking-widest flex items-center decoration-transparent">
+                                <i class="fa fa-gear mr-1.5"></i> Manage Student List
+                            </a>
+                        </div>
                         <select name="student_id" id="student_id" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer" required>
                             <option value="" disabled {{ empty($selectedStudentId) ? 'selected' : '' }}>Select a student to log for...</option>
                             @foreach($myStudents as $student)

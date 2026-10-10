@@ -41,14 +41,14 @@
                         Year-End Archiving
                     </h3>
                     
-                    <button type="button" @click="show2faModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
+                    <button type="button" onclick="document.getElementById('twoFaModal').style.display='flex'" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
                         <i class="fa fa-play mr-2"></i> Run Archive
                     </button>
                 </div>
 
                 <!-- 2FA CONFIRMATION MODAL -->
-                <div x-show="show2faModal" x-cloak x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div @click.away="show2faModal = false" class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 space-y-6 border border-black/10">
+                <div id="twoFaModal" style="display: {{ $errors->has('one_time_password') ? 'flex' : 'none' }};" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 space-y-6 border border-black/10 relative">
                         
                         <div class="text-center">
                             <div class="w-14 h-14 rounded-full bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center mx-auto mb-4 text-2xl border border-[#3B82F6]/20">
@@ -87,7 +87,7 @@
                             <!-- NOTE: NO "Remember me" option for maximum archiving security -->
 
                             <div class="flex gap-3 pt-2">
-                                <button type="button" @click="show2faModal = false" class="flex-1 px-4 py-3 bg-slate-100 text-[#6B7086] text-xs font-extrabold rounded-xl hover:bg-slate-200 transition-colors">
+                                <button type="button" onclick="document.getElementById('twoFaModal').style.display='none'" class="flex-1 px-4 py-3 bg-slate-100 text-[#6B7086] text-xs font-extrabold rounded-xl hover:bg-slate-200 transition-colors">
                                     Cancel
                                 </button>
                                 <button type="submit" class="flex-1 px-4 py-3 bg-[#3B82F6] text-white text-xs font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2">
