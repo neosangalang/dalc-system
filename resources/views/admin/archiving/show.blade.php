@@ -15,7 +15,7 @@
         <div class="flex flex-wrap gap-3 w-full sm:w-auto">
             {{-- Download PDF --}}
             @if($archive->master_pdf_path)
-                <a href="{{ asset('storage/' . $archive->master_pdf_path) }}" target="_blank" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-black/15 text-[#6B7086] text-[13px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
+                <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-black/15 text-[#6B7086] text-[13px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
                     <i class="fa fa-file-pdf mr-2 text-rose-500"></i> Download PDF
                 </a>
             @endif

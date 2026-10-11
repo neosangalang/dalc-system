@@ -13,6 +13,7 @@ use App\Models\AcademicQuarter;
 use App\Models\DailyLog;
 use App\Models\User;
 use App\Notifications\SystemAlert;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -95,7 +96,7 @@ class ReportController extends Controller
             $request->validate([
                 'photo' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
             ]);
-            $imagePath = $request->file('photo')->store('reports', 'public');
+            $imagePath = $request->file('photo')->store('reports', 'local');
         }
 
         // Capture the newly created report to use its ID for action routing
@@ -360,12 +361,39 @@ STRICT REVISION RULES:
     {
         $report = Report::findOrFail($id);
 
-        if ($report->teacher_id === auth()->id()) {
+        if ($report->teacher_id === auth()->id() || auth()->user()->role === 'admin') {
+            if ($report->image_path) {
+                if (Storage::disk('local')->exists($report->image_path)) {
+                    Storage::disk('local')->delete($report->image_path);
+                } elseif (Storage::disk('public')->exists($report->image_path)) {
+                    Storage::disk('public')->delete($report->image_path);
+                }
+            }
             $report->delete();
             return redirect()->route('teacher.reports.index')->with('success', 'Report successfully deleted.');
         }
 
         return redirect()->route('teacher.reports.index')->with('error', 'You are not authorized to delete this report.');
+    }
+
+    public function deleteAttachment(string $id)
+    {
+        $report = Report::findOrFail($id);
+
+        if ($report->teacher_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            return redirect()->back()->with('error', 'You are not authorized to delete this attachment.');
+        }
+
+        if ($report->image_path) {
+            if (Storage::disk('local')->exists($report->image_path)) {
+                Storage::disk('local')->delete($report->image_path);
+            } elseif (Storage::disk('public')->exists($report->image_path)) {
+                Storage::disk('public')->delete($report->image_path);
+            }
+            $report->update(['image_path' => null]);
+        }
+
+        return redirect()->back()->with('success', 'Attached photo deleted successfully.');
     }
     
     public function downloadPdf($id)

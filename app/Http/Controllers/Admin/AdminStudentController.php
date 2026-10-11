@@ -36,7 +36,7 @@ class AdminStudentController extends Controller
         DB::transaction(function () use ($request) {
             $medicalDocPath = null;
             if ($request->hasFile('medical_document')) {
-                $medicalDocPath = $request->file('medical_document')->store('medical_documents', 'public');
+                $medicalDocPath = $request->file('medical_document')->store('medical_documents', 'local');
             }
 
             Student::create([
@@ -83,9 +83,13 @@ class AdminStudentController extends Controller
 
             if ($request->hasFile('medical_document')) {
                 if ($student->medical_document) {
-                    Storage::disk('public')->delete($student->medical_document);
+                    if (Storage::disk('local')->exists($student->medical_document)) {
+                        Storage::disk('local')->delete($student->medical_document);
+                    } elseif (Storage::disk('public')->exists($student->medical_document)) {
+                        Storage::disk('public')->delete($student->medical_document);
+                    }
                 }
-                $data['medical_document'] = $request->file('medical_document')->store('medical_documents', 'public');
+                $data['medical_document'] = $request->file('medical_document')->store('medical_documents', 'local');
             }
 
             $student->update($data);
@@ -120,9 +124,13 @@ class AdminStudentController extends Controller
 
             if ($request->hasFile('medical_document')) {
                 if ($student->medical_document) {
-                    Storage::disk('public')->delete($student->medical_document);
+                    if (Storage::disk('local')->exists($student->medical_document)) {
+                        Storage::disk('local')->delete($student->medical_document);
+                    } elseif (Storage::disk('public')->exists($student->medical_document)) {
+                        Storage::disk('public')->delete($student->medical_document);
+                    }
                 }
-                $data['medical_document'] = $request->file('medical_document')->store('medical_documents', 'public');
+                $data['medical_document'] = $request->file('medical_document')->store('medical_documents', 'local');
             }
 
             $student->update($data);
@@ -148,7 +156,11 @@ class AdminStudentController extends Controller
         $student = Student::findOrFail($id);
 
         if ($student->medical_document) {
-            Storage::disk('public')->delete($student->medical_document);
+            if (Storage::disk('local')->exists($student->medical_document)) {
+                Storage::disk('local')->delete($student->medical_document);
+            } elseif (Storage::disk('public')->exists($student->medical_document)) {
+                Storage::disk('public')->delete($student->medical_document);
+            }
         }
 
         $guardianId = $student->guardian_id;
@@ -162,5 +174,20 @@ class AdminStudentController extends Controller
         }
 
         return redirect()->back()->with('success', 'Student profile permanently deleted.');
+    }
+
+    public function deleteDocument($id) {
+        $student = Student::findOrFail($id);
+
+        if ($student->medical_document) {
+            if (Storage::disk('local')->exists($student->medical_document)) {
+                Storage::disk('local')->delete($student->medical_document);
+            } elseif (Storage::disk('public')->exists($student->medical_document)) {
+                Storage::disk('public')->delete($student->medical_document);
+            }
+            $student->update(['medical_document' => null]);
+        }
+
+        return redirect()->back()->with('success', 'Medical document removed successfully.');
     }
 }

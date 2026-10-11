@@ -90,7 +90,7 @@ class ArchiveController extends Controller
             // Generate PDF
             $pdf = Pdf::loadView('pdf.student_archive', ['student' => $student]);
             $fileName = 'archives/' . $schoolYear . '/' . $student->id . '_' . $student->last_name . '.pdf';
-            Storage::disk('public')->put($fileName, $pdf->output());
+            Storage::disk('local')->put($fileName, $pdf->output());
 
             // Save to Database with real-time timestamp
             ArchivedStudent::create([
@@ -121,7 +121,38 @@ class ArchiveController extends Controller
     }
 
     // ==========================================
-    // 4. THE RESTORE METHOD (Retrieve student)
+    // 4. THE MASTER PDF METHOD (Stream secure PDF)
+    // ==========================================
+    public function masterPdf($id)
+    {
+        $archive = ArchivedStudent::with('student')->findOrFail($id);
+
+        if (!$archive->master_pdf_path) {
+            abort(404, 'No master PDF record found.');
+        }
+
+        $disk = Storage::disk('local');
+        $path = $archive->master_pdf_path;
+
+        if (!$disk->exists($path)) {
+            if (Storage::disk('public')->exists($path)) {
+                $disk = Storage::disk('public');
+            } else {
+                abort(404, 'Master archive document not found in storage.');
+            }
+        }
+
+        $studentName = $archive->student ? ($archive->student->last_name . '_' . $archive->student->first_name) : 'Student_' . $archive->student_id;
+        $downloadName = $studentName . '_SY_' . $archive->school_year . '_Archive.pdf';
+
+        return $disk->response($path, $downloadName, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $downloadName . '"',
+        ]);
+    }
+
+    // ==========================================
+    // 5. THE RESTORE METHOD (Retrieve student)
     // ==========================================
     public function restore($id)
     {
@@ -146,9 +177,13 @@ class ArchiveController extends Controller
             ]);
         }
 
-        // Delete the PDF file if it exists
-        if ($archive->master_pdf_path && Storage::disk('public')->exists($archive->master_pdf_path)) {
-            Storage::disk('public')->delete($archive->master_pdf_path);
+        // Delete the PDF file if it exists (check private first, then public fallback)
+        if ($archive->master_pdf_path) {
+            if (Storage::disk('local')->exists($archive->master_pdf_path)) {
+                Storage::disk('local')->delete($archive->master_pdf_path);
+            } elseif (Storage::disk('public')->exists($archive->master_pdf_path)) {
+                Storage::disk('public')->delete($archive->master_pdf_path);
+            }
         }
 
         // Remove the archive record

@@ -211,7 +211,7 @@
 
                                 {{-- Download PDF --}}
                                 @if($archive->master_pdf_path)
-                                    <a href="{{ asset('storage/' . $archive->master_pdf_path) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
+                                    <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
                                         <i class="fa fa-file-pdf mr-1.5 text-rose-500"></i> PDF
                                     </a>
                                 @endif

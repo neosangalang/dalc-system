@@ -159,7 +159,7 @@
 
                                             @if($dailyLogWithPhoto)
                                                 <div class="text-center mb-5 sm:mb-6 p-2 sm:p-3 bg-slate-50 rounded-xl border-[3px] border-dashed border-slate-300">
-                                                    <img src="{{ asset('storage/' . $dailyLogWithPhoto->image_path) }}" alt="Student Progress Photo" class="max-h-56 sm:max-h-72 w-auto mx-auto rounded-lg shadow-sm border-4 border-white outline outline-1 outline-slate-200">
+                                                    <img src="{{ route('secure.log-photo', $dailyLogWithPhoto->id) }}" alt="Student Progress Photo" class="max-h-56 sm:max-h-72 w-auto mx-auto rounded-lg shadow-sm border-4 border-white outline outline-1 outline-slate-200">
                                                 </div>
                                             @endif
                                             

@@ -48,6 +48,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::get('/secure-log-photo/{id}', [SecureFileController::class, 'show'])->name('secure.log-photo');
+    Route::get('/secure-medical-document/{id}', [SecureFileController::class, 'medicalDocument'])->name('secure.student-medical');
+    Route::get('/secure-report-photo/{id}', [SecureFileController::class, 'reportPhoto'])->name('secure.report-photo');
     
     Route::post('/ai/rewrite-log', [AiAssistantController::class, 'rewriteDailyLog'])->name('ai.rewrite'); 
 

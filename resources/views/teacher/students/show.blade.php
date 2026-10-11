@@ -75,7 +75,7 @@
                         </span>
                         
                         @if($student->medical_document)
-                            <a href="{{ asset('storage/' . $student->medical_document) }}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-3 bg-white border border-[#9CA0AF] rounded-xl text-[13px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
+                            <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-3 bg-white border border-[#9CA0AF] rounded-xl text-[13px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
                                 <i class="fa fa-download mr-2"></i> View / Download File
                             </a>
                         @else

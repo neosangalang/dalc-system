@@ -241,7 +241,7 @@
                                         @endif
                                         
                                         @if($student->medical_document)
-                                            <a href="{{ asset('storage/' . $student->medical_document) }}" target="_blank" class="px-2.5 py-1 inline-flex items-center text-[10px] font-extrabold rounded-md bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors border border-rose-200 shadow-sm uppercase tracking-widest">
+                                            <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="px-2.5 py-1 inline-flex items-center text-[10px] font-extrabold rounded-md bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors border border-rose-200 shadow-sm uppercase tracking-widest">
                                                 <i class="fa fa-file-medical mr-1.5"></i> Med Record
                                             </a>
                                         @endif
@@ -255,7 +255,7 @@
                                         <!-- Mobile Med Record Button -->
                                         <div class="md:hidden">
                                             @if($student->medical_document)
-                                                <a href="{{ asset('storage/' . $student->medical_document) }}" target="_blank" class="px-2.5 py-1.5 inline-flex items-center text-[10px] font-extrabold uppercase tracking-widest rounded-md bg-rose-50 text-rose-600 border border-rose-200 shadow-sm">
+                                                <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="px-2.5 py-1.5 inline-flex items-center text-[10px] font-extrabold uppercase tracking-widest rounded-md bg-rose-50 text-rose-600 border border-rose-200 shadow-sm">
                                                     <i class="fa fa-file-medical mr-1.5"></i> Med Record
                                                 </a>
                                             @else
@@ -409,13 +409,17 @@
                                                                 </label>
                                                                 @if($student->medical_document)
                                                                     <div class="mb-3 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between">
-                                                                        <a href="{{ asset('storage/' . $student->medical_document) }}" target="_blank" class="text-[12px] font-extrabold text-rose-700 hover:underline flex items-center">
+                                                                        <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="text-[12px] font-extrabold text-rose-700 hover:underline flex items-center">
                                                                             <i class="fa fa-file-medical mr-2 text-rose-500"></i> View Current Document
                                                                         </a>
                                                                         <button type="button" onclick="if(confirm('Are you sure you want to delete this medical document?')) { document.getElementById('delete-doc-form-{{ $student->id }}').submit(); }" class="px-2.5 py-1 bg-white border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer">
                                                                             <i class="fa fa-trash-alt mr-1"></i> Delete Document
                                                                         </button>
                                                                     </div>
+                                                                    <form id="delete-doc-form-{{ $student->id }}" action="{{ route('admin.students.delete-document', $student->id) }}" method="POST" class="hidden">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                    </form>
                                                                 @endif
                                                                 <input type="file" name="medical_document" id="edit_med_doc_input_{{ $student->id }}" onchange="handleFileInputChange(this, 'edit_med_doc_preview_{{ $student->id }}', 'edit_med_doc_filename_{{ $student->id }}')" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
                                                                 <div id="edit_med_doc_preview_{{ $student->id }}" class="hidden mt-2 p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">

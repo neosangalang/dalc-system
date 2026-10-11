@@ -251,7 +251,7 @@
                                             @if($report->image_path)
                                                 <div class="mb-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
                                                     <div class="flex items-center gap-3 min-w-0">
-                                                        <img src="{{ asset('storage/' . $report->image_path) }}" alt="Attached photo" class="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm shrink-0">
+                                                        <img src="{{ route('secure.report-photo', $report->id) }}" alt="Attached photo" class="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm shrink-0">
                                                         <div>
                                                             <h6 class="text-xs font-extrabold text-slate-800 m-0">Attached Observation Photo</h6>
                                                             <p class="text-[11px] font-medium text-slate-500 m-0">Photo attached to this daily report.</p>
