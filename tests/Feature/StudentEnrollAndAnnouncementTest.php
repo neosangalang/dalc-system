@@ -255,4 +255,61 @@ class StudentEnrollAndAnnouncementTest extends TestCase
         $dashboardAfterResponse->assertOk();
         $dashboardAfterResponse->assertViewHas('newAnnouncementsCount', 0);
     }
+
+    public function test_guardian_announcement_seen_clears_notification_count(): void
+    {
+        // Initially guardian was created 2 days ago
+        $this->guardian->update(['created_at' => now()->subDays(2), 'last_seen_announcements_at' => now()->subDays(2)]);
+
+        // Post announcement
+        Announcement::create([
+            'type' => 'Class Suspension',
+            'title' => 'Suspension Notice',
+            'content' => 'Classes are suspended tomorrow.',
+            'created_at' => now(),
+        ]);
+
+        // Guardian views dashboard: unread count is 1
+        $dashboardResponse = $this->actingAs($this->guardian)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('guardian.dashboard'));
+        $dashboardResponse->assertOk();
+        $dashboardResponse->assertViewHas('newAnnouncementsCount', 1);
+
+        // Guardian visits announcements page
+        $announcementsResponse = $this->actingAs($this->guardian)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('guardian.announcements.index'));
+        $announcementsResponse->assertOk();
+
+        // Returning to dashboard: unread count must now be 0
+        $dashboardAfter = $this->actingAs($this->guardian)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('guardian.dashboard'));
+        $dashboardAfter->assertOk();
+        $dashboardAfter->assertViewHas('newAnnouncementsCount', 0);
+    }
+
+    public function test_guardian_mark_announcements_seen_endpoint(): void
+    {
+        $this->guardian->update(['created_at' => now()->subDays(2), 'last_seen_announcements_at' => now()->subDays(2)]);
+
+        Announcement::create([
+            'type' => 'Event',
+            'title' => 'Sports Festival',
+            'content' => 'Sports fest will be held this Friday.',
+            'created_at' => now(),
+        ]);
+
+        $postResponse = $this->actingAs($this->guardian)
+            ->withSession(['mfa_verified' => true])
+            ->post(route('guardian.announcements.mark-seen'));
+        $postResponse->assertRedirect();
+
+        $dashboardResponse = $this->actingAs($this->guardian)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('guardian.dashboard'));
+        $dashboardResponse->assertOk();
+        $dashboardResponse->assertViewHas('newAnnouncementsCount', 0);
+    }
 }

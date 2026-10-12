@@ -44,8 +44,30 @@ class GuardianController extends Controller
     {
         $featuredAnnouncements = Announcement::latest()->take(3)->get();
         
-        $lastSeen = session('last_seen_announcements', now()->subDays(3));
-        $newAnnouncementsCount = Announcement::where('created_at', '>', $lastSeen)->count();
+        $user = Auth::user();
+        $lastSeen = null;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
+                $lastSeen = $user->last_seen_announcements_at;
+            }
+        } catch (\Throwable $e) {}
+
+        if (!$lastSeen) {
+            $lastSeen = session('last_seen_announcements');
+        }
+
+        if (!$lastSeen && request()->hasCookie('last_seen_announcements_' . $user->id)) {
+            try {
+                $lastSeen = \Carbon\Carbon::createFromTimestamp((int) request()->cookie('last_seen_announcements_' . $user->id));
+            } catch (\Throwable $e) {}
+        }
+
+        $newAnnouncementsCount = 0;
+        if ($lastSeen) {
+            $newAnnouncementsCount = Announcement::where('created_at', '>', $lastSeen)->count();
+        } else {
+            $newAnnouncementsCount = Announcement::where('created_at', '>', $user->created_at ?? now()->subDays(3))->count();
+        }
 
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
@@ -118,13 +140,63 @@ class GuardianController extends Controller
     // ==========================================
     public function announcements()
     {
+        $guardian = Auth::user();
+        $now = now();
+
+        // Mark announcements as seen so the dashboard badge clears permanently
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
+                \App\Models\User::where('id', $guardian->id)->update(['last_seen_announcements_at' => $now]);
+                $guardian->last_seen_announcements_at = $now;
+            }
+        } catch (\Throwable $e) {}
+        session(['last_seen_announcements' => $now]);
+        cookie()->queue('last_seen_announcements_' . $guardian->id, $now->timestamp, 60 * 24 * 30);
+
+        // Also mark unread announcement notifications for this guardian as read
+        try {
+            $guardian->unreadNotifications()
+                ->where(function($q) {
+                    $q->where('data->url', route('guardian.announcements.index'))
+                      ->orWhere('type', 'like', '%Announcement%');
+                })
+                ->update(['read_at' => $now]);
+        } catch (\Throwable $e) {}
+
         $announcements = Announcement::with(['comments.user'])->latest()->get();
         list($activeChild, $myChildren) = $this->getActiveChildData();
-        
-        // Mark announcements as seen so the dashboard badge clears
-        session(['last_seen_announcements' => now()]);
-        
+
         return view('guardian.announcements', compact('announcements', 'myChildren', 'activeChild'));
+    }
+
+    public function markAnnouncementsSeen(Request $request)
+    {
+        $guardian = Auth::user();
+        $now = now();
+
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
+                \App\Models\User::where('id', $guardian->id)->update(['last_seen_announcements_at' => $now]);
+                $guardian->last_seen_announcements_at = $now;
+            }
+        } catch (\Throwable $e) {}
+        session(['last_seen_announcements' => $now]);
+        cookie()->queue('last_seen_announcements_' . $guardian->id, $now->timestamp, 60 * 24 * 30);
+
+        try {
+            $guardian->unreadNotifications()
+                ->where(function($q) {
+                    $q->where('data->url', route('guardian.announcements.index'))
+                      ->orWhere('type', 'like', '%Announcement%');
+                })
+                ->update(['read_at' => $now]);
+        } catch (\Throwable $e) {}
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back();
     }
 
     // ==========================================

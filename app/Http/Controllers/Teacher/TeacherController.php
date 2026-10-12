@@ -43,14 +43,30 @@ class TeacherController extends Controller
         })->whereIn('status', ['draft', 'pending_approval'])->count();
 
         // 5. Get Recent Unseen Announcements Count
+        $teacher = Auth::user();
         $lastSeen = null;
         try {
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
-                $lastSeen = Auth::user()->last_seen_announcements_at;
+                $lastSeen = $teacher->last_seen_announcements_at;
             }
         } catch (\Throwable $e) {}
-        $lastSeen = $lastSeen ?? session('last_seen_announcements', Auth::user()->created_at ?? Carbon::now()->subDays(7));
-        $newAnnouncementsCount = Announcement::where('created_at', '>', $lastSeen)->count();
+
+        if (!$lastSeen) {
+            $lastSeen = session('last_seen_announcements');
+        }
+
+        if (!$lastSeen && request()->hasCookie('last_seen_announcements_' . $teacher->id)) {
+            try {
+                $lastSeen = \Carbon\Carbon::createFromTimestamp((int) request()->cookie('last_seen_announcements_' . $teacher->id));
+            } catch (\Throwable $e) {}
+        }
+
+        $newAnnouncementsCount = 0;
+        if ($lastSeen) {
+            $newAnnouncementsCount = Announcement::where('created_at', '>', $lastSeen)->count();
+        } else {
+            $newAnnouncementsCount = Announcement::where('created_at', '>', $teacher->created_at ?? Carbon::now()->subDays(7))->count();
+        }
 
         // 6. Fetch Academic Quarters for the Timeline
         AcademicQuarter::syncActiveStatus();
@@ -86,23 +102,59 @@ class TeacherController extends Controller
     public function announcements()
     {
         $teacher = Auth::user();
+        $now = now();
 
         // Mark announcements as seen so the dashboard badge is removed
         try {
             if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
-                $teacher->update(['last_seen_announcements_at' => now()]);
+                \App\Models\User::where('id', $teacher->id)->update(['last_seen_announcements_at' => $now]);
+                $teacher->last_seen_announcements_at = $now;
             }
         } catch (\Throwable $e) {}
-        session(['last_seen_announcements' => now()]);
+        session(['last_seen_announcements' => $now]);
+        cookie()->queue('last_seen_announcements_' . $teacher->id, $now->timestamp, 60 * 24 * 30);
 
         // Mark any announcement notifications for this teacher as read
         try {
             $teacher->unreadNotifications()
-                ->where('data->url', route('teacher.announcements'))
-                ->update(['read_at' => now()]);
+                ->where(function($q) {
+                    $q->where('data->url', route('teacher.announcements'))
+                      ->orWhere('type', 'like', '%Announcement%');
+                })
+                ->update(['read_at' => $now]);
         } catch (\Throwable $e) {}
 
         $announcements = Announcement::with(['comments.user'])->latest()->paginate(10);
         return view('teacher.announcements', compact('announcements'));
+    }
+
+    public function markAnnouncementsSeen(Request $request)
+    {
+        $teacher = Auth::user();
+        $now = now();
+
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
+                \App\Models\User::where('id', $teacher->id)->update(['last_seen_announcements_at' => $now]);
+                $teacher->last_seen_announcements_at = $now;
+            }
+        } catch (\Throwable $e) {}
+        session(['last_seen_announcements' => $now]);
+        cookie()->queue('last_seen_announcements_' . $teacher->id, $now->timestamp, 60 * 24 * 30);
+
+        try {
+            $teacher->unreadNotifications()
+                ->where(function($q) {
+                    $q->where('data->url', route('teacher.announcements'))
+                      ->orWhere('type', 'like', '%Announcement%');
+                })
+                ->update(['read_at' => $now]);
+        } catch (\Throwable $e) {}
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back();
     }
 }

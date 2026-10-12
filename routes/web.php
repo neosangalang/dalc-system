@@ -187,6 +187,7 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
     Route::get('/announcements', [TeacherController::class, 'announcements'])->name('announcements.index');
     Route::get('/announcements', [TeacherController::class, 'announcements'])->name('announcements');
+    Route::post('/announcements/mark-seen', [TeacherController::class, 'markAnnouncementsSeen'])->name('announcements.mark-seen');
 
     Route::post('/daily-logs/generate-ai', [DailyLogController::class, 'generateAiReport'])->name('daily-logs.generate-ai');
     Route::post('/iep-goals/generate-ai', [IepGoalController::class, 'generateAi'])->name('iep-goals.generate-ai');
@@ -224,6 +225,7 @@ Route::middleware(['auth', 'role:guardian', \App\Http\Middleware\ForcePasswordCh
         
     Route::get('/dashboard', [GuardianController::class, 'dashboard'])->name('dashboard');
     Route::get('/announcements', [GuardianController::class, 'announcements'])->name('announcements.index');
+    Route::post('/announcements/mark-seen', [GuardianController::class, 'markAnnouncementsSeen'])->name('announcements.mark-seen');
 
     Route::get('/goals', [GuardianController::class, 'goals'])->name('goals');
     Route::get('/goals/download-iep/{studentId}', [GuardianController::class, 'downloadIepPdf'])->name('goals.download-iep');

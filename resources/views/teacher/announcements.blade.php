@@ -51,8 +51,13 @@
                             </span>
 
                             @if($announcement->image_path)
-                                <div class="mb-5 rounded-xl overflow-hidden shadow-sm border border-black/5">
-                                    <img src="{{ asset('storage/' . $announcement->image_path) }}" alt="{{ $announcement->title }}" class="w-full h-auto max-h-[450px] object-cover object-center">
+                                <div class="mb-5 rounded-2xl overflow-hidden bg-slate-900/5 border border-black/10 p-2 sm:p-3 flex items-center justify-center">
+                                    <a href="{{ asset('storage/' . $announcement->image_path) }}" target="_blank" class="block group relative overflow-hidden rounded-xl">
+                                        <img src="{{ asset('storage/' . $announcement->image_path) }}" alt="{{ $announcement->title }}" class="max-h-[520px] w-auto max-w-full object-contain mx-auto rounded-lg shadow-sm transition-transform duration-300 group-hover:scale-[1.01]">
+                                        <div class="absolute bottom-3 right-3 bg-black/75 hover:bg-black/90 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-lg backdrop-blur-sm shadow flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition">
+                                            <i class="fa-solid fa-expand text-xs"></i> View Full Size
+                                        </div>
+                                    </a>
                                 </div>
                             @endif
                             <p class="text-[14px] font-medium text-[#4B5563] leading-relaxed m-0 whitespace-pre-line">{{ $announcement->content }}</p>
