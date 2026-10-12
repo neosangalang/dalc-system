@@ -41,17 +41,18 @@ class AnnouncementController extends Controller
             'image_path' => $imagePath,
         ]);
 
-        // Notify all active Guardians
+        // Notify all active Guardians and Teachers
         try {
-            $guardians = \App\Models\User::where('role', 'guardian')->where('is_active', true)->get();
-            foreach ($guardians as $guardian) {
-                $guardian->notify(new \App\Notifications\SystemAlert(
+            $recipients = \App\Models\User::whereIn('role', ['guardian', 'teacher'])->where('is_active', true)->get();
+            foreach ($recipients as $recipient) {
+                $url = $recipient->role === 'guardian' ? route('guardian.announcements.index') : route('teacher.announcements');
+                $recipient->notify(new \App\Notifications\SystemAlert(
                     "New Center Announcement: {$announcement->title}",
-                    route('guardian.announcements.index')
+                    $url
                 ));
             }
         } catch (\Exception $e) {
-            Log::error('Guardian notification failed on announcement create: ' . $e->getMessage());
+            Log::error('Notification failed on announcement create: ' . $e->getMessage());
         }
 
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement posted successfully!');

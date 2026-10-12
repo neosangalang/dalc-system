@@ -42,8 +42,15 @@ class TeacherController extends Controller
             $q->where('teacher_id', $teacherId);
         })->whereIn('status', ['draft', 'pending_approval'])->count();
 
-        // 5. Get Recent Announcements Count
-        $newAnnouncementsCount = Announcement::where('created_at', '>=', Carbon::now()->subDays(7))->count();
+        // 5. Get Recent Unseen Announcements Count
+        $lastSeen = null;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
+                $lastSeen = Auth::user()->last_seen_announcements_at;
+            }
+        } catch (\Throwable $e) {}
+        $lastSeen = $lastSeen ?? session('last_seen_announcements', Auth::user()->created_at ?? Carbon::now()->subDays(7));
+        $newAnnouncementsCount = Announcement::where('created_at', '>', $lastSeen)->count();
 
         // 6. Fetch Academic Quarters for the Timeline
         AcademicQuarter::syncActiveStatus();
@@ -78,6 +85,23 @@ class TeacherController extends Controller
 
     public function announcements()
     {
+        $teacher = Auth::user();
+
+        // Mark announcements as seen so the dashboard badge is removed
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'last_seen_announcements_at')) {
+                $teacher->update(['last_seen_announcements_at' => now()]);
+            }
+        } catch (\Throwable $e) {}
+        session(['last_seen_announcements' => now()]);
+
+        // Mark any announcement notifications for this teacher as read
+        try {
+            $teacher->unreadNotifications()
+                ->where('data->url', route('teacher.announcements'))
+                ->update(['read_at' => now()]);
+        } catch (\Throwable $e) {}
+
         $announcements = Announcement::with(['comments.user'])->latest()->paginate(10);
         return view('teacher.announcements', compact('announcements'));
     }

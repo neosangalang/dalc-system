@@ -37,6 +37,19 @@
 
                         <!-- Content Bubble -->
                         <div class="bg-[#F4F6FA] border border-black/5 rounded-2xl rounded-tl-sm p-5 mt-2 ml-[56px]">
+                            <!-- Dynamic Category Badge -->
+                            @php
+                                $badgeIcon = match($announcement->type ?? 'Center Update') {
+                                    'Class Suspension' => 'fa-triangle-exclamation',
+                                    'Holiday'          => 'fa-calendar-star',
+                                    'Event'            => 'fa-calendar-check',
+                                    default            => 'fa-bullhorn',
+                                };
+                            @endphp
+                            <span class="inline-flex items-center bg-[#1E2657] text-white px-2.5 py-1 rounded-md text-[10px] font-black tracking-widest uppercase mb-4 shadow-sm">
+                                <i class="fa-solid {{ $badgeIcon }} mr-1.5 text-[#FFD700]"></i> {{ $announcement->type ?? 'Center Update' }}
+                            </span>
+
                             @if($announcement->image_path)
                                 <div class="mb-5 rounded-xl overflow-hidden shadow-sm border border-black/5">
                                     <img src="{{ asset('storage/' . $announcement->image_path) }}" alt="{{ $announcement->title }}" class="w-full h-auto max-h-[450px] object-cover object-center">

@@ -100,4 +100,32 @@ class CommentController extends Controller
 
         return back()->with('success', 'Comment posted!');
     }
+
+    public function update(Request $request, Comment $comment)
+    {
+        $request->validate([
+            'body' => 'required|string|max:2000',
+        ]);
+
+        if ($comment->user_id !== Auth::id()) {
+            abort(403, 'You are not authorized to edit this comment.');
+        }
+
+        $comment->update([
+            'body' => $request->body,
+        ]);
+
+        return back()->with('success', 'Comment updated successfully!');
+    }
+
+    public function destroy(Comment $comment)
+    {
+        if ($comment->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+            abort(403, 'You are not authorized to delete this comment.');
+        }
+
+        $comment->delete();
+
+        return back()->with('success', 'Comment deleted successfully!');
+    }
 }

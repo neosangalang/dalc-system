@@ -47,6 +47,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::get('/secure-log-photo/{id}', [SecureFileController::class, 'show'])->name('secure.log-photo');
     Route::get('/secure-medical-document/{id}', [SecureFileController::class, 'medicalDocument'])->name('secure.student-medical');
     Route::get('/secure-report-photo/{id}', [SecureFileController::class, 'reportPhoto'])->name('secure.report-photo');
@@ -184,6 +186,7 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
     Route::get('/announcements', [TeacherController::class, 'announcements'])->name('announcements.index');
+    Route::get('/announcements', [TeacherController::class, 'announcements'])->name('announcements');
 
     Route::post('/daily-logs/generate-ai', [DailyLogController::class, 'generateAiReport'])->name('daily-logs.generate-ai');
     Route::post('/iep-goals/generate-ai', [IepGoalController::class, 'generateAi'])->name('iep-goals.generate-ai');

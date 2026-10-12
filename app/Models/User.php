@@ -28,12 +28,14 @@ class User extends Authenticatable
         'can_archive_students',
         'can_approve_reports',
         'signature_image',
+        'last_seen_announcements_at',
     ];
 
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_seen_announcements_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_secret' => 'encrypted',
             'is_active' => 'boolean',

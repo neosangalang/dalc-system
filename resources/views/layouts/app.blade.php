@@ -62,11 +62,11 @@
                     },
                     markAllRead() {
                         if(this.unreadCount > 0) {
+                            this.unreadCount = 0;
+                            this.notifications.forEach(n => n.is_read = true);
                             fetch('{{ route('notifications.markAllRead') }}', {
                                 method: 'POST',
                                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                            }).then(() => {
-                                this.unreadCount = 0;
                             });
                         }
                     }
@@ -75,7 +75,7 @@
                 class="relative">
                 
                 <!-- Bell Button -->
-                <button @click="notifOpen = !notifOpen; if(notifOpen) { fetchNotifs(); markAllRead(); }" @click.away="notifOpen = false" class="relative w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-sm transition">
+                <button @click="notifOpen = !notifOpen; if(notifOpen) { markAllRead(); }" @click.away="notifOpen = false" class="relative w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-sm transition">
                     <i class="fa fa-bell"></i>
                     
                     <!-- Dynamic Red Dot Indicator -->

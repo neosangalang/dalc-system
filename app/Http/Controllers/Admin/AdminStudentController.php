@@ -28,12 +28,20 @@ class AdminStudentController extends Controller
             'date_of_birth'             => 'required|date', // Enforced requirement
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',
+            'diagnosis_other'           => 'required_if:diagnosis,Other|nullable|string|max:255',
             'teacher_id'                => 'required|exists:users,id', // Enforced requirement
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'guardian_id'               => 'nullable|exists:users,id', // Uses dropdown from User Management
+            'guardian_id'               => 'required|exists:users,id', // Guardian is strictly required
+        ], [
+            'guardian_id.required'        => 'Please select an enrolled guardian account.',
+            'diagnosis_other.required_if' => 'Please specify the diagnosis when selecting Other.',
         ]);
 
-        DB::transaction(function () use ($request) {
+        $finalDiagnosis = ($request->diagnosis === 'Other' && filled($request->diagnosis_other))
+            ? trim($request->diagnosis_other)
+            : $request->diagnosis;
+
+        DB::transaction(function () use ($request, $finalDiagnosis) {
             $medicalDocPath = null;
             if ($request->hasFile('medical_document')) {
                 $medicalDocPath = $request->file('medical_document')->store('medical_documents', 'local');
@@ -46,10 +54,10 @@ class AdminStudentController extends Controller
                 'class_name'                => $request->class_name,
                 'date_of_birth'             => $request->date_of_birth,
                 'gender'                    => $request->gender,
-                'diagnosis'                 => $request->diagnosis,
+                'diagnosis'                 => $finalDiagnosis,
                 'medical_document'          => $medicalDocPath,
                 'teacher_id'                => $request->teacher_id,
-                'guardian_id'               => $request->guardian_id ?: null,
+                'guardian_id'               => $request->guardian_id,
                 'status'                    => 'active',
             ]);
         });
@@ -68,18 +76,26 @@ class AdminStudentController extends Controller
             'date_of_birth'             => 'required|date', // Enforced requirement
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',
+            'diagnosis_other'           => 'required_if:diagnosis,Other|nullable|string|max:255',
             'teacher_id'                => 'required|exists:users,id', // Enforced requirement
             'guardian_id'               => 'nullable|exists:users,id', 
             'status'                    => 'required|in:active,archived',
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ], [
+            'diagnosis_other.required_if' => 'Please specify the diagnosis when selecting Other.',
         ]);
 
-        DB::transaction(function () use ($request, $student) {
+        $finalDiagnosis = ($request->diagnosis === 'Other' && filled($request->diagnosis_other))
+            ? trim($request->diagnosis_other)
+            : $request->diagnosis;
+
+        DB::transaction(function () use ($request, $student, $finalDiagnosis) {
             // Include LRN and Guardian ID in the fields that are allowed to be updated
             $data = $request->only([
                 'first_name', 'last_name', 'learners_reference_number', 'class_name', 'date_of_birth',
-                'gender', 'diagnosis', 'teacher_id', 'guardian_id', 'status',
+                'gender', 'teacher_id', 'guardian_id', 'status',
             ]);
+            $data['diagnosis'] = $finalDiagnosis;
 
             if ($request->hasFile('medical_document')) {
                 if ($student->medical_document) {
@@ -93,7 +109,6 @@ class AdminStudentController extends Controller
             }
 
             $student->update($data);
-            // Note: Old manual guardian update logic removed because Guardian linking is now just an ID dropdown!
         });
 
         return redirect()->back()->with('success', 'Student profile updated successfully!');
@@ -110,16 +125,22 @@ class AdminStudentController extends Controller
             'date_of_birth'             => 'required|date',
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',
+            'diagnosis_other'           => 'nullable|string|max:255',
             'teacher_id'                => 'required|exists:users,id',
             'guardian_id'               => 'nullable|exists:users,id',
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        DB::transaction(function () use ($request, $student) {
+        $finalDiagnosis = ($request->diagnosis === 'Other' && filled($request->diagnosis_other))
+            ? trim($request->diagnosis_other)
+            : $request->diagnosis;
+
+        DB::transaction(function () use ($request, $student, $finalDiagnosis) {
             $data = $request->only([
                 'first_name', 'last_name', 'learners_reference_number', 'class_name', 'date_of_birth',
-                'gender', 'diagnosis', 'teacher_id', 'guardian_id',
+                'gender', 'teacher_id', 'guardian_id',
             ]);
+            $data['diagnosis'] = $finalDiagnosis;
             $data['status'] = 'active';
 
             if ($request->hasFile('medical_document')) {

@@ -44,7 +44,7 @@
                 </div>
 
                 <!-- Card 4: Announcements Stat Card -->
-                <a href="/teacher/announcements" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-center relative overflow-hidden h-[120px] block">
+                <a href="{{ route('teacher.announcements') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-center relative overflow-hidden h-[120px] block">
                     
                     @if(isset($newAnnouncementsCount) && $newAnnouncementsCount > 0)
                         <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20">

@@ -349,8 +349,8 @@
                                                                         'Speech or Language Impairment',
                                                                     ];
                                                                     $isCustom = !empty($student->diagnosis) && !in_array($student->diagnosis, $stdDiagnoses);
-                                                                    $initialDiag = $isCustom ? 'Other' : ($student->diagnosis ?? 'Autism Spectrum Disorder (ASD)');
-                                                                    $customDiagVal = $isCustom ? $student->diagnosis : '';
+                                                                    $initialDiag = ($isCustom || $student->diagnosis === 'Other') ? 'Other' : ($student->diagnosis ?? 'Autism Spectrum Disorder (ASD)');
+                                                                    $customDiagVal = ($isCustom && $student->diagnosis !== 'Other') ? $student->diagnosis : '';
                                                                 @endphp
                                                                 <div x-data="{ selectedDiagnosis: '{{ $initialDiag }}' }">
                                                                     <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Diagnosis <span class="text-rose-500">*</span></label>
@@ -364,7 +364,7 @@
                                                                         <option value="Other">Other</option>
                                                                     </select>
                                                                     <div x-show="selectedDiagnosis === 'Other'" x-cloak class="mt-2">
-                                                                        <input type="text" name="diagnosis_other" value="{{ $customDiagVal }}" placeholder="Please specify diagnosis..." class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                                                        <input type="text" name="diagnosis_other" :required="selectedDiagnosis === 'Other'" value="{{ $customDiagVal }}" placeholder="Please specify diagnosis..." class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -546,7 +546,7 @@
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                 <div x-show="showCreateModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-black/15 w-full relative z-10">
-                    <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="m-0">
+                    <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="m-0" onsubmit="if(!document.getElementById('create_guardian_id').value){ alert('Please select a guardian before submitting.'); return false; }">
                         @csrf
 
                         <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
@@ -603,7 +603,7 @@
                                         <option value="Other">Other</option>
                                     </select>
                                     <div x-show="createDiagnosis === 'Other'" x-cloak class="mt-2">
-                                        <input type="text" name="diagnosis_other" placeholder="Please specify diagnosis..." class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                        <input type="text" name="diagnosis_other" :required="createDiagnosis === 'Other'" placeholder="Please specify diagnosis..." class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
                                     </div>
                                 </div>
                                 <div>
@@ -648,7 +648,7 @@
                             </div>
                             
                             <h4 class="text-[#1E2657] font-extrabold mb-4 mt-6 flex items-center text-[12px] uppercase tracking-widest border-b border-black/5 pb-2">
-                                <i class="fa fa-user-shield text-[#10B981] mr-2"></i> 2. Guardian
+                                <i class="fa fa-user-shield text-[#10B981] mr-2"></i> 2. Guardian <span class="text-rose-500">*</span>
                             </h4>
                             
                             <div class="grid grid-cols-1 gap-5 mb-4">
@@ -668,12 +668,12 @@
                                             return this.guardians.filter(g => g.name.toLowerCase().includes(this.search.toLowerCase()));
                                         }
                                     }" class="relative">
-                                        <input type="hidden" name="guardian_id" :value="selectedId">
+                                        <input type="hidden" name="guardian_id" id="create_guardian_id" :value="selectedId">
                                         <div class="relative">
                                             <input type="text" 
                                                    x-model="search" 
                                                    @focus="open = true" 
-                                                   placeholder="Search guardian name..." 
+                                                   placeholder="Select or search guardian name (Required)..." 
                                                    class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm bg-white"
                                                    :value="selectedName && !search ? selectedName : search"
                                                    @input="open = true">
@@ -682,9 +682,6 @@
                                             </button>
                                         </div>
                                         <div x-show="open" @click.away="open = false" x-cloak class="absolute z-50 left-0 right-0 mt-1 bg-white border border-black/15 rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
-                                            <div @click="selectedId = ''; selectedName = ''; search = ''; open = false" class="px-3.5 py-2 text-[12px] font-bold text-gray-400 hover:bg-slate-50 cursor-pointer border-b border-black/5">
-                                                -- No Guardian --
-                                            </div>
                                             <template x-for="g in filteredGuardians" :key="g.id">
                                                 <div @click="selectedId = g.id; selectedName = g.name; search = ''; open = false" 
                                                      class="px-3.5 py-2 text-[13px] font-bold text-[#1E2657] hover:bg-[#10B981]/10 hover:text-[#10B981] cursor-pointer flex justify-between items-center">
@@ -697,7 +694,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <p class="text-[11px] text-[#6B7086] font-medium mt-1.5 m-0">Optional — guardian accounts are created under User Management, then linked to a student here.</p>
+                                    <p class="text-[11px] text-[#6B7086] font-medium mt-1.5 m-0"><span class="text-rose-500 font-bold">Required</span> — Select an active guardian account created under User Management.</p>
                                 </div>
                             </div>
 
