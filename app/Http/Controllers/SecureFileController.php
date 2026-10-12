@@ -4,123 +4,122 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DailyLog;
-use App\Models\Student;
 use App\Models\Report;
+use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class SecureFileController extends Controller
 {
     /**
-     * Serve Daily Log observation photos securely.
+     * Securely serves observation photos attached to Daily Logs.
      */
     public function show($id)
     {
-        $log = DailyLog::with('student')->findOrFail($id);
+        $log = DailyLog::findOrFail($id);
         $student = $log->student;
         $user = Auth::user();
 
         $isAuthorized = match($user->role) {
             'admin'    => true, 
-            'teacher'  => $student ? ($student->teacher_id == $user->id) : false, 
-            'guardian' => $student ? ($student->guardian_id == $user->id) : false, 
+            'teacher'  => $student->teacher_id == $user->id, 
+            'guardian' => $student->guardian_id == $user->id, 
             default    => false,
         };
 
-        if (!$isAuthorized) {
-            abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized.');
-        }
-
-        if (!$log->image_path) {
-            abort(404, 'No photo attached to this daily log.');
-        }
+        if (!$isAuthorized) abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized.');
 
         $disk = Storage::disk('local');
-        $path = $log->image_path;
-
-        if (!$disk->exists($path)) {
-            if (Storage::disk('public')->exists($path)) {
-                $disk = Storage::disk('public');
-            } else {
-                abort(404, 'File not found in the secure vault.');
-            }
+        if ($log->image_path && $disk->exists($log->image_path)) {
+            return $disk->response($log->image_path);
         }
 
-        return $disk->response($path);
+        // Backward compatibility fallback for legacy public uploads
+        if ($log->image_path && Storage::disk('public')->exists($log->image_path)) {
+            return Storage::disk('public')->response($log->image_path);
+        }
+
+        abort(404, 'File not found in the secure vault.');
     }
 
     /**
-     * Serve Student confidential medical documents securely.
+     * Securely serves photos attached to Student Reports.
      */
-    public function medicalDocument($id)
+    public function showReportPhoto($id)
+    {
+        $report = Report::findOrFail($id);
+        $student = $report->student;
+        $user = Auth::user();
+
+        $isAuthorized = match($user->role) {
+            'admin'    => true, 
+            'teacher'  => ($student && $student->teacher_id == $user->id) || $report->teacher_id == $user->id, 
+            'guardian' => $student && $student->guardian_id == $user->id, 
+            default    => false,
+        };
+
+        if (!$isAuthorized) abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized to view this report media.');
+
+        $disk = Storage::disk('local');
+        if ($report->image_path && $disk->exists($report->image_path)) {
+            return $disk->response($report->image_path);
+        }
+
+        // Backward compatibility fallback for legacy public uploads
+        if ($report->image_path && Storage::disk('public')->exists($report->image_path)) {
+            return Storage::disk('public')->response($report->image_path);
+        }
+
+        abort(404, 'Report photo not found in the secure vault.');
+    }
+
+    /**
+     * Securely serves sensitive Student Medical Documents.
+     */
+    public function showMedicalDocument($id)
     {
         $student = Student::findOrFail($id);
         $user = Auth::user();
 
         $isAuthorized = match($user->role) {
-            'admin'    => true,
-            'teacher'  => $student->teacher_id == $user->id,
-            'guardian' => $student->guardian_id == $user->id,
+            'admin'    => true, 
+            'teacher'  => $student->teacher_id == $user->id, 
+            'guardian' => $student->guardian_id == $user->id, 
             default    => false,
         };
 
-        if (!$isAuthorized) {
-            abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized to access this medical document.');
-        }
+        if (!$isAuthorized) abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized to access medical records.');
 
-        if (!$student->medical_document) {
-            abort(404, 'No medical document on file for this student.');
+        if (empty($student->medical_document)) {
+            abort(404, 'No medical document associated with this student.');
         }
 
         $disk = Storage::disk('local');
-        $path = $student->medical_document;
-
-        if (!$disk->exists($path)) {
-            if (Storage::disk('public')->exists($path)) {
-                $disk = Storage::disk('public');
-            } else {
-                abort(404, 'Medical document file not found.');
-            }
+        if ($disk->exists($student->medical_document)) {
+            return $disk->response($student->medical_document);
         }
 
-        return $disk->response($path);
+        // Backward compatibility fallback for legacy public uploads
+        if (Storage::disk('public')->exists($student->medical_document)) {
+            return Storage::disk('public')->response($student->medical_document);
+        }
+
+        abort(404, 'Medical document file not found.');
     }
 
     /**
-     * Serve Report observation photos securely.
+     * Alias for route compatibility.
      */
     public function reportPhoto($id)
     {
-        $report = Report::with('student')->findOrFail($id);
-        $student = $report->student;
-        $user = Auth::user();
+        return $this->showReportPhoto($id);
+    }
 
-        $isAuthorized = match($user->role) {
-            'admin'    => true,
-            'teacher'  => ($report->teacher_id == $user->id) || ($student && $student->teacher_id == $user->id),
-            'guardian' => ($student && $student->guardian_id == $user->id),
-            default    => false,
-        };
-
-        if (!$isAuthorized) {
-            abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized to access this report photo.');
-        }
-
-        if (!$report->image_path) {
-            abort(404, 'No observation photo attached to this report.');
-        }
-
-        $disk = Storage::disk('local');
-        $path = $report->image_path;
-
-        if (!$disk->exists($path)) {
-            if (Storage::disk('public')->exists($path)) {
-                $disk = Storage::disk('public');
-            } else {
-                abort(404, 'Report photo file not found.');
-            }
-        }
-
-        return $disk->response($path);
+    /**
+     * Alias for route compatibility.
+     */
+    public function medicalDocument($id)
+    {
+        return $this->showMedicalDocument($id);
     }
 }

@@ -14,3 +14,6 @@ Artisan::command('inspire', function () {
 
 // 2. Tell the system to run your new robot every night at Midnight
 Schedule::command('system:auto-rollover')->dailyAt('00:00');
+
+// 3. Automated daily database backup at 1:00 AM (14-day rotation)
+Schedule::command('db:backup')->dailyAt('01:00');

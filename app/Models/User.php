@@ -35,6 +35,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_secret' => 'encrypted',
             'is_active' => 'boolean',
             'can_edit_students' => 'boolean', 
             'can_manage_credentials' => 'boolean',

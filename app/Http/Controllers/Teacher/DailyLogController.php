@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\ImageOptimizationService;
 
 class DailyLogController extends Controller
 {
@@ -65,10 +66,10 @@ class DailyLogController extends Controller
 
         $finalNotes = $request->filled('notes') ? $request->notes : $request->raw_notes;
 
-        // SECURE VAULT STORAGE
+        // SECURE VAULT STORAGE & OPTIMIZATION
         $imagePath = null;
         if ($request->hasFile('photo')) {
-            $imagePath = $request->file('photo')->store('private_log_photos', 'local');
+            $imagePath = ImageOptimizationService::optimizeAndStore($request->file('photo'), 'private_log_photos', 'local');
         }
 
         $dailyLog = DailyLog::create([

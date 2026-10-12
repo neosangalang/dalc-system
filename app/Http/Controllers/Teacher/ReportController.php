@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\ImageOptimizationService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -96,7 +97,7 @@ class ReportController extends Controller
             $request->validate([
                 'photo' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
             ]);
-            $imagePath = $request->file('photo')->store('reports', 'local');
+            $imagePath = ImageOptimizationService::optimizeAndStore($request->file('photo'), 'private_report_photos', 'local');
         }
 
         // Capture the newly created report to use its ID for action routing
