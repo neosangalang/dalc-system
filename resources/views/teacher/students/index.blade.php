@@ -30,22 +30,14 @@
     @endif
 
     <!-- HEADER SECTION -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E2657] tracking-tight m-0 flex items-center">
-                <div class="w-10 h-10 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6] mr-3 shadow-sm shrink-0">
-                    <i class="fa fa-users text-lg"></i>
-                </div>
-                My Assigned Students
-            </h1>
-            <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-13 m-0">Manage and monitor all students assigned to your class.</p>
-        </div>
-
-        <div class="flex flex-wrap gap-2.5 w-full sm:w-auto">
-            <a href="{{ route('teacher.dashboard') }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-white border border-[#9CA0AF] rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 hover:text-[#1E2657] shadow-sm transition-all focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
-                <i class="fa fa-arrow-left mr-2"></i> Back to Dashboard
-            </a>
-        </div>
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E2657] tracking-tight m-0 flex items-center">
+            <div class="w-10 h-10 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6] mr-3 shadow-sm shrink-0">
+                <i class="fa fa-users text-lg"></i>
+            </div>
+            My Assigned Students
+        </h1>
+        <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-13 m-0">Manage and monitor all students assigned to your class.</p>
     </div>
 
     <!-- FILTERS -->
