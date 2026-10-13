@@ -205,4 +205,33 @@ class StudentMultiDocumentTest extends TestCase
         $this->assertDatabaseMissing('student_documents', ['id' => $doc->id]);
         Storage::disk('local')->assertMissing($path);
     }
+
+    public function test_admin_student_index_view_renders_delete_document_form_and_handler(): void
+    {
+        $student = Student::create([
+            'first_name' => 'Eve',
+            'last_name' => 'Adams',
+            'learners_reference_number' => '777777777777',
+            'class_name' => 'Joy',
+            'date_of_birth' => '2016-03-10',
+            'gender' => 'Female',
+            'diagnosis' => 'ADHD',
+            'teacher_id' => $this->teacher->id,
+            'guardian_id' => $this->guardian->id,
+            'status' => 'active',
+        ]);
+
+        $doc = $student->documents()->create([
+            'file_path' => 'student_documents/sample.pdf',
+            'original_name' => 'sample.pdf',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('admin.students.index'));
+
+        $response->assertOk();
+        $response->assertSee('id="global-delete-doc-form"', false);
+        $response->assertSee("confirmDeleteDocument('" . route('admin.students.delete-document', $doc->id) . "')", false);
+    }
 }

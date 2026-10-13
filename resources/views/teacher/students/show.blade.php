@@ -72,7 +72,7 @@
                     <div class="mt-6 pt-5 border-t border-black/10 border-dashed">
                         @php
                             $allDocs = $student->documents;
-                            $hasDocs = $allDocs->isNotEmpty() || $student->medical_document;
+                            $hasDocs = $allDocs->isNotEmpty();
                         @endphp
                         <span class="flex items-center text-[11px] font-extrabold text-[#1E2657] mb-3 uppercase tracking-widest">
                             <i class="fa fa-folder-open mr-2 text-[#3B82F6]"></i> Documents
@@ -92,16 +92,6 @@
                                     <i class="fa fa-arrow-down shrink-0 ml-2 text-slate-400"></i>
                                 </a>
                                 @endforeach
-
-                                @if($student->medical_document && $allDocs->isEmpty())
-                                <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="w-full inline-flex items-center justify-between p-3 bg-white border border-[#9CA0AF] rounded-xl text-[12px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
-                                    <div class="flex items-center gap-2 truncate">
-                                        <i class="fa fa-file-lines shrink-0"></i>
-                                        <span class="truncate">{{ basename($student->medical_document) }}</span>
-                                    </div>
-                                    <i class="fa fa-arrow-down shrink-0 ml-2 text-slate-400"></i>
-                                </a>
-                                @endif
                             </div>
                         @else
                             <div class="bg-[#F4F6FA] border border-black/5 rounded-xl p-4 text-center">

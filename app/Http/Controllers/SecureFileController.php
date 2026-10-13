@@ -79,33 +79,13 @@ class SecureFileController extends Controller
      */
     public function showMedicalDocument($id)
     {
-        $student = Student::findOrFail($id);
-        $user = Auth::user();
-
-        $isAuthorized = match($user->role) {
-            'admin'    => true, 
-            'teacher'  => $student->teacher_id == $user->id, 
-            'guardian' => $student->guardian_id == $user->id, 
-            default    => false,
-        };
-
-        if (!$isAuthorized) abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized to access medical records.');
-
-        if (empty($student->medical_document)) {
-            abort(404, 'No medical document associated with this student.');
+        $student = Student::with('documents')->findOrFail($id);
+        $firstDoc = $student->documents->first();
+        if ($firstDoc) {
+            return $this->showDocument($firstDoc->id);
         }
 
-        $disk = Storage::disk('local');
-        if ($disk->exists($student->medical_document)) {
-            return $disk->response($student->medical_document);
-        }
-
-        // Backward compatibility fallback for legacy public uploads
-        if (Storage::disk('public')->exists($student->medical_document)) {
-            return Storage::disk('public')->response($student->medical_document);
-        }
-
-        abort(404, 'Medical document file not found.');
+        abort(404, 'No document associated with this student.');
     }
 
     /**

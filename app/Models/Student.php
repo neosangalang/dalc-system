@@ -17,7 +17,6 @@ class Student extends Model
         'date_of_birth',
         'gender',
         'diagnosis',
-        'medical_document', // <--- Changed here!
         'teacher_id',
         'guardian_id',
         'status'

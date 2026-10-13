@@ -55,7 +55,6 @@ class AdminStudentController extends Controller
                 'date_of_birth'             => $request->date_of_birth,
                 'gender'                    => $request->gender,
                 'diagnosis'                 => $finalDiagnosis,
-                'medical_document'          => null,
                 'teacher_id'                => $request->teacher_id,
                 'guardian_id'               => $request->guardian_id,
                 'status'                    => 'active',
@@ -258,14 +257,6 @@ class AdminStudentController extends Controller
             }
         }
 
-        if ($student->medical_document) {
-            if (Storage::disk('local')->exists($student->medical_document)) {
-                Storage::disk('local')->delete($student->medical_document);
-            } elseif (Storage::disk('public')->exists($student->medical_document)) {
-                Storage::disk('public')->delete($student->medical_document);
-            }
-        }
-
         $guardianId = $student->guardian_id;
         $student->delete();
 
@@ -281,7 +272,6 @@ class AdminStudentController extends Controller
 
     public function deleteDocument($id)
     {
-        // Try finding as StudentDocument first
         $doc = StudentDocument::find($id);
         if ($doc) {
             if (Storage::disk('local')->exists($doc->file_path)) {
@@ -293,18 +283,6 @@ class AdminStudentController extends Controller
             return redirect()->back()->with('success', 'Document removed successfully.');
         }
 
-        // Fallback: check if $id is Student id with legacy medical_document
-        $student = Student::find($id);
-        if ($student && $student->medical_document) {
-            if (Storage::disk('local')->exists($student->medical_document)) {
-                Storage::disk('local')->delete($student->medical_document);
-            } elseif (Storage::disk('public')->exists($student->medical_document)) {
-                Storage::disk('public')->delete($student->medical_document);
-            }
-            $student->update(['medical_document' => null]);
-            return redirect()->back()->with('success', 'Document removed successfully.');
-        }
-
-        return redirect()->back()->with('success', 'Document removed successfully.');
+        return redirect()->back()->with('error', 'Document not found or already deleted.');
     }
 }

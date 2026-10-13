@@ -241,9 +241,9 @@
                                     @endif
 
                                     @php
-                                        $docCount = $student->documents->count() + ($student->medical_document && $student->documents->isEmpty() ? 1 : 0);
+                                        $docCount = $student->documents->count();
                                         $firstDoc = $student->documents->first();
-                                        $docUrl = $firstDoc ? route('secure.student-document', $firstDoc->id) : route('secure.student-medical', $student->id);
+                                        $docUrl = $firstDoc ? route('secure.student-document', $firstDoc->id) : '#';
                                     @endphp
                                     @if($docCount > 0)
                                     <a href="{{ $docCount === 1 ? $docUrl : route('admin.students.show', $student->id) }}" target="{{ $docCount === 1 ? '_blank' : '_self' }}" class="px-2.5 py-1 inline-flex items-center text-[10px] font-extrabold rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-200 shadow-sm uppercase tracking-widest" title="{{ $docCount }} document(s) on file">
@@ -409,7 +409,7 @@
                                                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1 flex justify-between items-end">
                                                                 Documents (Optional)
                                                                 @php
-                                                                    $totalDocs = $student->documents->count() + ($student->medical_document && $student->documents->isEmpty() ? 1 : 0);
+                                                                    $totalDocs = $student->documents->count();
                                                                 @endphp
                                                                 @if($totalDocs > 0)
                                                                 <span class="text-[10px] text-[#10B981] font-extrabold uppercase tracking-widest"><i class="fa fa-check mr-1"></i> {{ $totalDocs }} document(s) on file</span>
@@ -425,31 +425,11 @@
                                                                         <i class="fa fa-file-lines text-[#3B82F6] shrink-0"></i>
                                                                         <span class="truncate">{{ $doc->original_name }}</span>
                                                                     </a>
-                                                                    <button type="button" onclick="if(confirm('Are you sure you want to delete this document?')) { document.getElementById('delete-doc-form-{{ $doc->id }}').submit(); }" class="px-2.5 py-1 bg-white border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 ml-2">
+                                                                    <button type="button" onclick="confirmDeleteDocument('{{ route('admin.students.delete-document', $doc->id) }}')" class="px-2.5 py-1 bg-white border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 ml-2">
                                                                         <i class="fa fa-trash-alt mr-1"></i> Delete
                                                                     </button>
                                                                 </div>
-                                                                <form id="delete-doc-form-{{ $doc->id }}" action="{{ route('admin.students.delete-document', $doc->id) }}" method="POST" class="hidden">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                </form>
                                                                 @endforeach
-
-                                                                @if($student->medical_document && $student->documents->isEmpty())
-                                                                <div class="p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between shadow-sm">
-                                                                    <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="text-[12px] font-extrabold text-rose-700 hover:underline flex items-center gap-2 truncate">
-                                                                        <i class="fa fa-file-medical text-rose-500 shrink-0"></i>
-                                                                        <span class="truncate">Legacy Document: {{ basename($student->medical_document) }}</span>
-                                                                    </a>
-                                                                    <button type="button" onclick="if(confirm('Are you sure you want to delete this document?')) { document.getElementById('delete-legacy-doc-form-{{ $student->id }}').submit(); }" class="px-2.5 py-1 bg-white border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 ml-2">
-                                                                        <i class="fa fa-trash-alt mr-1"></i> Delete
-                                                                    </button>
-                                                                </div>
-                                                                <form id="delete-legacy-doc-form-{{ $student->id }}" action="{{ route('admin.students.delete-document', $student->id) }}" method="POST" class="hidden">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                </form>
-                                                                @endif
                                                             </div>
                                                             @endif
 
@@ -520,10 +500,6 @@
                                                         <i class="fa fa-save mr-1.5"></i> Save Changes
                                                     </button>
                                                 </div>
-                                            </form>
-                                            <form id="delete-doc-form-{{ $student->id }}" action="{{ route('admin.students.delete-document', $student->id) }}" method="POST" class="hidden">
-                                                @csrf
-                                                @method('DELETE')
                                             </form>
                                         </div>
                                     </div>
@@ -872,10 +848,24 @@
     }
 </style>
 
+<form id="global-delete-doc-form" method="POST" class="hidden">
+    @csrf
+    @method('DELETE')
+</form>
+
 @endsection
 
 @push('scripts')
 <script>
+    function confirmDeleteDocument(actionUrl) {
+        if (confirm('Are you sure you want to delete this document?')) {
+            const form = document.getElementById('global-delete-doc-form');
+            if (form) {
+                form.action = actionUrl;
+                form.submit();
+            }
+        }
+    }
     function autoPopulateReEnrollForm(selectEl) {
         const selectedOption = selectEl.options[selectEl.selectedIndex];
         if (!selectEl.value || !selectedOption || !selectedOption.dataset.student) {

@@ -231,9 +231,9 @@
                                 @endif
 
                                 @php
-                                    $docCount = $student->documents->count() + ($student->medical_document && $student->documents->isEmpty() ? 1 : 0);
+                                    $docCount = $student->documents->count();
                                     $firstDoc = $student->documents->first();
-                                    $docUrl = $firstDoc ? route('secure.student-document', $firstDoc->id) : route('secure.student-medical', $student->id);
+                                    $docUrl = $firstDoc ? route('secure.student-document', $firstDoc->id) : route('teacher.students.show', $student->id);
                                 @endphp
                                 @if($docCount > 0)
                                 <a href="{{ $docCount === 1 ? $docUrl : route('teacher.students.show', $student->id) }}" target="{{ $docCount === 1 ? '_blank' : '_self' }}" class="px-2.5 py-1 inline-flex items-center text-[10px] font-extrabold rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-200 shadow-sm uppercase tracking-widest" title="{{ $docCount }} document(s) on file">
@@ -250,9 +250,9 @@
                                 <!-- Mobile Med Record Button -->
                                 <div class="md:hidden">
                                     @php
-                                        $mobileDocCount = $student->documents->count() + ($student->medical_document && $student->documents->isEmpty() ? 1 : 0);
+                                        $mobileDocCount = $student->documents->count();
                                         $mobileFirstDoc = $student->documents->first();
-                                        $mobileDocUrl = $mobileFirstDoc ? route('secure.student-document', $mobileFirstDoc->id) : route('secure.student-medical', $student->id);
+                                        $mobileDocUrl = $mobileFirstDoc ? route('secure.student-document', $mobileFirstDoc->id) : route('teacher.students.show', $student->id);
                                     @endphp
                                     @if($mobileDocCount > 0)
                                     <a href="{{ $mobileDocCount === 1 ? $mobileDocUrl : route('teacher.students.show', $student->id) }}" target="{{ $mobileDocCount === 1 ? '_blank' : '_self' }}" class="px-2.5 py-1.5 inline-flex items-center text-[10px] font-extrabold uppercase tracking-widest rounded-md bg-blue-50 text-blue-600 border border-blue-200 shadow-sm">
