@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 // Import Admin Controllers
 use App\Http\Controllers\Admin\AdminController;
@@ -60,12 +61,12 @@ Route::middleware(['auth'])->group(function () {
     // REAL-TIME NOTIFICATION ENDPOINTS
     // ==========================================
     Route::get('/api/notifications', function() {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return response()->json(['count' => 0, 'items' => []]);
         }
 
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = Auth::user();
         
         $notifications = $user->notifications()->latest()->take(10)->get()->map(function($notif) {
             return [
@@ -85,7 +86,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/api/notifications/mark-read', function() {
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = Auth::user();
         
         $user->unreadNotifications->markAsRead();
         return response()->json(['success' => true]);
@@ -93,14 +94,16 @@ Route::middleware(['auth'])->group(function () {
 
     // NEW ROUTE: Marks a single notification as read and redirects the user
     Route::get('/notifications/{id}/read', function($id) {
-        $notification = auth()->user()->notifications()->findOrFail($id);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $notification = $user->notifications()->findOrFail($id);
         $notification->markAsRead();
         return redirect($notification->data['url'] ?? '/');
     })->name('notifications.read');
 
     Route::get('/test-alert', function () {
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = Auth::user();
         
         $user->notify(new \App\Notifications\SystemAlert(
             'System Test: Your real-time notifications are working!', 

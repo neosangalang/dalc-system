@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\Auth;
 class TeacherStudentController extends Controller
 {
     public function index() {
-        // Fetch only active students assigned to this specific teacher
-        $students = Student::where('teacher_id', Auth::id())
+        // Fetch active students assigned to this specific teacher with relationships
+        $students = Student::with(['teacher', 'guardian', 'documents'])
+                           ->where('teacher_id', Auth::id())
                            ->where('status', 'active')
                            ->orderBy('last_name', 'asc')
                            ->get();
