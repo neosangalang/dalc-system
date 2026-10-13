@@ -24,7 +24,7 @@ class AdminStudentController extends Controller
             'first_name'                => 'required|string|max:255',
             'last_name'                 => 'required|string|max:255',
             'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number', // Enforces unique 12-digit LRN
-            'class_name'                => 'nullable|string|max:255',
+            'class_name'                => 'required|string|max:255',
             'date_of_birth'             => 'required|date', // Enforced requirement
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',
@@ -33,6 +33,7 @@ class AdminStudentController extends Controller
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'guardian_id'               => 'required|exists:users,id', // Guardian is strictly required
         ], [
+            'class_name.required'         => 'Please select a class for the student.',
             'guardian_id.required'        => 'Please select an enrolled guardian account.',
             'diagnosis_other.required_if' => 'Please specify the diagnosis when selecting Other.',
         ]);

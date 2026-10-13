@@ -65,6 +65,28 @@ class StudentEnrollAndAnnouncementTest extends TestCase
         ]);
     }
 
+    public function test_student_enrollment_fails_without_class_name(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->post(route('admin.students.store'), [
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'learners_reference_number' => '123456789012',
+                'class_name' => null,
+                'date_of_birth' => '2015-05-10',
+                'gender' => 'Male',
+                'diagnosis' => 'Autism Spectrum Disorder (ASD)',
+                'teacher_id' => $this->teacher->id,
+                'guardian_id' => $this->guardian->id,
+            ]);
+
+        $response->assertSessionHasErrors('class_name');
+        $this->assertDatabaseMissing('students', [
+            'learners_reference_number' => '123456789012',
+        ]);
+    }
+
     public function test_student_enrollment_succeeds_with_guardian(): void
     {
         $response = $this->actingAs($this->admin)
