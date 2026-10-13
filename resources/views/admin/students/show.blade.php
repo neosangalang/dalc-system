@@ -69,17 +69,42 @@
                     </div>
 
                     <div class="mt-6 pt-5 border-t border-black/10 border-dashed">
+                        @php
+                            $allDocs = $student->documents;
+                            $hasDocs = $allDocs->isNotEmpty() || $student->medical_document;
+                        @endphp
                         <span class="flex items-center text-[11px] font-extrabold text-[#1E2657] mb-3 uppercase tracking-widest">
-                            <i class="fa fa-file-medical mr-2 text-[#3B82F6]"></i> Medical Document
+                            <i class="fa fa-folder-open mr-2 text-[#3B82F6]"></i> Documents
+                            @if($allDocs->count() > 0)
+                                <span class="ml-auto text-[10px] text-[#3B82F6] font-bold">({{ $allDocs->count() }})</span>
+                            @endif
                         </span>
                         
-                        @if($student->medical_document)
-                            <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="w-full inline-flex justify-center items-center px-4 py-3 bg-white border border-[#9CA0AF] rounded-xl text-[13px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
-                                <i class="fa fa-download mr-2"></i> View / Download File
-                            </a>
+                        @if($hasDocs)
+                            <div class="space-y-2">
+                                @foreach($allDocs as $doc)
+                                <a href="{{ route('secure.student-document', $doc->id) }}" target="_blank" class="w-full inline-flex items-center justify-between p-3 bg-white border border-[#9CA0AF] rounded-xl text-[12px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
+                                    <div class="flex items-center gap-2 truncate">
+                                        <i class="fa fa-file-lines shrink-0"></i>
+                                        <span class="truncate">{{ $doc->original_name }}</span>
+                                    </div>
+                                    <i class="fa fa-arrow-down shrink-0 ml-2 text-slate-400"></i>
+                                </a>
+                                @endforeach
+
+                                @if($student->medical_document && $allDocs->isEmpty())
+                                <a href="{{ route('secure.student-medical', $student->id) }}" target="_blank" class="w-full inline-flex items-center justify-between p-3 bg-white border border-[#9CA0AF] rounded-xl text-[12px] font-extrabold text-[#3B82F6] hover:bg-blue-50 transition-colors shadow-sm decoration-transparent">
+                                    <div class="flex items-center gap-2 truncate">
+                                        <i class="fa fa-file-lines shrink-0"></i>
+                                        <span class="truncate">{{ basename($student->medical_document) }}</span>
+                                    </div>
+                                    <i class="fa fa-arrow-down shrink-0 ml-2 text-slate-400"></i>
+                                </a>
+                                @endif
+                            </div>
                         @else
                             <div class="bg-[#F4F6FA] border border-black/5 rounded-xl p-4 text-center">
-                                <p class="text-[12px] font-medium text-[#9CA0AF] m-0">No medical document uploaded.</p>
+                                <p class="text-[12px] font-medium text-[#9CA0AF] m-0">No documents uploaded.</p>
                             </div>
                         @endif
                     </div>

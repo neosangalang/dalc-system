@@ -60,20 +60,4 @@ class AcademicQuarter extends Model
             return 'upcoming';
         }
     }
-
-    /**
-     * Accessor for HTML5 date input format YYYY-MM-DD
-     */
-    public function getStartDateFormattedAttribute()
-    {
-        return $this->start_date ? Carbon::parse($this->start_date)->format('Y-m-d') : '';
-    }
-
-    /**
-     * Accessor for HTML5 date input format YYYY-MM-DD
-     */
-    public function getEndDateFormattedAttribute()
-    {
-        return $this->end_date ? Carbon::parse($this->end_date)->format('Y-m-d') : '';
-    }
 }

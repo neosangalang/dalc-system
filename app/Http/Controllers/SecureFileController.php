@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\DailyLog;
 use App\Models\Report;
 use App\Models\Student;
+use App\Models\StudentDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -121,5 +122,42 @@ class SecureFileController extends Controller
     public function medicalDocument($id)
     {
         return $this->showMedicalDocument($id);
+    }
+
+    /**
+     * Securely serves sensitive Student Documents.
+     */
+    public function showDocument($id)
+    {
+        $document = StudentDocument::findOrFail($id);
+        $student = $document->student;
+        $user = Auth::user();
+
+        $isAuthorized = match($user->role) {
+            'admin'    => true, 
+            'teacher'  => $student->teacher_id == $user->id, 
+            'guardian' => $student->guardian_id == $user->id, 
+            default    => false,
+        };
+
+        if (!$isAuthorized) {
+            abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized to access student records.');
+        }
+
+        $disk = Storage::disk('local');
+        if ($disk->exists($document->file_path)) {
+            return $disk->response($document->file_path, $document->original_name);
+        }
+
+        if (Storage::disk('public')->exists($document->file_path)) {
+            return Storage::disk('public')->response($document->file_path, $document->original_name);
+        }
+
+        abort(404, 'Document file not found.');
+    }
+
+    public function document($id)
+    {
+        return $this->showDocument($id);
     }
 }

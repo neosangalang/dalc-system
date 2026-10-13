@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('last_seen_announcements_at')->nullable()->after('signature_image');
-        });
+        if (!Schema::hasColumn('users', 'last_seen_announcements_at')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->timestamp('last_seen_announcements_at')->nullable()->after('signature_image');
+            });
+        }
     }
 
     /**

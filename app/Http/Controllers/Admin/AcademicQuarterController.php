@@ -32,91 +32,57 @@ class AcademicQuarterController extends Controller
     public function updateAll(Request $request)
     {
         $request->validate([
-            'quarters'              => 'required|array',
+            'quarters' => 'required|array',
             'quarters.*.start_date' => 'nullable|date',
-            'quarters.*.end_date'   => 'nullable|date',
+            'quarters.*.end_date' => 'nullable|date|after_or_equal:quarters.*.start_date',
         ]);
 
-        // Load all quarters ordered by sequence
-        $allQuarters = AcademicQuarter::orderBy('id', 'asc')->get()->keyBy('id');
+        // Collect all submitted date ranges and validate no overlaps
         $ranges = [];
-
-        // First pass: validate individual quarter date completeness and start <= end
         foreach ($request->quarters as $id => $data) {
-            $quarter = $allQuarters->get($id) ?? AcademicQuarter::find($id);
-            if (!$quarter) continue;
+            if (!empty($data['start_date']) && !empty($data['end_date'])) {
+                $start = Carbon::parse($data['start_date']);
+                $end   = Carbon::parse($data['end_date']);
 
-            $hasStart = !empty($data['start_date']);
-            $hasEnd   = !empty($data['end_date']);
-
-            if ($hasStart xor $hasEnd) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'overlap' => "Incomplete date range for {$quarter->name}: Please provide both start date and end date."
-                    ]);
-            }
-
-            if ($hasStart && $hasEnd) {
-                $start = Carbon::parse($data['start_date'])->startOfDay();
-                $end   = Carbon::parse($data['end_date'])->startOfDay();
-
+                // Validate start <= end
                 if ($start->gt($end)) {
+                    $quarter = AcademicQuarter::find($id);
                     return back()
                         ->withInput()
                         ->withErrors([
-                            'overlap' => "Invalid date range: {$quarter->name} start date ({$start->format('M d, Y')}) cannot be after end date ({$end->format('M d, Y')})."
+                            'overlap' => "Invalid date range: {$quarter->name} start date cannot be after end date."
                         ]);
                 }
 
-                $ranges[$id] = [
-                    'quarter' => $quarter,
-                    'start'   => $start,
-                    'end'     => $end,
-                ];
+                // Check against all previously collected ranges
+                foreach ($ranges as $existingId => $existing) {
+                    if ($start->lte($existing['end']) && $end->gte($existing['start'])) {
+                        $existingQuarter = AcademicQuarter::find($existingId);
+                        $currentQuarter  = AcademicQuarter::find($id);
+                        return back()
+                            ->withInput()
+                            ->withErrors([
+                                'overlap' => "Date overlap detected: {$currentQuarter->name} ({$start->format('M d, Y')} - {$end->format('M d, Y')}) overlaps with {$existingQuarter->name} ({$existing['start']->format('M d, Y')} - {$existing['end']->format('M d, Y')}). Each quarter must have non-overlapping dates."
+                            ]);
+                    }
+                }
+
+                $ranges[$id] = ['start' => $start, 'end' => $end];
             }
         }
 
-        // Second pass: validate non-overlapping dates and sequential chronological order
-        foreach ($ranges as $idA => $rangeA) {
-            foreach ($ranges as $idB => $rangeB) {
-                if ($idA === $idB) continue;
-
-                $qA = $rangeA['quarter'];
-                $qB = $rangeB['quarter'];
-
-                // Overlap check
-                if ($rangeA['start']->lte($rangeB['end']) && $rangeA['end']->gte($rangeB['start'])) {
-                    return back()
-                        ->withInput()
-                        ->withErrors([
-                            'overlap' => "Date overlap detected: {$qA->name} ({$rangeA['start']->format('M d, Y')} - {$rangeA['end']->format('M d, Y')}) overlaps with {$qB->name} ({$rangeB['start']->format('M d, Y')} - {$rangeB['end']->format('M d, Y')}). Each quarter must have non-overlapping dates."
-                        ]);
-                }
-
-                // Chronological order check: earlier quarter in sequence must end before subsequent quarter begins
-                if ($qA->id < $qB->id && $rangeA['end']->gte($rangeB['start'])) {
-                    return back()
-                        ->withInput()
-                        ->withErrors([
-                            'overlap' => "Chronological sequence error: {$qB->name} ({$rangeB['start']->format('M d, Y')}) cannot start before or during {$qA->name} ({$rangeA['start']->format('M d, Y')} - {$rangeA['end']->format('M d, Y')}). Quarters must be sequential."
-                        ]);
-                }
-            }
-        }
-
-        // Update dates for each quarter cleanly
+        // Update dates for each quarter
         foreach ($request->quarters as $id => $data) {
-            $quarter = $allQuarters->get($id) ?? AcademicQuarter::find($id);
+            $quarter = AcademicQuarter::find($id);
             if ($quarter) {
                 $quarter->update([
-                    'start_date' => !empty($data['start_date']) ? Carbon::parse($data['start_date'])->toDateString() : null,
-                    'end_date'   => !empty($data['end_date']) ? Carbon::parse($data['end_date'])->toDateString() : null,
+                    'start_date' => $data['start_date'],
+                    'end_date'   => $data['end_date'],
                 ]);
             }
         }
 
-        // Auto-sync active status based on today's date
+        // Auto-sync active status based on today's date (no manual toggle)
         AcademicQuarter::syncActiveStatus();
 
         return back()->with('success', 'Academic Calendar updated successfully!');

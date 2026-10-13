@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::get('/secure-log-photo/{id}', [SecureFileController::class, 'show'])->name('secure.log-photo');
     Route::get('/secure-medical-document/{id}', [SecureFileController::class, 'medicalDocument'])->name('secure.student-medical');
+    Route::get('/secure-document/{id}', [SecureFileController::class, 'document'])->name('secure.student-document');
     Route::get('/secure-report-photo/{id}', [SecureFileController::class, 'reportPhoto'])->name('secure.report-photo');
     
     Route::post('/ai/rewrite-log', [AiAssistantController::class, 'rewriteDailyLog'])->name('ai.rewrite'); 

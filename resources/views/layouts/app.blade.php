@@ -192,6 +192,48 @@
                 containerEl.classList.add('hidden');
             }
         }
+
+        function handleMultiFileInputChange(inputEl, previewContainerId) {
+            const containerEl = document.getElementById(previewContainerId);
+            if (!containerEl) return;
+            containerEl.innerHTML = '';
+            if (!inputEl || !inputEl.files || inputEl.files.length === 0) {
+                containerEl.classList.add('hidden');
+                return;
+            }
+            containerEl.classList.remove('hidden');
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl space-y-1.5 shadow-sm';
+
+            const header = document.createElement('div');
+            header.className = 'flex items-center justify-between text-[11px] font-extrabold text-[#3B82F6] pb-1 border-b border-blue-200/60';
+            header.innerHTML = `<span><i class="fa fa-paperclip mr-1"></i> ${inputEl.files.length} file(s) selected</span>`;
+
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'text-rose-600 hover:text-rose-800 text-[10px] font-bold cursor-pointer';
+            clearBtn.innerHTML = '<i class="fa fa-times mr-0.5"></i> Clear all';
+            clearBtn.onclick = function() {
+                inputEl.value = '';
+                containerEl.innerHTML = '';
+                containerEl.classList.add('hidden');
+            };
+            header.appendChild(clearBtn);
+            wrapper.appendChild(header);
+
+            const list = document.createElement('div');
+            list.className = 'space-y-1 max-h-36 overflow-y-auto pr-1';
+            Array.from(inputEl.files).forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between text-[11px] font-semibold text-[#1E2657] bg-white px-2 py-1 rounded-lg border border-blue-100';
+                const sizeStr = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                item.innerHTML = `<span class="truncate max-w-[240px]"><i class="fa fa-file text-[#3B82F6] mr-1.5"></i>${file.name}</span><span class="text-[10px] text-[#9CA0AF] font-bold">${sizeStr}</span>`;
+                list.appendChild(item);
+            });
+            wrapper.appendChild(list);
+            containerEl.appendChild(wrapper);
+        }
     </script>
 
 @stack('scripts')

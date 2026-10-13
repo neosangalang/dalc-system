@@ -41,4 +41,8 @@ class Student extends Model
     public function reports() { 
         return $this->hasMany(Report::class); 
     }
+
+    public function documents() {
+        return $this->hasMany(StudentDocument::class);
+    }
 }
