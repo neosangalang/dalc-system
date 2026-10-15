@@ -76,8 +76,8 @@ class AcademicQuarterController extends Controller
             $quarter = AcademicQuarter::find($id);
             if ($quarter) {
                 $quarter->update([
-                    'start_date' => $data['start_date'],
-                    'end_date'   => $data['end_date'],
+                    'start_date' => !empty($data['start_date']) ? $data['start_date'] : null,
+                    'end_date'   => !empty($data['end_date']) ? $data['end_date'] : null,
                 ]);
             }
         }

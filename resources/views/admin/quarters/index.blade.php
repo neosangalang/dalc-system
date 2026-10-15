@@ -81,7 +81,7 @@
                                 <input type="date"
                                     id="start_date_{{ $quarter->id }}"
                                     name="quarters[{{ $quarter->id }}][start_date]"
-                                    value="{{ old('quarters.'.$quarter->id.'.start_date', $quarter->start_date) }}"
+                                    value="{{ old('quarters.'.$quarter->id.'.start_date', $quarter->start_date_formatted) }}"
                                     class="start-date-input quarter-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
                                     data-quarter-id="{{ $quarter->id }}"
                                     data-quarter-index="{{ $index }}">
@@ -92,7 +92,7 @@
                                 <input type="date"
                                     id="end_date_{{ $quarter->id }}"
                                     name="quarters[{{ $quarter->id }}][end_date]"
-                                    value="{{ old('quarters.'.$quarter->id.'.end_date', $quarter->end_date) }}"
+                                    value="{{ old('quarters.'.$quarter->id.'.end_date', $quarter->end_date_formatted) }}"
                                     class="end-date-input quarter-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
                                     data-quarter-id="{{ $quarter->id }}"
                                     data-quarter-index="{{ $index }}">
@@ -147,6 +147,18 @@
         const startInputs = Array.from(document.querySelectorAll('.start-date-input'));
         const endInputs = Array.from(document.querySelectorAll('.end-date-input'));
 
+        function getNextDay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return '';
+            const date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+            date.setDate(date.getDate() + 1);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
         function syncDateConstraints() {
             startInputs.forEach((startInput, idx) => {
                 const endInput = endInputs[idx];
@@ -165,15 +177,19 @@
                 if (idx < startInputs.length - 1) {
                     const nextStartInput = startInputs[idx + 1];
                     if (endInput.value) {
-                        // Next quarter start date must be at least the day after or same day (non-overlapping)
-                        const endDate = new Date(endInput.value);
-                        endDate.setDate(endDate.getDate() + 1);
-                        const minNextStart = endDate.toISOString().split('T')[0];
-
+                        const minNextStart = getNextDay(endInput.value);
                         nextStartInput.min = minNextStart;
                         if (nextStartInput.value && nextStartInput.value < minNextStart) {
                             nextStartInput.value = minNextStart;
                         }
+                    } else if (startInput.value) {
+                        const minNextStart = getNextDay(startInput.value);
+                        nextStartInput.min = minNextStart;
+                        if (nextStartInput.value && nextStartInput.value < minNextStart) {
+                            nextStartInput.value = minNextStart;
+                        }
+                    } else {
+                        nextStartInput.min = '';
                     }
                 }
             });
@@ -182,9 +198,10 @@
         // Run constraint sync on load
         syncDateConstraints();
 
-        // Listen for date input changes
+        // Listen for date input changes immediately (input and change)
         document.querySelectorAll('.quarter-date-input').forEach(input => {
             input.addEventListener('change', syncDateConstraints);
+            input.addEventListener('input', syncDateConstraints);
         });
     });
 </script>
