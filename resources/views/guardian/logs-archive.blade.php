@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Daily Logs & Activities Archive')
+@section('title', 'Daily Reports & Activities Archive')
 
 @section('content')
 
@@ -18,8 +18,8 @@
                     <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Today's Session
                 </a>
             </div>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 m-0 leading-tight">Daily Logs & Activities Archive</h3>
-            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Complete historical archive of past classroom notes and home activities for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 m-0 leading-tight">Daily Reports & Activities Archive</h3>
+            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Complete historical archive of past daily reports and home activities for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
         </div>
 
         @if(isset($activeChild) && isset($myChildren))
@@ -116,10 +116,17 @@
                     @endif
 
                     <div class="{{ $log->image_path ? 'md:col-span-7' : 'md:col-span-12' }} flex flex-col gap-4">
-                        @if($log->notes)
+                        @if(isset($log->daily_report) && $log->daily_report)
+                            <div class="p-4 sm:p-5 bg-indigo-50/60 rounded-xl border-2 border-indigo-200">
+                                <h6 class="font-extrabold text-indigo-800 mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
+                                    <i class="fa-solid fa-file-lines text-indigo-600 mr-2"></i> Daily Report:
+                                </h6>
+                                <div class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->daily_report->content }}</div>
+                            </div>
+                        @elseif($log->notes)
                             <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-200">
                                 <h6 class="font-extrabold text-[#1E2657] mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                    <i class="fa fa-pencil text-[#3B82F6] mr-2"></i> Classroom Notes:
+                                    <i class="fa-solid fa-file-lines text-[#3B82F6] mr-2"></i> Daily Report:
                                 </h6>
                                 <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->notes }}</p>
                             </div>
