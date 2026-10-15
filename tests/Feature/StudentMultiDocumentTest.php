@@ -116,6 +116,7 @@ class StudentMultiDocumentTest extends TestCase
                 'first_name' => 'Bob',
                 'last_name' => 'Jones',
                 'learners_reference_number' => '987654321012',
+                'class_name' => 'Joy',
                 'date_of_birth' => '2014-01-01',
                 'gender' => 'Male',
                 'diagnosis' => 'ADHD',

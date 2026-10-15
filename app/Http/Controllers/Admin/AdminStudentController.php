@@ -27,7 +27,7 @@ class AdminStudentController extends Controller
             'first_name'                => 'required|string|max:255',
             'last_name'                 => 'required|string|max:255',
             'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number', // Enforces unique 12-digit LRN
-            'class_name'                => 'nullable|string|max:255',
+            'class_name'                => 'required|string|max:255',
             'date_of_birth'             => 'required|date', // Enforced requirement
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',
@@ -97,7 +97,7 @@ class AdminStudentController extends Controller
             'first_name'                => 'required|string|max:255',
             'last_name'                 => 'required|string|max:255',
             'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number,' . $id, // Ignores current student ID during unique check
-            'class_name'                => 'nullable|string|max:255',
+            'class_name'                => 'required|string|max:255',
             'date_of_birth'             => 'required|date', // Enforced requirement
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',
@@ -170,7 +170,7 @@ class AdminStudentController extends Controller
             'first_name'                => 'required|string|max:255',
             'last_name'                 => 'required|string|max:255',
             'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number,' . $id,
-            'class_name'                => 'nullable|string|max:255',
+            'class_name'                => 'required|string|max:255',
             'date_of_birth'             => 'required|date',
             'gender'                    => 'required|in:Male,Female',
             'diagnosis'                 => 'required|string',

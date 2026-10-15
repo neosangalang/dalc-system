@@ -354,8 +354,8 @@
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name</label>
-                                                            <select name="class_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                                            <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name <span class="text-rose-500">*</span></label>
+                                                            <select name="class_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                                                 <option value="">-- Select Class --</option>
                                                                 <option value="Playgroup Morning (Love A)" {{ $student->class_name == 'Playgroup Morning (Love A)' ? 'selected' : '' }}>Playgroup Morning</option>
                                                                 <option value="Playgroup Afternoon (Love B)" {{ $student->class_name == 'Playgroup Afternoon (Love B)' ? 'selected' : '' }}>Playgroup Afternoon</option>
@@ -587,8 +587,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name</label>
-                                    <select name="class_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
+                                    <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Class Name <span class="text-rose-500">*</span></label>
+                                    <select name="class_name" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required>
                                         <option value="">-- Select Class --</option>
                                         <option value="Playgroup Morning (Love A)">Playgroup Morning</option>
                                         <option value="Playgroup Afternoon (Love B)">Playgroup Afternoon</option>
