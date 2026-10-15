@@ -300,9 +300,17 @@
                         @endif
 
                         <div class="p-4 bg-[#F4F6FA] rounded-xl border border-black/10 text-[#1E2657]">
-                            <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest mb-1 flex items-center">
-                                <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
-                            </h6>
+                            <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                                <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest m-0 flex items-center">
+                                    <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
+                                </h6>
+                                <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
+                                   class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
+                                   title="Download Standardized Formal Documentation as PDF">
+                                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                    <span>Download PDF</span>
+                                </a>
+                            </div>
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
                     </div>

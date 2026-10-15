@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Services\ImageOptimizationService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class DailyLogController extends Controller
 {
@@ -239,5 +241,23 @@ class DailyLogController extends Controller
         $log->delete();
 
         return back()->with('success', 'Daily log permanently deleted.');
+    }
+
+    public function downloadPdf($id)
+    {
+        $log = DailyLog::with(['student', 'teacher'])->findOrFail($id);
+
+        if ($log->teacher_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to daily log documentation.');
+        }
+
+        $pdf = Pdf::loadView('teacher.daily-logs.pdf', compact('log'));
+
+        $safeLastName = Str::slug($log->student->last_name ?? 'Student');
+        $safeFirstName = Str::slug($log->student->first_name ?? '');
+        $dateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+        $fileName = "DailyLog_{$safeLastName}_{$safeFirstName}_{$dateStr}.pdf";
+
+        return $pdf->download($fileName);
     }
 }
