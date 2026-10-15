@@ -221,28 +221,46 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const form = document.getElementById('report-generation-form');
 
-    // Default date pre-selection to Today
-    const todayStr = new Date().toISOString().split('T')[0];
-    let lastSelectedDate = todayStr;
-    dateInput.value = todayStr;
+    // Default date pre-selection to Today (Local Date)
+    const localNow = new Date();
+    const localYear = localNow.getFullYear();
+    const localMonth = String(localNow.getMonth() + 1).padStart(2, '0');
+    const localDay = String(localNow.getDate()).padStart(2, '0');
+    const todayStr = `${localYear}-${localMonth}-${localDay}`;
+    
+    let lastSelectedDailyDate = dateInput.value || todayStr;
+    dateInput.value = lastSelectedDailyDate;
+
+    // Track active selection state to prevent race conditions during changes
+    let currentActiveStudent = studentSelect.value || '';
+    let currentActiveType = reportTypeSelect.value || '';
+    let currentActiveDate = dateInput.value || todayStr;
 
     // Cache structure: cache[cacheKey] = { dailyContent, homeRec, generalContent, dailyGen, homeGen, generalGen }
     const cache = {};
 
-    function getCacheKey() {
-        const studentId = studentSelect.value || 'none';
-        const type = reportTypeSelect.value || 'none';
-        const d = dateInput.value || 'nodate';
-        return `${studentId}_${type}_${d}`;
+    function buildCacheKey(studentId, type, date) {
+        const s = studentId || 'none';
+        const t = type || 'none';
+        if (t === 'daily') {
+            const d = date || 'nodate';
+            return `${s}_daily_${d}`;
+        }
+        // Periodic reports are bound strictly to the selected report type
+        return `${s}_${t}`;
     }
 
-    function saveCurrentToCache() {
-        const key = getCacheKey();
+    function saveActiveToCache() {
+        if (!currentActiveType) return;
+        const key = buildCacheKey(currentActiveStudent, currentActiveType, currentActiveDate);
         if (!cache[key]) cache[key] = {};
         
-        cache[key].dailyContent = dailyContent.value;
-        cache[key].homeRec = homeRec.value;
-        cache[key].generalContent = generalContent.value;
+        if (currentActiveType === 'daily') {
+            if (dailyContent) cache[key].dailyContent = dailyContent.value;
+            if (homeRec) cache[key].homeRec = homeRec.value;
+        } else {
+            if (generalContent) cache[key].generalContent = generalContent.value;
+        }
     }
 
     function setBtnState(btn, stateType, defaultText, iconClass) {
@@ -269,27 +287,32 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function syncState() {
-        const type = reportTypeSelect.value;
-        const studentId = studentSelect.value;
+        const type = currentActiveType;
+        const studentId = currentActiveStudent;
 
         if (!type) {
             dateRow.classList.add('hidden');
+            if (dateInput) dateInput.disabled = true;
             dailyWrapper.classList.add('hidden');
             generalWrapper.classList.add('hidden');
             reviewActionSection.classList.add('hidden');
             return;
         }
 
-        // Always show date selection & preset/retain date for ALL report types
-        dateRow.classList.remove('hidden');
-        if (!dateInput.value) {
-            dateInput.value = lastSelectedDate || todayStr;
-        }
-
-        const key = getCacheKey();
+        const key = buildCacheKey(studentId, type, currentActiveDate);
         const cached = cache[key] || {};
 
         if (type === 'daily') {
+            // SHOW date picker for Daily Reports
+            dateRow.classList.remove('hidden');
+            if (dateInput) {
+                dateInput.disabled = false;
+                if (!dateInput.value) {
+                    dateInput.value = currentActiveDate || lastSelectedDailyDate || todayStr;
+                }
+                currentActiveDate = dateInput.value;
+            }
+
             dailyWrapper.classList.remove('hidden');
             generalWrapper.classList.add('hidden');
 
@@ -297,14 +320,19 @@ document.addEventListener("DOMContentLoaded", function() {
             btnApproval.classList.add('hidden');
             btnPublish.classList.remove('hidden');
 
-            // Load text from cache or set empty
+            // Load text from cache or clear out
             dailyContent.value = cached.dailyContent || '';
             homeRec.value = cached.homeRec || '';
 
             setBtnState(triggerDailyBtn, cached.dailyGen ? 'success' : 'ready', 'Generate Daily Report via AI', 'fa-solid fa-robot mr-2');
             setBtnState(triggerHomeBtn, cached.homeGen ? 'success' : 'ready', 'Generate Home-Based Recommendations via AI', 'fa-solid fa-lightbulb mr-2');
         } else {
-            // Non-daily report (Quarterly, Mid-Year, Year-End)
+            // HIDE date picker completely for Periodic Reports (Quarterly, Mid-Year, Year-End)
+            dateRow.classList.add('hidden');
+            if (dateInput) {
+                dateInput.disabled = true;
+            }
+
             dailyWrapper.classList.add('hidden');
             generalWrapper.classList.remove('hidden');
 
@@ -312,10 +340,14 @@ document.addEventListener("DOMContentLoaded", function() {
             btnPublish.classList.add('hidden');
             btnApproval.classList.remove('hidden');
 
+            // Load text strictly from type cache or clear out
             generalContent.value = cached.generalContent || '';
 
             const typeLabel = reportTypeSelect.options[reportTypeSelect.selectedIndex]?.text || 'Report';
-            document.getElementById('general-btn-text').innerText = `Generate ${typeLabel} via AI`;
+            const generalBtnText = document.getElementById('general-btn-text');
+            if (generalBtnText) {
+                generalBtnText.innerText = `Generate ${typeLabel} via AI`;
+            }
 
             setBtnState(triggerGeneralBtn, cached.generalGen ? 'success' : 'ready', `Generate ${typeLabel} via AI`, 'fa-solid fa-robot mr-2');
         }
@@ -324,38 +356,61 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Save manual text edits to cache
-    if (dailyContent) dailyContent.addEventListener('input', saveCurrentToCache);
-    if (homeRec) homeRec.addEventListener('input', saveCurrentToCache);
-    if (generalContent) generalContent.addEventListener('input', saveCurrentToCache);
+    if (dailyContent) {
+        dailyContent.addEventListener('input', function() {
+            window.hasUnsavedAiChanges = true;
+            saveActiveToCache();
+        });
+    }
+    if (homeRec) {
+        homeRec.addEventListener('input', function() {
+            window.hasUnsavedAiChanges = true;
+            saveActiveToCache();
+        });
+    }
+    if (generalContent) {
+        generalContent.addEventListener('input', function() {
+            window.hasUnsavedAiChanges = true;
+            saveActiveToCache();
+        });
+    }
 
     // EVENT: Student Selection Change
     studentSelect.addEventListener('change', function() {
-        saveCurrentToCache();
+        const nextStudent = studentSelect.value;
+        if (nextStudent === currentActiveStudent) return;
+        saveActiveToCache();
+        currentActiveStudent = nextStudent;
         syncState();
     });
 
     // EVENT: Report Type Change
     reportTypeSelect.addEventListener('change', function() {
-        saveCurrentToCache();
+        const nextType = reportTypeSelect.value;
+        if (nextType === currentActiveType) return;
+        saveActiveToCache();
+        currentActiveType = nextType;
         syncState();
     });
 
-    // EVENT: Date Picker Change / Input
+    // EVENT: Date Picker Change
     function handleDateChange() {
-        saveCurrentToCache();
-        if (dateInput.value) {
-            lastSelectedDate = dateInput.value;
+        const nextDate = dateInput.value;
+        if (nextDate === currentActiveDate) return;
+        saveActiveToCache();
+        currentActiveDate = nextDate;
+        if (nextDate) {
+            lastSelectedDailyDate = nextDate;
         }
         syncState();
     }
     dateInput.addEventListener('change', handleDateChange);
-    dateInput.addEventListener('input', handleDateChange);
 
     // GENERIC AI FETCH HELPER
     function runAiGeneration(btn, sectionType) {
-        const studentId = studentSelect.value;
-        const type = reportTypeSelect.value;
-        const date = dateInput.value;
+        const studentId = currentActiveStudent;
+        const type = currentActiveType;
+        const date = currentActiveDate;
 
         if (!studentId) {
             alert('Please select a student first.');
@@ -376,6 +431,9 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        // Target key to ensure async response maps to the exact student/type/date
+        const targetKey = buildCacheKey(studentId, type, date);
+
         const span = btn.querySelector('span');
         const icon = btn.querySelector('i');
 
@@ -393,7 +451,7 @@ document.addEventListener("DOMContentLoaded", function() {
             body: JSON.stringify({
                 student_id: studentId,
                 report_type: type,
-                report_date: date,
+                report_date: type === 'daily' ? date : null,
                 section: sectionType
             })
         })
@@ -401,26 +459,36 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             if (data.success) {
                 window.hasUnsavedAiChanges = true;
-                const key = getCacheKey();
-                if (!cache[key]) cache[key] = {};
+                if (!cache[targetKey]) cache[targetKey] = {};
 
                 if (type === 'daily') {
                     if (sectionType === 'home_recommendation') {
-                        homeRec.value = data.report_content;
-                        cache[key].homeRec = data.report_content;
-                        cache[key].homeGen = true;
-                        setBtnState(triggerHomeBtn, 'success', '', 'fa-solid fa-lightbulb mr-2');
+                        cache[targetKey].homeRec = data.report_content;
+                        cache[targetKey].homeGen = true;
                     } else {
-                        dailyContent.value = data.report_content;
-                        cache[key].dailyContent = data.report_content;
-                        cache[key].dailyGen = true;
-                        setBtnState(triggerDailyBtn, 'success', '', 'fa-solid fa-robot mr-2');
+                        cache[targetKey].dailyContent = data.report_content;
+                        cache[targetKey].dailyGen = true;
                     }
                 } else {
-                    generalContent.value = data.report_content;
-                    cache[key].generalContent = data.report_content;
-                    cache[key].generalGen = true;
-                    setBtnState(triggerGeneralBtn, 'success', '', 'fa-solid fa-robot mr-2');
+                    cache[targetKey].generalContent = data.report_content;
+                    cache[targetKey].generalGen = true;
+                }
+
+                // If user is still viewing this exact student/type/date, update active UI
+                const currentKey = buildCacheKey(currentActiveStudent, currentActiveType, currentActiveDate);
+                if (currentKey === targetKey) {
+                    if (type === 'daily') {
+                        if (sectionType === 'home_recommendation') {
+                            homeRec.value = data.report_content;
+                            setBtnState(triggerHomeBtn, 'success', '', 'fa-solid fa-lightbulb mr-2');
+                        } else {
+                            dailyContent.value = data.report_content;
+                            setBtnState(triggerDailyBtn, 'success', '', 'fa-solid fa-robot mr-2');
+                        }
+                    } else {
+                        generalContent.value = data.report_content;
+                        setBtnState(triggerGeneralBtn, 'success', '', 'fa-solid fa-robot mr-2');
+                    }
                 }
             } else {
                 alert("AI Error: " + (data.message || 'Failed to generate report content.'));
@@ -455,7 +523,20 @@ document.addEventListener("DOMContentLoaded", function() {
     // FORM SUBMIT: Compile final content before sending
     form.addEventListener('submit', function(e) {
         const type = reportTypeSelect.value;
+        if (!type) {
+            e.preventDefault();
+            alert('Please select a report type.');
+            reportTypeSelect.focus();
+            return;
+        }
+
         if (type === 'daily') {
+            if (!dateInput.value || dateInput.value.trim() === '') {
+                e.preventDefault();
+                alert('Please select a valid date for the Daily Report.');
+                dateInput.focus();
+                return;
+            }
             let compiled = dailyContent.value.trim();
             if (!compiled) {
                 e.preventDefault();
