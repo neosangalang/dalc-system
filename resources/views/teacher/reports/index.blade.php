@@ -122,7 +122,6 @@
                 <tbody class="block md:table-row-group space-y-4 md:space-y-0 divide-y-0 md:divide-y divide-black/5 bg-transparent md:bg-white">
                     @forelse($reports as $report)
                         <!-- MOBILE CARD / DESKTOP ROW -->
-                        <tr class="block md:table-row relative bg-white md:bg-transparent rounded-[16px] md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150 pt-2 md:pt-0">
                         <tr class="block md:table-row relative bg-white md:bg-transparent rounded-[16px] md:rounded-none shadow-sm md:shadow-none border md:border-none hover:bg-slate-50 transition-colors duration-150 pt-2 md:pt-0 {{ $report->status === 'rejected' ? 'border-l-4 border-l-rose-500 border-rose-200 md:border-l-4 md:border-l-rose-500' : 'border-black/15' }}">
                             
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-5 border-b border-black/5 md:border-none pr-28 md:pr-6">
@@ -178,7 +177,6 @@
                                         'rejected' => 'fa-solid fa-triangle-exclamation',
                                     ];
                                 @endphp
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border shadow-sm {{ $statusClasses[$report->status] ?? 'bg-slate-100 text-[#6B7086] border-black/10' }}">
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border shadow-sm {{ $statusClasses[$report->status] ?? 'bg-slate-100 text-[#6B7086] border-black/10' }}">
                                     <i class="{{ $statusIcons[$report->status] ?? '' }} text-[8px]"></i>
                                     {{ $statusLabels[$report->status] ?? 'Unknown' }}
@@ -186,7 +184,6 @@
                             </td>
                             
                             <!-- ACTIONS FOOTER -->
-                            <td class="block md:table-cell px-4 py-4 md:px-6 md:py-5 bg-[#F4F6FA] md:bg-transparent rounded-b-[16px] md:rounded-none">
                             <td class="block md:table-cell px-4 py-4 md:px-6 md:py-5 {{ $report->status === 'rejected' ? 'bg-rose-50/50' : 'bg-[#F4F6FA]' }} md:bg-transparent rounded-b-[16px] md:rounded-none">
                                 <div class="flex flex-wrap sm:flex-nowrap md:justify-end gap-2 w-full md:w-auto">
                                     
@@ -196,8 +193,6 @@
 
                                     <!-- CONDITIONAL EDIT BUTTON FOR REJECTED REPORTS -->
                                     @if($report->status === 'rejected')
-                                        <a href="{{ route('teacher.reports.edit', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-[12px] font-extrabold rounded-xl hover:bg-amber-100 transition-colors shadow-sm decoration-transparent">
-                                            <i class="fa fa-pen-to-square mr-1.5"></i> Edit
                                         <a href="{{ route('teacher.reports.edit', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-rose-500 border border-rose-600 text-white text-[12px] font-extrabold rounded-xl hover:bg-rose-600 transition-colors shadow-sm decoration-transparent">
                                             <i class="fa fa-pen-to-square mr-1.5"></i> Revise Now
                                         </a>

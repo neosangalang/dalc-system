@@ -423,50 +423,115 @@
                                                         <i class="fa fa-user-shield text-[#10B981] mr-2"></i> 2. Guardian
                                                     </h4>
 
-                                                    <div class="grid grid-cols-1 gap-5 mb-4">
+                                                    <div class="space-y-4" x-data="{ 
+                                                        search: '', 
+                                                        selectedId: '{{ $student->guardian_id ?? '' }}', 
+                                                        selectedName: '{{ addslashes($student->guardian->name ?? '') }}', 
+                                                        guardians: [
+                                                            @if($student->guardian && !$guardians->contains('id', $student->guardian_id))
+                                                                { id: '{{ $student->guardian->id }}', name: '{{ addslashes($student->guardian->name) }}', username: '{{ addslashes($student->guardian->username ?? '') }}' },
+                                                            @endif
+                                                            @foreach($guardians ?? [] as $guardian)
+                                                                { id: '{{ $guardian->id }}', name: '{{ addslashes($guardian->name) }}', username: '{{ addslashes($guardian->username ?? '') }}' },
+                                                            @endforeach
+                                                        ],
+                                                        get filteredGuardians() {
+                                                            if (!this.search.trim()) return this.guardians;
+                                                            const q = this.search.toLowerCase().trim();
+                                                            return this.guardians.filter(g => 
+                                                                g.name.toLowerCase().includes(q) || 
+                                                                (g.username && g.username.toLowerCase().includes(q))
+                                                            );
+                                                        },
+                                                        selectGuardian(g) {
+                                                            this.selectedId = g.id;
+                                                            this.selectedName = g.name;
+                                                        },
+                                                        clearGuardian() {
+                                                            this.selectedId = '';
+                                                            this.selectedName = '';
+                                                        }
+                                                    }">
+                                                        <input type="hidden" name="guardian_id" id="edit_guardian_id_{{ $student->id }}" :value="selectedId">
+
+                                                        <!-- Dynamic Search Input -->
                                                         <div>
-                                                            <div x-data="{ 
-                                                                    search: '', 
-                                                                    selectedId: '{{ $student->guardian_id ?? '' }}', 
-                                                                    selectedName: '{{ addslashes($student->guardian->name ?? '') }}', 
-                                                                    open: false,
-                                                                    guardians: [
-                                                                        @foreach($guardians ?? [] as $guardian)
-                                                                            { id: '{{ $guardian->id }}', name: '{{ addslashes($guardian->name) }}' },
-                                                                        @endforeach
-                                                                    ],
-                                                                    get filteredGuardians() {
-                                                                        if (!this.search) return this.guardians;
-                                                                        return this.guardians.filter(g => g.name.toLowerCase().includes(this.search.toLowerCase()));
-                                                                    }
-                                                                }" class="relative">
-                                                                <input type="hidden" name="guardian_id" :value="selectedId">
-                                                                <div class="relative">
-                                                                    <input type="text"
-                                                                        x-model="search"
-                                                                        @focus="open = true"
-                                                                        placeholder="Search guardian by name..."
-                                                                        class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#10B981] shadow-sm bg-white"
-                                                                        :value="selectedName && !search ? selectedName : search"
-                                                                        @input="open = true">
-                                                                    <button type="button" @click="open = !open" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA0AF]">
-                                                                        <i class="fa fa-search text-xs"></i>
-                                                                    </button>
+                                                            <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-wider mb-1.5">
+                                                                Search Guardian Directory
+                                                            </label>
+                                                            <div class="relative">
+                                                                <input type="text" 
+                                                                       x-model="search" 
+                                                                       placeholder="Search guardian name or username..." 
+                                                                       class="w-full rounded-xl border border-[#9CA0AF] pl-10 pr-9 py-2.5 text-[13px] font-medium text-[#1E2657] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm bg-white transition-colors">
+                                                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA0AF]">
+                                                                    <i class="fa fa-search text-xs"></i>
+                                                                </span>
+                                                                <button type="button" 
+                                                                        x-show="search" 
+                                                                        @click="search = ''" 
+                                                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
+                                                                    <i class="fa fa-times text-xs"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Selected Guardian Banner / Chip -->
+                                                        <div x-show="selectedId" x-cloak class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between shadow-sm animate-fade-in">
+                                                            <div class="flex items-center gap-2.5 overflow-hidden">
+                                                                <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                                                                    <i class="fa fa-user-check"></i>
                                                                 </div>
-                                                                <div x-show="open" @click.away="open = false" x-cloak class="absolute z-50 left-0 right-0 mt-1 bg-white border border-black/15 rounded-xl shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
-                                                                    <div @click="selectedId = ''; selectedName = ''; search = ''; open = false" class="px-3.5 py-2 text-[12px] font-bold text-gray-400 hover:bg-slate-50 cursor-pointer border-b border-black/5">
-                                                                        -- No Guardian --
-                                                                    </div>
-                                                                    <template x-for="g in filteredGuardians" :key="g.id">
-                                                                        <div @click="selectedId = g.id; selectedName = g.name; search = ''; open = false"
-                                                                            class="px-3.5 py-2 text-[13px] font-bold text-[#1E2657] hover:bg-[#10B981]/10 hover:text-[#10B981] cursor-pointer flex justify-between items-center">
-                                                                            <span x-text="g.name"></span>
-                                                                            <i x-show="selectedId == g.id" class="fa fa-check text-[#10B981] text-xs"></i>
+                                                                <div class="truncate">
+                                                                    <div class="text-[10px] font-extrabold text-emerald-800 uppercase tracking-wider">Selected Guardian</div>
+                                                                    <div class="text-[13px] font-extrabold text-[#1E2657] truncate" x-text="selectedName"></div>
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" 
+                                                                    @click="clearGuardian()" 
+                                                                    class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm shrink-0 flex items-center gap-1 cursor-pointer">
+                                                                <i class="fa fa-times text-xs"></i> Clear Selection
+                                                            </button>
+                                                        </div>
+
+                                                        <!-- Proper List View Container -->
+                                                        <div class="border border-black/15 rounded-xl overflow-hidden shadow-sm bg-white">
+                                                            <div class="px-3.5 py-2 bg-[#F4F6FA] border-b border-black/10 flex items-center justify-between">
+                                                                <span class="text-[11px] font-extrabold text-[#6B7086] uppercase tracking-wider">
+                                                                    Guardian List (<span x-text="filteredGuardians.length"></span>)
+                                                                </span>
+                                                                <span class="text-[10px] text-[#9CA0AF] font-bold">Click row to select</span>
+                                                            </div>
+
+                                                            <div class="max-h-52 overflow-y-auto divide-y divide-black/5 custom-scrollbar">
+                                                                <template x-for="g in filteredGuardians" :key="g.id">
+                                                                    <div @click="selectGuardian(g)"
+                                                                         :class="selectedId == g.id ? 'bg-[#10B981]/10 border-l-4 border-l-[#10B981]' : 'hover:bg-slate-50 border-l-4 border-l-transparent'"
+                                                                         class="px-3.5 py-2.5 flex items-center justify-between cursor-pointer transition-colors duration-150">
+                                                                        <div class="flex items-center gap-3">
+                                                                            <div :class="selectedId == g.id ? 'bg-[#10B981] text-white' : 'bg-slate-100 text-[#6B7086]'" 
+                                                                                 class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors">
+                                                                                <i class="fa fa-user"></i>
+                                                                            </div>
+                                                                            <div>
+                                                                                <span class="text-[13px] font-extrabold text-[#1E2657] block leading-tight" x-text="g.name"></span>
+                                                                                <span class="text-[11px] text-[#6B7086] font-medium" x-show="g.username" x-text="'@' + g.username"></span>
+                                                                            </div>
                                                                         </div>
-                                                                    </template>
-                                                                    <div x-show="filteredGuardians.length === 0" class="px-3.5 py-3 text-[12px] text-[#9CA0AF] text-center">
-                                                                        No matching guardian found
+                                                                        <div class="shrink-0 flex items-center">
+                                                                            <span x-show="selectedId == g.id" class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-[#10B981] text-white flex items-center gap-1 shadow-sm">
+                                                                                <i class="fa fa-check text-[9px]"></i> Selected
+                                                                            </span>
+                                                                            <div x-show="selectedId != g.id" class="w-5 h-5 rounded-full border-2 border-[#9CA0AF]/50 flex items-center justify-center">
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
+                                                                </template>
+
+                                                                <div x-show="filteredGuardians.length === 0" class="px-4 py-8 text-center text-[#9CA0AF]">
+                                                                    <i class="fa fa-user-slash text-2xl mb-2 text-[#9CA0AF]/60 block"></i>
+                                                                    <p class="text-[12px] font-bold m-0" x-text="search ? 'No guardians matching &quot;' + search + '&quot;' : 'No active guardian accounts found'"></p>
+                                                                    <p class="text-[11px] m-0 mt-1 text-[#9CA0AF]">Guardian accounts are managed under User Management.</p>
                                                                 </div>
                                                             </div>
                                                         </div>
