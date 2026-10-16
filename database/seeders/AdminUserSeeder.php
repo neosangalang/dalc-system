@@ -12,11 +12,14 @@ class AdminUserSeeder extends Seeder
     {
         // Check if an admin already exists so we don't accidentally make two!
         if (User::where('role', 'admin')->count() == 0) {
+
+            $password = env('ADMIN_DEFAULT_PASSWORD', 'ChangeMe@2026');
+
             User::create([
                 'name'      => 'System Administrator',
-                'username'  => 'admin', // The username you will use to log in
-                'email'     => 'admin@dalc.edu',
-                'password'  => Hash::make('admin1234'), // Your secure master password
+                'username'  => env('ADMIN_DEFAULT_USERNAME', 'admin'),
+                'email'     => env('ADMIN_DEFAULT_EMAIL', 'admin@dalc.edu'),
+                'password'  => Hash::make($password),
                 'role'      => 'admin',
                 'is_active' => true,
             ]);
