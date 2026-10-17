@@ -145,10 +145,7 @@
                         <span class="block text-sm font-extrabold text-[#1E2657]">{{ Auth::user()->name ?? 'Guest User' }}</span>
                         <span class="block text-[10px] font-bold text-[#C4922E] uppercase tracking-wide mt-0.5">{{ Auth::user()->role ?? 'Role' }} Account</span>
                     </div>
-                    <a href="{{ route('profile.security') }}" class="flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] hover:bg-slate-50 transition">
-                        <i class="fa fa-shield-halved w-4 text-center text-[#5B8DEF]"></i> Security & Profile
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}" class="m-0 pt-1 border-t border-black/5">
+                    <form method="POST" action="{{ route('logout') }}" class="m-0 pt-1">
                         @csrf
                         <button type="submit" class="w-full flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold text-rose-600 hover:bg-rose-50 transition text-left cursor-pointer">
                             <i class="fa fa-sign-out-alt w-4 text-center"></i> Log Out

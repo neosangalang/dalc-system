@@ -20,14 +20,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * Display the custom security settings view.
-     */
-    public function security(): View
-    {
-        return view('profile.security');
-    }
-
-    /**
      * Display the user's profile form.
      */
     public function edit(Request $request): View

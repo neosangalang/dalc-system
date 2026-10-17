@@ -45,7 +45,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/mfa-challenge', [\App\Http\Controllers\Auth\MfaChallengeController::class, 'verify'])->name('security.mfa.verify-login');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    Route::get('/settings', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
