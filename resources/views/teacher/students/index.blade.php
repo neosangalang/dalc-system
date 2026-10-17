@@ -41,14 +41,21 @@
     </div>
 
     <!-- FILTERS -->
-    <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-5 mb-6">
+    <div x-data="{ showAdvanced: false }" class="bg-white border border-black/15 rounded-2xl shadow-sm p-4 sm:p-5 mb-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end m-0">
 
             <!-- Search Keyword -->
             <div>
-                <label class="block text-[11px] font-extrabold text-[#3B82F6] uppercase tracking-widest mb-1.5 flex items-center">
-                    <i class="fa fa-search mr-1.5"></i> Search Keyword
-                </label>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-[11px] font-extrabold text-[#3B82F6] uppercase tracking-widest flex items-center m-0">
+                        <i class="fa fa-search mr-1.5"></i> Search Keyword
+                    </label>
+                    <!-- Mobile Filter Toggle Button -->
+                    <button type="button" @click="showAdvanced = !showAdvanced" class="md:hidden text-[11px] font-bold text-[#6B7086] hover:text-[#3B82F6] flex items-center gap-1 active:scale-95">
+                        <i class="fa-solid fa-sliders text-xs"></i>
+                        <span x-text="showAdvanced ? 'Hide Filters' : 'More Filters'">More Filters</span>
+                    </button>
+                </div>
                 <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-[#9CA0AF] bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
                         <i class="fa fa-font"></i>
@@ -58,7 +65,7 @@
             </div>
 
             <!-- Filter by Class -->
-            <div>
+            <div :class="showAdvanced ? 'block' : 'hidden md:block'">
                 <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
                     <i class="fa fa-school mr-1.5 text-[#3B82F6]"></i> Filter by Class
                 </label>
@@ -82,7 +89,7 @@
             </div>
 
             <!-- Filter by Diagnosis -->
-            <div>
+            <div :class="showAdvanced ? 'block' : 'hidden md:block'">
                 <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
                     <i class="fa fa-notes-medical mr-1.5 text-[#3B82F6]"></i> Filter by Diagnosis
                 </label>
@@ -105,7 +112,7 @@
             </div>
 
             <!-- Status & Reset -->
-            <div class="flex gap-2">
+            <div :class="showAdvanced ? 'flex' : 'hidden md:flex'" class="gap-2">
                 <div class="flex-1">
                     <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
                         <i class="fa fa-toggle-on mr-1.5 text-[#3B82F6]"></i> Status
@@ -117,7 +124,7 @@
                     </select>
                 </div>
 
-                <a href="javascript:void(0)" onclick="resetFilters()" class="mt-auto h-[38px] w-[38px] shrink-0 inline-flex items-center justify-center bg-[#F4F6FA] border border-black/10 text-[#6B7086] rounded-xl hover:bg-slate-200 hover:text-[#1E2657] transition-colors shadow-sm" title="Reset Filters">
+                <a href="javascript:void(0)" onclick="resetFilters()" class="mt-auto h-[38px] w-[38px] shrink-0 inline-flex items-center justify-center bg-[#F4F6FA] border border-black/10 text-[#6B7086] rounded-xl hover:bg-slate-200 hover:text-[#1E2657] transition-colors shadow-sm active:scale-95" title="Reset Filters">
                     <i class="fa fa-undo"></i>
                 </a>
             </div>

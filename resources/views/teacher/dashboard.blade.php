@@ -20,52 +20,52 @@
         <!-- 2. FIVE STAT CARDS -->
         <section>
             <!-- Updated to lg:grid-cols-5 so all 5 cards fit in one row -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 w-full">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5 w-full">
                 
                 <!-- Card 1: My Students (Blue Theme) -->
-                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-center h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)]">
-                    <h3 class="font-extrabold text-[32px] text-[#3B82F6] leading-none mb-2 counter" data-target="{{ $myStudentsCount ?? ($myStudents ? $myStudents->count() : 0) }}">0</h3>
-                    <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">My Students</p>
+                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[105px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] active:scale-[0.98]">
+                    <h3 class="font-extrabold text-[26px] sm:text-[32px] text-[#3B82F6] leading-none mb-1.5 sm:mb-2 counter" data-target="{{ $myStudentsCount ?? ($myStudents ? $myStudents->count() : 0) }}">0</h3>
+                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">My Students</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
                 <!-- Card 2: Logs This Week (Green Theme) -->
-                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-center h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)]">
-                    <h3 class="font-extrabold text-[32px] text-[#10B981] leading-none mb-2 counter" data-target="{{ $logsThisWeek ?? 0 }}">0</h3>
-                    <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Logs This Week</p>
+                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[105px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] active:scale-[0.98]">
+                    <h3 class="font-extrabold text-[26px] sm:text-[32px] text-[#10B981] leading-none mb-1.5 sm:mb-2 counter" data-target="{{ $logsThisWeek ?? 0 }}">0</h3>
+                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">Logs This Week</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
                 <!-- Card 3: Active IEP Goals (Purple Theme) -->
-                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-center h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)]">
-                    <h3 class="font-extrabold text-[32px] text-[#8B5CF6] leading-none mb-2 counter" data-target="{{ $activeGoals ?? 0 }}">0</h3>
-                    <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Active IEP Goals</p>
+                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[105px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] active:scale-[0.98]">
+                    <h3 class="font-extrabold text-[26px] sm:text-[32px] text-[#8B5CF6] leading-none mb-1.5 sm:mb-2 counter" data-target="{{ $activeGoals ?? 0 }}">0</h3>
+                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">Active IEP Goals</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
                 <!-- Card 4: Announcements Stat Card -->
-                <a href="{{ route('teacher.announcements') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-center relative overflow-hidden h-[120px] block">
+                <a href="{{ route('teacher.announcements') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6 flex flex-col justify-center relative overflow-hidden h-[105px] sm:h-[120px] block active:scale-[0.98]">
                     
                     @if(isset($newAnnouncementsCount) && $newAnnouncementsCount > 0)
-                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20">
+                        <div class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[20px] sm:min-w-[24px] z-20">
                             {{ $newAnnouncementsCount }}
                         </div>
                     @endif
 
-                    <h3 class="font-extrabold text-[32px] text-[#8B5CF6] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-none mb-2">
-                        <i class="fa-solid fa-bullhorn text-[28px]"></i>
+                    <h3 class="font-extrabold text-[24px] sm:text-[32px] text-[#8B5CF6] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-none mb-1.5 sm:mb-2">
+                        <i class="fa-solid fa-bullhorn text-[22px] sm:text-[28px]"></i>
                     </h3>
                     
-                    <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Announcements</p>
+                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">Announcements</p>
 
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
 
                 <!-- Card 5: Reports Due (Orange/Amber Theme) -->
                 @php $hasReports = ($reportsDue ?? 0) > 0; @endphp
-                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-center h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 {{ $hasReports ? 'hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)]' : 'hover:border-black/30 hover:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.15)]' }}">
-                    <h3 class="font-extrabold text-[32px] {{ $hasReports ? 'text-[#F59E0B]' : 'text-[#D1D5DB]' }} leading-none mb-2 counter" data-target="{{ $reportsDue ?? 0 }}">0</h3>
-                    <p class="text-[#9CA0AF] text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Reports Due</p>
+                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[105px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 {{ $hasReports ? 'hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)]' : 'hover:border-black/30 hover:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.15)]' }} active:scale-[0.98]">
+                    <h3 class="font-extrabold text-[26px] sm:text-[32px] {{ $hasReports ? 'text-[#F59E0B]' : 'text-[#D1D5DB]' }} leading-none mb-1.5 sm:mb-2 counter" data-target="{{ $reportsDue ?? 0 }}">0</h3>
+                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">Reports Due</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 {{ $hasReports ? 'bg-[#F59E0B]' : 'bg-[#D1D5DB]' }} transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
@@ -74,18 +74,18 @@
 
         <!-- 3. SYSTEM MODULES -->
         <section>
-            <div class="flex items-center gap-4 mb-6">
+            <div class="flex items-center gap-4 mb-4 sm:mb-6">
                 <span class="h-px w-8 bg-[#5B8DEF]/50"></span>
                 <h2 class="text-[11px] font-extrabold text-[#5B8DEF] uppercase tracking-widest">System Modules</h2>
                 <span class="h-px flex-1 bg-black/10"></span>
             </div>
 
             <!-- TEACHER MODULES -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-full">
                 
                 <!-- My Students -->
-                <a href="{{ route('teacher.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    <div class="w-9 h-9 rounded-full bg-[#3B82F6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#3B82F6] relative z-10">
+                <a href="{{ route('teacher.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden active:scale-[0.98]">
+                    <div class="w-9 h-9 rounded-full bg-[#3B82F6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#3B82F6] relative z-10 shrink-0">
                         <i class="fa-solid fa-users text-[#3B82F6] text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
@@ -96,7 +96,7 @@
                 </a>
                 
                 <!-- IEP Goals (Updated with Notification Badge) -->
-                <a href="{{ route('teacher.iep-goals.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                <a href="{{ route('teacher.iep-goals.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden active:scale-[0.98]">
                     
                     @if(isset($unreadIepCommentsCount) && $unreadIepCommentsCount > 0)
                         <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20 animate-pulse">

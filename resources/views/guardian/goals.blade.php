@@ -222,7 +222,7 @@
                                 </h6>
                                 
                                 <span x-show="goalUnread" x-transition class="text-[9px] font-extrabold text-red-500 uppercase tracking-widest">
-                                    Hover here to clear notification
+                                    Tap or hover here to clear
                                 </span>
                             </div>
 

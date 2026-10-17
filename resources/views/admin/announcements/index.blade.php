@@ -3,9 +3,9 @@
 @section('content')
 <div class="container mx-auto mt-10 max-w-5xl">
     
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <h2 class="text-2xl font-bold text-[#1E2657]">Manage Announcements</h2>
-        <button type="button" onclick="openModal('createModal')" class="bg-[#4F46E5] hover:bg-[#4338ca] text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+        <button type="button" onclick="openModal('createModal')" class="bg-[#4F46E5] hover:bg-[#4338ca] text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-colors flex items-center gap-2 text-sm w-full sm:w-auto justify-center active:scale-95">
             <i class="fa-solid fa-plus"></i> Post New Announcement
         </button>
     </div>
@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm">

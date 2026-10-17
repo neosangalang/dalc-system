@@ -15,23 +15,23 @@
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 md:space-y-10">
 
         <!-- WELCOME HEADER & PILL STUDENT SELECTOR -->
-        <header class="flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div class="flex flex-col gap-2">
-                <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-1 block">Guardian Portal</span>
-                <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h1>
-                <p class="text-[#6B7086] text-sm font-medium leading-relaxed">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
+        <header class="flex flex-col md:flex-row md:items-start justify-between gap-4 sm:gap-6">
+            <div class="flex flex-col gap-1 sm:gap-2">
+                <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-0.5 sm:mb-1 block">Guardian Portal</span>
+                <h1 class="text-[#1E2657] text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-1 sm:mb-2">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h1>
+                <p class="text-[#6B7086] text-[13px] sm:text-sm font-medium leading-relaxed m-0">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
             </div>
 
             <!-- Sleek Pill Student Selector -->
             @if($myChildren->count() > 0 && $activeChild)
-                <div x-data="{ switchOpen: false }" class="relative z-40 self-start md:self-auto shrink-0 w-full md:w-auto mt-2 md:mt-0">
+                <div x-data="{ switchOpen: false }" class="relative z-40 self-start md:self-auto shrink-0 w-full md:w-auto mt-1 md:mt-0">
                     <button @click="switchOpen = !switchOpen" @click.away="switchOpen = false" 
-                            class="flex items-center justify-between md:justify-start gap-2.5 px-5 py-3 md:py-2 w-full md:w-auto bg-white border border-black/10 rounded-full hover:border-[#6366F1]/50 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]">
+                            class="flex items-center justify-between md:justify-start gap-2.5 px-4 sm:px-5 py-2.5 sm:py-2 w-full md:w-auto bg-white border border-black/10 rounded-full hover:border-[#6366F1]/50 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1] active:scale-95 shadow-xs">
                         <div class="flex items-center gap-2.5">
                             <div class="bg-[#6366F1] text-white rounded-full flex items-center justify-center w-[24px] h-[24px] text-[10px] shadow-sm">
                                 <i class="fa-solid fa-user"></i>
                             </div>
-                            <span class="text-[14px] font-extrabold text-[#6366F1]">Viewing: {{ $activeChild->first_name }}</span>
+                            <span class="text-[13px] sm:text-[14px] font-extrabold text-[#6366F1]">Viewing: {{ $activeChild->first_name }}</span>
                         </div>
                         <i class="fa-solid fa-angle-down text-[#6366F1] text-[12px] ml-1 transition-transform duration-300" :class="{'rotate-180': switchOpen}"></i>
                     </button>
@@ -46,13 +46,13 @@
                             @foreach($myChildren as $child)
                                 @if($activeChild->id === $child->id)
                                     <!-- Active Student State -->
-                                    <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center justify-between px-4 py-3.5 bg-[#6366F1] text-white text-[13px] font-extrabold cursor-default pointer-events-none">
+                                    <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center justify-between px-4 py-3 bg-[#6366F1] text-white text-[13px] font-extrabold cursor-default pointer-events-none">
                                         <span>{{ $child->first_name }} {{ $child->last_name }}</span>
                                         <i class="fa-solid fa-check text-[13px]"></i>
                                     </a>
                                 @else
                                     <!-- Inactive Student State -->
-                                    <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center justify-between px-4 py-3.5 text-[#6B7086] text-[13px] font-extrabold hover:bg-slate-50 hover:text-[#1E2657] transition-colors">
+                                    <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center justify-between px-4 py-3 text-[#6B7086] text-[13px] font-extrabold hover:bg-slate-50 hover:text-[#1E2657] transition-colors">
                                         <span>{{ $child->first_name }} {{ $child->last_name }}</span>
                                     </a>
                                 @endif
@@ -65,7 +65,7 @@
 
         <!-- ALERTS -->
         @if(session('success'))
-            <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
+            <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
                 <div class="flex items-center">
                     <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
                     <span class="font-extrabold text-sm">{{ session('success') }}</span>
@@ -77,7 +77,7 @@
         @endif
 
         @if(session('error'))
-            <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
+            <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-rose-50 border border-rose-200 text-rose-800 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
                 <div class="flex items-center">
                     <i class="fa fa-exclamation-triangle mr-3 text-rose-500 text-lg"></i>
                     <span class="font-extrabold text-sm">{{ session('error') }}</span>
@@ -90,59 +90,59 @@
 
         <!-- PORTAL QUICK LINKS (2x2 Grid) -->
         <section x-data="{ unreadAnnouncements: {{ $newAnnouncementsCount }} }">
-            <div class="grid grid-cols-2 gap-4 md:gap-5 w-full">
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 w-full">
                 
                 <!-- Learning Goals -->
-                <a href="{{ route('guardian.goals') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:-translate-y-1 transition-all duration-300 p-5 sm:p-6 flex flex-col items-start gap-4 relative overflow-hidden h-full">
+                <a href="{{ route('guardian.goals') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 relative overflow-hidden h-full active:scale-[0.98]">
                     
                     <!-- Notification Badge for IEP Comments -->
                     @if(isset($unreadIepCommentsCount) && $unreadIepCommentsCount > 0)
-                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center min-w-[24px] z-20 animate-pulse">
+                        <div class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center min-w-[20px] sm:min-w-[24px] z-20 animate-pulse">
                             {{ $unreadIepCommentsCount }}
                         </div>
                     @endif
 
-                    <div class="w-12 h-12 sm:w-10 sm:h-10 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white relative z-10">
-                        <i class="fa-solid fa-bullseye text-[18px] sm:text-[16px]"></i>
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white relative z-10 shrink-0">
+                        <i class="fa-solid fa-bullseye text-[16px] sm:text-[18px]"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[17px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300">IEP Goals</h3>
-                        <p class="text-[13px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">{{ isset($activeGoals) ? $activeGoals->count() : 0 }} tracking.</p>
+                        <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-tight">IEP Goals</h3>
+                        <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">{{ isset($activeGoals) ? $activeGoals->count() : 0 }} tracking.</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
 
                 <!-- School Reports Dropdown -->
                 <div x-data="{ open: false }" class="relative w-full h-full">
-                    <button @click="open = !open" @click.away="open = false" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:-translate-y-1 transition-all duration-300 p-5 sm:p-6 flex flex-col items-start gap-4 w-full text-left h-full focus-visible:outline-none relative overflow-hidden">
-                        <div class="w-12 h-12 sm:w-10 sm:h-10 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] transition-colors duration-300 group-hover:bg-[#3B82F6] group-hover:text-white relative z-10">
-                            <i class="fa-solid fa-file-signature text-[18px] sm:text-[16px]"></i>
+                    <button @click="open = !open" @click.away="open = false" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 w-full text-left h-full focus-visible:outline-none relative overflow-hidden active:scale-[0.98]">
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] transition-colors duration-300 group-hover:bg-[#3B82F6] group-hover:text-white relative z-10 shrink-0">
+                            <i class="fa-solid fa-file-signature text-[16px] sm:text-[18px]"></i>
                         </div>
                         <div class="flex-1 w-full relative z-10">
-                            <h3 class="text-[17px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#3B82F6] transition-colors duration-300 flex justify-between items-center w-full">
+                            <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#3B82F6] transition-colors duration-300 flex justify-between items-center w-full leading-tight">
                                  Reports 
-                                <i class="fa-solid fa-caret-down text-[14px] sm:text-[12px] text-[#9CA0AF] transition-transform duration-300" :class="{'rotate-180': open}"></i>
+                                <i class="fa-solid fa-caret-down text-[12px] sm:text-[12px] text-[#9CA0AF] transition-transform duration-300" :class="{'rotate-180': open}"></i>
                             </h3>
-                            <p class="text-[13px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Official evaluations.</p>
+                            <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Official evaluations.</p>
                         </div>
                         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                     </button>
-                    <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-white border border-black/15 shadow-xl rounded-2xl z-[60] p-3 text-left overflow-hidden">
-                        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 1 <i class="fa-solid fa-angle-right opacity-50"></i></a>
-                        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
-                        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
-                        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block px-4 py-3.5 sm:py-2.5 text-[14px] sm:text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 4 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                    <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-white border border-black/15 shadow-xl rounded-2xl z-[60] p-2 sm:p-3 text-left overflow-hidden">
+                        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 1 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 4 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                     </div>
                 </div>
 
                 <!-- Daily Reports & Home Activities -->
-                <a href="{{ route('guardian.recommendations') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:-translate-y-1 transition-all duration-300 p-5 sm:p-6 flex flex-col items-start gap-4 relative overflow-hidden h-full">
-                    <div class="w-12 h-12 sm:w-10 sm:h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] transition-colors duration-300 group-hover:bg-[#10B981] group-hover:text-white relative z-10">
-                        <i class="fa-solid fa-book-open-reader text-[18px] sm:text-[16px]"></i>
+                <a href="{{ route('guardian.recommendations') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 relative overflow-hidden h-full active:scale-[0.98]">
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] transition-colors duration-300 group-hover:bg-[#10B981] group-hover:text-white relative z-10 shrink-0">
+                        <i class="fa-solid fa-book-open-reader text-[16px] sm:text-[18px]"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[17px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300">Daily Reports & Home Recommendation</h3>
-                        <p class="text-[13px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Reports & home activities.</p>
+                        <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300 leading-tight">Daily Activity</h3>
+                        <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Home activities.</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
@@ -150,18 +150,18 @@
                 <!-- Announcements Module Card -->
                 <a href="{{ route('guardian.announcements.index') }}" 
                    @click="unreadAnnouncements = 0; fetch('{{ route('guardian.announcements.mark-seen') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' } })"
-                   class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:-translate-y-1 transition-all duration-300 p-5 sm:p-6 flex flex-col items-start gap-4 relative overflow-hidden h-full">
+                   class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 relative overflow-hidden h-full active:scale-[0.98]">
                     
-                    <div x-show="unreadAnnouncements > 0" class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center min-w-[24px] z-20">
+                    <div x-show="unreadAnnouncements > 0" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center min-w-[20px] sm:min-w-[24px] z-20">
                         <span x-text="unreadAnnouncements"></span>
                     </div>
 
-                    <div class="w-12 h-12 sm:w-10 sm:h-10 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white relative z-10">
-                        <i class="fa-solid fa-bullhorn text-[18px] sm:text-[16px]"></i>
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white relative z-10 shrink-0">
+                        <i class="fa-solid fa-bullhorn text-[16px] sm:text-[18px]"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[17px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300">Announcement</h3>
-                        <p class="text-[13px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 mt-1">Center alerts.</p>
+                        <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-tight">Announcements</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 mt-1">Center alerts.</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>

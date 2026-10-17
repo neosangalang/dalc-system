@@ -56,13 +56,13 @@
         <div class="bg-[#F4F6FA] p-1.5 rounded-2xl flex w-full sm:w-auto shadow-sm border border-black/5">
             <button @click="activeTab = 'create'" 
                     :class="activeTab === 'create' ? 'bg-white text-[#3B82F6] shadow-sm border border-black/5' : 'text-[#6B7086] hover:text-[#1E2657]'" 
-                    class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
-                <i class="fa fa-pen mr-2"></i> Create Observation
+                    class="flex-1 sm:flex-none px-3.5 sm:px-6 py-2.5 rounded-xl font-extrabold text-[12px] sm:text-[13px] transition-all flex items-center justify-center active:scale-95 text-center">
+                <i class="fa fa-pen mr-1.5 sm:mr-2"></i> Observation
             </button>
             <button @click="activeTab = 'history'; if(typeof window.syncStudentFilter === 'function') window.syncStudentFilter();" 
                     :class="activeTab === 'history' ? 'bg-white text-[#3B82F6] shadow-sm border border-black/5' : 'text-[#6B7086] hover:text-[#1E2657]'" 
-                    class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-[13px] transition-all flex items-center justify-center">
-                <i class="fa fa-file-contract mr-2"></i> Formal Documentation List
+                    class="flex-1 sm:flex-none px-3.5 sm:px-6 py-2.5 rounded-xl font-extrabold text-[12px] sm:text-[13px] transition-all flex items-center justify-center active:scale-95 text-center">
+                <i class="fa fa-file-contract mr-1.5 sm:mr-2"></i> Documentation
             </button>
         </div>
     </div>
@@ -74,13 +74,13 @@
     <!-- TAB 1: CREATE NEW LOG FORM -->
     <div x-show="activeTab === 'create'" x-transition.opacity.duration.300ms class="w-full">
         <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden">
-            <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA]">
+            <div class="px-4 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA]">
                 <h6 class="text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
                     <i class="fa fa-plus-circle text-[#3B82F6] mr-2"></i> Create Observation Entry
                 </h6>
             </div>
             
-            <div class="p-5 sm:p-8">
+            <div class="p-4 sm:p-8">
                 <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" class="m-0 space-y-6">
                     @csrf
                     

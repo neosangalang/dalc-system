@@ -52,15 +52,13 @@
     </div>
 
     <!-- NAVIGATION TABS -->
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-slate-200 pb-3 mb-6 sm:mb-8">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('guardian.recommendations') }}" class="px-4 py-2 rounded-xl text-[13px] font-extrabold bg-emerald-600 text-white shadow-sm flex items-center gap-2">
-                <i class="fa-solid fa-sparkles text-amber-300"></i> Today's Active Session
-            </a>
-            <a href="{{ route('guardian.logs.archive') }}" class="px-4 py-2 rounded-xl text-[13px] font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-100 transition-all flex items-center gap-2">
-                <i class="fa-solid fa-box-archive text-slate-400"></i> Archive & History ({{ $archivedCount ?? 0 }})
-            </a>
-        </div>
+    <div class="flex items-center gap-2 border-b-2 border-slate-200 pb-3 mb-6 sm:mb-8 overflow-x-auto custom-scrollbar">
+        <a href="{{ route('guardian.recommendations') }}" class="px-3.5 sm:px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-extrabold bg-emerald-600 text-white shadow-sm flex items-center gap-2 shrink-0 active:scale-95">
+            <i class="fa-solid fa-sparkles text-amber-300"></i> Today's Active Session
+        </a>
+        <a href="{{ route('guardian.logs.archive') }}" class="px-3.5 sm:px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-100 transition-all flex items-center gap-2 shrink-0 active:scale-95">
+            <i class="fa-solid fa-box-archive text-slate-400"></i> Archive & History ({{ $archivedCount ?? 0 }})
+        </a>
     </div>
 
     @if(isset($activeChild))
