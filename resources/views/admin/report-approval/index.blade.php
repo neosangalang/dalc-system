@@ -32,33 +32,33 @@
     @endif
 
     <!-- FILTER SECTION -->
-    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden mb-6">
-        <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA]">
+    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden mb-4 sm:mb-6">
+        <div class="hidden sm:block px-5 sm:px-6 py-3.5 border-b border-black/10 bg-[#F4F6FA]">
             <h6 class="text-[13px] sm:text-sm font-extrabold text-[#1E2657] m-0 flex items-center">
                 <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Filter Pending Reports
             </h6>
         </div>
-        <div class="p-5 sm:p-6">
+        <div class="p-3 sm:p-5">
             <form action="{{ route('admin.report-approval.index') }}" method="GET" class="m-0">
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-end">
                     
-                    <div class="md:col-span-5">
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                    <div class="sm:col-span-5">
+                        <label class="hidden sm:flex text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 items-center">
                             <i class="fa fa-search mr-1.5 text-[#9CA0AF]"></i> Search Keyword
                         </label>
                         <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
-                                <i class="fa fa-font"></i>
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
+                                <i class="fa fa-search text-xs"></i>
                             </span>
-                            <input type="text" name="search" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search student or teacher..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="w-full border-0 py-1.5 sm:py-2.5 pl-8 sm:pl-10 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search student or teacher..." value="{{ request('search') }}">
                         </div>
                     </div>
 
-                    <div class="md:col-span-4">
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                    <div class="sm:col-span-4">
+                        <label class="hidden sm:flex text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 items-center">
                             <i class="fa fa-file-alt mr-1.5 text-[#9CA0AF]"></i> Report Type
                         </label>
-                        <select name="type" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                        <select name="type" class="w-full rounded-xl border-black/15 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                             <option value="">All Report Types</option>
                             <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily Report</option>
                             <option value="q1" {{ request('type') == 'q1' ? 'selected' : '' }}>1st Quarter (Q1) Report</option>
@@ -70,13 +70,13 @@
                         </select>
                     </div>
 
-                    <div class="md:col-span-3 flex gap-2 w-full mt-2 md:mt-0">
-                        <button type="submit" class="flex-1 inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
-                            Filter
+                    <div class="sm:col-span-3 flex gap-2 w-full mt-1 sm:mt-0">
+                        <button type="submit" class="flex-1 inline-flex justify-center items-center px-4 py-1.5 sm:py-2.5 bg-[#3B82F6] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 active:scale-95">
+                            <i class="fa fa-filter mr-1.5 sm:hidden"></i> Filter
                         </button>
                         
                         @if(request('search') || request('type'))
-                            <a href="{{ route('admin.report-approval.index') }}" title="Clear Filters" class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-rose-300 text-rose-500 text-sm font-bold rounded-xl hover:bg-rose-50 transition-colors shadow-sm decoration-transparent shrink-0">
+                            <a href="{{ route('admin.report-approval.index') }}" title="Clear Filters" class="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white border border-rose-300 text-rose-500 text-xs sm:text-sm font-bold rounded-xl hover:bg-rose-50 transition-colors shadow-sm decoration-transparent shrink-0 active:scale-95">
                                 <i class="fa fa-times"></i>
                             </a>
                         @endif
@@ -89,10 +89,10 @@
 
     <!-- TABLE SECTION -->
     <div class="bg-transparent md:bg-white md:rounded-2xl md:shadow-sm md:border border-black/15 overflow-hidden">
-        <div class="p-5 sm:p-6 border-b border-black/10 flex items-center bg-white rounded-2xl md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
-            <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
-                <div class="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] mr-3 shrink-0">
-                    <i class="fa fa-file-circle-check"></i>
+        <div class="p-3.5 sm:p-6 border-b border-black/10 flex items-center bg-white rounded-2xl md:rounded-none shadow-sm md:shadow-none mb-3 md:mb-0">
+            <h3 class="text-sm sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] mr-2.5 sm:mr-3 shrink-0">
+                    <i class="fa fa-file-circle-check text-xs sm:text-base"></i>
                 </div>
                 Pending Reports for Approval
             </h3>

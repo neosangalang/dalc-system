@@ -5,8 +5,9 @@
 @section('content')
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div class="w-full max-w-[1200px] mx-auto space-y-8" x-data="{ 
+<div class="w-full max-w-[1200px] mx-auto space-y-4 sm:space-y-8" x-data="{ 
     activeTab: '{{ Auth::user()->role === 'teacher' ? 'guardians' : (old('role') === 'guardian' ? 'guardians' : 'teachers') }}',
+    teacherSearch: '',
     guardianSearch: '', 
     showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher') ? 'true' : 'false' }},
     showCreateGuardianModal: {{ ($errors->any() && !old('_method') && old('role') === 'guardian') ? 'true' : 'false' }}
@@ -29,11 +30,11 @@
     
     @if(Auth::user()->role === 'admin')
     <!-- ACCOUNT ROLE TABS SWITCHER -->
-    <div class="flex items-center gap-3 bg-white p-2 rounded-2xl border border-black/15 shadow-sm mb-6">
+    <div class="flex items-center gap-2 sm:gap-3 bg-white p-1.5 sm:p-2 rounded-2xl border border-black/15 shadow-sm mb-4 sm:mb-6">
         <button type="button" @click="activeTab = 'teachers'"
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
-            <i class="fa fa-chalkboard-teacher text-sm"></i>
+                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95">
+            <i class="fa fa-chalkboard-teacher text-xs sm:text-sm"></i>
             Teacher Accounts
             <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
                 {{ $users->where('role', 'teacher')->count() }}
@@ -42,8 +43,8 @@
         
         <button type="button" @click="activeTab = 'guardians'"
                 :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-3 px-5 rounded-xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer">
-            <i class="fa fa-user-shield text-sm"></i>
+                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95">
+            <i class="fa fa-user-shield text-xs sm:text-sm"></i>
             Guardian Accounts
             <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
                 {{ $users->where('role', 'guardian')->count() }}
@@ -58,18 +59,28 @@
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
-        <div class="px-5 sm:px-6 py-5 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4 sm:gap-0">
-            <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
-                <div class="w-10 h-10 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] mr-3 shadow-sm border border-[#3B82F6]/20">
-                    <i class="fa fa-chalkboard-teacher"></i>
+        <div class="px-3.5 sm:px-6 py-3.5 sm:py-5 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-2.5 sm:gap-0">
+            <h3 class="text-sm sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] mr-2.5 sm:mr-3 shadow-sm border border-[#3B82F6]/20 shrink-0">
+                    <i class="fa fa-chalkboard-teacher text-xs sm:text-base"></i>
                 </div>
                 Teacher Accounts
             </h3>
             @if(Auth::user()->role === 'admin')
-            <button type="button" @click="showCreateTeacherModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 cursor-pointer">
-                <i class="fa fa-plus mr-2"></i> Generate Teacher Account
+            <button type="button" @click="showCreateTeacherModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-[#3B82F6] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 cursor-pointer active:scale-95">
+                <i class="fa fa-plus mr-1.5 sm:mr-2"></i> Generate Account
             </button>
             @endif
+        </div>
+
+        <!-- Live Search Bar -->
+        <div class="px-3.5 sm:px-6 py-2 bg-[#F8F9FD] border-b border-black/10">
+            <div class="relative w-full max-w-sm shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 text-[#9CA0AF] pointer-events-none">
+                    <i class="fa fa-search text-xs"></i>
+                </span>
+                <input type="text" x-model="teacherSearch" class="w-full border-0 py-1.5 pl-8 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search teacher accounts...">
+            </div>
         </div>
         
         <div class="w-full overflow-x-auto">
@@ -87,7 +98,7 @@
                     @forelse($users->where('role', 'teacher') as $user)
                         
                         <!-- ROW -->
-                        <tr x-data="{ showEditInfoModal: false, showResetModal: false, showPermModal: false }" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
+                        <tr x-data="{ showEditInfoModal: false, showResetModal: false, showPermModal: false }" x-show="teacherSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username)) }}'.includes(teacherSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
                             
                             <!-- 1. Avatar, Name & Username -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6 align-middle">
@@ -387,21 +398,31 @@
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
-        <div class="px-5 sm:px-6 py-5 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-4 sm:gap-0">
+        <div class="px-3.5 sm:px-6 py-3.5 sm:py-5 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-2.5 sm:gap-0">
             <div>
-                <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
-                    <div class="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] mr-3 shadow-sm border border-[#10B981]/20 shrink-0">
-                        <i class="fa fa-user-shield"></i>
+                <h3 class="text-sm sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] mr-2.5 sm:mr-3 shadow-sm border border-[#10B981]/20 shrink-0">
+                        <i class="fa fa-user-shield text-xs sm:text-base"></i>
                     </div>
                     Guardian Accounts
                 </h3>
-                <p class="text-[12px] font-medium text-[#9CA0AF] mt-1 sm:ml-[52px] leading-tight">Guardians can only view profiles and leave feedback.</p>
+                <p class="hidden sm:block text-[12px] font-medium text-[#9CA0AF] mt-1 sm:ml-[52px] leading-tight">Guardians can only view profiles and leave feedback.</p>
             </div>
             @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
-            <button @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer">
-                <i class="fa fa-plus mr-2"></i> Generate Guardian Account
+            <button @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-[#10B981] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer active:scale-95">
+                <i class="fa fa-plus mr-1.5 sm:mr-2"></i> Generate Account
             </button>
             @endif
+        </div>
+
+        <!-- Live Search Bar -->
+        <div class="px-3.5 sm:px-6 py-2 bg-[#F8F9FD] border-b border-black/10">
+            <div class="relative w-full max-w-sm shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#10B981] focus-within:ring-1 focus-within:ring-[#10B981] transition-all">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 text-[#9CA0AF] pointer-events-none">
+                    <i class="fa fa-search text-xs"></i>
+                </span>
+                <input type="text" x-model="guardianSearch" class="w-full border-0 py-1.5 pl-8 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search guardian accounts...">
+            </div>
         </div>
         
         <div class="w-full overflow-x-auto">

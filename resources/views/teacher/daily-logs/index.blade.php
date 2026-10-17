@@ -163,16 +163,16 @@
     <div x-show="activeTab === 'history'" x-transition.opacity.duration.300ms x-cloak class="w-full">
         
         <!-- FILTER BAR WITH SORTING OPTIONS -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-black/15 mb-6 space-y-3">
-            <h6 class="text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
-                <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Formal Documentation Filter & Search
+        <div class="bg-white p-3 sm:p-5 rounded-2xl shadow-sm border border-black/15 mb-4 sm:mb-6 space-y-2 sm:space-y-3">
+            <h6 class="text-xs sm:text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
+                <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Documentation Filters & Search
             </h6>
             
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div class="grid grid-cols-2 sm:grid-cols-12 gap-2 sm:gap-3">
                 <!-- Student Filter -->
-                <div class="sm:col-span-3">
-                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Student</label>
-                    <select id="filterStudent" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                <div class="col-span-2 sm:col-span-3">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Filter by Student</label>
+                    <select id="filterStudent" class="w-full rounded-xl border-black/15 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
                         <option value="all">All Assigned Students</option>
                         @foreach($myStudents as $student)
                             <option value="{{ $student->id }}" {{ $selectedStudentId == $student->id ? 'selected' : '' }}>
@@ -183,15 +183,15 @@
                 </div>
 
                 <!-- Date Filter -->
-                <div class="sm:col-span-3">
-                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Date</label>
-                    <input type="date" id="filterDate" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                <div class="col-span-1 sm:col-span-3">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Date</label>
+                    <input type="date" id="filterDate" class="w-full rounded-xl border-black/15 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
                 </div>
 
                 <!-- Quarter Filter -->
-                <div class="sm:col-span-2">
-                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Filter by Quarter</label>
-                    <select id="filterQuarter" class="w-full rounded-xl border-black/15 px-3 py-2 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                <div class="col-span-1 sm:col-span-2">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Quarter</label>
+                    <select id="filterQuarter" class="w-full rounded-xl border-black/15 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
                         <option value="all">All Quarters</option>
                         <option value="Q1">Q1</option>
                         <option value="Q2">Q2</option>
@@ -201,13 +201,13 @@
                 </div>
 
                 <!-- Search Input -->
-                <div class="sm:col-span-4">
-                    <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1">Search Keywords</label>
+                <div class="col-span-2 sm:col-span-4">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Search Keywords</label>
                     <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 sm:pl-3 text-[#9CA0AF] pointer-events-none">
                             <i class="fa fa-search text-xs"></i>
                         </span>
-                        <input type="text" id="logSearch" class="w-full border-0 py-2 pl-9 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search documentation content...">
+                        <input type="text" id="logSearch" class="w-full border-0 py-1.5 sm:py-2 pl-8 sm:pl-9 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search documentation content...">
                     </div>
                 </div>
             </div>

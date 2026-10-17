@@ -24,33 +24,33 @@
     @endif
 
     <!-- FILTER SECTION -->
-    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden mb-8">
-        <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA]">
+    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden mb-4 sm:mb-6">
+        <div class="hidden sm:block px-5 sm:px-6 py-3.5 border-b border-black/10 bg-[#F4F6FA]">
             <h6 class="text-[13px] sm:text-sm font-extrabold text-[#1E2657] m-0 flex items-center">
                 <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Filter Reports
             </h6>
         </div>
-        <div class="p-5 sm:p-6">
+        <div class="p-3 sm:p-5">
             <form action="{{ route('teacher.reports.index') }}" method="GET" class="m-0">
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-end">
                     
-                    <div class="md:col-span-4">
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                    <div class="sm:col-span-4">
+                        <label class="hidden sm:flex text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 items-center">
                             <i class="fa fa-search mr-1.5 text-[#9CA0AF]"></i> Search Keyword
                         </label>
                         <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
-                                <i class="fa fa-font"></i>
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
+                                <i class="fa fa-search text-xs"></i>
                             </span>
-                            <input type="text" name="search" class="w-full border-0 py-2.5 pl-10 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search name or type..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="w-full border-0 py-1.5 sm:py-2.5 pl-8 sm:pl-10 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search name or type..." value="{{ request('search') }}">
                         </div>
                     </div>
 
-                    <div class="md:col-span-3">
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                    <div class="sm:col-span-3">
+                        <label class="hidden sm:flex text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 items-center">
                             <i class="fa fa-user-graduate mr-1.5 text-[#9CA0AF]"></i> Specific Student
                         </label>
-                        <select name="student_id" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-[#F4F6FA]">
+                        <select name="student_id" class="w-full rounded-xl border-black/15 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-[#F4F6FA]">
                             <option value="">All My Students</option>
                             @if(isset($myStudents))
                                 @foreach($myStudents as $student)
@@ -62,11 +62,11 @@
                         </select>
                     </div>
 
-                    <div class="md:col-span-3">
-                        <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 flex items-center">
+                    <div class="sm:col-span-3">
+                        <label class="hidden sm:flex text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5 items-center">
                             <i class="fa fa-file-alt mr-1.5 text-[#9CA0AF]"></i> Report Type
                         </label>
-                        <select name="type" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                        <select name="type" class="w-full rounded-xl border-black/15 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                             <option value="">All Types</option>
                             <option value="daily" {{ request('type') == 'daily' ? 'selected' : '' }}>Daily</option>
                             <option value="quarterly" {{ request('type') == 'quarterly' ? 'selected' : '' }}>Quarterly</option>
@@ -74,14 +74,14 @@
                         </select>
                     </div>
 
-                    <!-- Full width button group on mobile, compact on PC -->
-                    <div class="md:col-span-2 flex gap-2 w-full mt-2 md:mt-0">
-                        <button type="submit" class="flex-1 md:w-full inline-flex justify-center items-center px-4 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
-                            Filter
+                    <!-- Button group -->
+                    <div class="sm:col-span-2 flex gap-2 w-full mt-1 sm:mt-0">
+                        <button type="submit" class="flex-1 md:w-full inline-flex justify-center items-center px-4 py-1.5 sm:py-2.5 bg-[#3B82F6] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 active:scale-95">
+                            <i class="fa fa-filter mr-1.5 sm:hidden"></i> Filter
                         </button>
                         
                         @if(request('search') || request('student_id') || request('type'))
-                            <a href="{{ route('teacher.reports.index') }}" title="Clear Filters" class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-rose-300 text-rose-500 text-sm font-bold rounded-xl hover:bg-rose-50 transition-colors shadow-sm decoration-transparent shrink-0">
+                            <a href="{{ route('teacher.reports.index') }}" title="Clear Filters" class="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white border border-rose-300 text-rose-500 text-xs sm:text-sm font-bold rounded-xl hover:bg-rose-50 transition-colors shadow-sm decoration-transparent shrink-0 active:scale-95">
                                 <i class="fa fa-times"></i>
                             </a>
                         @endif
@@ -95,10 +95,10 @@
     <!-- REPORTS LIST -->
     <div class="bg-transparent md:bg-white md:rounded-2xl md:shadow-sm md:border border-black/15 overflow-hidden">
         
-        <div class="p-5 sm:px-6 py-5 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white rounded-2xl md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0 gap-4 sm:gap-0">
-            <h5 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
-                <div class="w-10 h-10 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6] mr-3 shadow-sm shrink-0">
-                    <i class="fa fa-file-signature"></i>
+        <div class="p-3.5 sm:px-6 py-3.5 sm:py-5 border-b border-black/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white rounded-2xl md:rounded-none shadow-sm md:shadow-none mb-3 md:mb-0 gap-3 sm:gap-0">
+            <h5 class="text-sm sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#3B82F6]/10 border border-[#3B82F6]/20 flex items-center justify-center text-[#3B82F6] mr-2.5 sm:mr-3 shadow-sm shrink-0">
+                    <i class="fa fa-file-signature text-xs sm:text-base"></i>
                 </div>
                 My Generated Reports
             </h5>

@@ -43,25 +43,15 @@
     </style>
 </head>
 
-<body x-data="{ mobileDrawerOpen: false }" class="font-['Nunito'] bg-gradient-to-br from-[#F4F1EA] via-[#EDF0F8] to-[#F4F1EA] text-[#2C2F45] antialiased min-h-screen bg-fixed overflow-x-hidden">
+<body class="font-['Nunito'] bg-gradient-to-br from-[#F4F1EA] via-[#EDF0F8] to-[#F4F1EA] text-[#2C2F45] antialiased min-h-screen bg-fixed overflow-x-hidden">
 
     <!-- ========================================== -->
     <!-- 1. TOP HEADER NAVIGATION                   -->
     <!-- ========================================== -->
     <header class="sticky top-0 z-50 h-16 bg-white/80 backdrop-blur-lg border-b border-[#1E2657]/20 flex items-center justify-between px-3 sm:px-6 lg:px-8 shadow-sm">
 
-        <!-- Logo, Brand & Mobile Menu Button -->
+        <!-- Logo & Brand -->
         <div class="flex items-center gap-2.5 sm:gap-6 min-w-0">
-            @if(Auth::check())
-                <!-- Mobile Hamburger Button -->
-                <button @click="mobileDrawerOpen = true" 
-                        type="button" 
-                        class="md:hidden relative w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-sm transition active:scale-95" 
-                        aria-label="Open Navigation Menu">
-                    <i class="fa-solid fa-bars text-sm"></i>
-                </button>
-            @endif
-
             <a href="{{ Auth::check() ? route(strtolower(Auth::user()->role) . '.dashboard') : route('home') }}" class="flex items-center gap-2.5 sm:gap-3 shrink-0 group decoration-transparent">
                 <div class="relative w-9 h-9 hidden sm:block">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E2657] to-[#12163A] flex items-center justify-center text-white font-black text-sm shadow-md group-hover:scale-105 transition-transform">DA</div>
@@ -169,229 +159,7 @@
         </div>
     </header>
 
-    <!-- ========================================== -->
-    <!-- MOBILE SLIDE-OUT DRAWER                   -->
-    <!-- ========================================== -->
-    @if(Auth::check())
-    @php
-        $authUser = Auth::user();
-        $authRole = strtolower($authUser->role ?? 'guardian');
-        $guardianChildren = ($authRole === 'guardian') ? ($authUser->children()->where('status', 'active')->get()) : collect();
-        $activeChildId = session('active_child_id', $guardianChildren->first()->id ?? null);
-        $activeChild = $guardianChildren->where('id', $activeChildId)->first() ?? $guardianChildren->first();
-    @endphp
-    
-    <div x-show="mobileDrawerOpen" 
-         x-cloak 
-         class="fixed inset-0 z-[120] md:hidden" 
-         role="dialog" 
-         aria-modal="true">
-        
-        <!-- Backdrop -->
-        <div x-show="mobileDrawerOpen" 
-             x-transition:enter="transition-opacity ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition-opacity ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             @click="mobileDrawerOpen = false" 
-             class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
 
-        <!-- Drawer Panel -->
-        <div x-show="mobileDrawerOpen" 
-             x-transition:enter="transition ease-out duration-300 transform"
-             x-transition:enter-start="-translate-x-full"
-             x-transition:enter-end="translate-x-0"
-             x-transition:leave="transition ease-in duration-200 transform"
-             x-transition:leave-start="translate-x-0"
-             x-transition:leave-end="-translate-x-full"
-             class="relative w-[85%] max-w-xs bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto custom-scrollbar z-10">
-            
-            <div class="p-5 flex flex-col gap-4">
-                <!-- Top Header & Close -->
-                <div class="flex items-center justify-between border-b border-[#E8E5DC] pb-3.5">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1E2657] to-[#12163A] flex items-center justify-center text-white font-black text-xs shadow-sm">DA</div>
-                        <div>
-                            <h2 class="text-[#1E2657] font-extrabold text-[14px] leading-tight m-0">Dream Achievers</h2>
-                            <span class="text-[#C4922E] font-bold text-[9px] uppercase tracking-widest block">Learning Center PH</span>
-                        </div>
-                    </div>
-                    <button @click="mobileDrawerOpen = false" type="button" class="w-8 h-8 rounded-lg bg-[#F0F3FA] text-[#6B7086] hover:text-[#1E2657] flex items-center justify-center text-sm transition" aria-label="Close Drawer">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <!-- User Profile Summary -->
-                <div class="bg-[#F8F9FD] border border-[#1E2657]/10 rounded-2xl p-3 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E2657] to-[#12163A] text-white flex items-center justify-center font-black text-sm shadow-sm shrink-0">
-                        {{ strtoupper(substr($authUser->name ?? 'U', 0, 1)) }}
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <span class="block text-[13px] font-extrabold text-[#1E2657] truncate leading-tight">{{ $authUser->name }}</span>
-                        <span class="inline-flex px-2 py-0.5 mt-1 text-[9px] font-extrabold rounded bg-[#C4922E]/10 text-[#C4922E] uppercase tracking-wider border border-[#C4922E]/20">
-                            {{ ucfirst($authRole) }} Portal
-                        </span>
-                    </div>
-                </div>
-
-                <!-- GUARDIAN ONLY: Child Switcher in Mobile Drawer -->
-                @if($authRole === 'guardian' && $guardianChildren->isNotEmpty())
-                    <div class="bg-indigo-50/60 border border-indigo-200/80 rounded-2xl p-3 flex flex-col gap-2">
-                        <span class="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest flex items-center justify-between">
-                            <span><i class="fa-solid fa-graduation-cap mr-1"></i> Student Selection</span>
-                            <span class="text-[9px] text-indigo-500 font-bold">({{ $guardianChildren->count() }} child{{ $guardianChildren->count() > 1 ? 'ren' : '' }})</span>
-                        </span>
-                        <div class="flex flex-col gap-1.5 mt-0.5">
-                            @foreach($guardianChildren as $child)
-                                @php $isCurrent = ($activeChild && $activeChild->id === $child->id); @endphp
-                                <a href="{{ route('guardian.switch-child', $child->id) }}" 
-                                   class="flex items-center justify-between px-3 py-2 rounded-xl text-[12px] font-extrabold transition-all {{ $isCurrent ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-white text-[#1E2657] hover:bg-white/80 border border-indigo-100' }}">
-                                    <span class="truncate">{{ $child->first_name }} {{ $child->last_name }}</span>
-                                    @if($isCurrent)
-                                        <i class="fa-solid fa-check text-[11px] shrink-0"></i>
-                                    @endif
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Navigation Links List -->
-                <nav class="flex flex-col gap-1 pt-1">
-                    <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest px-2 mb-1">Navigation Menu</span>
-                    
-                    @if($authRole === 'guardian')
-                        <a href="{{ route('guardian.dashboard') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('guardian.dashboard') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('guardian.dashboard') ? 'text-white' : 'text-[#3B82F6] bg-blue-50' }}"><i class="fa-solid fa-house"></i></div>
-                            <span>Dashboard Home</span>
-                        </a>
-
-                        <a href="{{ route('guardian.recommendations') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ (request()->routeIs('guardian.recommendations') || request()->routeIs('guardian.logs.archive')) ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ (request()->routeIs('guardian.recommendations') || request()->routeIs('guardian.logs.archive')) ? 'text-white' : 'text-[#10B981] bg-emerald-50' }}"><i class="fa-solid fa-book-open-reader"></i></div>
-                            <span>Daily Reports & Home</span>
-                        </a>
-
-                        <a href="{{ route('guardian.goals') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('guardian.goals*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('guardian.goals*') ? 'text-white' : 'text-[#8B5CF6] bg-purple-50' }}"><i class="fa-solid fa-bullseye"></i></div>
-                            <span>IEP Learning Goals</span>
-                        </a>
-
-                        <a href="{{ route('guardian.reports') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('guardian.reports*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('guardian.reports*') ? 'text-white' : 'text-[#3B82F6] bg-blue-50' }}"><i class="fa-solid fa-file-signature"></i></div>
-                            <span>Quarterly Reports</span>
-                        </a>
-
-                        <a href="{{ route('guardian.announcements.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('guardian.announcements*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('guardian.announcements*') ? 'text-white' : 'text-[#F59E0B] bg-amber-50' }}"><i class="fa-solid fa-bullhorn"></i></div>
-                            <span>Announcements</span>
-                        </a>
-                    @elseif($authRole === 'teacher')
-                        <a href="{{ route('teacher.dashboard') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('teacher.dashboard') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('teacher.dashboard') ? 'text-white' : 'text-[#3B82F6] bg-blue-50' }}"><i class="fa-solid fa-house"></i></div>
-                            <span>Dashboard Home</span>
-                        </a>
-
-                        <a href="{{ route('teacher.daily-logs.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('teacher.daily-logs*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('teacher.daily-logs*') ? 'text-white' : 'text-[#10B981] bg-emerald-50' }}"><i class="fa-solid fa-pencil"></i></div>
-                            <span>Daily Logging</span>
-                        </a>
-
-                        <a href="{{ route('teacher.iep-goals.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('teacher.iep-goals*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('teacher.iep-goals*') ? 'text-white' : 'text-[#8B5CF6] bg-purple-50' }}"><i class="fa-solid fa-bullseye"></i></div>
-                            <span>IEP Goals</span>
-                        </a>
-
-                        <a href="{{ route('teacher.reports.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('teacher.reports*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('teacher.reports*') ? 'text-white' : 'text-[#F59E0B] bg-amber-50' }}"><i class="fa-solid fa-file-lines"></i></div>
-                            <span>Student Reports</span>
-                        </a>
-
-                        <a href="{{ route('teacher.students.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('teacher.students*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('teacher.students*') ? 'text-white' : 'text-[#3B82F6] bg-blue-50' }}"><i class="fa-solid fa-users"></i></div>
-                            <span>My Students</span>
-                        </a>
-
-                        <a href="{{ route('teacher.announcements') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('teacher.announcements*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('teacher.announcements*') ? 'text-white' : 'text-[#8B5CF6] bg-purple-50' }}"><i class="fa-solid fa-bullhorn"></i></div>
-                            <span>Announcements</span>
-                        </a>
-                    @elseif($authRole === 'admin')
-                        <a href="{{ route('admin.dashboard') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('admin.dashboard') ? 'text-white' : 'text-[#3B82F6] bg-blue-50' }}"><i class="fa-solid fa-house"></i></div>
-                            <span>Dashboard Home</span>
-                        </a>
-
-                        <a href="{{ route('admin.students.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('admin.students*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('admin.students*') ? 'text-white' : 'text-[#3B82F6] bg-blue-50' }}"><i class="fa-solid fa-users"></i></div>
-                            <span>Student Profiles</span>
-                        </a>
-
-                        <a href="{{ route('admin.accounts.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('admin.accounts*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('admin.accounts*') ? 'text-white' : 'text-[#10B981] bg-emerald-50' }}"><i class="fa-solid fa-shield-halved"></i></div>
-                            <span>User Accounts</span>
-                        </a>
-
-                        <a href="{{ route('admin.report-approval.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('admin.report-approval*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('admin.report-approval*') ? 'text-white' : 'text-[#F59E0B] bg-amber-50' }}"><i class="fa-solid fa-file-circle-check"></i></div>
-                            <span>Report Approval</span>
-                        </a>
-
-                        <a href="{{ route('admin.announcements.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('admin.announcements*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('admin.announcements*') ? 'text-white' : 'text-[#8B5CF6] bg-purple-50' }}"><i class="fa-solid fa-bullhorn"></i></div>
-                            <span>Announcements</span>
-                        </a>
-
-                        <a href="{{ route('admin.quarters.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('admin.quarters*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('admin.quarters*') ? 'text-white' : 'text-[#3B82F6] bg-blue-50' }}"><i class="fa-solid fa-calendar-days"></i></div>
-                            <span>Academic Quarters</span>
-                        </a>
-
-                        <a href="{{ route('admin.archive.index') }}" 
-                           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-extrabold transition-colors {{ request()->routeIs('admin.archive*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center {{ request()->routeIs('admin.archive*') ? 'text-white' : 'text-[#6B7086] bg-slate-100' }}"><i class="fa-solid fa-box-archive"></i></div>
-                            <span>Student Archive</span>
-                        </a>
-                    @endif
-                </nav>
-            </div>
-
-            <!-- Drawer Footer (Settings & Logout) -->
-            <div class="p-4 border-t border-[#E8E5DC] bg-[#F8F9FD] flex flex-col gap-2">
-                <a href="{{ route('profile.security') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-extrabold text-[#6B7086] hover:text-[#1E2657] hover:bg-white transition">
-                    <i class="fa-solid fa-gear w-4 text-center"></i>
-                    <span>Security & Profile</span>
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="m-0">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-extrabold text-rose-600 hover:bg-rose-50 transition text-left cursor-pointer">
-                        <i class="fa-solid fa-sign-out-alt w-4 text-center"></i>
-                        <span>Log Out</span>
-                    </button>
-                </form>
-            </div>
-
-        </div>
-    </div>
-    @endif
 
     <!-- ========================================== -->
     <!-- 2. MAIN PAGE WRAPPER                       -->
@@ -561,13 +329,14 @@
                     <span class="text-[10px] font-extrabold mt-0.5 tracking-tight {{ $isApprovals ? 'text-[#F59E0B]' : 'text-[#6B7086]' }}">Approvals</span>
                 </a>
 
-                <!-- 5. More / Menu -->
-                <button type="button" @click="mobileDrawerOpen = true" class="flex flex-col items-center justify-center py-1 transition-colors text-[#6B7086] hover:text-[#1E2657] active:scale-95">
-                    <div class="relative flex items-center justify-center w-7 h-7 rounded-xl">
-                        <i class="fa-solid fa-bars text-[15px]"></i>
+                <!-- 5. Alerts / Announcements -->
+                @php $isAlerts = request()->routeIs('admin.announcements*'); @endphp
+                <a href="{{ route('admin.announcements.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isAlerts ? 'text-[#8B5CF6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                    <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isAlerts ? 'bg-[#8B5CF6]/10' : '' }}">
+                        <i class="fa-solid fa-bullhorn text-[15px]"></i>
                     </div>
-                    <span class="text-[10px] font-extrabold mt-0.5 tracking-tight text-[#6B7086]">More</span>
-                </button>
+                    <span class="text-[10px] font-extrabold mt-0.5 tracking-tight {{ $isAlerts ? 'text-[#8B5CF6]' : 'text-[#6B7086]' }}">Alerts</span>
+                </a>
             @endif
 
         </div>

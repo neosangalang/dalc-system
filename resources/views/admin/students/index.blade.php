@@ -32,45 +32,74 @@
     <div x-data="{ showCreateModal: false, showReEnrollModal: false }">
 
         <!-- HEADER SECTION -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E2657] tracking-tight m-0">Student Profiles</h1>
-                <p class="text-[13px] font-medium text-[#6B7086] mt-1 m-0">Manage all enrolled students, assignments, and medical records.</p>
+                <h1 class="text-xl sm:text-3xl font-extrabold text-[#1E2657] tracking-tight m-0">Student Profiles</h1>
+                <p class="text-xs sm:text-[13px] font-medium text-[#6B7086] mt-0.5 m-0">Manage all enrolled students, assignments, and medical records.</p>
             </div>
 
-            <div class="flex flex-wrap gap-2.5 w-full sm:w-auto">
-                <button @click="showReEnrollModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-all shadow-sm">
-                    <i class="fa fa-user-check mr-2"></i> Re-Enroll Student
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full sm:w-auto">
+                <button @click="showReEnrollModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-[#10B981] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-all shadow-sm active:scale-95">
+                    <i class="fa fa-user-check mr-1.5 sm:mr-2"></i> Re-Enroll
                 </button>
-                <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#4F46E5] text-white text-[13px] font-extrabold rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
-                    <i class="fa fa-user-plus mr-2"></i> Enroll Student
+                <button @click="showCreateModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-[#4F46E5] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-indigo-700 transition-all shadow-sm active:scale-95">
+                    <i class="fa fa-user-plus mr-1.5 sm:mr-2"></i> Enroll Student
                 </button>
             </div>
         </div>
 
         <!-- FILTERS -->
-        <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-5 mb-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end m-0">
-
-                <!-- Search -->
-                <div>
-                    <label class="block text-[11px] font-extrabold text-[#3B82F6] uppercase tracking-widest mb-1.5 flex items-center">
-                        <i class="fa fa-search mr-1.5"></i> Search Keyword
-                    </label>
-                    <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-[#9CA0AF] bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
-                            <i class="fa fa-font"></i>
-                        </span>
-                        <input type="text" id="filterSearchInput" class="w-full border-0 py-2 pl-9 pr-3 text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Name, ID, LRN...">
-                    </div>
+        <div x-data="{ 
+                showAdvanced: false, 
+                hasActiveFilters: false,
+                checkActive() {
+                    this.hasActiveFilters = Boolean(
+                        document.getElementById('filterClass')?.value || 
+                        document.getElementById('filterDiagnosis')?.value || 
+                        document.getElementById('filterTeacher')?.value || 
+                        document.getElementById('filterStatus')?.value
+                    );
+                }
+             }" 
+             class="bg-white border border-black/15 rounded-2xl shadow-sm p-3 sm:p-5 mb-4 sm:mb-6">
+            
+            <!-- Primary Search Row (Compact & Fast) -->
+            <div class="flex items-center gap-2">
+                <div class="flex-1 relative shadow-sm rounded-xl overflow-hidden border border-[#9CA0AF] bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 sm:pl-3 text-[#9CA0AF] pointer-events-none">
+                        <i class="fa fa-search text-xs"></i>
+                    </span>
+                    <input type="text" id="filterSearchInput" class="w-full border-0 py-1.5 sm:py-2 pl-8 sm:pl-9 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search student name, ID, LRN...">
                 </div>
+
+                <!-- Mobile Filter Drawer Toggle Button -->
+                <button type="button" 
+                        @click="showAdvanced = !showAdvanced" 
+                        class="md:hidden px-3 py-2 rounded-xl border border-black/15 bg-[#F4F6FA] text-[11px] font-extrabold text-[#1E2657] flex items-center gap-1.5 shrink-0 hover:bg-slate-200 active:scale-95 transition-all">
+                    <i class="fa-solid fa-sliders text-xs text-[#3B82F6]"></i>
+                    <span x-text="showAdvanced ? 'Hide' : 'Filters'">Filters</span>
+                    <span x-show="hasActiveFilters" x-cloak class="w-2 h-2 rounded-full bg-[#3B82F6]"></span>
+                </button>
+
+                <!-- Reset Button -->
+                <button type="button" 
+                        onclick="resetFilters()" 
+                        @click="hasActiveFilters = false; showAdvanced = false" 
+                        class="h-[34px] w-[34px] sm:h-[38px] sm:w-[38px] shrink-0 inline-flex items-center justify-center bg-[#F4F6FA] border border-black/10 text-[#6B7086] rounded-xl hover:bg-slate-200 hover:text-[#1E2657] transition-colors shadow-sm active:scale-95" 
+                        title="Reset Filters">
+                    <i class="fa fa-undo text-xs sm:text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Secondary Filters: Collapsible on Mobile, Grid on Desktop -->
+            <div :class="showAdvanced ? 'grid' : 'hidden md:grid'" class="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 pt-2.5 sm:pt-4 border-t border-black/10 mt-2.5 sm:mt-4">
 
                 <!-- Class -->
                 <div>
-                    <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
-                        <i class="fa fa-school mr-1.5 text-[#3B82F6]"></i> Filter by Class
+                    <label class="block text-[10px] sm:text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1 flex items-center">
+                        <i class="fa fa-school mr-1.5 text-[#3B82F6]"></i> Class
                     </label>
-                    <select id="filterClass" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                    <select id="filterClass" @change="checkActive()" class="w-full rounded-xl border border-[#9CA0AF] py-1.5 sm:py-2 px-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                         <option value="">All Classes</option>
                         <option value="Playgroup Morning (Love A)">Playgroup Morning (Love A)</option>
                         <option value="Playgroup Afternoon (Love B)">Playgroup Afternoon (Love B)</option>
@@ -86,10 +115,10 @@
 
                 <!-- Diagnosis -->
                 <div>
-                    <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
-                        <i class="fa fa-notes-medical mr-1.5 text-[#3B82F6]"></i> Filter by Diagnosis
+                    <label class="block text-[10px] sm:text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1 flex items-center">
+                        <i class="fa fa-notes-medical mr-1.5 text-[#3B82F6]"></i> Diagnosis
                     </label>
-                    <select id="filterDiagnosis" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                    <select id="filterDiagnosis" @change="checkActive()" class="w-full rounded-xl border border-[#9CA0AF] py-1.5 sm:py-2 px-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                         <option value="">All Diagnoses</option>
                         <option value="Autism Spectrum Disorder (ASD)">Autism Spectrum Disorder (ASD)</option>
                         <option value="Attention Deficit Hyperactivity Disorder (ADHD)">Attention Deficit Hyperactivity Disorder (ADHD)</option>
@@ -103,10 +132,10 @@
 
                 <!-- Teacher -->
                 <div>
-                    <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
-                        <i class="fa fa-chalkboard-teacher mr-1.5 text-[#3B82F6]"></i> Filter by Teacher
+                    <label class="block text-[10px] sm:text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1 flex items-center">
+                        <i class="fa fa-chalkboard-teacher mr-1.5 text-[#3B82F6]"></i> Teacher
                     </label>
-                    <select id="filterTeacher" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                    <select id="filterTeacher" @change="checkActive()" class="w-full rounded-xl border border-[#9CA0AF] py-1.5 sm:py-2 px-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                         <option value="">All Teachers</option>
                         @foreach($teachers ?? [] as $teacher)
                         <option value="{{ strtolower($teacher->name) }}">{{ $teacher->name }}</option>
@@ -114,22 +143,16 @@
                     </select>
                 </div>
 
-                <!-- Status & Reset -->
-                <div class="flex gap-2">
-                    <div class="flex-1">
-                        <label class="block text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5 flex items-center">
-                            <i class="fa fa-toggle-on mr-1.5 text-[#3B82F6]"></i> Status
-                        </label>
-                        <select id="filterStatus" class="w-full rounded-xl border border-[#9CA0AF] py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
-                            <option value="">All Statuses</option>
-                            <option value="active">Active</option>
-                            <option value="archived">Archived</option>
-                        </select>
-                    </div>
-
-                    <a href="javascript:void(0)" onclick="resetFilters()" class="mt-auto h-[38px] w-[38px] shrink-0 inline-flex items-center justify-center bg-[#F4F6FA] border border-black/10 text-[#6B7086] rounded-xl hover:bg-slate-200 hover:text-[#1E2657] transition-colors shadow-sm" title="Reset Filters">
-                        <i class="fa fa-undo"></i>
-                    </a>
+                <!-- Status -->
+                <div>
+                    <label class="block text-[10px] sm:text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1 flex items-center">
+                        <i class="fa fa-toggle-on mr-1.5 text-[#3B82F6]"></i> Status
+                    </label>
+                    <select id="filterStatus" @change="checkActive()" class="w-full rounded-xl border border-[#9CA0AF] py-1.5 sm:py-2 px-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                    </select>
                 </div>
 
             </div>
