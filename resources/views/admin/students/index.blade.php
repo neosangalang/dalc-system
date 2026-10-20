@@ -35,10 +35,12 @@
         showDeleteModal: false,
         deleteStudentId: null,
         deleteStudentName: '',
+        deleteActionUrl: '',
         confirmText: '',
-        openDeleteModal(id, name) {
+        openDeleteModal(id, name, url) {
             this.deleteStudentId = id;
             this.deleteStudentName = name;
+            this.deleteActionUrl = url || ('/admin/students/' + id);
             this.confirmText = '';
             this.showDeleteModal = true;
         },
@@ -46,9 +48,11 @@
             this.showDeleteModal = false;
             this.deleteStudentId = null;
             this.deleteStudentName = '';
+            this.deleteActionUrl = '';
             this.confirmText = '';
         }
-    }">
+    }"
+    @open-delete-student.window="openDeleteModal($event.detail.id, $event.detail.name, $event.detail.url)">
 
         <!-- HEADER SECTION -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -301,7 +305,7 @@
                                         </button>
 
                                         <button type="button" 
-                                                @click="openDeleteModal({{ $student->id }}, '{{ addslashes($student->first_name . ' ' . $student->last_name) }}')" 
+                                                onclick="window.triggerDeleteStudentModal({{ $student->id }}, '{{ addslashes($student->first_name . ' ' . $student->last_name) }}', '{{ route('admin.students.destroy', $student->id) }}')" 
                                                 class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors flex items-center justify-center shadow-sm cursor-pointer" 
                                                 title="Delete Profile">
                                             <i class="fa fa-trash text-[12px]"></i>
@@ -990,6 +994,9 @@
                     </form>
                 </div>
             </div>
+        </div>
+        <!-- END RE-ENROLL STUDENT MODAL -->
+
         <!-- DELETE PROFILE CONFIRMATION MODAL -->
         <div x-show="showDeleteModal" x-cloak class="fixed inset-0 z-[110] overflow-y-auto text-left" aria-labelledby="delete-profile-modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -1009,7 +1016,7 @@
                         </div>
                     </div>
 
-                    <form :action="'/admin/students/' + deleteStudentId" method="POST" class="mt-5 space-y-4 m-0">
+                    <form :action="deleteActionUrl" method="POST" class="mt-5 space-y-4 m-0">
                         @csrf
                         @method('DELETE')
 
@@ -1061,6 +1068,12 @@
 
 @push('scripts')
 <script>
+    window.triggerDeleteStudentModal = function(id, name, url) {
+        window.dispatchEvent(new CustomEvent('open-delete-student', {
+            detail: { id: id, name: name, url: url }
+        }));
+    };
+
     function confirmDeleteDocument(actionUrl) {
         if (confirm('Are you sure you want to delete this document?')) {
             const form = document.getElementById('global-delete-doc-form');
