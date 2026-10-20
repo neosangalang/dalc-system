@@ -8,8 +8,8 @@
 <div class="w-full">
     <div class="max-w-[1200px] mx-auto space-y-10">
 
-        <!-- 1. WELCOME HEADER -->
-        <header class="mb-8" x-data="{
+        <!-- 1. WELCOME HERO BANNER (SCOPED BLUE DESIGN) -->
+        <header class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5] p-6 sm:p-8 text-white shadow-lg border border-white/10 mb-8 sm:mb-10" x-data="{
             greeting: '',
             currentTime: '',
             updateGreeting() {
@@ -25,16 +25,20 @@
                 this.currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
         }" x-init="updateGreeting(); setInterval(() => updateGreeting(), 1000)">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <!-- Ambient Decorative Background Glows -->
+            <div class="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-2 block flex items-center gap-1.5">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-blue-100 text-[11px] font-extrabold tracking-widest uppercase mb-3">
                         <i class="fa-regular fa-sun text-[#F59E0B]" x-show="greeting === 'Good Morning'"></i>
                         <i class="fa-regular fa-sun text-[#EF4444]" x-show="greeting === 'Good Afternoon'"></i>
-                        <i class="fa-regular fa-moon text-[#8B5CF6]" x-show="greeting === 'Good Evening'"></i>
+                        <i class="fa-regular fa-moon text-[#A78BFA]" x-show="greeting === 'Good Evening'"></i>
                         <span x-text="greeting">Good Morning</span>
                     </span>
-                    <h1 class="text-white text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Admin' }}.</h1>
-                    <p class="text-blue-100/80 text-sm font-medium m-0">Here is your system overview for today.</p>
+                    <h1 class="text-white text-2xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Admin' }}.</h1>
+                    <p class="text-blue-100/85 text-xs sm:text-sm font-medium m-0">Here is your system overview for today.</p>
                 </div>
             </div>
         </header>

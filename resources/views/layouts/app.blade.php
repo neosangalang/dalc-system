@@ -43,7 +43,7 @@
     </style>
 </head>
 
-<body class="font-['Nunito'] bg-gradient-to-br from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5] text-[#2C2F45] antialiased min-h-screen bg-fixed overflow-x-hidden">
+<body class="font-['Nunito'] bg-gradient-to-br from-[#F4F1EA] via-[#EDF0F8] to-[#F4F1EA] text-[#2C2F45] antialiased min-h-screen bg-fixed overflow-x-hidden">
 
     <!-- ========================================== -->
     <!-- 1. TOP HEADER NAVIGATION                   -->
@@ -170,7 +170,7 @@
         <!-- BACK BUTTON: Shows only when inside a system module (not on the main dashboard) -->
         @if(!$isDashboard && Auth::check())
             <div class="mb-5 sm:mb-6 flex">
-                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" id="back-to-dashboard-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-white/90 border border-white/20 rounded-xl text-sm font-bold text-[#1E2657] hover:bg-white shadow-sm transition-all active:scale-95">
+                <a href="{{ route(strtolower(Auth::user()->role) . '.dashboard') }}" id="back-to-dashboard-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-[#F0F3FA] border border-[#1E2657]/20 rounded-xl text-sm font-bold text-[#1E2657] hover:text-white hover:bg-[#1E2657] shadow-sm transition-all active:scale-95">
                     <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                 </a>
             </div>

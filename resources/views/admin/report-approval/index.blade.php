@@ -117,7 +117,7 @@
                         <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Report Type</th>
                         <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Submitted By</th>
                         <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Date Submitted</th>
-                        <th scope="col" class="px-6 py-4 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest">Actions</th>
+                        <th scope="col" class="px-6 py-4 text-center md:text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap w-auto md:w-80">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="block md:table-row-group space-y-4 md:space-y-0 divide-y-0 md:divide-y divide-black/5 bg-transparent md:bg-white">
@@ -167,25 +167,25 @@
                                 </div>
                             </td>
                             
-                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 bg-[#F4F6FA] md:bg-transparent rounded-b-2xl md:rounded-none border-t border-black/5 md:border-none">
-                                <div class="flex justify-between md:justify-end gap-2 w-full">
+                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 bg-[#F4F6FA] md:bg-transparent rounded-b-2xl md:rounded-none border-t border-black/5 md:border-none whitespace-nowrap">
+                                <div class="grid grid-cols-3 gap-2 w-full md:flex md:items-center md:justify-end md:gap-2">
                                     
-                                    <a href="{{ route('admin.report-approval.show', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center items-center px-2 md:px-3 py-2 md:py-1.5 bg-white border border-black/15 text-[#6B7086] text-[11px] md:text-xs font-extrabold rounded-lg hover:bg-slate-50 hover:text-[#3B82F6] transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 text-decoration-none hover:border-black/30">
-                                        <i class="fa fa-eye mr-1.5"></i> View
+                                    <a href="{{ route('admin.report-approval.show', $report->id) }}" class="h-9 md:w-24 inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-white border border-black/15 text-[#1E2657] text-xs font-extrabold rounded-xl hover:bg-slate-100 hover:text-[#3B82F6] hover:border-[#3B82F6]/30 transition-all shadow-xs active:scale-95 decoration-transparent whitespace-nowrap">
+                                        <i class="fa fa-eye text-[11px]"></i> <span>View</span>
                                     </a>
 
-                                    <form action="{{ route('admin.report-approval.update-status', $report->id) }}" method="POST" class="flex-1 md:flex-none m-0" onsubmit="return confirm('Approve this report? This will immediately email the parents.');">
+                                    <form action="{{ route('admin.report-approval.update-status', $report->id) }}" method="POST" class="m-0 block w-full md:w-auto" onsubmit="return confirm('Approve this report? This will immediately email the parents.');">
                                         @csrf
                                         <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-2 md:px-3 py-2 md:py-1.5 bg-[#10B981] border border-transparent text-white text-[11px] md:text-xs font-extrabold rounded-lg hover:bg-emerald-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1">
-                                            <i class="fa fa-check mr-1.5"></i> Approve
+                                        <button type="submit" class="w-full h-9 md:w-24 inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-[#10B981] border border-transparent text-white text-xs font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-xs shadow-emerald-200 active:scale-95 cursor-pointer whitespace-nowrap">
+                                            <i class="fa fa-check text-[11px]"></i> <span>Approve</span>
                                         </button>
                                     </form>
 
                                     <button type="button" 
                                             @click="openRevisionModal({{ $report->id }}, '{{ addslashes($report->student->first_name . ' ' . $report->student->last_name) }}', '{{ addslashes($report->teacher->name ?? 'Teacher') }}')" 
-                                            class="flex-1 md:flex-none w-full inline-flex justify-center items-center px-2 md:px-3 py-2 md:py-1.5 bg-rose-500 border border-transparent text-white text-[11px] md:text-xs font-extrabold rounded-lg hover:bg-rose-600 transition-colors shadow-sm focus:ring-2 focus:ring-rose-500 focus:ring-offset-1 cursor-pointer">
-                                        <i class="fa fa-xmark mr-1.5"></i> Reject
+                                            class="w-full h-9 md:w-24 inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-rose-500 border border-transparent text-white text-xs font-extrabold rounded-xl hover:bg-rose-600 transition-all shadow-xs shadow-rose-200 active:scale-95 cursor-pointer whitespace-nowrap">
+                                        <i class="fa fa-xmark text-[11px]"></i> <span>Reject</span>
                                     </button>
                                 </div>
                             </td>

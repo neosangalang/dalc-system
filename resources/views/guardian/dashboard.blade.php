@@ -10,34 +10,38 @@
     $activeChild = $myChildren->where('id', $activeChildId)->first();
 @endphp
 
-<!-- Main Container (Updated Background for Smooth Desktop Blend) -->
-<div class="w-full bg-transparent min-h-screen">
-    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 md:space-y-10">
+<!-- Main Container -->
+<div class="w-full">
+    <div class="max-w-[1200px] mx-auto space-y-8 md:space-y-10">
 
-        <!-- WELCOME HEADER & PILL STUDENT SELECTOR -->
-        <header class="flex flex-col md:flex-row md:items-start justify-between gap-4 sm:gap-6">
-            <div class="flex flex-col gap-1 sm:gap-2">
-                <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-0.5 sm:mb-1 block">Guardian Portal</span>
+        <!-- WELCOME HERO BANNER (SCOPED BLUE DESIGN) & PILL STUDENT SELECTOR -->
+        <header class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5] p-6 sm:p-8 text-white shadow-lg border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 sm:mb-10">
+            <!-- Ambient Decorative Background Glows -->
+            <div class="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col gap-1">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-blue-100 text-[11px] font-extrabold tracking-widest uppercase mb-2 self-start">Guardian Portal</span>
                 <h1 class="text-white text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-1 sm:mb-2">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h1>
-                <p class="text-blue-100/80 text-[13px] sm:text-sm font-medium leading-relaxed m-0">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
+                <p class="text-blue-100/85 text-[13px] sm:text-sm font-medium leading-relaxed m-0">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
             </div>
 
             <!-- Sleek Pill Student Selector -->
             @if($myChildren->count() > 0 && $activeChild)
-                <div x-data="{ switchOpen: false }" class="relative z-40 self-start md:self-auto shrink-0 w-full md:w-auto mt-1 md:mt-0">
+                <div x-data="{ switchOpen: false }" class="relative z-40 self-start md:self-auto shrink-0 w-full md:w-auto">
                     <button @click="switchOpen = !switchOpen" @click.away="switchOpen = false" 
-                            class="flex items-center justify-between md:justify-start gap-2.5 px-4 sm:px-5 py-2.5 sm:py-2 w-full md:w-auto bg-white border border-black/10 rounded-full hover:border-[#6366F1]/50 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1] active:scale-95 shadow-xs">
+                            class="flex items-center justify-between md:justify-start gap-2.5 px-4 sm:px-5 py-2.5 w-full md:w-auto bg-white/95 backdrop-blur-md border border-white/30 rounded-full hover:bg-white hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1] active:scale-95 shadow-sm cursor-pointer">
                         <div class="flex items-center gap-2.5">
-                            <div class="bg-[#6366F1] text-white rounded-full flex items-center justify-center w-[24px] h-[24px] text-[10px] shadow-sm">
+                            <div class="bg-[#1E2657] text-white rounded-full flex items-center justify-center w-[24px] h-[24px] text-[10px] shadow-sm">
                                 <i class="fa-solid fa-user"></i>
                             </div>
-                            <span class="text-[13px] sm:text-[14px] font-extrabold text-[#6366F1]">Viewing: {{ $activeChild->first_name }}</span>
+                            <span class="text-[13px] sm:text-[14px] font-extrabold text-[#1E2657]">Viewing: {{ $activeChild->first_name }}</span>
                         </div>
-                        <i class="fa-solid fa-angle-down text-[#6366F1] text-[12px] ml-1 transition-transform duration-300" :class="{'rotate-180': switchOpen}"></i>
+                        <i class="fa-solid fa-angle-down text-[#1E2657] text-[12px] ml-1 transition-transform duration-300" :class="{'rotate-180': switchOpen}"></i>
                     </button>
                     
                     <!-- Dropdown Options -->
-                    <div x-show="switchOpen" x-transition x-cloak class="absolute left-0 md:left-auto md:right-0 mt-2 w-full md:w-56 bg-white border border-black/10 rounded-xl shadow-[0_8px_24px_-8px_rgba(0,0,0,0.15)] pb-1 pt-1 z-50 overflow-hidden">
+                    <div x-show="switchOpen" x-transition x-cloak class="absolute left-0 md:left-auto md:right-0 mt-2 w-full md:w-56 bg-white border border-black/10 rounded-xl shadow-[0_8px_24px_-8px_rgba(0,0,0,0.15)] pb-1 pt-1 z-50 overflow-hidden text-left">
                         <div class="px-4 py-3 border-b border-black/5">
                             <span class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest">My Children</span>
                         </div>

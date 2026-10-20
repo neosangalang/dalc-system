@@ -8,13 +8,19 @@
 <div class="w-full">
     <div class="max-w-[1200px] mx-auto space-y-10">
 
-        <!-- 1. WELCOME HEADER -->
-        <header class="mb-8">
-            <!-- Dynamic Time Greeting Span -->
-            <span id="dynamic-greeting" class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-2 block">Good Morning</span>
-            
-            <h1 class="text-white text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'teacher' }}.</h1>
-            <p class="text-blue-100/80 text-sm font-medium">Here is your classroom overview for today.</p>
+        <!-- 1. WELCOME HERO BANNER (SCOPED BLUE DESIGN) -->
+        <header class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5] p-6 sm:p-8 text-white shadow-lg border border-white/10 mb-8 sm:mb-10">
+            <!-- Ambient Decorative Background Glows -->
+            <div class="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10">
+                <!-- Dynamic Time Greeting Span -->
+                <span id="dynamic-greeting" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-blue-100 text-[11px] font-extrabold tracking-widest uppercase mb-3">Good Morning</span>
+                
+                <h1 class="text-white text-2xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Teacher' }}.</h1>
+                <p class="text-blue-100/85 text-xs sm:text-sm font-medium m-0">Here is your classroom overview for today.</p>
+            </div>
         </header>
 
         <!-- 2. STAT CARDS (4 Columns) -->

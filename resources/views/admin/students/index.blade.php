@@ -29,7 +29,26 @@
     </div>
     @endif
 
-    <div x-data="{ showCreateModal: false, showReEnrollModal: false }">
+    <div x-data="{ 
+        showCreateModal: false, 
+        showReEnrollModal: false,
+        showDeleteModal: false,
+        deleteStudentId: null,
+        deleteStudentName: '',
+        confirmText: '',
+        openDeleteModal(id, name) {
+            this.deleteStudentId = id;
+            this.deleteStudentName = name;
+            this.confirmText = '';
+            this.showDeleteModal = true;
+        },
+        closeDeleteModal() {
+            this.showDeleteModal = false;
+            this.deleteStudentId = null;
+            this.deleteStudentName = '';
+            this.confirmText = '';
+        }
+    }">
 
         <!-- HEADER SECTION -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -281,13 +300,12 @@
                                             <i class="fa fa-edit text-[12px]"></i>
                                         </button>
 
-                                        <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST" onsubmit="return confirm('⚠️ Are you sure you want to permanently delete this student?');" class="m-0 flex">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors flex items-center justify-center shadow-sm" title="Delete">
-                                                <i class="fa fa-trash text-[12px]"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" 
+                                                @click="openDeleteModal({{ $student->id }}, '{{ addslashes($student->first_name . ' ' . $student->last_name) }}')" 
+                                                class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors flex items-center justify-center shadow-sm cursor-pointer" 
+                                                title="Delete Profile">
+                                            <i class="fa fa-trash text-[12px]"></i>
+                                        </button>
                                     </div>
                                 </div>
 
@@ -968,6 +986,56 @@
                                     <i class="fa fa-check-circle"></i> Step 5: Confirm & Re-Enroll Student
                                 </button>
                             </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <!-- DELETE PROFILE CONFIRMATION MODAL -->
+        <div x-show="showDeleteModal" x-cloak class="fixed inset-0 z-[110] overflow-y-auto text-left" aria-labelledby="delete-profile-modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="showDeleteModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="closeDeleteModal()"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                <div x-show="showDeleteModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 p-6 relative z-50">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
+                            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-base font-extrabold text-[#1E2657] m-0" id="delete-profile-modal-title">Delete Student Profile</h4>
+                            <p class="text-xs text-[#6B7086] mt-1.5 font-medium leading-relaxed">
+                                Are you sure you want to permanently delete the profile of <strong class="text-rose-600" x-text="deleteStudentName"></strong>? This will permanently delete all associated progress records, IEP goals, daily logs, and attached documents. This action <strong class="text-rose-600">cannot be undone</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form :action="'/admin/students/' + deleteStudentId" method="POST" class="mt-5 space-y-4 m-0">
+                        @csrf
+                        @method('DELETE')
+
+                        <div class="bg-rose-50/50 border border-rose-200/60 rounded-xl p-3.5">
+                            <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-wider mb-1.5">
+                                Type <span class="text-rose-600 font-black">confirm</span> to proceed:
+                            </label>
+                            <input type="text" 
+                                   x-model="confirmText" 
+                                   placeholder="Type 'confirm' here" 
+                                   autocomplete="off"
+                                   autocapitalize="off"
+                                   spellcheck="false"
+                                   class="w-full rounded-xl border border-rose-300 px-3.5 py-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-rose-600 focus:ring-2 focus:ring-rose-200 bg-white transition-all shadow-xs">
+                        </div>
+
+                        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-black/5">
+                            <button type="button" @click="closeDeleteModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#6B7086] hover:text-[#1E2657] text-xs font-extrabold rounded-xl transition-colors cursor-pointer">
+                                Cancel
+                            </button>
+                            <button type="submit" 
+                                    :disabled="confirmText.trim().toLowerCase() !== 'confirm'"
+                                    :class="confirmText.trim().toLowerCase() === 'confirm' ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm cursor-pointer active:scale-95' : 'bg-rose-300 text-white/70 cursor-not-allowed opacity-60 pointer-events-none'"
+                                    class="px-4 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i> Permanently Delete
+                            </button>
                         </div>
                     </form>
                 </div>
