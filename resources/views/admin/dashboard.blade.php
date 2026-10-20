@@ -65,13 +65,11 @@
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
-                <!-- Stat Card 4: Reports Status -->
+                <!-- Stat Card 4: Reports Due -->
                 @php $hasPending = ($pendingReports ?? 0) > 0; @endphp
                 <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[110px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 active:scale-[0.98] {{ $hasPending ? 'hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)]' : 'hover:border-black/30 hover:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.15)]' }}">
                     <h3 class="font-extrabold text-[28px] sm:text-[32px] {{ $hasPending ? 'text-[#F59E0B]' : 'text-[#D1D5DB]' }} leading-none mb-1.5 sm:mb-2 counter">{{ $pendingReports ?? 0 }}</h3>
-                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">
-                        {{ $hasPending ? 'Reports Due' : 'Reports Cleared' }}
-                    </p>
+                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10">Reports Due</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 {{ $hasPending ? 'bg-[#F59E0B]' : 'bg-[#D1D5DB]' }} transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 

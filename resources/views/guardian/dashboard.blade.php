@@ -88,82 +88,87 @@
             </div>
         @endif
 
-        <!-- PORTAL QUICK LINKS (2x2 Grid) -->
+        <!-- PORTAL QUICK LINKS (2x2 Grid matching reference design) -->
         <section x-data="{ unreadAnnouncements: {{ $newAnnouncementsCount }} }">
-            <div class="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 w-full">
                 
-                <!-- Learning Goals -->
-                <a href="{{ route('guardian.goals') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 relative overflow-hidden h-full active:scale-[0.98]">
+                <!-- 1. IEP Goals -->
+                <a href="{{ route('guardian.goals') }}" class="group bg-white border border-black/10 rounded-2xl sm:rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:border-[#8B5CF6]/40 hover:shadow-[0_8px_24px_-6px_rgba(139,92,246,0.18)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 md:p-6 flex flex-row items-center gap-4 sm:gap-5 md:gap-6 relative overflow-hidden h-full active:scale-[0.99]">
                     
-                    <!-- Notification Badge for IEP Comments -->
-                    @if(isset($unreadIepCommentsCount) && $unreadIepCommentsCount > 0)
-                        <div class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center min-w-[20px] sm:min-w-[24px] z-20 animate-pulse">
-                            {{ $unreadIepCommentsCount }}
+                    <div class="relative shrink-0">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-[70px] md:h-[70px] rounded-full bg-[#8B5CF6]/15 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white">
+                            <i class="fa-solid fa-bullseye text-[24px] sm:text-[28px] md:text-[32px]"></i>
                         </div>
-                    @endif
+                        @if(isset($unreadIepCommentsCount) && $unreadIepCommentsCount > 0)
+                            <div class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center z-20 animate-pulse">
+                                {{ $unreadIepCommentsCount }}
+                            </div>
+                        @endif
+                    </div>
 
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white relative z-10 shrink-0">
-                        <i class="fa-solid fa-bullseye text-[16px] sm:text-[18px]"></i>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-[17px] sm:text-[19px] md:text-[21px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-tight">IEP Goals</h3>
+                        <p class="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-[#6B7086] mt-0.5 sm:mt-1 truncate">{{ isset($activeGoals) ? $activeGoals->count() : 0 }} tracking.</p>
                     </div>
-                    <div class="relative z-10">
-                        <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-tight">IEP Goals</h3>
-                        <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">{{ isset($activeGoals) ? $activeGoals->count() : 0 }} tracking.</p>
-                    </div>
+
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
 
-                <!-- School Reports Dropdown -->
+                <!-- 2. School Reports Dropdown -->
                 <div x-data="{ open: false }" class="relative w-full h-full">
-                    <button @click="open = !open" @click.away="open = false" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 w-full text-left h-full focus-visible:outline-none relative overflow-hidden active:scale-[0.98]">
-                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] transition-colors duration-300 group-hover:bg-[#3B82F6] group-hover:text-white relative z-10 shrink-0">
-                            <i class="fa-solid fa-file-signature text-[16px] sm:text-[18px]"></i>
+                    <button @click="open = !open" @click.away="open = false" class="group bg-white border border-black/10 rounded-2xl sm:rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:border-[#3B82F6]/40 hover:shadow-[0_8px_24px_-6px_rgba(59,130,246,0.18)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 md:p-6 flex flex-row items-center gap-4 sm:gap-5 md:gap-6 w-full text-left h-full focus-visible:outline-none relative overflow-hidden active:scale-[0.99]">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-[70px] md:h-[70px] rounded-full bg-[#3B82F6]/15 flex items-center justify-center text-[#3B82F6] transition-colors duration-300 group-hover:bg-[#3B82F6] group-hover:text-white shrink-0">
+                            <i class="fa-solid fa-file-lines text-[24px] sm:text-[28px] md:text-[32px]"></i>
                         </div>
-                        <div class="flex-1 w-full relative z-10">
-                            <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#3B82F6] transition-colors duration-300 flex justify-between items-center w-full leading-tight">
-                                 Reports 
-                                <i class="fa-solid fa-caret-down text-[12px] sm:text-[12px] text-[#9CA0AF] transition-transform duration-300" :class="{'rotate-180': open}"></i>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-[17px] sm:text-[19px] md:text-[21px] font-extrabold text-[#1E2657] group-hover:text-[#3B82F6] transition-colors duration-300 flex items-center justify-between leading-tight">
+                                <span>Reports</span>
+                                <i class="fa-solid fa-caret-down text-[12px] sm:text-[14px] text-[#9CA0AF] group-hover:text-[#3B82F6] transition-all duration-300 ml-2" :class="{'rotate-180': open}"></i>
                             </h3>
-                            <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Official evaluations.</p>
+                            <p class="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-[#6B7086] mt-0.5 sm:mt-1 truncate">Official evaluations.</p>
                         </div>
                         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                     </button>
-                    <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-white border border-black/15 shadow-xl rounded-2xl z-[60] p-2 sm:p-3 text-left overflow-hidden">
-                        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 1 <i class="fa-solid fa-angle-right opacity-50"></i></a>
-                        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
-                        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
-                        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block px-3.5 py-2.5 sm:py-2 text-[13px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 4 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                    <div x-show="open" x-transition x-cloak class="absolute top-[105%] left-0 w-full bg-white border border-black/10 shadow-xl rounded-2xl z-[60] p-2 sm:p-3 text-left overflow-hidden">
+                        <a href="{{ route('guardian.reports', ['type' => 'q1']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 1 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 4 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                     </div>
                 </div>
 
-                <!-- Daily Reports & Home Activities -->
-                <a href="{{ route('guardian.recommendations') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 relative overflow-hidden h-full active:scale-[0.98]">
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981] transition-colors duration-300 group-hover:bg-[#10B981] group-hover:text-white relative z-10 shrink-0">
-                        <i class="fa-solid fa-book-open-reader text-[16px] sm:text-[18px]"></i>
+                <!-- 3. Daily Activity -->
+                <a href="{{ route('guardian.recommendations') }}" class="group bg-white border border-black/10 rounded-2xl sm:rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:border-[#10B981]/40 hover:shadow-[0_8px_24px_-6px_rgba(16,185,129,0.18)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 md:p-6 flex flex-row items-center gap-4 sm:gap-5 md:gap-6 relative overflow-hidden h-full active:scale-[0.99]">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-[70px] md:h-[70px] rounded-full bg-[#10B981]/15 flex items-center justify-center text-[#10B981] transition-colors duration-300 group-hover:bg-[#10B981] group-hover:text-white shrink-0">
+                        <i class="fa-solid fa-id-badge text-[24px] sm:text-[28px] md:text-[32px]"></i>
                     </div>
-                    <div class="relative z-10">
-                        <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300 leading-tight">Daily Activity</h3>
-                        <p class="text-[11px] sm:text-[12px] font-medium text-[#9CA0AF] mt-1">Home activities.</p>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-[17px] sm:text-[19px] md:text-[21px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300 leading-tight">Daily Activity</h3>
+                        <p class="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-[#6B7086] mt-0.5 sm:mt-1 truncate">Home activities.</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
 
-                <!-- Announcements Module Card -->
+                <!-- 4. Announcements -->
                 <a href="{{ route('guardian.announcements.index') }}" 
                    @click="unreadAnnouncements = 0; fetch('{{ route('guardian.announcements.mark-seen') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' } })"
-                   class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-5 md:p-6 flex flex-col items-start gap-2.5 sm:gap-4 relative overflow-hidden h-full active:scale-[0.98]">
+                   class="group bg-white border border-black/10 rounded-2xl sm:rounded-3xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:border-[#F97316]/40 hover:shadow-[0_8px_24px_-6px_rgba(249,115,22,0.18)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 md:p-6 flex flex-row items-center gap-4 sm:gap-5 md:gap-6 relative overflow-hidden h-full active:scale-[0.99]">
                     
-                    <div x-show="unreadAnnouncements > 0" class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full border-2 border-white shadow-sm flex items-center justify-center min-w-[20px] sm:min-w-[24px] z-20">
-                        <span x-text="unreadAnnouncements"></span>
+                    <div class="relative shrink-0">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-[70px] md:h-[70px] rounded-full bg-[#F97316]/15 flex items-center justify-center text-[#F97316] transition-colors duration-300 group-hover:bg-[#F97316] group-hover:text-white">
+                            <i class="fa-solid fa-bullhorn text-[24px] sm:text-[28px] md:text-[32px]"></i>
+                        </div>
+                        <div x-show="unreadAnnouncements > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] sm:text-[11px] font-black w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center z-20">
+                            <span x-text="unreadAnnouncements"></span>
+                        </div>
                     </div>
 
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center text-[#8B5CF6] transition-colors duration-300 group-hover:bg-[#8B5CF6] group-hover:text-white relative z-10 shrink-0">
-                        <i class="fa-solid fa-bullhorn text-[16px] sm:text-[18px]"></i>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-[17px] sm:text-[19px] md:text-[21px] font-extrabold text-[#1E2657] group-hover:text-[#F97316] transition-colors duration-300 leading-tight">Announcements</h3>
+                        <p class="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-[#6B7086] mt-0.5 sm:mt-1 truncate">Center alerts.</p>
                     </div>
-                    <div class="relative z-10">
-                        <h3 class="text-[14px] sm:text-[16px] font-extrabold text-[#1E2657] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-tight">Announcements</h3>
-                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 mt-1">Center alerts.</p>
-                    </div>
-                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
+
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#F97316] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
 
             </div>

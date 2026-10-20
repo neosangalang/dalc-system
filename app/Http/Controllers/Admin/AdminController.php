@@ -17,15 +17,16 @@ class AdminController extends Controller
         $activeTeachers = User::where('role', 'teacher')->where('is_active', true)->count();
         $guardians      = User::where('role', 'guardian')->where('is_active', true)->count();
         
-        // Count reports waiting for approval
+        // Count reports waiting for approval (Reports Due)
         $pendingReports = Report::where('status', 'pending_approval')->count();
+        $reportsDue     = $pendingReports;
         
         // Get the 5 most recently added students
         $recentStudents = Student::with(['teacher', 'guardian'])->latest()->take(5)->get();
 
         // Send all these variables to the blade view
         return view('admin.dashboard', compact(
-            'totalStudents', 'activeTeachers', 'guardians', 'pendingReports', 'recentStudents'
+            'totalStudents', 'activeTeachers', 'guardians', 'pendingReports', 'reportsDue', 'recentStudents'
         ));
     }
 

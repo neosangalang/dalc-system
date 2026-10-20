@@ -1,0 +1,32 @@
+name: Delete All Artifacts
+
+on:
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+permissions:
+  actions: write
+
+jobs:
+  delete-all-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge all repository artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching artifacts for ${{ github.repository }}..."
+          artifacts=$(gh api --paginate repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].id')
+
+          if [ -z "$artifacts" ]; then
+            echo "No artifacts found."
+            exit 0
+          fi
+
+          count=0
+          for id in $artifacts; do
+            echo "Deleting artifact ID: $id"
+            gh api --method DELETE "repos/${{ github.repository }}/actions/artifacts/$id" || true
+            count=$((count + 1))
+          done
+
+          echo "Done! Purged $count artifact(s)."
