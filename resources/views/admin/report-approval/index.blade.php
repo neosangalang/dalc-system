@@ -5,7 +5,18 @@
 @section('content')
 
 <!-- Main Container -->
-<div class="w-full max-w-[1200px] mx-auto space-y-6">
+<div class="w-full max-w-[1200px] mx-auto space-y-6" x-data="{ 
+    showRevisionModal: false,
+    selectedReportId: null,
+    selectedStudentName: '',
+    selectedTeacherName: '',
+    openRevisionModal(id, student, teacher) {
+        this.selectedReportId = id;
+        this.selectedStudentName = student;
+        this.selectedTeacherName = teacher;
+        this.showRevisionModal = true;
+    }
+}">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
@@ -171,13 +182,11 @@
                                         </button>
                                     </form>
 
-                                    <form action="{{ route('admin.report-approval.update-status', $report->id) }}" method="POST" class="flex-1 md:flex-none m-0">
-                                        @csrf
-                                        <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-2 md:px-3 py-2 md:py-1.5 bg-rose-500 border border-transparent text-white text-[11px] md:text-xs font-extrabold rounded-lg hover:bg-rose-600 transition-colors shadow-sm focus:ring-2 focus:ring-rose-500 focus:ring-offset-1">
-                                            <i class="fa fa-xmark mr-1.5"></i> Reject
-                                        </button>
-                                    </form>
+                                    <button type="button" 
+                                            @click="openRevisionModal({{ $report->id }}, '{{ addslashes($report->student->first_name . ' ' . $report->student->last_name) }}', '{{ addslashes($report->teacher->name ?? 'Teacher') }}')" 
+                                            class="flex-1 md:flex-none w-full inline-flex justify-center items-center px-2 md:px-3 py-2 md:py-1.5 bg-rose-500 border border-transparent text-white text-[11px] md:text-xs font-extrabold rounded-lg hover:bg-rose-600 transition-colors shadow-sm focus:ring-2 focus:ring-rose-500 focus:ring-offset-1 cursor-pointer">
+                                        <i class="fa fa-xmark mr-1.5"></i> Reject
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -201,6 +210,56 @@
                 {{ $pendingReports->links() }}
             </div>
         @endif
+    </div>
+
+    <!-- REVISION NOTES MODAL -->
+    <div x-show="showRevisionModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showRevisionModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showRevisionModal = false"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div x-show="showRevisionModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-200 p-6 relative z-50">
+                <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-pen-to-square text-base"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-extrabold text-[#1E2657] m-0">Request Report Revision</h4>
+                            <p class="text-xs font-medium text-[#6B7086] m-0">Send feedback to Teacher <span class="font-bold text-[#1E2657]" x-text="selectedTeacherName"></span> for <span class="font-bold text-[#1E2657]" x-text="selectedStudentName"></span></p>
+                        </div>
+                    </div>
+                    <button type="button" @click="showRevisionModal = false" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form :action="'/admin/report-approval/' + selectedReportId + '/status'" method="POST" class="mt-5 space-y-4">
+                    @csrf
+                    <input type="hidden" name="status" value="rejected">
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Revision Notes & Feedback <span class="text-rose-500">*</span>
+                        </label>
+                        <textarea name="revision_notes" rows="4" required placeholder="e.g. Please add more details regarding fine motor progress and specify behavioral support techniques in math activities. The AI will use these notes to revise the draft." class="w-full rounded-xl border border-slate-300 p-3.5 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all resize-none shadow-sm"></textarea>
+                        <p class="text-[11px] font-medium text-slate-500 mt-1.5 leading-snug">
+                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-500 mr-1"></i>
+                            The Teacher will see these notes, and their <strong>AI Assistant</strong> will automatically rewrite and polish the report based on your feedback.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+                        <button type="button" @click="showRevisionModal = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-200 transition-colors flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-paper-plane text-[11px]"></i> Submit Revision Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -33,8 +33,8 @@
                         <i class="fa-regular fa-moon text-[#8B5CF6]" x-show="greeting === 'Good Evening'"></i>
                         <span x-text="greeting">Good Morning</span>
                     </span>
-                    <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Admin' }}.</h1>
-                    <p class="text-[#6B7086] text-sm font-medium m-0">Here is your system overview for today.</p>
+                    <h1 class="text-white text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'Admin' }}.</h1>
+                    <p class="text-blue-100/80 text-sm font-medium m-0">Here is your system overview for today.</p>
                 </div>
             </div>
         </header>

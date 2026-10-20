@@ -98,7 +98,25 @@
                     @forelse($users->where('role', 'teacher') as $user)
                         
                         <!-- ROW -->
-                        <tr x-data="{ showEditInfoModal: false, showResetModal: false, showPermModal: false }" x-show="teacherSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username)) }}'.includes(teacherSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
+                        <tr x-data="{ 
+                            showEditInfoModal: false, 
+                            showResetModal: false, 
+                            showPermModal: false,
+                            cancelPermModal() {
+                                if (confirm('Do you want to cancel?')) {
+                                    if (this.$refs.permForm) {
+                                        this.$refs.permForm.reset();
+                                    }
+                                    this.showPermModal = false;
+                                }
+                            },
+                            openPermModal() {
+                                if (this.$refs.permForm) {
+                                    this.$refs.permForm.reset();
+                                }
+                                this.showPermModal = true;
+                            }
+                        }" x-show="teacherSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username)) }}'.includes(teacherSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
                             
                             <!-- 1. Avatar, Name & Username -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6 align-middle">
@@ -161,7 +179,7 @@
                                         </button>
                                     </form>
 
-                                    <button @click="showPermModal = true" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50 transition-colors shadow-sm whitespace-nowrap">
+                                    <button @click="openPermModal()" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50 transition-colors shadow-sm whitespace-nowrap">
                                         <i class="fa fa-user-shield mr-1.5 text-[#8B5CF6]"></i> Permissions
                                     </button>
 
@@ -309,66 +327,69 @@
                                 <!-- PERMISSIONS MODAL -->
                                 <div x-show="showPermModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                                     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                        <div x-show="showPermModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showPermModal = false"></div>
+                                        <div x-show="showPermModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="cancelPermModal()"></div>
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                                         <div x-show="showPermModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-black/15">
-                                            <form action="{{ route('admin.accounts.permissions', $user->id) }}" method="POST" class="m-0">
+                                            <form x-ref="permForm" action="{{ route('admin.accounts.permissions', $user->id) }}" method="POST" class="m-0">
                                                 @csrf
                                                 @method('PATCH')
                                                 <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
                                                     <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-sliders text-[#8B5CF6] mr-2"></i> Permissions</h5>
-                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showPermModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
+                                                    <button type="button" @click="cancelPermModal()" class="text-[#9CA0AF] hover:text-[#1E2657] cursor-pointer"><i class="fa fa-times text-xl"></i></button>
                                                 </div>
                                                 <div class="p-5 sm:p-6 whitespace-normal">
                                                     <p class="text-[13px] text-[#6B7086] mb-5 leading-snug">Grant <strong class="text-[#1E2657]">{{ $user->name }}</strong> access to specific Admin-level modules.</p>
                                                     
                                                     <div class="space-y-4">
-                                                        <label class="flex items-center cursor-pointer">
+                                                        <label class="flex items-center cursor-pointer select-none">
                                                             <div class="relative shrink-0">
-                                                                <input type="checkbox" name="can_manage_credentials" value="1" class="sr-only" {{ $user->can_manage_credentials ? 'checked' : '' }}>
-                                                                <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_manage_credentials ? 'bg-[#8B5CF6]' : '' }}"></div>
-                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_manage_credentials ? 'transform translate-x-4' : '' }}"></div>
+                                                                <input type="checkbox" name="can_manage_credentials" value="1" class="sr-only peer" {{ $user->can_manage_credentials ? 'checked' : '' }}>
+                                                                <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
+                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
                                                             <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">1. Login Credentials Configuration</div>
                                                         </label>
-                                                        <!-- Remaining checkboxes are the same -->
-                                                        <label class="flex items-center cursor-pointer">
+
+                                                        <label class="flex items-center cursor-pointer select-none">
                                                             <div class="relative shrink-0">
-                                                                <input type="checkbox" name="can_manage_calendar" value="1" class="sr-only" {{ $user->can_manage_calendar ? 'checked' : '' }}>
-                                                                <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_manage_calendar ? 'bg-[#8B5CF6]' : '' }}"></div>
-                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_manage_calendar ? 'transform translate-x-4' : '' }}"></div>
+                                                                <input type="checkbox" name="can_manage_calendar" value="1" class="sr-only peer" {{ $user->can_manage_calendar ? 'checked' : '' }}>
+                                                                <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
+                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
                                                             <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">2. Calendar Configuration</div>
                                                         </label>
-                                                        <label class="flex items-center cursor-pointer">
+
+                                                        <label class="flex items-center cursor-pointer select-none">
                                                             <div class="relative shrink-0">
-                                                                <input type="checkbox" name="can_create_profiles" value="1" class="sr-only" {{ $user->can_create_profiles ? 'checked' : '' }}>
-                                                                <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_create_profiles ? 'bg-[#8B5CF6]' : '' }}"></div>
-                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_create_profiles ? 'transform translate-x-4' : '' }}"></div>
+                                                                <input type="checkbox" name="can_create_profiles" value="1" class="sr-only peer" {{ $user->can_create_profiles ? 'checked' : '' }}>
+                                                                <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
+                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
                                                             <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">3. Initial Profile Creation</div>
                                                         </label>
-                                                        <label class="flex items-center cursor-pointer">
+
+                                                        <label class="flex items-center cursor-pointer select-none">
                                                             <div class="relative shrink-0">
-                                                                <input type="checkbox" name="can_archive_students" value="1" class="sr-only" {{ $user->can_archive_students ? 'checked' : '' }}>
-                                                                <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_archive_students ? 'bg-[#8B5CF6]' : '' }}"></div>
-                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_archive_students ? 'transform translate-x-4' : '' }}"></div>
+                                                                <input type="checkbox" name="can_archive_students" value="1" class="sr-only peer" {{ $user->can_archive_students ? 'checked' : '' }}>
+                                                                <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
+                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
                                                             <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">4. Archiving Module</div>
                                                         </label>
-                                                        <label class="flex items-center cursor-pointer">
+
+                                                        <label class="flex items-center cursor-pointer select-none">
                                                             <div class="relative shrink-0">
-                                                                <input type="checkbox" name="can_approve_reports" value="1" class="sr-only" {{ $user->can_approve_reports ? 'checked' : '' }}>
-                                                                <div class="block bg-slate-200 w-10 h-6 rounded-full transition-colors {{ $user->can_approve_reports ? 'bg-[#8B5CF6]' : '' }}"></div>
-                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform shadow-sm {{ $user->can_approve_reports ? 'transform translate-x-4' : '' }}"></div>
+                                                                <input type="checkbox" name="can_approve_reports" value="1" class="sr-only peer" {{ $user->can_approve_reports ? 'checked' : '' }}>
+                                                                <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
+                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
                                                             <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">5. Admin Approval for Summaries</div>
                                                         </label>
                                                     </div>
                                                 </div>
                                                 <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showPermModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                                                    <button type="submit" class="px-4 py-2 bg-[#8B5CF6] text-white text-[13px] font-extrabold rounded-xl hover:bg-purple-700 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Save Access</button>
+                                                    <button type="button" @click="cancelPermModal()" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm cursor-pointer">Cancel</button>
+                                                    <button type="submit" class="px-4 py-2 bg-[#8B5CF6] text-white text-[13px] font-extrabold rounded-xl hover:bg-purple-700 transition-colors shadow-sm flex items-center cursor-pointer"><i class="fa fa-save mr-1.5"></i> Save Access</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -830,9 +851,16 @@
     [x-cloak] { display: none !important; }
     
     /* Toggle Checkbox Styling */
-    input:checked + .block { background-color: #8B5CF6; }
-    input:checked + .block + .dot { transform: translateX(100%); }
-    .dot { transition: all 0.3s ease-in-out; }
+    .dot {
+        transform: translateX(0);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    input:checked ~ .dot {
+        transform: translateX(1rem);
+    }
+    input:checked ~ div:first-of-type {
+        background-color: #8B5CF6;
+    }
 </style>
 
 @endsection

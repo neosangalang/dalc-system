@@ -11,15 +11,15 @@
 @endphp
 
 <!-- Main Container (Updated Background for Smooth Desktop Blend) -->
-<div class="w-full bg-[#F8FAFC] md:bg-transparent min-h-screen">
+<div class="w-full bg-transparent min-h-screen">
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 md:space-y-10">
 
         <!-- WELCOME HEADER & PILL STUDENT SELECTOR -->
         <header class="flex flex-col md:flex-row md:items-start justify-between gap-4 sm:gap-6">
             <div class="flex flex-col gap-1 sm:gap-2">
                 <span class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-0.5 sm:mb-1 block">Guardian Portal</span>
-                <h1 class="text-[#1E2657] text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-1 sm:mb-2">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h1>
-                <p class="text-[#6B7086] text-[13px] sm:text-sm font-medium leading-relaxed m-0">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
+                <h1 class="text-white text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-1 sm:mb-2">Welcome back, {{ Auth::user()->name ?? 'Guardian' }}! 👋</h1>
+                <p class="text-blue-100/80 text-[13px] sm:text-sm font-medium leading-relaxed m-0">Here's how {{ $activeChild->first_name ?? 'your child' }} is doing at the learning center today.</p>
             </div>
 
             <!-- Sleek Pill Student Selector -->

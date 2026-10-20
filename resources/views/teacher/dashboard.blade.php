@@ -13,8 +13,8 @@
             <!-- Dynamic Time Greeting Span -->
             <span id="dynamic-greeting" class="text-[#5B8DEF] text-[11px] font-extrabold tracking-widest uppercase mb-2 block">Good Morning</span>
             
-            <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'teacher' }}.</h1>
-            <p class="text-[#6B7086] text-sm font-medium">Here is your classroom overview for today.</p>
+            <h1 class="text-white text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Welcome back, {{ Auth::user()->name ?? 'teacher' }}.</h1>
+            <p class="text-blue-100/80 text-sm font-medium">Here is your classroom overview for today.</p>
         </header>
 
         <!-- 2. STAT CARDS (4 Columns) -->
