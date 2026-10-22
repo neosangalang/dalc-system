@@ -126,65 +126,6 @@
                                 </div>
                             </td>
                         </tr>
-
-                        <!-- READING MODAL (Mobile Optimized) -->
-                        <div x-show="activeViewModal === {{ $report->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                <div x-show="activeViewModal === {{ $report->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="activeViewModal = null"></div>
-                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                <div x-show="activeViewModal === {{ $report->id }}" x-transition class="inline-block align-bottom bg-white rounded-[16px] sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border-[3px] border-slate-300 relative z-10">
-                                    
-                                    <!-- Modal Header -->
-                                    <div class="px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-slate-200 bg-slate-50 flex justify-between items-start shrink-0">
-                                        <div>
-                                            <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ ucwords(str_replace('_', ' ', $report->report_type)) }} Report</h5>
-                                            <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
-                                        </div>
-                                        <button type="button" @click="activeViewModal = null" class="text-slate-400 hover:text-slate-700 ml-4"><i class="fa fa-times text-xl"></i></button>
-                                    </div>
-                                    
-                                    <!-- Modal Body (Scrollable) -->
-                                    <div class="p-4 sm:p-6 max-h-[60vh] sm:max-h-[600px] overflow-y-auto bg-white [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-thumb]:bg-slate-300">
-                                        @if($report->report_type === 'daily')
-                                            <p class="mb-3 sm:mb-4 text-slate-800 font-extrabold text-[14px] sm:text-base">Dear Parent/Guardian,</p>
-                                            
-                                            @php
-                                                $reportDate = $report->report_date ? $report->report_date : $report->created_at->format('Y-m-d');
-                                                $dailyLogWithPhoto = \App\Models\DailyLog::where('student_id', $report->student_id)
-                                                    ->whereDate('log_date', $reportDate)
-                                                    ->whereNotNull('image_path')
-                                                    ->latest()
-                                                    ->first();
-                                            @endphp
-
-                                            @if($dailyLogWithPhoto)
-                                                <div class="text-center mb-5 sm:mb-6 p-2 sm:p-3 bg-slate-50 rounded-xl border-[3px] border-dashed border-slate-300">
-                                                    <img src="{{ route('secure.log-photo', $dailyLogWithPhoto->id) }}" alt="Student Progress Photo" class="max-h-56 sm:max-h-72 w-auto mx-auto rounded-lg shadow-sm border-4 border-white outline outline-1 outline-slate-200">
-                                                </div>
-                                            @endif
-                                            
-                                            <div class="p-4 sm:p-5 shadow-sm bg-white rounded-xl text-[13px] sm:text-base leading-relaxed border-y-2 border-r-2 border-l-4 border-slate-200 border-l-indigo-600 text-slate-700 whitespace-pre-wrap">{{ $report->content }}</div>
-                                            
-                                            <p class="mt-5 sm:mt-6 mb-0 text-slate-600 font-medium italic text-[13px] sm:text-base">Warmly,<br>Teacher {{ $report->teacher->name ?? 'Staff' }}</p>
-                                        @else
-                                            <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border-2 border-slate-300 whitespace-pre-wrap text-[13px] sm:text-sm text-slate-700 leading-relaxed">{{ $report->content }}</div>
-                                        @endif
-
-                                        <div class="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t-[3px] border-dashed border-slate-300">
-                                            @include('components.comment-thread', ['item' => $report])
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Modal Footer -->
-                                    <div class="px-4 sm:px-6 py-4 sm:py-5 bg-slate-50 border-t-2 border-slate-200 flex justify-end shrink-0">
-                                        <button type="button" @click="activeViewModal = null" class="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-slate-800 text-white text-[13px] sm:text-sm font-bold rounded-xl border-2 border-slate-900 hover:bg-slate-900 transition-colors shadow-sm">
-                                            Close Window
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     @empty
                         <tr class="block md:table-row">
                             <td colspan="5" class="block md:table-cell p-4 sm:p-6 bg-white rounded-[16px] md:rounded-none">
@@ -201,6 +142,66 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- READING MODALS (Placed outside <table> so HTML parser does not foster-parent or corrupt the forms) -->
+        @foreach($reports as $report)
+            <div x-show="activeViewModal === {{ $report->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="activeViewModal === {{ $report->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="activeViewModal = null"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div x-show="activeViewModal === {{ $report->id }}" x-transition class="inline-block align-bottom bg-white rounded-[16px] sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border-[3px] border-slate-300 relative z-10">
+                        
+                        <!-- Modal Header -->
+                        <div class="px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-slate-200 bg-slate-50 flex justify-between items-start shrink-0">
+                            <div>
+                                <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-0.5 leading-tight">{{ $report->student->first_name }}'s {{ ucwords(str_replace('_', ' ', $report->report_type)) }} Report</h5>
+                                <p class="text-[11px] sm:text-xs font-medium text-slate-500 m-0">Generated on {{ $report->created_at->format('F j, Y') }}</p>
+                            </div>
+                            <button type="button" @click="activeViewModal = null" class="text-slate-400 hover:text-slate-700 ml-4"><i class="fa fa-times text-xl"></i></button>
+                        </div>
+                        
+                        <!-- Modal Body (Scrollable) -->
+                        <div class="p-4 sm:p-6 max-h-[60vh] sm:max-h-[600px] overflow-y-auto bg-white [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-thumb]:bg-slate-300">
+                            @if($report->report_type === 'daily')
+                                <p class="mb-3 sm:mb-4 text-slate-800 font-extrabold text-[14px] sm:text-base">Dear Parent/Guardian,</p>
+                                
+                                @php
+                                    $reportDate = $report->report_date ? $report->report_date : $report->created_at->format('Y-m-d');
+                                    $dailyLogWithPhoto = \App\Models\DailyLog::where('student_id', $report->student_id)
+                                        ->whereDate('log_date', $reportDate)
+                                        ->whereNotNull('image_path')
+                                        ->latest()
+                                        ->first();
+                                @endphp
+
+                                @if($dailyLogWithPhoto)
+                                    <div class="text-center mb-5 sm:mb-6 p-2 sm:p-3 bg-slate-50 rounded-xl border-[3px] border-dashed border-slate-300">
+                                        <img src="{{ route('secure.log-photo', $dailyLogWithPhoto->id) }}" alt="Student Progress Photo" class="max-h-56 sm:max-h-72 w-auto mx-auto rounded-lg shadow-sm border-4 border-white outline outline-1 outline-slate-200">
+                                    </div>
+                                @endif
+                                
+                                <div class="p-4 sm:p-5 shadow-sm bg-white rounded-xl text-[13px] sm:text-base leading-relaxed border-y-2 border-r-2 border-l-4 border-slate-200 border-l-indigo-600 text-slate-700 whitespace-pre-wrap">{{ $report->content }}</div>
+                                
+                                <p class="mt-5 sm:mt-6 mb-0 text-slate-600 font-medium italic text-[13px] sm:text-base">Warmly,<br>Teacher {{ $report->teacher->name ?? 'Staff' }}</p>
+                            @else
+                                <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border-2 border-slate-300 whitespace-pre-wrap text-[13px] sm:text-sm text-slate-700 leading-relaxed">{{ $report->content }}</div>
+                            @endif
+
+                            <div class="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t-[3px] border-dashed border-slate-300">
+                                @include('components.comment-thread', ['item' => $report])
+                            </div>
+                        </div>
+                        
+                        <!-- Modal Footer -->
+                        <div class="px-4 sm:px-6 py-4 sm:py-5 bg-slate-50 border-t-2 border-slate-200 flex justify-end shrink-0">
+                            <button type="button" @click="activeViewModal = null" class="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-slate-800 text-white text-[13px] sm:text-sm font-bold rounded-xl border-2 border-slate-900 hover:bg-slate-900 transition-colors shadow-sm">
+                                Close Window
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
     @else
         <div class="bg-sky-50 border-2 border-sky-300 text-sky-800 px-4 sm:px-5 py-3 sm:py-4 rounded-xl shadow-sm flex items-center gap-3">

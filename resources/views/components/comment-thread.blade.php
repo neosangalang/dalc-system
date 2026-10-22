@@ -62,7 +62,8 @@
         <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
+            function initQuillEditors() {
+                if (typeof Quill === 'undefined') return;
                 document.querySelectorAll('[id^="editor-"]').forEach(function(editorEl) {
                     if (!editorEl.classList.contains('ql-container')) {
                         new Quill('#' + editorEl.id, {
@@ -81,36 +82,70 @@
                 document.querySelectorAll('.chat-history').forEach(function(box) {
                     box.scrollTop = box.scrollHeight;
                 });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener("DOMContentLoaded", initQuillEditors);
+            } else {
+                initQuillEditors();
+            }
+
+            // Ensure dynamic/Alpine modals trigger Quill initialization if opened
+            document.addEventListener("click", function(e) {
+                if (e.target.closest('[id^="editor-"]') || e.target.closest('button')) {
+                    setTimeout(initQuillEditors, 50);
+                }
             });
 
             window.submitCommentAjax = async function(e, itemId) {
                 e.preventDefault(); 
 
                 let form = document.getElementById('comment-form-' + itemId);
+                if (!form) return;
+
                 let submitBtn = form.querySelector('button[type="submit"]');
                 let hiddenBody = document.getElementById('hidden-body-' + itemId);
                 let quillEditor = document.querySelector('#editor-' + itemId + ' .ql-editor');
 
-                let htmlContent = quillEditor.innerHTML;
-                if (htmlContent === '<p><br></p>' || htmlContent.trim() === '') return; 
-                
-                hiddenBody.value = htmlContent;
+                if (!quillEditor && typeof Quill !== 'undefined') {
+                    initQuillEditors();
+                    quillEditor = document.querySelector('#editor-' + itemId + ' .ql-editor');
+                }
 
-                let originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = 'Posting...';
-                submitBtn.disabled = true;
+                let htmlContent = quillEditor ? quillEditor.innerHTML : (hiddenBody ? hiddenBody.value : '');
+                if (!htmlContent || htmlContent === '<p><br></p>' || htmlContent.trim() === '') return; 
+                
+                if (hiddenBody) {
+                    hiddenBody.value = htmlContent;
+                }
+
+                let originalBtnText = submitBtn ? submitBtn.innerHTML : 'Post';
+                if (submitBtn) {
+                    submitBtn.innerHTML = 'Posting...';
+                    submitBtn.disabled = true;
+                }
 
                 try {
+                    let csrfToken = form.querySelector('input[name="_token"]')?.value || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    let headers = { 
+                        'X-Requested-With': 'XMLHttpRequest' 
+                    };
+                    if (csrfToken) {
+                        headers['X-CSRF-TOKEN'] = csrfToken;
+                    }
+
                     let response = await fetch(form.action, {
                         method: 'POST',
                         body: new FormData(form),
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        headers: headers
                     });
 
                     if (!response.ok) {
                         alert('Backend error: Could not save comment.');
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
+                        if (submitBtn) {
+                            submitBtn.innerHTML = originalBtnText;
+                            submitBtn.disabled = false;
+                        }
                         return;
                     }
 
@@ -134,18 +169,24 @@
 
                     if (newChatHistory && currentChatHistory) {
                         currentChatHistory.innerHTML = newChatHistory.innerHTML;
-                        quillEditor.innerHTML = '';
-                        hiddenBody.value = '';
+                        if (quillEditor) {
+                            quillEditor.innerHTML = '';
+                        }
+                        if (hiddenBody) {
+                            hiddenBody.value = '';
+                        }
                         currentChatHistory.scrollTop = currentChatHistory.scrollHeight;
                     } else {
                         window.location.reload();
                     }
                 } catch (error) {
-                    console.error(error);
+                    console.error('Comment submission error:', error);
                     form.submit();
                 } finally {
-                    submitBtn.innerHTML = originalBtnText;
-                    submitBtn.disabled = false;
+                    if (submitBtn) {
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                    }
                 }
             };
         </script>
