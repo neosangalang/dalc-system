@@ -124,7 +124,7 @@
                         <i class="fa-solid fa-pencil text-[#10B981] text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#10B981]">Daily Logs</h3>
+                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#10B981]">Daily Logging</h3>
                         <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Class Notes / List</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>

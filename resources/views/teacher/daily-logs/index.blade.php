@@ -62,7 +62,7 @@
             <button @click="activeTab = 'history'; if(typeof window.syncStudentFilter === 'function') window.syncStudentFilter();" 
                     :class="activeTab === 'history' ? 'bg-white text-[#3B82F6] shadow-sm border border-black/5' : 'text-[#6B7086] hover:text-[#1E2657]'" 
                     class="flex-1 sm:flex-none px-3.5 sm:px-6 py-2.5 rounded-xl font-extrabold text-[12px] sm:text-[13px] transition-all flex items-center justify-center active:scale-95 text-center">
-                <i class="fa fa-file-contract mr-1.5 sm:mr-2"></i> Documentation
+                <i class="fa fa-file-contract mr-1.5 sm:mr-2"></i> Daily Logs
             </button>
         </div>
     </div>
@@ -165,7 +165,7 @@
         <!-- FILTER BAR WITH SORTING OPTIONS -->
         <div class="bg-white p-3 sm:p-5 rounded-2xl shadow-sm border border-black/15 mb-4 sm:mb-6 space-y-2 sm:space-y-3">
             <h6 class="text-xs sm:text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
-                <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Documentation Filters & Search
+                <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Daily Logs Filters & Search
             </h6>
             
             <div class="grid grid-cols-2 sm:grid-cols-12 gap-2 sm:gap-3">
