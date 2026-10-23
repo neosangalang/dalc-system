@@ -52,6 +52,10 @@ class ReportController extends Controller
             $query->where('report_type', $request->type); 
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         // 4. Execute the query with Pagination
         $reports = $query->latest()->paginate(10)->withQueryString();
 

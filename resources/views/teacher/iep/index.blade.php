@@ -306,12 +306,29 @@
                                     <div class="mb-6 interactive-checklist-container">
                                         <div class="flex justify-between items-center mb-2">
                                             <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0">Interactive Activity Tracker</label>
-                                            <button type="button" class="text-[#6B7086] hover:text-[#3B82F6] text-[11px] font-extrabold transition-colors toggle-raw-text-btn flex items-center bg-white px-3 py-1.5 rounded-lg border border-black/15 shadow-sm">
-                                                <i class="fa fa-pen mr-1.5"></i> Edit Text
+                                            <button type="button" class="text-[#6B7086] hover:text-[#3B82F6] text-[11px] font-extrabold transition-colors toggle-edit-goal-btn flex items-center bg-white px-3 py-1.5 rounded-lg border border-black/15 shadow-sm cursor-pointer">
+                                                <i class="fa fa-pen mr-1.5"></i> <span class="toggle-btn-label">Edit Goal Fields</span>
                                             </button>
                                         </div>
+                                        
+                                        <!-- Visual Checklist with interactive checkboxes for progress tracking -->
                                         <div class="visual-checklist p-4 border border-black/15 rounded-2xl bg-white shadow-sm max-h-[400px] overflow-y-auto text-[13px] text-[#6B7086] custom-scrollbar"></div>
-                                        <textarea name="goal_description" class="w-full rounded-2xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-[#F4F6FA] goal-raw-text hidden mt-3 custom-scrollbar" rows="10" required>{{ $goal->goal_description }}</textarea>
+                                        
+                                        <!-- Structured UI Editor for editing objectives & activities with dedicated UI fields -->
+                                        <div class="goal-structured-editor hidden mt-3 space-y-4 p-4 border border-black/15 rounded-2xl bg-[#F8FAFC]">
+                                            <div class="flex items-center justify-between pb-2 border-b border-black/10">
+                                                <span class="text-[11px] font-extrabold text-[#1E2657] uppercase tracking-wider flex items-center">
+                                                    <i class="fa-solid fa-pen-to-square text-[#3B82F6] mr-1.5"></i> Edit Objectives & Activities
+                                                </span>
+                                                <button type="button" class="add-edit-objective-btn inline-flex items-center px-2.5 py-1 bg-white border border-[#3B82F6]/30 text-[#3B82F6] hover:bg-[#3B82F6]/10 text-[10px] font-extrabold rounded-lg transition-colors shadow-sm cursor-pointer">
+                                                    <i class="fa fa-plus mr-1"></i> Add Objective
+                                                </button>
+                                            </div>
+                                            <div class="edit-objectives-cards-list space-y-3"></div>
+                                        </div>
+
+                                        <!-- Hidden Raw Textarea synced with the structured editor and checklist -->
+                                        <textarea name="goal_description" class="hidden goal-raw-text" required>{{ $goal->goal_description }}</textarea>
                                     </div>
                                     
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-[#F4F6FA] p-5 rounded-2xl border border-black/10">
@@ -387,6 +404,16 @@
                             </div>
                         </div>
 
+                        <!-- STRATEGY & AI BUILDER SECTION -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0">
+                                <i class="fa-solid fa-wand-magic-sparkles text-[#8B5CF6] mr-1.5"></i> Goal Strategy Options
+                            </label>
+                            <button type="button" id="manual-goal-btn" class="inline-flex items-center justify-center px-3.5 py-1.5 bg-white border border-[#3B82F6] text-[#3B82F6] hover:bg-[#3B82F6] hover:text-white text-xs font-extrabold rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
+                                <i class="fa-solid fa-pen-to-square mr-1.5"></i> Manually Input Custom Goal (Bypass AI)
+                            </button>
+                        </div>
+
                         <!-- AI BUILDER SECTION -->
                         <div class="p-5 mb-6 bg-[#F4F6FA] border border-dashed border-[#3B82F6]/30 rounded-2xl relative overflow-hidden shadow-inner">
                             <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none hidden sm:block">
@@ -425,9 +452,37 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Final Goal Description</label>
-                            <textarea id="final-goal-input" name="goal_description" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm custom-scrollbar" rows="10" required placeholder="The selected Objective and Activities will appear here..."></textarea>
+                        <!-- OBJECTIVES & ACTIVITIES STRUCTURED BUILDER -->
+                        <div class="border-t border-black/10 pt-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <label class="block text-[12px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0 flex items-center">
+                                        <i class="fa-solid fa-bullseye text-[#3B82F6] mr-2 text-sm"></i> Objectives & Activities Area
+                                    </label>
+                                    <p class="text-[11px] font-medium text-[#6B7086] m-0 mt-0.5">Edit generated objectives or manually add customized activities in distinct fields.</p>
+                                </div>
+                                <button type="button" id="add-objective-card-btn" class="inline-flex items-center px-3 py-1.5 bg-white border border-[#3B82F6]/30 text-[#3B82F6] hover:bg-[#3B82F6]/10 text-xs font-extrabold rounded-xl transition-colors shadow-sm cursor-pointer shrink-0">
+                                    <i class="fa fa-plus mr-1.5"></i> Add Objective
+                                </button>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div id="objectives-empty-state" class="p-6 text-center border-2 border-dashed border-black/15 rounded-2xl bg-[#F8FAFC]">
+                                <div class="w-10 h-10 rounded-full bg-white border border-black/10 flex items-center justify-center mx-auto mb-2 text-[#9CA0AF] shadow-sm">
+                                    <i class="fa-solid fa-layer-group text-sm"></i>
+                                </div>
+                                <p class="text-[12px] font-extrabold text-[#1E2657] m-0">No Objectives Staged Yet</p>
+                                <p class="text-[11px] font-medium text-[#9CA0AF] m-0 mt-1 mb-3">Generate strategies with AI above, or input your custom objectives manually from scratch.</p>
+                                <button type="button" id="empty-state-manual-btn" class="inline-flex items-center px-3.5 py-1.5 bg-[#3B82F6] text-white text-xs font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm cursor-pointer">
+                                    <i class="fa-solid fa-plus mr-1.5"></i> Add Custom Objective
+                                </button>
+                            </div>
+
+                            <!-- Dynamic Objectives Cards Container -->
+                            <div id="objectives-cards-container" class="space-y-4"></div>
+
+                            <!-- Hidden compiled goal_description that strictly preserves the DB/PDF/Guardian format -->
+                            <textarea id="final-goal-input" name="goal_description" class="hidden" required></textarea>
                         </div>
                     </div>
                     
@@ -512,8 +567,235 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ==========================================
-// 2. AI BUILDER LOGIC
 // ==========================================
+// 2. UNIVERSAL IEP GOAL PARSER & COMPILER
+// ==========================================
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function parseGoalDescription(rawText) {
+    if (!rawText || !rawText.trim()) return [];
+    
+    let sections = rawText.split(/-{3,}/);
+    let results = [];
+
+    sections.forEach(sec => {
+        let text = sec.trim();
+        if (!text) return;
+
+        let objText = '';
+        let actLines = [];
+
+        if (/ACTIVITIES:/i.test(text)) {
+            let parts = text.split(/ACTIVITIES:/i);
+            objText = parts[0].replace(/OBJECTIVE:/i, '').trim();
+            actLines = parts[1].trim().split('\n');
+        } else {
+            objText = text.replace(/OBJECTIVE:/i, '').trim();
+        }
+
+        let activities = [];
+        actLines.forEach(line => {
+            let l = line.trim();
+            if (!l) return;
+            if (l.startsWith('- ')) l = l.replace('- ', '[ ] ');
+
+            let checked = /^\[x\]/i.test(l);
+            let actContent = l.replace(/^\[[\s]*\]|^\[x\]/i, '').trim();
+            if (actContent) {
+                activities.push({ text: actContent, checked: checked });
+            }
+        });
+
+        if (activities.length === 0) {
+            activities.push({ text: '', checked: false });
+        }
+
+        results.push({
+            objective: objText,
+            activities: activities
+        });
+    });
+
+    return results;
+}
+
+function compileGoalDescription(objectivesArray) {
+    if (!objectivesArray || objectivesArray.length === 0) return '';
+    
+    let blocks = [];
+    objectivesArray.forEach(item => {
+        let obj = (item.objective || '').trim();
+        let acts = (item.activities || [])
+            .map(a => typeof a === 'string' ? { text: a.trim(), checked: false } : { text: (a.text || '').trim(), checked: !!a.checked })
+            .filter(a => a.text.length > 0);
+        
+        let actLines = acts.map(a => (a.checked ? '[x] ' : '[ ] ') + a.text);
+
+        if (obj || actLines.length > 0) {
+            blocks.push(`OBJECTIVE:\n${obj}\n\nACTIVITIES:\n${actLines.join('\n')}`);
+        }
+    });
+
+    return blocks.join('\n\n------------------------\n\n');
+}
+
+// ==========================================
+// 3. CREATE GOAL MODAL (AI + MANUAL BUILDER)
+// ==========================================
+let createObjectives = [];
+
+function renderCreateCards() {
+    const container = document.getElementById('objectives-cards-container');
+    const emptyState = document.getElementById('objectives-empty-state');
+
+    if (!container) return;
+
+    if (createObjectives.length === 0) {
+        if (emptyState) emptyState.classList.remove('hidden');
+        container.innerHTML = '';
+        syncCreateGoalDescription();
+        return;
+    }
+
+    if (emptyState) emptyState.classList.add('hidden');
+    container.innerHTML = '';
+
+    createObjectives.forEach((objItem, objIndex) => {
+        const card = document.createElement('div');
+        card.className = 'objective-card bg-[#F8FAFC] border border-black/15 rounded-2xl p-4 sm:p-5 relative transition-all duration-150 shadow-sm';
+        
+        let actsHtml = '';
+        objItem.activities.forEach((act, actIndex) => {
+            let actText = typeof act === 'string' ? act : (act.text || '');
+            actsHtml += `
+                <div class="activity-row flex items-center gap-2 mb-2" data-act-index="${actIndex}">
+                    <span class="w-6 h-6 rounded-lg bg-white border border-black/10 flex items-center justify-center text-[#9CA0AF] text-[10px] font-extrabold shrink-0 shadow-sm">•</span>
+                    <input type="text" class="activity-input flex-1 rounded-xl border-black/15 px-3.5 py-2 text-[12px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" placeholder="e.g. Visual routine schedule" value="${escapeHtml(actText)}">
+                    <button type="button" class="remove-act-btn text-[#9CA0AF] hover:text-rose-500 p-2 transition-colors rounded-lg shrink-0 cursor-pointer" title="Remove Activity">
+                        <i class="fa fa-times text-xs"></i>
+                    </button>
+                </div>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-[#3B82F6] text-white flex items-center justify-center text-[10px] font-extrabold">${objIndex + 1}</span>
+                    <h6 class="text-[13px] font-extrabold text-[#1E2657] m-0">Objective #${objIndex + 1}</h6>
+                </div>
+                ${createObjectives.length > 1 ? `
+                    <button type="button" class="remove-card-btn text-[#9CA0AF] hover:text-rose-500 text-xs font-bold transition-colors p-1 flex items-center gap-1 cursor-pointer">
+                        <i class="fa fa-trash-alt"></i> <span class="hidden sm:inline">Delete</span>
+                    </button>
+                ` : ''}
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5">Objective Goal Statement</label>
+                <textarea class="objective-input w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white custom-scrollbar" rows="2" placeholder="e.g. Student will independently transition between class activities...">${escapeHtml(objItem.objective)}</textarea>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <label class="block text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest m-0">Activities & Interventions</label>
+                    <button type="button" class="add-act-btn text-[11px] font-extrabold text-[#3B82F6] hover:text-blue-700 transition-colors flex items-center gap-1 cursor-pointer">
+                        <i class="fa fa-plus text-[10px]"></i> Add Activity
+                    </button>
+                </div>
+                <div class="activities-container">
+                    ${actsHtml}
+                </div>
+            </div>
+        `;
+
+        const objInput = card.querySelector('.objective-input');
+        objInput.addEventListener('input', (e) => {
+            createObjectives[objIndex].objective = e.target.value;
+            syncCreateGoalDescription();
+        });
+
+        card.querySelectorAll('.activity-row').forEach(row => {
+            const actIdx = parseInt(row.getAttribute('data-act-index'));
+            const actInput = row.querySelector('.activity-input');
+            const removeActBtn = row.querySelector('.remove-act-btn');
+
+            actInput.addEventListener('input', (e) => {
+                createObjectives[objIndex].activities[actIdx] = e.target.value;
+                syncCreateGoalDescription();
+            });
+
+            removeActBtn.addEventListener('click', () => {
+                createObjectives[objIndex].activities.splice(actIdx, 1);
+                if (createObjectives[objIndex].activities.length === 0) {
+                    createObjectives[objIndex].activities.push('');
+                }
+                renderCreateCards();
+                syncCreateGoalDescription();
+            });
+        });
+
+        const addActBtn = card.querySelector('.add-act-btn');
+        addActBtn.addEventListener('click', () => {
+            createObjectives[objIndex].activities.push('');
+            renderCreateCards();
+            syncCreateGoalDescription();
+        });
+
+        const removeCardBtn = card.querySelector('.remove-card-btn');
+        if (removeCardBtn) {
+            removeCardBtn.addEventListener('click', () => {
+                createObjectives.splice(objIndex, 1);
+                renderCreateCards();
+                syncCreateGoalDescription();
+            });
+        }
+
+        container.appendChild(card);
+    });
+
+    syncCreateGoalDescription();
+}
+
+function syncCreateGoalDescription() {
+    const hiddenInput = document.getElementById('final-goal-input');
+    if (!hiddenInput) return;
+    hiddenInput.value = compileGoalDescription(createObjectives);
+}
+
+function addBlankCustomGoal() {
+    createObjectives.push({
+        objective: '',
+        activities: ['', '']
+    });
+    renderCreateCards();
+    const container = document.getElementById('objectives-cards-container');
+    if (container) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const lastCardObjInput = container.querySelector('.objective-card:last-child .objective-input');
+        if (lastCardObjInput) lastCardObjInput.focus();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const manualBtn = document.getElementById('manual-goal-btn');
+    const emptyManualBtn = document.getElementById('empty-state-manual-btn');
+    const addCardBtn = document.getElementById('add-objective-card-btn');
+
+    if (manualBtn) manualBtn.addEventListener('click', addBlankCustomGoal);
+    if (emptyManualBtn) emptyManualBtn.addEventListener('click', addBlankCustomGoal);
+    if (addCardBtn) addCardBtn.addEventListener('click', addBlankCustomGoal);
+});
+
+// AI Generation Trigger
 document.getElementById('generate-goals-btn').addEventListener('click', function() {
     let btn = this;
     let presentLevelText = document.getElementById('ai-present-level').value;
@@ -542,7 +824,6 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
             resultsContainer.classList.remove('hidden');
             data.goals.forEach((item) => {
                 let activityList = item.activities.map(a => `<li class="mb-1.5">${a}</li>`).join('');
-                let rawActivities = item.activities.map(a => `[ ] ${a}`).join('\n');
                  
                 let tr = document.createElement('tr');
                 tr.className = "block sm:table-row bg-white border border-black/10 sm:border-none rounded-2xl sm:rounded-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors";
@@ -556,7 +837,7 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
                         <ul class="mb-0 pl-4 list-disc text-[#6B7086] text-[12px] font-medium leading-relaxed">${activityList}</ul>
                     </td>
                     <td class="block sm:table-cell text-center align-middle py-4 px-5 bg-[#F4F6FA] sm:bg-transparent rounded-b-2xl sm:rounded-none">
-                        <button type="button" class="w-full inline-flex items-center justify-center px-4 py-2 border border-[#10B981]/50 text-[#10B981] text-[12px] font-extrabold rounded-xl hover:bg-[#10B981]/10 transition-colors use-goal-btn shadow-sm">
+                        <button type="button" class="w-full inline-flex items-center justify-center px-4 py-2 border border-[#10B981]/50 text-[#10B981] text-[12px] font-extrabold rounded-xl hover:bg-[#10B981]/10 transition-colors use-goal-btn shadow-sm cursor-pointer">
                             <i class="fa fa-arrow-down mr-1.5"></i> Add to Goal
                         </button>
                     </td>
@@ -564,19 +845,22 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
 
                 let useBtn = tr.querySelector('.use-goal-btn');
                 useBtn.onclick = function() {
-                    let formattedText = `OBJECTIVE:\n${item.objective}\n\nACTIVITIES:\n${rawActivities}`;
-                    let finalInput = document.getElementById('final-goal-input');
-                    
-                    if (finalInput.value.trim() === '') { finalInput.value = formattedText; } 
-                    else { finalInput.value += `\n\n------------------------\n\n${formattedText}`; }
-                    
-                    this.innerHTML = '<i class="fa fa-check mr-1"></i> Added';
+                    createObjectives.push({
+                        objective: item.objective,
+                        activities: Array.isArray(item.activities) ? [...item.activities] : []
+                    });
+                    renderCreateCards();
+
+                    this.innerHTML = '<i class="fa fa-check mr-1"></i> Added to Goal';
                     this.className = "w-full inline-flex items-center justify-center px-4 py-2 bg-[#10B981] text-white text-[12px] font-extrabold rounded-xl transition-colors use-goal-btn shadow-sm";
                     
                     setTimeout(() => {
                         this.innerHTML = '<i class="fa fa-arrow-down mr-1"></i> Add Another';
                         this.className = "w-full inline-flex items-center justify-center px-4 py-2 border border-[#10B981]/50 text-[#10B981] text-[12px] font-extrabold rounded-xl hover:bg-[#10B981]/10 transition-colors use-goal-btn shadow-sm";
                     }, 1500);
+
+                    const container = document.getElementById('objectives-cards-container');
+                    if (container) container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 };
 
                 tbody.appendChild(tr);
@@ -592,21 +876,161 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
 });
 
 // ==========================================
-// 3. INTERACTIVE CHECKLIST LOGIC
+// 4. INTERACTIVE CHECKLIST & EDIT MODAL LOGIC
 // ==========================================
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('.interactive-checklist-container').forEach(container => {
         let textarea = container.querySelector('.goal-raw-text');
         let visualList = container.querySelector('.visual-checklist');
+        let editorWrapper = container.querySelector('.goal-structured-editor');
+        let editCardsContainer = container.querySelector('.edit-objectives-cards-list');
+        let addEditObjBtn = container.querySelector('.add-edit-objective-btn');
+        let toggleBtn = container.querySelector('.toggle-edit-goal-btn');
+        let toggleLabel = container.querySelector('.toggle-btn-label');
         let form = container.closest('form');
         let progressInput = form.querySelector('.goal-progress-input');
         let statusSelect = form.querySelector('.goal-status-select');
-        let toggleBtn = container.querySelector('.toggle-raw-text-btn');
 
-        toggleBtn.addEventListener('click', () => {
-            textarea.classList.toggle('hidden');
-            visualList.classList.toggle('hidden');
-        });
+        let isEditing = false;
+        let currentObjectives = [];
+
+        function renderEditCards() {
+            if (!editCardsContainer) return;
+            editCardsContainer.innerHTML = '';
+
+            if (currentObjectives.length === 0) {
+                currentObjectives.push({ objective: '', activities: [{ text: '', checked: false }] });
+            }
+
+            currentObjectives.forEach((objItem, objIndex) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white border border-black/15 rounded-xl p-3.5 sm:p-4 shadow-sm';
+
+                let actsHtml = '';
+                objItem.activities.forEach((act, actIndex) => {
+                    actsHtml += `
+                        <div class="edit-activity-row flex items-center gap-2 mb-2" data-act-index="${actIndex}">
+                            <input type="checkbox" class="edit-act-chk rounded border-black/20 text-[#3B82F6] focus:ring-[#3B82F6] cursor-pointer w-4 h-4 shrink-0 shadow-sm" ${act.checked ? 'checked' : ''}>
+                            <input type="text" class="edit-act-text flex-1 rounded-xl border-black/15 px-3 py-1.5 text-[12px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white" placeholder="Activity / Intervention text" value="${escapeHtml(act.text)}">
+                            <button type="button" class="remove-edit-act-btn text-[#9CA0AF] hover:text-rose-500 p-1.5 transition-colors shrink-0 cursor-pointer" title="Remove Activity">
+                                <i class="fa fa-times text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-extrabold text-[#3B82F6] uppercase tracking-wider">Objective #${objIndex + 1}</span>
+                        ${currentObjectives.length > 1 ? `
+                            <button type="button" class="remove-edit-card-btn text-[#9CA0AF] hover:text-rose-500 text-xs transition-colors cursor-pointer">
+                                <i class="fa fa-trash-alt"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1">Objective Statement</label>
+                        <textarea class="edit-obj-statement w-full rounded-xl border-black/15 px-3 py-2 text-[12px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white custom-scrollbar" rows="2">${escapeHtml(objItem.objective)}</textarea>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest m-0">Activities</label>
+                            <button type="button" class="add-edit-act-btn text-[10px] font-extrabold text-[#3B82F6] hover:text-blue-700 transition-colors flex items-center gap-1 cursor-pointer">
+                                <i class="fa fa-plus text-[9px]"></i> Add Activity
+                            </button>
+                        </div>
+                        <div class="edit-activities-list">
+                            ${actsHtml}
+                        </div>
+                    </div>
+                `;
+
+                const objInput = card.querySelector('.edit-obj-statement');
+                objInput.addEventListener('input', (e) => {
+                    currentObjectives[objIndex].objective = e.target.value;
+                    syncEditToTextarea();
+                });
+
+                card.querySelectorAll('.edit-activity-row').forEach(row => {
+                    const actIdx = parseInt(row.getAttribute('data-act-index'));
+                    const actChk = row.querySelector('.edit-act-chk');
+                    const actText = row.querySelector('.edit-act-text');
+                    const remBtn = row.querySelector('.remove-edit-act-btn');
+
+                    actChk.addEventListener('change', () => {
+                        currentObjectives[objIndex].activities[actIdx].checked = actChk.checked;
+                        syncEditToTextarea();
+                    });
+
+                    actText.addEventListener('input', () => {
+                        currentObjectives[objIndex].activities[actIdx].text = actText.value;
+                        syncEditToTextarea();
+                    });
+
+                    remBtn.addEventListener('click', () => {
+                        currentObjectives[objIndex].activities.splice(actIdx, 1);
+                        if (currentObjectives[objIndex].activities.length === 0) {
+                            currentObjectives[objIndex].activities.push({ text: '', checked: false });
+                        }
+                        renderEditCards();
+                        syncEditToTextarea();
+                    });
+                });
+
+                const addActBtn = card.querySelector('.add-edit-act-btn');
+                addActBtn.addEventListener('click', () => {
+                    currentObjectives[objIndex].activities.push({ text: '', checked: false });
+                    renderEditCards();
+                    syncEditToTextarea();
+                });
+
+                const remCardBtn = card.querySelector('.remove-edit-card-btn');
+                if (remCardBtn) {
+                    remCardBtn.addEventListener('click', () => {
+                        currentObjectives.splice(objIndex, 1);
+                        renderEditCards();
+                        syncEditToTextarea();
+                    });
+                }
+
+                editCardsContainer.appendChild(card);
+            });
+        }
+
+        function syncEditToTextarea() {
+            textarea.value = compileGoalDescription(currentObjectives);
+            renderChecklist();
+        }
+
+        if (toggleBtn && editorWrapper && visualList) {
+            toggleBtn.addEventListener('click', () => {
+                isEditing = !isEditing;
+                if (isEditing) {
+                    editorWrapper.classList.remove('hidden');
+                    visualList.classList.add('hidden');
+                    if (toggleLabel) toggleLabel.textContent = 'View Tracker Checklist';
+                    toggleBtn.classList.add('bg-blue-50', 'text-[#3B82F6]', 'border-[#3B82F6]/30');
+                    currentObjectives = parseGoalDescription(textarea.value);
+                    renderEditCards();
+                } else {
+                    editorWrapper.classList.add('hidden');
+                    visualList.classList.remove('hidden');
+                    if (toggleLabel) toggleLabel.textContent = 'Edit Goal Fields';
+                    toggleBtn.classList.remove('bg-blue-50', 'text-[#3B82F6]', 'border-[#3B82F6]/30');
+                    renderChecklist();
+                }
+            });
+        }
+
+        if (addEditObjBtn) {
+            addEditObjBtn.addEventListener('click', () => {
+                currentObjectives.push({ objective: '', activities: [{ text: '', checked: false }] });
+                renderEditCards();
+                syncEditToTextarea();
+            });
+        }
 
         textarea.addEventListener('input', renderChecklist);
         function renderChecklist() {
@@ -646,7 +1070,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             
             if(totalBoxes === 0 && textarea.value.trim() !== '') {
-                html += `<div class="text-[#9CA0AF] text-[13px] italic px-1 mt-2">No trackable activities found. Click 'Edit Text' to see the raw text or add manual brackets [ ].</div>`;
+                html += `<div class="text-[#9CA0AF] text-[13px] italic px-1 mt-2">No trackable activities found. Click 'Edit Goal Fields' to add activities.</div>`;
             }
 
             visualList.innerHTML = html;
