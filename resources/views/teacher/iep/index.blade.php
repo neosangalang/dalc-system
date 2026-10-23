@@ -303,7 +303,7 @@
                                     @csrf
                                     @method('PUT')
                                     
-                                    <div class="mb-6 interactive-checklist-container">
+                                    <div class="mb-6 interactive-checklist-container" data-goal-domain="{{ $goal->domain }}">
                                         <div class="flex justify-between items-center mb-2">
                                             <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0">Interactive Activity Tracker</label>
                                             <button type="button" class="text-[#6B7086] hover:text-[#3B82F6] text-[11px] font-extrabold transition-colors toggle-edit-goal-btn flex items-center bg-white px-3 py-1.5 rounded-lg border border-black/15 shadow-sm cursor-pointer">
@@ -316,6 +316,39 @@
                                         
                                         <!-- Structured UI Editor for editing objectives & activities with dedicated UI fields -->
                                         <div class="goal-structured-editor hidden mt-3 space-y-4 p-4 border border-black/15 rounded-2xl bg-[#F8FAFC]">
+                                            
+                                            <!-- PLOP Retention & AI Suggestions in Goal Editing Phase -->
+                                            <div class="p-4 bg-white border border-black/15 rounded-2xl shadow-sm">
+                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                                                    <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-wider m-0 flex items-center">
+                                                        <i class="fa-solid fa-clipboard-user text-[#8B5CF6] mr-1.5"></i> Present Level of Performance (PLOP)
+                                                    </label>
+                                                    <span class="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#8B5CF6] bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 w-fit">
+                                                        <i class="fa-solid fa-layer-group text-[9px]"></i> Domain: {{ $goal->domain }}
+                                                    </span>
+                                                </div>
+                                                <p class="text-[11px] font-medium text-[#6B7086] mb-2.5 m-0 leading-relaxed">The student's baseline performance context. You can edit this directly and request additional AI suggestions below without restarting.</p>
+                                                
+                                                <textarea name="plop" class="edit-plop-input w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[12px] font-medium text-[#1E2657] focus:border-[#8B5CF6] focus:ring-[#8B5CF6] shadow-sm bg-white mb-2.5 custom-scrollbar" rows="3" placeholder="Enter Present Level of Performance...">{{ $goal->plop }}</textarea>
+                                                
+                                                <button type="button" class="generate-edit-ai-btn w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#8B5CF6] text-white text-[12px] font-extrabold rounded-xl hover:bg-purple-600 transition-colors shadow-sm cursor-pointer">
+                                                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Request Additional AI Suggestions
+                                                </button>
+                                                
+                                                <!-- AI Suggestions Results in Edit Modal -->
+                                                <div class="edit-ai-results-container mt-3 hidden border-t border-black/10 pt-3">
+                                                    <div class="flex items-center justify-between mb-2">
+                                                        <span class="text-[10px] font-extrabold text-[#10B981] uppercase tracking-widest flex items-center">
+                                                            <i class="fa-solid fa-lightbulb mr-1.5"></i> Suggested Strategies (Based on PLOP)
+                                                        </span>
+                                                        <button type="button" class="dismiss-edit-ai-btn text-[#9CA0AF] hover:text-slate-600 text-xs font-bold transition-colors">
+                                                            <i class="fa fa-times"></i> Close
+                                                        </button>
+                                                    </div>
+                                                    <div class="edit-ai-results-list space-y-2.5 max-h-[260px] overflow-y-auto custom-scrollbar pr-1"></div>
+                                                </div>
+                                            </div>
+
                                             <div class="flex items-center justify-between pb-2 border-b border-black/10">
                                                 <span class="text-[11px] font-extrabold text-[#1E2657] uppercase tracking-wider flex items-center">
                                                     <i class="fa-solid fa-pen-to-square text-[#3B82F6] mr-1.5"></i> Edit Objectives & Activities
@@ -338,10 +371,17 @@
                                         </div>
                                         <div>
                                             <label class="block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Status</label>
-                                            <select name="status" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm goal-status-select bg-white" required>
-                                                <option value="in_progress" {{ $goal->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                                                <option value="achieved" {{ $goal->status == 'achieved' ? 'selected' : '' }}>Achieved</option>
-                                            </select>
+                                            <!-- Automated Status Tracking: manual select dropdown removed -->
+                                            <input type="hidden" name="status" class="goal-status-hidden" value="{{ $goal->progress_percentage == 100 ? 'achieved' : 'in_progress' }}">
+                                            <div class="goal-status-display flex items-center gap-2 px-4 py-2.5 rounded-xl border font-extrabold text-[13px] shadow-sm select-none transition-all {{ $goal->progress_percentage == 100 ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : 'border-amber-200 bg-amber-50 text-amber-600' }}">
+                                                @if($goal->progress_percentage == 100)
+                                                    <i class="fa fa-circle-check text-emerald-500 text-[14px]"></i>
+                                                    <span>Complete</span>
+                                                @else
+                                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                                    <span>In Progress</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
 
@@ -889,10 +929,124 @@ document.addEventListener("DOMContentLoaded", function() {
         let toggleLabel = container.querySelector('.toggle-btn-label');
         let form = container.closest('form');
         let progressInput = form.querySelector('.goal-progress-input');
-        let statusSelect = form.querySelector('.goal-status-select');
+        let statusHidden = form.querySelector('.goal-status-hidden');
+        let statusDisplay = form.querySelector('.goal-status-display');
+
+        // PLOP & AI Elements in Edit Modal
+        let editPlopInput = container.querySelector('.edit-plop-input');
+        let editAiBtn = container.querySelector('.generate-edit-ai-btn');
+        let editAiResults = container.querySelector('.edit-ai-results-container');
+        let editAiList = container.querySelector('.edit-ai-results-list');
+        let dismissAiBtn = container.querySelector('.dismiss-edit-ai-btn');
+        let goalDomain = container.getAttribute('data-goal-domain') || '';
 
         let isEditing = false;
         let currentObjectives = [];
+
+        function updateStatusDisplay(percent) {
+            let isComplete = (percent === 100);
+            if (statusHidden) {
+                statusHidden.value = isComplete ? 'achieved' : 'in_progress';
+            }
+            if (statusDisplay) {
+                if (isComplete) {
+                    statusDisplay.className = 'goal-status-display flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 font-extrabold text-[13px] shadow-sm select-none transition-all';
+                    statusDisplay.innerHTML = '<i class="fa fa-circle-check text-emerald-500 text-[14px]"></i> <span>Complete</span>';
+                } else {
+                    statusDisplay.className = 'goal-status-display flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-600 font-extrabold text-[13px] shadow-sm select-none transition-all';
+                    statusDisplay.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> <span>In Progress</span>';
+                }
+            }
+        }
+
+        // Handle on-demand AI suggestion generation inside edit modal
+        if (editAiBtn && editPlopInput && editAiResults && editAiList) {
+            if (dismissAiBtn) {
+                dismissAiBtn.addEventListener('click', () => {
+                    editAiResults.classList.add('hidden');
+                });
+            }
+
+            editAiBtn.addEventListener('click', function() {
+                let plopText = editPlopInput.value.trim();
+                if (!plopText) {
+                    alert('Please enter or update the Present Level of Performance (PLOP) first!');
+                    editPlopInput.focus();
+                    return;
+                }
+
+                let originalBtnHtml = editAiBtn.innerHTML;
+                editAiBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Analyzing PLOP...';
+                editAiBtn.disabled = true;
+
+                fetch("{{ route('teacher.iep-goals.generate-ai') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        domain: goalDomain,
+                        present_level: plopText
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    editAiBtn.innerHTML = originalBtnHtml;
+                    editAiBtn.disabled = false;
+
+                    if (data.success && Array.isArray(data.goals)) {
+                        editAiList.innerHTML = '';
+                        editAiResults.classList.remove('hidden');
+
+                        data.goals.forEach(item => {
+                            let actListHtml = (item.activities || []).map(a => `<li class="text-[11px] text-[#6B7086]">${escapeHtml(a)}</li>`).join('');
+                            let card = document.createElement('div');
+                            card.className = 'p-3 bg-[#F8FAFC] border border-black/10 rounded-xl shadow-xs flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:border-[#8B5CF6]/40 transition-colors';
+                            card.innerHTML = `
+                                <div class="flex-1">
+                                    <span class="text-[10px] font-extrabold text-[#8B5CF6] uppercase tracking-wider block mb-1">Suggested Objective</span>
+                                    <p class="text-[12px] font-bold text-[#1E2657] m-0 mb-1 leading-snug">${escapeHtml(item.objective)}</p>
+                                    <ul class="list-disc pl-4 space-y-0.5 m-0 mb-0">${actListHtml}</ul>
+                                </div>
+                                <button type="button" class="add-ai-to-edit-btn inline-flex items-center justify-center px-3 py-1.5 bg-[#10B981] hover:bg-emerald-600 text-white text-[11px] font-extrabold rounded-lg transition-colors shrink-0 shadow-sm cursor-pointer self-start sm:self-center">
+                                    <i class="fa fa-plus mr-1"></i> Add to Goal
+                                </button>
+                            `;
+
+                            let addBtn = card.querySelector('.add-ai-to-edit-btn');
+                            addBtn.addEventListener('click', function() {
+                                currentObjectives.push({
+                                    objective: item.objective,
+                                    activities: (item.activities || []).map(a => ({ text: a, checked: false }))
+                                });
+                                renderEditCards();
+                                syncEditToTextarea();
+
+                                this.innerHTML = '<i class="fa fa-check mr-1"></i> Added';
+                                this.classList.remove('bg-[#10B981]', 'hover:bg-emerald-600');
+                                this.classList.add('bg-slate-400', 'cursor-default');
+                                this.disabled = true;
+
+                                const containerEl = editCardsContainer;
+                                if (containerEl) {
+                                    containerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                }
+                            });
+
+                            editAiList.appendChild(card);
+                        });
+                    } else {
+                        alert("AI Error: " + (data.message || 'Could not parse suggestions.'));
+                    }
+                })
+                .catch(err => {
+                    editAiBtn.innerHTML = originalBtnHtml;
+                    editAiBtn.disabled = false;
+                    alert("Something went wrong communicating with the AI service.");
+                });
+            });
+        }
 
         function renderEditCards() {
             if (!editCardsContainer) return;
@@ -1082,11 +1236,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 progressInput.value = percent;
                 progressInput.classList.add('bg-slate-100', 'text-slate-500', 'pointer-events-none'); 
                 
-                if (percent === 100) { statusSelect.value = 'achieved'; } 
-                else { statusSelect.value = 'in_progress'; }
+                updateStatusDisplay(percent);
             } else {
                 progressInput.readOnly = false;
                 progressInput.classList.remove('bg-slate-100', 'text-slate-500', 'pointer-events-none');
+                updateStatusDisplay(parseInt(progressInput.value) || 0);
             }
 
             visualList.querySelectorAll('.dynamic-checkbox').forEach(chk => {
@@ -1107,6 +1261,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             });
         }
+
+        if (progressInput) {
+            progressInput.addEventListener('input', function() {
+                let val = Math.min(100, Math.max(0, parseInt(this.value) || 0));
+                updateStatusDisplay(val);
+            });
+        }
+
         renderChecklist();
     });
 });

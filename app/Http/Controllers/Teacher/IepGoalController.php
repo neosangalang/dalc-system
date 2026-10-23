@@ -128,14 +128,24 @@ class IepGoalController extends Controller
         $request->validate([
             'goal_description' => 'required|string',
             'progress_percentage' => 'required|integer|min:0|max:100',
-            'status' => 'required|string',
+            'status' => 'nullable|string',
+            'plop' => 'nullable|string',
         ]);
 
-        $goal->update([
+        // Automated progress status tracking: Complete ('achieved') ONLY when progress reaches exactly 100%
+        $calculatedStatus = ((int)$request->progress_percentage === 100) ? 'achieved' : 'in_progress';
+
+        $updateData = [
             'goal_description' => $request->goal_description,
             'progress_percentage' => $request->progress_percentage,
-            'status' => $request->status,
-        ]);
+            'status' => $calculatedStatus,
+        ];
+
+        if ($request->has('plop')) {
+            $updateData['plop'] = $request->plop;
+        }
+
+        $goal->update($updateData);
 
         // Notify the Guardian
         try {
