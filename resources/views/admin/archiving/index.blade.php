@@ -204,25 +204,17 @@
                             </div>
                             
                             <div class="flex flex-wrap gap-2 ml-0 sm:ml-[22px]">
-                                {{-- View Button --}}
-                                <a href="{{ route('admin.archive.show', $archive->id) }}" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-lg hover:bg-blue-50 hover:text-[#3B82F6] hover:border-blue-200 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
-                                    <i class="fa fa-eye mr-1.5 text-[#3B82F6]"></i> View
+                                {{-- Sole Review Method: PDF Button --}}
+                                <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
+                                    <i class="fa fa-file-pdf mr-1.5 text-rose-500"></i> PDF
                                 </a>
 
-                                {{-- Download PDF --}}
-                                @if($archive->master_pdf_path)
-                                    <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-lg hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
-                                        <i class="fa fa-file-pdf mr-1.5 text-rose-500"></i> PDF
-                                    </a>
-                                @endif
-
-                                {{-- Restore Button --}}
-                                <form action="{{ route('admin.archive.restore', $archive->id) }}" method="POST" class="m-0" onsubmit="return confirm('Restore this student to active status? The archive record will be removed.');">
-                                    @csrf
-                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-lg hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-colors shadow-sm uppercase tracking-widest">
-                                        <i class="fa fa-rotate-left mr-1.5 text-emerald-500"></i> Restore
-                                    </button>
-                                </form>
+                                {{-- Permanent Delete Button (Secured by User Code) --}}
+                                <button type="button" 
+                                        onclick="openDeleteArchiveModal({{ $archive->id }}, '{{ addslashes($archive->student_name) }}', '{{ $archive->school_year }}', '{{ route('admin.archive.destroy', $archive->id) }}')" 
+                                        class="inline-flex items-center px-4 py-2 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-50 hover:border-rose-300 transition-colors shadow-sm uppercase tracking-widest cursor-pointer">
+                                    <i class="fa fa-trash-can mr-1.5 text-rose-500"></i> Delete
+                                </button>
                             </div>
                         </div>
                     @empty
@@ -240,6 +232,62 @@
         </div>
         
     </div>
+    <!-- SECURE DELETE ARCHIVE MODAL -->
+    <div id="deleteArchiveModal" style="display: {{ $errors->has('security_code') ? 'flex' : 'none' }};" class="fixed inset-0 z-50 items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-7 space-y-5 border border-black/10 relative">
+            <div class="flex items-start gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-base font-extrabold text-[#1E2657] m-0">Permanently Delete Archived Record</h4>
+                    <p class="text-xs text-[#6B7086] mt-1.5 font-medium leading-relaxed">
+                        You are about to permanently delete the archive record for <strong id="deleteArchiveStudentName" class="text-rose-600">Student</strong> (SY <span id="deleteArchiveSchoolYear"></span>).
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-rose-50/70 border border-rose-200/80 rounded-xl p-3 text-[11px] text-rose-700 font-semibold leading-relaxed">
+                <i class="fa-solid fa-shield-halved mr-1 text-rose-500"></i>
+                This will permanently purge the master archive PDF and all associated database records. This action <strong>cannot be undone</strong>.
+            </div>
+
+            @if($errors->has('security_code'))
+                <div class="bg-rose-50 border border-rose-200 text-rose-700 px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center">
+                    <i class="fa fa-exclamation-circle mr-2 text-rose-500"></i>
+                    {{ $errors->first('security_code') }}
+                </div>
+            @endif
+
+            <form id="deleteArchiveForm" method="POST" action="" class="space-y-4 m-0">
+                @csrf
+                @method('DELETE')
+
+                <div>
+                    <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-wider mb-1.5">
+                        Enter Secure User Code / Password:
+                    </label>
+                    <input type="password" 
+                           name="security_code" 
+                           id="archiveSecurityCodeInput"
+                           class="w-full text-center text-lg font-mono font-bold tracking-widest py-2.5 px-3.5 rounded-xl border border-black/20 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 shadow-sm bg-white" 
+                           required 
+                           placeholder="Enter 2FA Code or Admin Password" 
+                           autocomplete="current-password">
+                    <p class="text-[10px] text-[#9CA0AF] mt-1.5 font-medium">Enter your 6-digit Authenticator 2FA code or account password to verify authorization.</p>
+                </div>
+
+                <div class="flex gap-2.5 pt-2 border-t border-black/5">
+                    <button type="button" onclick="closeDeleteArchiveModal()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#6B7086] hover:text-[#1E2657] text-xs font-extrabold rounded-xl transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-trash-can text-[11px]"></i> Confirm Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -254,6 +302,21 @@
                 step3.classList.add('bg-[#3B82F6]');
             }
         }, 800);
+    }
+
+    function openDeleteArchiveModal(id, studentName, schoolYear, actionUrl) {
+        document.getElementById('deleteArchiveStudentName').textContent = studentName;
+        document.getElementById('deleteArchiveSchoolYear').textContent = schoolYear;
+        const form = document.getElementById('deleteArchiveForm');
+        form.action = actionUrl;
+        const codeInput = document.getElementById('archiveSecurityCodeInput');
+        codeInput.value = '';
+        document.getElementById('deleteArchiveModal').style.display = 'flex';
+        setTimeout(() => codeInput.focus(), 100);
+    }
+
+    function closeDeleteArchiveModal() {
+        document.getElementById('deleteArchiveModal').style.display = 'none';
     }
 </script>
 @endpush

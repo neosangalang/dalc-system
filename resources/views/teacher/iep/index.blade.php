@@ -17,7 +17,88 @@
      x-data="{ 
         showAddModal: false, 
         activeAccordion: null, 
-        activeEditModal: null 
+        activeEditModal: null,
+        showDeleteGoalModal: false,
+        deleteGoalId: null,
+        deleteGoalDomain: '',
+        deleteGoalStudentName: '',
+        deleteGoalStudentId: null,
+        deleteGoalFormAction: '',
+        isDeletingGoal: false,
+        openDeleteGoalModal(id, studentName, domain, actionUrl, studentId) {
+            this.deleteGoalId = id;
+            this.deleteGoalStudentName = studentName;
+            this.deleteGoalDomain = domain;
+            this.deleteGoalFormAction = actionUrl;
+            this.deleteGoalStudentId = studentId;
+            this.showDeleteGoalModal = true;
+            this.isDeletingGoal = false;
+        },
+        executeDeleteGoal() {
+            if (this.isDeletingGoal) return;
+            this.isDeletingGoal = true;
+            fetch(this.deleteGoalFormAction, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-HTTP-Method-Override': 'DELETE',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ _method: 'DELETE' })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
+            .then(data => {
+                const goalId = this.deleteGoalId;
+                const studentId = this.deleteGoalStudentId || data.student_id;
+                const domain = this.deleteGoalDomain || data.deleted_domain;
+
+                this.isDeletingGoal = false;
+                this.showDeleteGoalModal = false;
+
+                // Remove from local domain tracking map
+                if (window.studentAssignedDomains && window.studentAssignedDomains[studentId]) {
+                    window.studentAssignedDomains[studentId] = window.studentAssignedDomains[studentId].filter(d => d !== domain);
+                }
+
+                // Dynamically update domain dropdown options
+                if (typeof window.updateAvailableDomains === 'function') {
+                    window.updateAvailableDomains();
+                }
+
+                // Animate and remove the row from DOM
+                const row = document.getElementById(`goal-row-${goalId}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        row.remove();
+                        const tbody = document.getElementById(`student-goals-tbody-${studentId}`);
+                        if (tbody && tbody.querySelectorAll('tr').length === 0) {
+                            const tableCont = document.getElementById(`student-table-container-${studentId}`);
+                            const emptyCard = document.getElementById(`student-empty-card-${studentId}`);
+                            if (tableCont) tableCont.classList.add('hidden');
+                            if (emptyCard) emptyCard.classList.remove('hidden');
+                        }
+                    }, 300);
+                }
+
+                // Update goal counter badge
+                const countBadge = document.getElementById(`student-goals-count-${studentId}`);
+                if (countBadge && window.studentAssignedDomains && window.studentAssignedDomains[studentId]) {
+                    countBadge.textContent = `${window.studentAssignedDomains[studentId].length} Goals`;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                this.isDeletingGoal = false;
+                alert('An error occurred while deleting the goal. Please try again.');
+            });
+        }
      }">
 
     @if(session('success'))
@@ -108,7 +189,7 @@
                             <i class="fa fa-envelope mr-1"></i> New Message
                         </span>
 
-                        <span class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-md border border-black/10 bg-[#F4F6FA] text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest shadow-sm">{{ $studentGoals->count() }} Goals</span>
+                        <span id="student-goals-count-{{ $student->id }}" class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-md border border-black/10 bg-[#F4F6FA] text-[#6B7086] text-[9px] font-extrabold uppercase tracking-widest shadow-sm">{{ $studentGoals->count() }} Goals</span>
                         
                         @if($activeCount > 0)
                             <span class="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-md bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 text-[9px] font-extrabold uppercase tracking-widest shadow-sm"><i class="fa fa-spinner fa-spin mr-1"></i> {{ $activeCount }} Active</span>
@@ -120,19 +201,18 @@
                 <div x-show="activeAccordion === {{ $student->id }}" x-collapse x-cloak>
                     <div class="p-4 sm:p-0 bg-white border-t border-black/10">
                         
-                        @if($studentGoals->count() > 0)
-                            <div class="w-full overflow-x-auto">
-                                <table class="w-full text-left border-collapse block sm:table whitespace-normal sm:whitespace-nowrap">
-                                    <thead class="hidden sm:table-header-group bg-[#F4F6FA] border-b border-black/10">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-1/5">Domain</th>
-                                            <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-2/5">Goal Objective</th>
-                                            <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-1/5">Progress</th>
-                                            <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest">Status</th>
-                                            <th scope="col" class="px-6 py-4 text-right text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="block sm:table-row-group space-y-4 sm:space-y-0 divide-y-0 sm:divide-y divide-black/5 bg-transparent sm:bg-white">
+                        <div id="student-table-container-{{ $student->id }}" class="w-full overflow-x-auto {{ $studentGoals->count() > 0 ? '' : 'hidden' }}">
+                            <table class="w-full text-left border-collapse block sm:table whitespace-normal sm:whitespace-nowrap">
+                                <thead class="hidden sm:table-header-group bg-[#F4F6FA] border-b border-black/10">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-1/5">Domain</th>
+                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-2/5">Goal Objective</th>
+                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-1/5">Progress</th>
+                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest">Status</th>
+                                        <th scope="col" class="px-6 py-4 text-right text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-goals-tbody-{{ $student->id }}" class="block sm:table-row-group space-y-4 sm:space-y-0 divide-y-0 sm:divide-y divide-black/5 bg-transparent sm:bg-white">
                                         @foreach($studentGoals as $goal)
                                             @php
                                                 // Bulletproof unread check for specific goal
@@ -142,7 +222,8 @@
                                             @endphp
 
                                             <!-- Row with Reactive State per Goal -->
-                                            <tr x-data="{ 
+                                            <tr id="goal-row-{{ $goal->id }}" 
+                                                x-data="{ 
                                                     goalUnread: {{ $goalUnreadCount > 0 ? 'true' : 'false' }}, 
                                                     unreadCount: {{ (int) $goalUnreadCount }} 
                                                 }" 
@@ -233,13 +314,12 @@
                                                         <i class="fa fa-edit mr-1.5"></i> Edit / Track
                                                     </button>
 
-                                                        <form action="{{ route('teacher.iep-goals.destroy', $goal->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this goal? This cannot be undone.');" class="m-0 sm:flex-none flex shrink-0">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="inline-flex items-center justify-center px-4 sm:px-0 sm:w-8 py-2 sm:py-1.5 bg-white border border-rose-200 text-rose-500 rounded-xl hover:bg-rose-50 transition-colors shadow-sm text-[12px]">
-                                                                <i class="fa fa-trash"></i>
-                                                            </button>
-                                                        </form>
+                                                        <button type="button" 
+                                                                @click="openDeleteGoalModal({{ $goal->id }}, '{{ addslashes($student->first_name . ' ' . $student->last_name) }}', '{{ addslashes($goal->domain) }}', '{{ route('teacher.iep-goals.destroy', $goal->id) }}', {{ $student->id }})" 
+                                                                class="inline-flex items-center justify-center px-4 sm:px-0 sm:w-8 py-2 sm:py-1.5 bg-white border border-rose-200 text-rose-500 rounded-xl hover:bg-rose-50 transition-colors shadow-sm text-[12px] cursor-pointer"
+                                                                title="Delete Goal">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -247,18 +327,17 @@
                                     </tbody>
                                 </table>
                             </div>
-                        @else
-                            <div class="text-center py-10 sm:py-12 px-6 bg-white rounded-b-2xl">
+
+                            <div id="student-empty-card-{{ $student->id }}" class="text-center py-10 sm:py-12 px-6 bg-white rounded-b-2xl {{ $studentGoals->count() > 0 ? 'hidden' : '' }}">
                                 <div class="w-14 h-14 rounded-full bg-[#F4F6FA] border border-black/5 shadow-sm flex items-center justify-center mx-auto mb-4">
                                     <i class="fa fa-clipboard-list text-xl text-[#9CA0AF]"></i>
                                 </div>
                                 <h6 class="text-[14px] font-extrabold text-[#1E2657] mb-1 m-0">No Active Goals</h6>
                                 <p class="text-[12px] font-medium text-[#6B7086] mb-5 m-0">There are currently no IEP goals assigned to {{ $student->first_name }}.</p>
-                                <button type="button" @click="activeAccordion = null; showAddModal = true; setTimeout(() => { $refs.studentSelect.value = '{{ $student->id }}'; }, 100);" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] hover:text-[#3B82F6] hover:border-[#3B82F6]/30 text-[12px] font-extrabold rounded-xl transition-colors shadow-sm">
+                                <button type="button" @click="activeAccordion = null; showAddModal = true; setTimeout(() => { $refs.studentSelect.value = '{{ $student->id }}'; $refs.studentSelect.dispatchEvent(new Event('change')); }, 100);" class="inline-flex items-center px-4 py-2 bg-white border border-black/15 text-[#6B7086] hover:text-[#3B82F6] hover:border-[#3B82F6]/30 text-[12px] font-extrabold rounded-xl transition-colors shadow-sm cursor-pointer">
                                     <i class="fa fa-plus mr-1.5"></i> Create First Goal
                                 </button>
                             </div>
-                        @endif
 
                     </div>
                 </div>
@@ -424,7 +503,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-6">
                             <div>
                                 <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Select Student</label>
-                                <select x-ref="studentSelect" name="student_id" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm" required>
+                                <select x-ref="studentSelect" name="student_id" id="iep-student-select" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm" required>
                                     <option value="" disabled selected>Choose a student...</option>
                                     @foreach($myStudents as $student)
                                         <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
@@ -434,13 +513,17 @@
                             <div>
                                 <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Development Domain</label>
                                 <select id="domain-select" name="domain" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm" required>
-                                    <option value="" disabled selected>Select Domain...</option>
+                                    <option value="" disabled selected>Select a student first...</option>
                                     <option value="Perceptuo-Cognitive">Perceptuo - Cognitive</option>
                                     <option value="Socio-Emotional">Socio - Emotional</option>
                                     <option value="Psychomotor">Psychomotor</option>
                                     <option value="Language-Communication">Language - Communication</option>
                                     <option value="Self-Help">Self - Help</option>
                                 </select>
+                            </div>
+                            <div id="domain-limit-warning" class="hidden col-span-1 sm:col-span-2 bg-amber-50 border border-amber-200 text-amber-800 p-3.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                                <i class="fa fa-info-circle text-amber-500 text-sm shrink-0"></i>
+                                <span>All 5 developmental domains have already been assigned for this student. Delete an existing goal if you need to reassign a domain.</span>
                             </div>
                         </div>
 
@@ -528,9 +611,56 @@
                     
                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0">
                         <button type="button" @click="showAddModal = false" class="px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
+                        <button type="submit" id="save-iep-goal-submit-btn" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MANDATORY IEP GOAL DELETION CONFIRMATION MODAL -->
+    <!-- ========================================== -->
+    <div x-show="showDeleteGoalModal" x-cloak class="fixed inset-0 z-[120] overflow-y-auto text-left" aria-labelledby="delete-goal-modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showDeleteGoalModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="if(!isDeletingGoal) showDeleteGoalModal = false"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div x-show="showDeleteGoalModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 p-6 relative z-50">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
+                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-base font-extrabold text-[#1E2657] m-0" id="delete-goal-modal-title">Delete IEP Goal</h4>
+                        <p class="text-xs text-[#6B7086] mt-1.5 font-medium leading-relaxed">
+                            Are you sure you want to delete the IEP Goal for developmental domain <strong class="text-rose-600" x-text="deleteGoalDomain"></strong> for <strong class="text-[#1E2657]" x-text="deleteGoalStudentName"></strong>?
+                        </p>
+                        <p class="text-[11px] text-rose-600 font-bold mt-2 bg-rose-50 border border-rose-200/60 rounded-lg p-2.5">
+                            <i class="fa-solid fa-circle-exclamation mr-1"></i> All recorded objectives, activities, checklist progress, and guardian comments under this domain will be permanently removed.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-4 mt-4 border-t border-black/5">
+                    <button type="button" 
+                            @click="showDeleteGoalModal = false" 
+                            :disabled="isDeletingGoal"
+                            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#6B7086] hover:text-[#1E2657] text-xs font-extrabold rounded-xl transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="button" 
+                            @click="executeDeleteGoal()" 
+                            :disabled="isDeletingGoal"
+                            class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
+                        <template x-if="isDeletingGoal">
+                            <span class="flex items-center"><i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Deleting...</span>
+                        </template>
+                        <template x-if="!isDeletingGoal">
+                            <span class="flex items-center"><i class="fa-solid fa-trash mr-1.5"></i> Yes, Delete Goal</span>
+                        </template>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -573,37 +703,125 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ==========================================
-// 1. PLOP DOMAIN MEMORY LOGIC 
+// 1. DEVELOPMENTAL DOMAIN FILTERING & PLOP MEMORY LOGIC 
 // ==========================================
+const ALL_DEVELOPMENTAL_DOMAINS = [
+    { value: "Perceptuo-Cognitive", label: "Perceptuo - Cognitive" },
+    { value: "Socio-Emotional", label: "Socio - Emotional" },
+    { value: "Psychomotor", label: "Psychomotor" },
+    { value: "Language-Communication", label: "Language - Communication" },
+    { value: "Self-Help", label: "Self - Help" }
+];
+
+window.studentAssignedDomains = {
+    @foreach($myStudents as $s)
+        "{{ $s->id }}": {!! json_encode($goals->where('student_id', $s->id)->pluck('domain')->values()) !!},
+    @endforeach
+};
+
+window.updateAvailableDomains = function(preselectedDomain = '') {
+    const studentSelect = document.getElementById('iep-student-select') || document.querySelector('select[name="student_id"]');
+    const domainSelect = document.getElementById('domain-select');
+    const domainWarning = document.getElementById('domain-limit-warning');
+    const submitBtn = document.getElementById('save-iep-goal-submit-btn');
+    const generateBtn = document.getElementById('generate-goals-btn');
+    const manualBtn = document.getElementById('manual-goal-btn');
+    const addCardBtn = document.getElementById('add-objective-card-btn');
+
+    if (!domainSelect) return;
+
+    const studentId = studentSelect ? studentSelect.value : '';
+    const existing = (studentId && window.studentAssignedDomains[studentId]) ? window.studentAssignedDomains[studentId] : [];
+
+    const availableDomains = ALL_DEVELOPMENTAL_DOMAINS.filter(d => !existing.includes(d.value));
+
+    domainSelect.innerHTML = '';
+
+    if (!studentId) {
+        domainSelect.innerHTML = '<option value="" disabled selected>Select a student first...</option>';
+        domainSelect.disabled = true;
+        if (domainWarning) domainWarning.classList.add('hidden');
+        if (submitBtn) submitBtn.disabled = true;
+        if (generateBtn) generateBtn.disabled = true;
+        return;
+    }
+
+    if (availableDomains.length === 0) {
+        domainSelect.innerHTML = '<option value="" disabled selected>All 5 developmental domains assigned</option>';
+        domainSelect.disabled = true;
+        if (domainWarning) domainWarning.classList.remove('hidden');
+        if (submitBtn) submitBtn.disabled = true;
+        if (generateBtn) generateBtn.disabled = true;
+        if (manualBtn) manualBtn.disabled = true;
+        if (addCardBtn) addCardBtn.disabled = true;
+    } else {
+        domainSelect.disabled = false;
+        if (domainWarning) domainWarning.classList.add('hidden');
+        if (submitBtn) submitBtn.disabled = false;
+        if (generateBtn) generateBtn.disabled = false;
+        if (manualBtn) manualBtn.disabled = false;
+        if (addCardBtn) addCardBtn.disabled = false;
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.disabled = true;
+        defaultOption.textContent = 'Select Domain...';
+        if (!preselectedDomain) defaultOption.selected = true;
+        domainSelect.appendChild(defaultOption);
+
+        availableDomains.forEach(domain => {
+            const opt = document.createElement('option');
+            opt.value = domain.value;
+            opt.textContent = domain.label;
+            if (preselectedDomain && preselectedDomain === domain.value) {
+                opt.selected = true;
+            }
+            domainSelect.appendChild(opt);
+        });
+    }
+
+    domainSelect.dispatchEvent(new Event('change'));
+};
+
 document.addEventListener("DOMContentLoaded", function() {
     let domainSelect = document.getElementById('domain-select');
     let plopInput = document.getElementById('ai-present-level');
+    let studentSelect = document.getElementById('iep-student-select') || document.querySelector('select[name="student_id"]');
     
     let savedMemory = localStorage.getItem('iep_plop_memory');
     let plopMemory = savedMemory ? JSON.parse(savedMemory) : {};
-    let previousDomain = domainSelect.value;
+    let previousDomain = domainSelect ? domainSelect.value : '';
 
-    if (previousDomain && plopMemory[previousDomain]) plopInput.value = plopMemory[previousDomain];
+    if (studentSelect) {
+        studentSelect.addEventListener('change', function() {
+            window.updateAvailableDomains();
+        });
+        window.updateAvailableDomains();
+    }
 
-    plopInput.addEventListener('input', function() {
-        if (previousDomain) {
-            plopMemory[previousDomain] = this.value;
-            localStorage.setItem('iep_plop_memory', JSON.stringify(plopMemory));
-        }
-    });
+    if (domainSelect && plopInput) {
+        if (previousDomain && plopMemory[previousDomain]) plopInput.value = plopMemory[previousDomain];
 
-    domainSelect.addEventListener('change', function() {
-        let newDomain = this.value;
-        if (previousDomain) {
-            plopMemory[previousDomain] = plopInput.value;
-            localStorage.setItem('iep_plop_memory', JSON.stringify(plopMemory));
-        }
-        plopInput.value = plopMemory[newDomain] ? plopMemory[newDomain] : ''; 
-        previousDomain = newDomain;
-    });
+        plopInput.addEventListener('input', function() {
+            if (previousDomain) {
+                plopMemory[previousDomain] = this.value;
+                localStorage.setItem('iep_plop_memory', JSON.stringify(plopMemory));
+            }
+        });
 
-    let form = plopInput.closest('form');
-    if (form) form.addEventListener('submit', () => localStorage.removeItem('iep_plop_memory'));
+        domainSelect.addEventListener('change', function() {
+            let newDomain = this.value;
+            if (previousDomain) {
+                plopMemory[previousDomain] = plopInput.value;
+                localStorage.setItem('iep_plop_memory', JSON.stringify(plopMemory));
+            }
+            plopInput.value = (newDomain && plopMemory[newDomain]) ? plopMemory[newDomain] : ''; 
+            previousDomain = newDomain;
+        });
+
+        let form = plopInput.closest('form');
+        if (form) form.addEventListener('submit', () => localStorage.removeItem('iep_plop_memory'));
+    }
 });
 
 // ==========================================

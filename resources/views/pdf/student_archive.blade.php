@@ -354,6 +354,11 @@
             </tr>
         </table>
 
+        @php
+            $formalReports = $student->reports ? $student->reports->whereIn('report_type', ['q1', 'q2', 'q3', 'q4', 'mid_year', 'year_end'])->sortBy('report_date') : collect();
+            $documents = $student->documents ?? collect();
+        @endphp
+
         {{-- ===== SUMMARY STATS ===== --}}
         <div class="summary-box">
             <span class="stat">
@@ -365,12 +370,12 @@
                 <span class="stat-label"> Achieved</span>
             </span>
             <span class="stat">
-                <span class="stat-number">{{ $student->dailyLogs->count() }}</span>
-                <span class="stat-label"> Daily Logs</span>
+                <span class="stat-number">{{ $formalReports->count() }}</span>
+                <span class="stat-label"> Progress Summaries</span>
             </span>
             <span class="stat">
-                <span class="stat-number">{{ $student->dailyLogs->pluck('quarter')->unique()->count() }}</span>
-                <span class="stat-label"> Quarters Covered</span>
+                <span class="stat-number">{{ $documents->count() }}</span>
+                <span class="stat-label"> Attached Files</span>
             </span>
         </div>
 
@@ -394,6 +399,16 @@
 
                     {{-- Card Body --}}
                     <div class="goal-card-body">
+                        @if(!empty($goal->plop))
+                            <div style="background-color: #F8FAFC; border-left: 3px solid #8B5CF6; padding: 7px 12px; margin-bottom: 12px; border-radius: 4px;">
+                                <div style="font-size: 9px; font-weight: 800; color: #8B5CF6; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px;">
+                                    Present Level of Performance (PLOP):
+                                </div>
+                                <div style="font-size: 10px; color: #1E2657; line-height: 1.5;">
+                                    {!! nl2br(e($goal->plop)) !!}
+                                </div>
+                            </div>
+                        @endif
                         @php
                             $description = $goal->goal_description;
                             // Split by objective markers (--- OBJECTIVE: or . OBJECTIVE:)
@@ -476,30 +491,105 @@
             <p style="color: #9CA0AF; font-style: italic; padding: 10px 0;">No IEP goals were recorded for this student.</p>
         @endif
 
-        {{-- ===== DAILY LOGS ===== --}}
-        <div class="section-title">Daily Activity Logs</div>
+        {{-- ===== ATTACHED DOCUMENTS & FILES ===== --}}
+        <div class="section-title">Attached Student Documents & Medical Records</div>
 
-        @if($student->dailyLogs->count() > 0)
-            <table class="logs-table">
+        @if($documents->count() > 0)
+            <table class="info-table" style="margin-bottom: 25px;">
                 <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Date</th>
-                        <th>Quarter</th>
-                        <th>Notes</th>
+                    <tr style="background-color: #F4F6FA;">
+                        <td style="font-weight: 700; font-size: 9px; text-transform: uppercase; width: 6%;">#</td>
+                        <td style="font-weight: 700; font-size: 9px; text-transform: uppercase; width: 44%;">Document Title / File Name</td>
+                        <td style="font-weight: 700; font-size: 9px; text-transform: uppercase; width: 15%;">File Size</td>
+                        <td style="font-weight: 700; font-size: 9px; text-transform: uppercase; width: 35%;">Secure Access Link</td>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($student->dailyLogs->sortByDesc('log_date') as $index => $log)
+                    @foreach($documents as $docIdx => $doc)
                         <tr>
-                            <td style="text-align: center;">{{ $index + 1 }}</td>
-                            <td style="white-space: nowrap;">{{ \Carbon\Carbon::parse($log->log_date)->format('M j, Y') }}</td>
-                            <td>{{ $log->quarter }}</td>
-                            <td>{{ $log->notes }}</td>
+                            <td style="font-size: 10px; text-align: center;">{{ $docIdx + 1 }}</td>
+                            <td style="font-size: 10px; font-weight: 600; color: #1E2657;">{{ $doc->original_name }}</td>
+                            <td style="font-size: 10px; color: #6B7086;">{{ $doc->file_size ?? 'N/A' }}</td>
+                            <td style="font-size: 10px;">
+                                <a href="{{ url(route('secure.student-document', $doc->id)) }}" target="_blank" style="color: #3B82F6; text-decoration: underline; font-weight: 700;">
+                                    View / Download Document
+                                </a>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+        @else
+            <p style="color: #9CA0AF; font-style: italic; padding: 8px 0; margin-bottom: 20px;">No uploaded medical or educational documents on file for this student.</p>
+        @endif
+
+        {{-- ===== ACADEMIC & DEVELOPMENTAL SUMMARIES ===== --}}
+        <div class="section-title">Academic & Developmental Progress Summaries</div>
+
+        @if($formalReports->count() > 0)
+            @foreach($formalReports as $repIdx => $report)
+                @php
+                    $typeTitle = match($report->report_type) {
+                        'q1'        => 'Quarter 1 Progress Summary',
+                        'q2'        => 'Quarter 2 Progress Summary',
+                        'q3'        => 'Quarter 3 Progress Summary',
+                        'q4'        => 'Quarter 4 Progress Summary',
+                        'mid_year'  => 'Mid-Year Comprehensive Summary',
+                        'year_end'  => 'Annual (Year-End) Comprehensive Summary',
+                        default     => strtoupper(str_replace('_', ' ', $report->report_type)) . ' Summary',
+                    };
+                    $typeColor = match($report->report_type) {
+                        'q1'        => '#3B82F6',
+                        'q2'        => '#10B981',
+                        'q3'        => '#8B5CF6',
+                        'q4'        => '#F59E0B',
+                        'mid_year'  => '#EC4899',
+                        'year_end'  => '#1E2657',
+                        default     => '#6B7086',
+                    };
+                @endphp
+                <div class="goal-card" style="margin-bottom: 18px; page-break-inside: avoid;">
+                    <div class="goal-card-header" style="border-left: 4px solid {{ $typeColor }};">
+                        <span style="display: inline-block; background-color: {{ $typeColor }}; color: #FFFFFF; padding: 2px 8px; border-radius: 3px; font-size: 9px; font-weight: 700; text-transform: uppercase; margin-right: 8px;">
+                            {{ $typeTitle }}
+                        </span>
+                        <span class="goal-meta">
+                            <span class="progress-text" style="margin-right: 0;">
+                                Date: {{ $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('F j, Y') : ($report->created_at ? $report->created_at->format('F j, Y') : 'N/A') }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="goal-card-body">
+                        <div style="font-size: 10px; color: #6B7086; margin-bottom: 8px;">
+                            Authoring Teacher: <strong>{{ $report->teacher->name ?? ($student->teacher->name ?? 'Assigned SPED Teacher') }}</strong>
+                            @if($report->approved_at)
+                                &nbsp;|&nbsp; Approved on: <strong>{{ \Carbon\Carbon::parse($report->approved_at)->format('M j, Y') }}</strong>
+                            @endif
+                        </div>
+                        <div style="font-size: 11px; color: #1E2657; line-height: 1.6; white-space: pre-line;">
+                            {!! nl2br(e($report->content)) !!}
+                        </div>
+                        @if($report->image_path)
+                            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #E2E4EC;">
+                                <span style="font-size: 9px; font-weight: 700; color: #6B7086; text-transform: uppercase;">Attached Progress Photo / Artifact:</span><br>
+                                @php
+                                    $fullImagePath = public_path('storage/' . $report->image_path);
+                                    if (!file_exists($fullImagePath)) {
+                                        $fullImagePath = storage_path('app/public/' . $report->image_path);
+                                    }
+                                @endphp
+                                @if(file_exists($fullImagePath))
+                                    <img src="{{ $fullImagePath }}" style="max-width: 250px; max-height: 180px; margin-top: 6px; border-radius: 4px; border: 1px solid #E2E4EC;" alt="Report Artifact">
+                                @else
+                                    <a href="{{ asset('storage/' . $report->image_path) }}" target="_blank" style="font-size: 10px; color: #3B82F6; text-decoration: underline;">View Attached Artifact File</a>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <p style="color: #9CA0AF; font-style: italic; padding: 10px 0; margin-bottom: 20px;">No formal progress summaries (Quarterly, Mid-Year, or Annual) were filed for this school year.</p>
         @endif
 
         {{-- ===== OFFICIAL DIGITAL AUDIT STAMP SECTION ===== --}}

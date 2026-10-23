@@ -14,19 +14,10 @@
 
         <div class="flex flex-wrap gap-3 w-full sm:w-auto">
             {{-- Download PDF --}}
-            @if($archive->master_pdf_path)
-                <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-black/15 text-[#6B7086] text-[13px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
-                    <i class="fa fa-file-pdf mr-2 text-rose-500"></i> Download PDF
-                </a>
-            @endif
-
-            {{-- Restore Student --}}
-            <form action="{{ route('admin.archive.restore', $archive->id) }}" method="POST" class="m-0 w-full sm:w-auto" onsubmit="return confirm('Are you sure you want to restore this student? They will be set back to active status and this archive record will be removed.');">
-                @csrf
-                <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm">
-                    <i class="fa fa-rotate-left mr-2"></i> Restore Student
-                </button>
-            </form>
+            {{-- Sole Review Method: PDF --}}
+            <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-rose-600 text-white text-[13px] font-extrabold rounded-xl hover:bg-rose-700 transition-colors shadow-sm decoration-transparent">
+                <i class="fa fa-file-pdf mr-2"></i> View Master PDF
+            </a>
         </div>
     </div>
 

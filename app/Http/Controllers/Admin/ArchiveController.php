@@ -72,9 +72,19 @@ class ArchiveController extends Controller
         $schoolYear = $request->input('school_year') ?: $defaultSchoolYear;
         $now = now();
 
-        $activeStudents = Student::with(['iepGoals', 'dailyLogs', 'teacher', 'guardian'])
-            ->where('status', 'active')
-            ->get();
+        $activeStudents = Student::with([
+            'iepGoals',
+            'reports' => function($q) {
+                $q->whereIn('report_type', ['q1', 'q2', 'q3', 'q4', 'mid_year', 'year_end'])
+                  ->where('status', 'approved')
+                  ->orderBy('report_date', 'asc');
+            },
+            'documents',
+            'teacher',
+            'guardian'
+        ])
+        ->where('status', 'active')
+        ->get();
 
         if ($activeStudents->isEmpty()) {
             return back()->with('error', 'No active students found to archive.');
@@ -82,10 +92,10 @@ class ArchiveController extends Controller
 
         foreach ($activeStudents as $student) {
             
-            // Convert to array to match Model $casts
+            // Convert to array to match Model $casts (strictly excluding routine daily logs/reports)
             $studentSnapshot = $student->toArray();
             $iepSnapshot = $student->iepGoals->toArray();
-            $progressSnapshot = $student->dailyLogs->toArray();
+            $progressSnapshot = $student->reports->toArray();
 
             // Generate PDF
             $pdf = Pdf::loadView('pdf.student_archive', ['student' => $student]);
@@ -111,13 +121,11 @@ class ArchiveController extends Controller
     }
 
     // ==========================================
-    // 3. THE SHOW METHOD (View archived data)
+    // 3. THE SHOW METHOD (Redirects to master PDF)
     // ==========================================
     public function show($id)
     {
-        $archive = ArchivedStudent::with('student')->findOrFail($id);
-
-        return view('admin.archiving.show', compact('archive'));
+        return redirect()->route('admin.archive.pdf', $id);
     }
 
     // ==========================================
@@ -152,32 +160,43 @@ class ArchiveController extends Controller
     }
 
     // ==========================================
-    // 5. THE RESTORE METHOD (Retrieve student)
+    // 5. THE DESTROY METHOD (Permanently delete archive)
     // ==========================================
-    public function restore($id)
+    public function destroy(Request $request, $id)
     {
-        $archive = ArchivedStudent::findOrFail($id);
+        $request->validate([
+            'security_code' => 'required|string',
+        ], [
+            'security_code.required' => 'Please enter your secure authentication code to proceed.',
+        ]);
 
-        // Reactivate existing student or recreate profile if previously deleted
-        if ($archive->student_id && Student::where('id', $archive->student_id)->exists()) {
-            Student::where('id', $archive->student_id)->update(['status' => 'active']);
-        } else {
-            $snap = $archive->student_snapshot ?? [];
-            Student::create([
-                'first_name'                => $snap['first_name'] ?? 'Restored',
-                'last_name'                 => $snap['last_name'] ?? 'Student',
-                'learners_reference_number' => $snap['learners_reference_number'] ?? null,
-                'class_name'                => $snap['class_name'] ?? null,
-                'date_of_birth'             => $snap['date_of_birth'] ?? now()->toDateString(),
-                'gender'                    => $snap['gender'] ?? 'Male',
-                'diagnosis'                 => $snap['diagnosis'] ?? ($snap['exceptionality'] ?? 'Restored Profile'),
-                'teacher_id'                => $snap['teacher_id'] ?? null,
-                'guardian_id'               => $snap['guardian_id'] ?? null,
-                'status'                    => 'active',
-            ]);
+        $admin = $request->user();
+        $code = trim($request->security_code);
+        $isValid = false;
+
+        // Verify against 2FA Authenticator code if configured
+        if (!empty($admin->two_factor_secret)) {
+            $google2fa = new \PragmaRX\Google2FA\Google2FA();
+            try {
+                $isValid = $google2fa->verifyKey($admin->two_factor_secret, $code);
+            } catch (\Exception $e) {
+                $isValid = false;
+            }
         }
 
-        // Delete the PDF file if it exists (check private first, then public fallback)
+        // Dual fallback: Verify against user's password
+        if (!$isValid && \Illuminate\Support\Facades\Hash::check($code, $admin->password)) {
+            $isValid = true;
+        }
+
+        if (!$isValid) {
+            return back()->withErrors(['security_code' => 'Security verification failed: Invalid user code. Action aborted.']);
+        }
+
+        $archive = ArchivedStudent::with('student.documents')->findOrFail($id);
+        $studentName = $archive->student_name;
+
+        // 1. Delete physical PDF file from storage disk
         if ($archive->master_pdf_path) {
             if (Storage::disk('local')->exists($archive->master_pdf_path)) {
                 Storage::disk('local')->delete($archive->master_pdf_path);
@@ -186,11 +205,23 @@ class ArchiveController extends Controller
             }
         }
 
-        // Remove the archive record
+        // 2. Permanently delete student and attached files if student profile still exists in database
+        if ($archive->student_id && ($student = Student::with('documents')->find($archive->student_id))) {
+            foreach ($student->documents as $doc) {
+                if (Storage::disk('local')->exists($doc->file_path)) {
+                    Storage::disk('local')->delete($doc->file_path);
+                } elseif (Storage::disk('public')->exists($doc->file_path)) {
+                    Storage::disk('public')->delete($doc->file_path);
+                }
+            }
+            $student->delete();
+        }
+
+        // 3. Permanently delete the archived student record
         $archive->delete();
 
         return redirect()->route('admin.archive.index')
-            ->with('success', 'Student profile has been reactivated to active status successfully!');
+            ->with('success', "Archived record for {$studentName} has been permanently deleted.");
     }
 
     public function archiveQuarterlyReports(\Illuminate\Http\Request $request)

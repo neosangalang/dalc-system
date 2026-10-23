@@ -41,6 +41,17 @@ class IepGoalController extends Controller
                           ->where('teacher_id', Auth::id())
                           ->firstOrFail();
 
+        // Enforce domain uniqueness per student
+        $existingGoal = IepGoal::where('student_id', $student->id)
+                               ->where('domain', $request->domain)
+                               ->first();
+
+        if ($existingGoal) {
+            return redirect()->back()
+                ->withErrors(['domain' => "An IEP Goal for the '{$request->domain}' domain already exists for {$student->first_name}."])
+                ->withInput();
+        }
+
         IepGoal::create([
             'student_id'       => $student->id,
             'domain'           => $request->domain,
@@ -164,10 +175,21 @@ class IepGoalController extends Controller
     }
 
     // DELETE A GOAL
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $goal = \App\Models\IepGoal::findOrFail($id);
+        $domain = $goal->domain;
+        $studentId = $goal->student_id;
         $goal->delete();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'IEP Goal deleted successfully!',
+                'deleted_domain' => $domain,
+                'student_id' => $studentId,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'IEP Goal deleted successfully!');
     }
