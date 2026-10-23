@@ -69,7 +69,7 @@
                     window.updateAvailableDomains();
                 }
 
-                // Animate and remove the row from DOM
+                // Animate and remove the row/card from DOM
                 const row = document.getElementById(`goal-row-${goalId}`);
                 if (row) {
                     row.style.transition = 'all 0.3s ease';
@@ -78,7 +78,7 @@
                     setTimeout(() => {
                         row.remove();
                         const tbody = document.getElementById(`student-goals-tbody-${studentId}`);
-                        if (tbody && tbody.querySelectorAll('tr').length === 0) {
+                        if (tbody && tbody.querySelectorAll('.goal-card-item, tr').length === 0) {
                             const tableCont = document.getElementById(`student-table-container-${studentId}`);
                             const emptyCard = document.getElementById(`student-empty-card-${studentId}`);
                             if (tableCont) tableCont.classList.add('hidden');
@@ -201,132 +201,339 @@
                 <div x-show="activeAccordion === {{ $student->id }}" x-collapse x-cloak>
                     <div class="p-4 sm:p-0 bg-white border-t border-black/10">
                         
-                        <div id="student-table-container-{{ $student->id }}" class="w-full overflow-x-auto {{ $studentGoals->count() > 0 ? '' : 'hidden' }}">
-                            <table class="w-full text-left border-collapse block sm:table whitespace-normal sm:whitespace-nowrap">
-                                <thead class="hidden sm:table-header-group bg-[#F4F6FA] border-b border-black/10">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-1/5">Domain</th>
-                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-2/5">Goal Objective</th>
-                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest w-1/5">Progress</th>
-                                        <th scope="col" class="px-6 py-4 text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest">Status</th>
-                                        <th scope="col" class="px-6 py-4 text-right text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="student-goals-tbody-{{ $student->id }}" class="block sm:table-row-group space-y-4 sm:space-y-0 divide-y-0 sm:divide-y divide-black/5 bg-transparent sm:bg-white">
-                                        @foreach($studentGoals as $goal)
-                                            @php
-                                                // Bulletproof unread check for specific goal
-                                                $goalUnreadCount = $goal->comments->filter(function($comment) {
-                                                    return $comment->user_id != Auth::id() && !$comment->is_teacher_read;
-                                                })->count();
-                                            @endphp
+                        <!-- MODULAR EXPANDABLE GOALS CONTAINER -->
+                        <div id="student-table-container-{{ $student->id }}" class="p-4 sm:p-6 bg-[#F8FAFC]/40 {{ $studentGoals->count() > 0 ? '' : 'hidden' }}">
+                            <div id="student-goals-tbody-{{ $student->id }}" class="space-y-3 sm:space-y-3.5">
+                                @foreach($studentGoals as $goal)
+                                    @php
+                                        // Bulletproof unread check for specific goal
+                                        $goalUnreadCount = $goal->comments->filter(function($comment) {
+                                            return $comment->user_id != Auth::id() && !$comment->is_teacher_read;
+                                        })->count();
 
-                                            <!-- Row with Reactive State per Goal -->
-                                            <tr id="goal-row-{{ $goal->id }}" 
-                                                x-data="{ 
-                                                    goalUnread: {{ $goalUnreadCount > 0 ? 'true' : 'false' }}, 
-                                                    unreadCount: {{ (int) $goalUnreadCount }} 
-                                                }" 
-                                                class="block sm:table-row bg-white sm:bg-transparent rounded-[16px] sm:rounded-none border border-black/15 sm:border-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors">
-                                                
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 border-b border-black/5 sm:border-none align-top">
-                                                    <span class="sm:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Domain</span>
-                                                    @php
-                                                        $badgeClass = match($goal->domain) {
-                                                            'Language-Communication' => 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20',
-                                                            'Self-Help'              => 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
-                                                            'Perceptuo-Cognitive'    => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
-                                                            'Socio-Emotional'        => 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
-                                                            'Psychomotor'            => 'bg-rose-50 text-rose-600 border-rose-200',
-                                                            default                  => 'bg-[#F4F6FA] text-[#6B7086] border-black/10',
-                                                        };
-                                                    @endphp
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border shadow-sm {{ $badgeClass }}">
-                                                        {{ str_replace('-', ' - ', $goal->domain) }}
-                                                    </span>
-                                                </td>
-                                                
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 border-b border-black/5 sm:border-none align-top">
-                                                    <div class="flex items-center gap-2 mb-2 sm:mb-0">
-                                                        <span class="sm:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest">Goal Description</span>
+                                        // Parse goal_description into structured objectives and activities
+                                        $rawDesc = $goal->goal_description ?? '';
+                                        $sections = preg_split('/-{4,}/', $rawDesc);
+                                        $parsedObjectives = [];
+
+                                        foreach ($sections as $sec) {
+                                            $sec = trim($sec);
+                                            if (empty($sec)) continue;
+
+                                            $objText = '';
+                                            $actText = '';
+
+                                            if (preg_match('/ACTIVITIES:/i', $sec)) {
+                                                $parts = preg_split('/ACTIVITIES:/i', $sec, 2);
+                                                $objText = trim(preg_replace('/^OBJECTIVE:\s*/i', '', $parts[0]));
+                                                $actText = trim($parts[1] ?? '');
+                                            } else {
+                                                $objText = trim(preg_replace('/^OBJECTIVE:\s*/i', '', $sec));
+                                            }
+
+                                            $activities = [];
+                                            if (!empty($actText)) {
+                                                $lines = preg_split('/\r\n|\r|\n/', $actText);
+                                                foreach ($lines as $line) {
+                                                    $line = trim($line);
+                                                    if (empty($line)) continue;
+                                                    if (str_starts_with($line, '- ')) {
+                                                        $line = preg_replace('/^-\s*/', '[ ] ', $line);
+                                                    }
+                                                    $isChecked = (bool) preg_match('/^\[[xX]\]/', $line);
+                                                    $cleanLine = trim(preg_replace('/^\[[xX\s]*\]\s*/', '', $line));
+                                                    if (!empty($cleanLine)) {
+                                                        $activities[] = [
+                                                            'text' => $cleanLine,
+                                                            'checked' => $isChecked
+                                                        ];
+                                                    }
+                                                }
+                                            }
+
+                                            if (!empty($objText) || !empty($activities)) {
+                                                $parsedObjectives[] = [
+                                                    'objective' => $objText ?: 'Objective Statement',
+                                                    'activities' => $activities
+                                                ];
+                                            }
+                                        }
+
+                                        if (empty($parsedObjectives)) {
+                                            $parsedObjectives[] = [
+                                                'objective' => $rawDesc ?: 'No objective statement recorded.',
+                                                'activities' => []
+                                            ];
+                                        }
+
+                                        $primaryObjective = $parsedObjectives[0]['objective'] ?? '';
+                                        // Brief summary of objective for default view
+                                        $objectiveSummary = \Illuminate\Support\Str::limit($primaryObjective, 90, '...');
+                                        $totalObjectivesCount = count($parsedObjectives);
+
+                                        // Domain visual style mapping
+                                        $domainConfig = match($goal->domain) {
+                                            'Language-Communication' => [
+                                                'badge' => 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20',
+                                                'icon' => 'fa-comments',
+                                                'border' => 'border-l-[#3B82F6]',
+                                            ],
+                                            'Self-Help' => [
+                                                'badge' => 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
+                                                'icon' => 'fa-hands-holding-child',
+                                                'border' => 'border-l-[#10B981]',
+                                            ],
+                                            'Perceptuo-Cognitive' => [
+                                                'badge' => 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+                                                'icon' => 'fa-brain',
+                                                'border' => 'border-l-[#8B5CF6]',
+                                            ],
+                                            'Socio-Emotional' => [
+                                                'badge' => 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
+                                                'icon' => 'fa-heart',
+                                                'border' => 'border-l-[#F59E0B]',
+                                            ],
+                                            'Psychomotor' => [
+                                                'badge' => 'bg-rose-50 text-rose-600 border-rose-200',
+                                                'icon' => 'fa-child-reaching',
+                                                'border' => 'border-l-rose-500',
+                                            ],
+                                            default => [
+                                                'badge' => 'bg-[#F4F6FA] text-[#6B7086] border-black/10',
+                                                'icon' => 'fa-bullseye',
+                                                'border' => 'border-l-slate-400',
+                                            ],
+                                        };
+                                    @endphp
+
+                                    <!-- MODULAR GOAL CARD: Expandable Layout -->
+                                    <div id="goal-row-{{ $goal->id }}" 
+                                         x-data="{ 
+                                             isExpanded: false,
+                                             goalUnread: {{ $goalUnreadCount > 0 ? 'true' : 'false' }}, 
+                                             unreadCount: {{ (int) $goalUnreadCount }} 
+                                         }" 
+                                         class="goal-card-item bg-white border border-black/10 rounded-2xl shadow-xs overflow-hidden transition-all duration-200 hover:border-black/20 hover:shadow-sm"
+                                         :class="isExpanded ? 'ring-1 ring-[#3B82F6]/20 shadow-sm' : ''">
+
+                                        <!-- DEFAULT (COLLAPSED) VIEW: INTERACTIVE HEADER -->
+                                        <div @click="isExpanded = !isExpanded" 
+                                             class="w-full px-4 sm:px-5 py-3.5 sm:py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-left cursor-pointer transition-colors select-none"
+                                             :class="isExpanded ? 'bg-slate-50/80 border-b border-black/10' : 'hover:bg-slate-50/60'">
+                                            
+                                            <!-- Left: Domain Badge + Brief Summary of Objective -->
+                                            <div class="flex items-start sm:items-center gap-3 flex-1 min-w-0">
+                                                <!-- Domain Badge with Icon -->
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest border shadow-xs shrink-0 {{ $domainConfig['badge'] }}">
+                                                    <i class="fa {{ $domainConfig['icon'] }} text-[10px]"></i>
+                                                    {{ str_replace('-', ' - ', $goal->domain) }}
+                                                </span>
+
+                                                <!-- Brief Summary of Objective -->
+                                                <div class="flex-1 min-w-0 pr-2">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <p class="text-[13px] sm:text-[14px] font-bold text-[#1E2657] m-0 truncate leading-snug" title="{{ $primaryObjective }}">
+                                                            {{ $objectiveSummary }}
+                                                        </p>
                                                         
-                                                        <!-- Reactive 'New Reply' Badge on Goal Objective -->
+                                                        @if($totalObjectivesCount > 1)
+                                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-[#F4F6FA] text-[#6B7086] border border-black/10 text-[9px] font-extrabold shrink-0" title="{{ $totalObjectivesCount }} Objectives Defined">
+                                                                <i class="fa fa-layer-group text-[8px] mr-1"></i> {{ $totalObjectivesCount }} Objectives
+                                                            </span>
+                                                        @endif
+
+                                                        <!-- Reactive 'New Reply' Badge on Goal Header -->
                                                         <span x-show="goalUnread" 
                                                               x-transition:leave="transition ease-in duration-200"
                                                               x-transition:leave-start="opacity-100 scale-100"
                                                               x-transition:leave-end="opacity-0 scale-75"
-                                                              class="inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-extrabold bg-red-500 text-white uppercase tracking-widest shadow-sm mb-1">
+                                                              class="inline-flex items-center px-2 py-0.5 rounded-md text-[8px] font-extrabold bg-red-500 text-white uppercase tracking-widest shadow-xs shrink-0 animate-pulse">
                                                             <i class="fa-solid fa-bell mr-1"></i> New Reply
                                                         </span>
                                                     </div>
+                                                </div>
+                                            </div>
 
-                                                    <div class="text-[12px] font-medium text-[#6B7086] whitespace-pre-line max-h-[180px] sm:max-h-[140px] overflow-y-auto pr-2 bg-[#F4F6FA] sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none border border-black/5 sm:border-none leading-relaxed custom-scrollbar" title="Goal Description">
-                                                        {{ $goal->goal_description }}
+                                            <!-- Right: Progress, Status & Chevron Toggle -->
+                                            <div class="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-black/5">
+                                                <!-- Compact Progress Indicator -->
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-16 sm:w-20 h-1.5 bg-[#E8E5DC] rounded-full overflow-hidden shadow-inner hidden sm:block">
+                                                        <div class="h-full rounded-full transition-all duration-700 ease-out {{ $goal->progress_percentage == 100 ? 'bg-[#10B981]' : 'bg-[#3B82F6]' }}" style="width: {{ $goal->progress_percentage }}%;"></div>
                                                     </div>
-                                                </td>
+                                                    <span class="text-[10px] font-extrabold uppercase tracking-wider {{ $goal->progress_percentage == 100 ? 'text-[#10B981]' : 'text-[#3B82F6]' }}">
+                                                        {{ $goal->progress_percentage == 100 ? 'Achieved ✓' : $goal->progress_percentage . '%' }}
+                                                    </span>
+                                                </div>
+
+                                                <!-- Compact Status Badge -->
+                                                @if($goal->status === 'in_progress')
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#F59E0B]/10 text-[#F59E0B] uppercase tracking-widest border border-[#F59E0B]/20 shrink-0">
+                                                        In Progress
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#10B981]/10 text-[#10B981] uppercase tracking-widest border border-[#10B981]/20 shrink-0">
+                                                        Achieved
+                                                    </span>
+                                                @endif
+
+                                                <!-- Expand / Collapse Indicator Button -->
+                                                <button type="button" 
+                                                        class="w-7 h-7 rounded-lg bg-white border border-black/10 flex items-center justify-center text-[#9CA0AF] hover:text-[#1E2657] transition-all shrink-0 ml-1 shadow-xs"
+                                                        aria-label="Expand goal details">
+                                                    <i class="fa fa-chevron-down text-xs transition-transform duration-300" :class="isExpanded ? 'rotate-180' : ''"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- EXPANDED VIEW: REVEALED ON CLICK -->
+                                        <div x-show="isExpanded" x-collapse x-cloak>
+                                            <div class="p-4 sm:p-6 bg-white space-y-5">
                                                 
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 border-b border-black/5 sm:border-none align-top pt-5 sm:pt-4">
-                                                    <span class="sm:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Progress</span>
-                                                    <div class="min-w-[120px]">
-                                                        <div class="w-full h-1.5 bg-[#E8E5DC] rounded-full mb-2 overflow-hidden shadow-inner">
-                                                            <div class="h-full rounded-full transition-all duration-1000 ease-out {{ $goal->progress_percentage == 100 ? 'bg-[#10B981]' : 'bg-[#3B82F6]' }}" style="width: {{ $goal->progress_percentage }}%;"></div>
+                                                <!-- Baseline Present Level of Performance (PLOP) if available -->
+                                                @if(!empty($goal->plop))
+                                                    <div class="p-3.5 sm:p-4 bg-[#F8FAFC] border border-black/10 rounded-xl shadow-2xs">
+                                                        <div class="flex items-center gap-1.5 mb-1.5">
+                                                            <i class="fa-solid fa-clipboard-user text-[#8B5CF6] text-xs"></i>
+                                                            <span class="text-[10px] font-extrabold text-[#8B5CF6] uppercase tracking-wider">Present Level of Performance (Baseline)</span>
                                                         </div>
-                                                        <p class="text-[9px] font-extrabold m-0 tracking-widest uppercase {{ $goal->progress_percentage == 100 ? 'text-[#10B981]' : 'text-[#3B82F6]' }}">
-                                                            {{ $goal->progress_percentage == 100 ? 'ACHIEVED ✓' : $goal->progress_percentage . '%' }}
-                                                        </p>
+                                                        <p class="text-[12px] font-medium text-[#1E2657] m-0 leading-relaxed whitespace-pre-line">{{ $goal->plop }}</p>
                                                     </div>
-                                                </td>
-                                                
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 border-b border-black/5 sm:border-none align-top pt-5 sm:pt-4">
-                                                    <span class="sm:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Status</span>
-                                                    @if($goal->status === 'in_progress')
-                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#F59E0B]/10 text-[#F59E0B] uppercase tracking-widest border border-[#F59E0B]/20">In Progress</span>
-                                                    @else
-                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#10B981]/10 text-[#10B981] uppercase tracking-widest border border-[#10B981]/20">Achieved</span>
-                                                    @endif
-                                                </td>
-                                                
-                                                <td class="block sm:table-cell px-4 py-3 sm:px-6 sm:py-5 bg-[#F4F6FA] sm:bg-transparent rounded-b-2xl sm:rounded-none align-top pt-5 sm:pt-4">
-                                                    <div class="flex justify-end gap-2 w-full sm:w-auto">
-                                                        
-                                                        <!-- Real-Time Read Trigger using bulletproof route() helper -->
-                                                    <button @click="activeEditModal = {{ $goal->id }}; 
-                                                                if(goalUnread) { 
-                                                                    goalUnread = false; 
-                                                                    studentUnreadCount = Math.max(0, studentUnreadCount - unreadCount);
-                                                                    unreadCount = 0;
-                                                                    fetch('{{ route('teacher.iep-goals.mark-read', $goal->id) }}', { 
-                                                                        method: 'POST', 
-                                                                        headers: { 
-                                                                            'X-CSRF-TOKEN': '{{ csrf_token() }}', 
-                                                                            'Accept': 'application/json',
-                                                                            'Content-Type': 'application/json'
-                                                                        } 
-                                                                    })
-                                                                    .then(response => {
-                                                                        if (!response.ok) throw new Error('Network response was not ok');
-                                                                        return response.json();
-                                                                    })
-                                                                    .then(data => console.log('Successfully marked as read!'))
-                                                                    .catch(err => console.error('Database Update Failed:', err)); 
-                                                                }" 
-                                                            class="flex-1 sm:flex-none inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[11px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-sm">
-                                                        <i class="fa fa-edit mr-1.5"></i> Edit / Track
-                                                    </button>
+                                                @endif
 
+                                                <!-- Full Objectives & Structured Activities -->
+                                                <div class="space-y-4">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-[11px] font-extrabold text-[#6B7086] uppercase tracking-wider flex items-center">
+                                                            <i class="fa-solid fa-bullseye text-[#3B82F6] mr-1.5"></i> Detailed Objectives & Activities
+                                                        </span>
+                                                        <span class="text-[10px] font-bold text-[#9CA0AF]">
+                                                            {{ $totalObjectivesCount }} {{ \Illuminate\Support\Str::plural('objective', $totalObjectivesCount) }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="grid grid-cols-1 gap-3.5">
+                                                        @foreach($parsedObjectives as $idx => $objItem)
+                                                            <div class="border border-black/10 rounded-xl p-4 bg-white shadow-2xs border-l-4 {{ $domainConfig['border'] }}">
+                                                                <!-- Objective Header & Statement -->
+                                                                <div class="mb-3">
+                                                                    <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#9CA0AF] block mb-1">
+                                                                        Objective #{{ $idx + 1 }}
+                                                                    </span>
+                                                                    <p class="text-[13px] sm:text-[14px] font-extrabold text-[#1E2657] m-0 leading-relaxed">
+                                                                        {{ $objItem['objective'] }}
+                                                                    </p>
+                                                                </div>
+
+                                                                <!-- Activities Checklist for this Objective -->
+                                                                @if(!empty($objItem['activities']))
+                                                                    <div class="mt-3 pt-3 border-t border-black/5">
+                                                                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-[#6B7086] block mb-2 flex items-center">
+                                                                            <i class="fa-solid fa-list-check text-[#3B82F6] mr-1"></i> Activities & Interventions:
+                                                                        </span>
+                                                                        <div class="space-y-1.5">
+                                                                            @foreach($objItem['activities'] as $act)
+                                                                                <div class="flex items-start gap-2.5 px-3 py-2 rounded-lg {{ $act['checked'] ? 'bg-[#F4F6FA] border border-black/5 text-[#9CA0AF]' : 'bg-white border border-black/10 text-[#1E2657]' }}">
+                                                                                    @if($act['checked'])
+                                                                                        <div class="w-4 h-4 rounded bg-[#10B981] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                                                                                            <i class="fa fa-check text-[9px]"></i>
+                                                                                        </div>
+                                                                                        <span class="text-[12px] font-medium line-through leading-tight pt-[1px]">{{ $act['text'] }}</span>
+                                                                                    @else
+                                                                                        <div class="w-4 h-4 rounded border border-black/20 bg-white shrink-0 mt-0.5 shadow-2xs"></div>
+                                                                                        <span class="text-[12px] font-medium leading-tight pt-[1px]">{{ $act['text'] }}</span>
+                                                                                    @endif
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="mt-2 text-[11px] font-medium text-[#9CA0AF] italic">
+                                                                        No specific activities defined for this objective.
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <!-- Full Progress Bar & Status Section -->
+                                                <div class="p-4 bg-[#F8FAFC] border border-black/10 rounded-xl shadow-2xs">
+                                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                                                        <span class="text-[10px] font-extrabold text-[#6B7086] uppercase tracking-wider flex items-center">
+                                                            <i class="fa-solid fa-chart-line text-[#3B82F6] mr-1.5"></i> Progress Tracking & Mastery
+                                                        </span>
+                                                        <span class="text-[12px] font-extrabold uppercase tracking-wider {{ $goal->progress_percentage == 100 ? 'text-[#10B981]' : 'text-[#3B82F6]' }}">
+                                                            {{ $goal->progress_percentage }}% Mastery Level
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="w-full h-2.5 bg-[#E8E5DC] rounded-full overflow-hidden shadow-inner mb-2">
+                                                        <div class="h-full rounded-full transition-all duration-700 ease-out {{ $goal->progress_percentage == 100 ? 'bg-[#10B981]' : 'bg-[#3B82F6]' }}" style="width: {{ $goal->progress_percentage }}%;"></div>
+                                                    </div>
+
+                                                    <div class="flex items-center justify-between text-[11px] font-medium text-[#6B7086]">
+                                                        <span>Status: <strong class="{{ $goal->status === 'achieved' ? 'text-[#10B981]' : 'text-[#F59E0B]' }}">{{ $goal->status === 'achieved' ? 'Achieved / Completed' : 'In Progress' }}</strong></span>
+                                                        <span>Last updated: {{ $goal->updated_at ? $goal->updated_at->diffForHumans() : 'Recently' }}</span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Actions Footer -->
+                                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-black/10">
+                                                    <div class="flex items-center gap-2">
+                                                        <!-- Discussion comments info / counter -->
+                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F4F6FA] border border-black/10 rounded-xl text-[11px] font-bold text-[#6B7086]">
+                                                            <i class="fa-solid fa-comments text-[#8B5CF6]"></i>
+                                                            {{ $goal->comments->count() }} {{ \Illuminate\Support\Str::plural('Note', $goal->comments->count()) }}
+                                                        </span>
+                                                        <span class="text-[11px] font-medium text-[#9CA0AF] hidden md:inline">
+                                                            Click 'Edit / Track' to update checklist & review guardian notes
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="flex items-center gap-2 justify-end">
+                                                        <!-- Edit / Track Button -->
+                                                        <button type="button"
+                                                                @click="activeEditModal = {{ $goal->id }}; 
+                                                                    if(goalUnread) { 
+                                                                        goalUnread = false; 
+                                                                        studentUnreadCount = Math.max(0, studentUnreadCount - unreadCount);
+                                                                        unreadCount = 0;
+                                                                        fetch('{{ route('teacher.iep-goals.mark-read', $goal->id) }}', { 
+                                                                            method: 'POST', 
+                                                                            headers: { 
+                                                                                'X-CSRF-TOKEN': '{{ csrf_token() }}', 
+                                                                                'Accept': 'application/json',
+                                                                                'Content-Type': 'application/json'
+                                                                            } 
+                                                                        })
+                                                                        .then(response => {
+                                                                            if (!response.ok) throw new Error('Network response was not ok');
+                                                                            return response.json();
+                                                                        })
+                                                                        .then(data => console.log('Successfully marked as read!'))
+                                                                        .catch(err => console.error('Database Update Failed:', err)); 
+                                                                    }" 
+                                                                class="inline-flex justify-center items-center px-4 py-2 bg-[#3B82F6] text-white text-[12px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-xs cursor-pointer">
+                                                            <i class="fa fa-edit mr-1.5"></i> Edit / Track Progress
+                                                        </button>
+
+                                                        <!-- Delete Goal Button -->
                                                         <button type="button" 
                                                                 @click="openDeleteGoalModal({{ $goal->id }}, '{{ addslashes($student->first_name . ' ' . $student->last_name) }}', '{{ addslashes($goal->domain) }}', '{{ route('teacher.iep-goals.destroy', $goal->id) }}', {{ $student->id }})" 
-                                                                class="inline-flex items-center justify-center px-4 sm:px-0 sm:w-8 py-2 sm:py-1.5 bg-white border border-rose-200 text-rose-500 rounded-xl hover:bg-rose-50 transition-colors shadow-sm text-[12px] cursor-pointer"
+                                                                class="inline-flex items-center justify-center px-3.5 py-2 bg-white border border-rose-200 text-rose-500 rounded-xl hover:bg-rose-50 transition-colors shadow-xs text-[12px] font-bold cursor-pointer"
                                                                 title="Delete Goal">
-                                                            <i class="fa fa-trash"></i>
+                                                            <i class="fa fa-trash mr-1.5 sm:mr-0"></i> <span class="sm:hidden text-xs">Delete</span>
                                                         </button>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
+                        </div>
 
                             <div id="student-empty-card-{{ $student->id }}" class="text-center py-10 sm:py-12 px-6 bg-white rounded-b-2xl {{ $studentGoals->count() > 0 ? 'hidden' : '' }}">
                                 <div class="w-14 h-14 rounded-full bg-[#F4F6FA] border border-black/5 shadow-sm flex items-center justify-center mx-auto mb-4">
