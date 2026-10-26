@@ -735,13 +735,10 @@
                         </div>
 
                         <!-- STRATEGY & AI BUILDER SECTION -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                        <div class="mb-3">
                             <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0">
                                 <i class="fa-solid fa-wand-magic-sparkles text-[#8B5CF6] mr-1.5"></i> Goal Strategy Options
                             </label>
-                            <button type="button" id="manual-goal-btn" class="inline-flex items-center justify-center px-3.5 py-1.5 bg-white border border-[#3B82F6] text-[#3B82F6] hover:bg-[#3B82F6] hover:text-white text-xs font-extrabold rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
-                                <i class="fa-solid fa-pen-to-square mr-1.5"></i> Manually Input Custom Goal (Bypass AI)
-                            </button>
                         </div>
 
                         <!-- AI BUILDER SECTION -->
@@ -932,7 +929,6 @@ window.updateAvailableDomains = function(preselectedDomain = '') {
     const domainWarning = document.getElementById('domain-limit-warning');
     const submitBtn = document.getElementById('save-iep-goal-submit-btn');
     const generateBtn = document.getElementById('generate-goals-btn');
-    const manualBtn = document.getElementById('manual-goal-btn');
     const addCardBtn = document.getElementById('add-objective-card-btn');
 
     if (!domainSelect) return;
@@ -959,14 +955,12 @@ window.updateAvailableDomains = function(preselectedDomain = '') {
         if (domainWarning) domainWarning.classList.remove('hidden');
         if (submitBtn) submitBtn.disabled = true;
         if (generateBtn) generateBtn.disabled = true;
-        if (manualBtn) manualBtn.disabled = true;
         if (addCardBtn) addCardBtn.disabled = true;
     } else {
         domainSelect.disabled = false;
         if (domainWarning) domainWarning.classList.add('hidden');
         if (submitBtn) submitBtn.disabled = false;
         if (generateBtn) generateBtn.disabled = false;
-        if (manualBtn) manualBtn.disabled = false;
         if (addCardBtn) addCardBtn.disabled = false;
 
         const defaultOption = document.createElement('option');
@@ -1251,11 +1245,9 @@ function addBlankCustomGoal() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    const manualBtn = document.getElementById('manual-goal-btn');
     const emptyManualBtn = document.getElementById('empty-state-manual-btn');
     const addCardBtn = document.getElementById('add-objective-card-btn');
 
-    if (manualBtn) manualBtn.addEventListener('click', addBlankCustomGoal);
     if (emptyManualBtn) emptyManualBtn.addEventListener('click', addBlankCustomGoal);
     if (addCardBtn) addCardBtn.addEventListener('click', addBlankCustomGoal);
 });

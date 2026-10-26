@@ -205,7 +205,7 @@
                             class="block md:table-row bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150 student-row"
                             data-class="{{ strtolower($student->class_name ?? '') }}"
                             data-diagnosis="{{ strtolower($student->diagnosis ?? '') }}"
-                            data-status="{{ strtolower($student->status ?? '') }}"
+                            data-status="{{ strtolower(($student->status === 'inactive' ? 'archived' : $student->status) ?? '') }}"
                             data-teacher="{{ strtolower($student->teacher->name ?? 'unassigned') }}">
 
                             <!-- 1. Profile Area -->
@@ -229,10 +229,8 @@
                                     <div class="md:hidden shrink-0 mt-1">
                                         @if($student->status === 'active')
                                         <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest">Active</span>
-                                        @elseif($student->status === 'inactive')
-                                        <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-widest">Inactive (Frozen)</span>
                                         @else
-                                        <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-slate-100 text-slate-500 uppercase tracking-widest">Archived</span>
+                                        <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-slate-100 text-slate-600 border border-black/10 uppercase tracking-widest">Archived</span>
                                         @endif
                                     </div>
                                 </div>
@@ -280,10 +278,8 @@
                                 <div class="flex flex-col gap-2 items-start">
                                     @if($student->status === 'active')
                                     <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest shadow-sm">Active</span>
-                                    @elseif($student->status === 'inactive')
-                                    <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-widest shadow-sm">Inactive (Frozen)</span>
                                     @else
-                                    <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-500 uppercase tracking-widest shadow-sm">Archived</span>
+                                    <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-600 border border-black/10 uppercase tracking-widest shadow-sm">Archived</span>
                                     @endif
                                 </div>
                             </td>
@@ -879,10 +875,10 @@
                             <i class="fa fa-search text-emerald-600 mr-2"></i> Step 1 & 2: Search & Choose Existing Student Profile
                         </label>
                         <select id="reEnrollStudentSelect" onchange="autoPopulateReEnrollForm(this)" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#10B981] shadow-sm bg-white cursor-pointer">
-                            <option value="">-- Select an Existing / Frozen Student --</option>
+                            <option value="">-- Select an Existing / Archived Student --</option>
                             @foreach($students as $st)
                             <option value="{{ $st->id }}" data-student="{{ json_encode($st) }}">
-                                {{ $st->first_name }} {{ $st->last_name }} (LRN: {{ $st->learners_reference_number ?? 'N/A' }}) — Status: {{ $st->status === 'inactive' ? 'Inactive (Frozen)' : ucfirst($st->status) }}
+                                {{ $st->first_name }} {{ $st->last_name }} (LRN: {{ $st->learners_reference_number ?? 'N/A' }}) — Status: {{ ucfirst($st->status === 'inactive' ? 'archived' : $st->status) }}
                             </option>
                             @endforeach
                         </select>

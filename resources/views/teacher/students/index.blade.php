@@ -140,7 +140,7 @@
                 <select id="filterStatus" @change="checkActive()" class="w-full rounded-xl border border-[#9CA0AF] py-1.5 sm:py-2 px-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white">
                     <option value="">All Statuses</option>
                     <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="archived">Archived</option>
                 </select>
             </div>
 
@@ -169,7 +169,7 @@
                     <tr class="block md:table-row bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150 student-row"
                         data-class="{{ strtolower($student->class_name ?? '') }}"
                         data-diagnosis="{{ strtolower($student->diagnosis ?? '') }}"
-                        data-status="{{ strtolower($student->status ?? '') }}">
+                        data-status="{{ strtolower(($student->status === 'inactive' ? 'archived' : $student->status) ?? '') }}">
 
                         <!-- 1. Profile Area -->
                         <td class="block md:table-cell p-4 md:px-6 md:py-4 border-b border-black/5 md:border-none relative">
@@ -195,10 +195,8 @@
                                 <div class="md:hidden shrink-0 mt-1">
                                     @if($student->status === 'active')
                                     <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest">Active</span>
-                                    @elseif($student->status === 'inactive')
-                                    <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-widest">Inactive</span>
                                     @else
-                                    <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-slate-100 text-slate-500 uppercase tracking-widest">Archived</span>
+                                    <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-slate-100 text-slate-600 border border-black/10 uppercase tracking-widest">Archived</span>
                                     @endif
                                 </div>
                             </div>
@@ -246,10 +244,8 @@
                             <div class="flex flex-col gap-2 items-start">
                                 @if($student->status === 'active')
                                 <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest shadow-sm">Active</span>
-                                @elseif($student->status === 'inactive')
-                                <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-widest shadow-sm">Inactive</span>
                                 @else
-                                <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-500 uppercase tracking-widest shadow-sm">Archived</span>
+                                <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-600 border border-black/10 uppercase tracking-widest shadow-sm">Archived</span>
                                 @endif
 
                                 @php

@@ -127,7 +127,7 @@
                         <div class="relative pl-6 sm:pl-8">
                             <span id="step3Dot" class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#E8E5DC] border-4 border-white shadow-sm transition-colors duration-500"></span>
                             <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">State Freezing (End School Year)</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Transition active student profiles to Inactive (Frozen) status to reset rosters while keeping historical snapshots permanently safe</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Transition active student profiles to Archived status to reset rosters while keeping historical snapshots permanently safe</p>
                         </div>
                         
                     </div>

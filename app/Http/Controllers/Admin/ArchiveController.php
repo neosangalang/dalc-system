@@ -113,11 +113,11 @@ class ArchiveController extends Controller
                 'archived_at'       => $now,
             ]);
 
-            // Update Status to Inactive (Frozen)
-            $student->update(['status' => 'inactive']);
+            // Update Status to Archived
+            $student->update(['status' => 'archived']);
         }
 
-        return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "! Active student profiles are now transition to Inactive (Frozen) status.");
+        return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "! Active student profiles are now transitioned to Archived status.");
     }
 
     // ==========================================
