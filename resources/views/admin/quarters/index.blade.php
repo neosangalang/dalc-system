@@ -47,12 +47,10 @@
     },
 
     // Modal creation state
-    modalMode: 'dropdown', // 'dropdown', 'selectors', 'custom'
+    modalMode: 'dropdown', // 'dropdown' or 'selectors'
     selectedRange: '{{ $defaultCandidate }}',
     startYear: {{ $defaultStartYear }},
     endYear: {{ $defaultEndYear }},
-    nameFormat: 'years_only', // 'years_only' (e.g. 2026-2027) or 'with_sy' (e.g. SY 2026-2027)
-    customName: '',
     existingNames: {{ json_encode($existingNamesLower) }},
 
     get computedYearRange() {
@@ -65,12 +63,9 @@
     },
 
     get computedRawName() {
-        if (this.modalMode === 'custom') {
-            return this.customName.trim();
-        }
         const range = this.computedYearRange;
         if (!range) return '';
-        return this.nameFormat === 'with_sy' ? `SY ${range}` : range;
+        return `SY ${range}`;
     },
 
     get isDuplicate() {
@@ -473,20 +468,14 @@
                                     <button type="button"
                                             @click="modalMode = 'dropdown'"
                                             :class="modalMode === 'dropdown' ? 'bg-white text-[#3B82F6] shadow-xs' : 'text-slate-500 hover:text-slate-800'"
-                                            class="px-2.5 py-1 rounded-lg transition-all">
+                                            class="px-2.5 py-1 rounded-lg transition-all cursor-pointer">
                                         Choose Years
                                     </button>
                                     <button type="button"
                                             @click="modalMode = 'selectors'"
                                             :class="modalMode === 'selectors' ? 'bg-white text-[#3B82F6] shadow-xs' : 'text-slate-500 hover:text-slate-800'"
-                                            class="px-2.5 py-1 rounded-lg transition-all">
+                                            class="px-2.5 py-1 rounded-lg transition-all cursor-pointer">
                                         Start / End
-                                    </button>
-                                    <button type="button"
-                                            @click="modalMode = 'custom'"
-                                            :class="modalMode === 'custom' ? 'bg-white text-[#3B82F6] shadow-xs' : 'text-slate-500 hover:text-slate-800'"
-                                            class="px-2.5 py-1 rounded-lg transition-all">
-                                        Custom
                                     </button>
                                 </div>
                             </div>
@@ -499,7 +488,7 @@
                                             class="w-full text-sm font-extrabold text-[#1E2657] bg-[#F4F6FA] hover:bg-slate-100 border border-black/15 rounded-xl pl-4 pr-10 py-2.5 focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all cursor-pointer shadow-sm appearance-none">
                                         @foreach($candidateYears as $cand)
                                             <option value="{{ $cand['label'] }}" {{ $cand['isTaken'] ? 'disabled' : '' }}>
-                                                {{ $cand['label'] }} {{ $cand['isTaken'] ? '— (Already exists)' : '' }}
+                                                SY {{ $cand['label'] }} {{ $cand['isTaken'] ? '— (Already exists)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -508,7 +497,7 @@
                                     </div>
                                 </div>
                                 <p class="text-[11px] text-[#6B7086] mt-1.5 mb-0">
-                                    Select the school year dates (years only). Existing years are disabled to avoid duplication.
+                                    Select the school year dates. Existing years are disabled to avoid duplication.
                                 </p>
                             </div>
 
@@ -539,33 +528,6 @@
                                     End year auto-advances to the subsequent year when Start Year changes.
                                 </p>
                             </div>
-
-                            <!-- Option 3: Custom Text Label -->
-                            <div x-show="modalMode === 'custom'" x-cloak>
-                                <input type="text"
-                                       id="custom_school_year_name"
-                                       x-model="customName"
-                                       maxlength="50"
-                                       placeholder="e.g. 2026-2027 or SY 2026-2027"
-                                       value="{{ old('school_year_name') }}"
-                                       class="w-full rounded-xl border border-black/15 px-4 py-2.5 text-sm font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 shadow-sm">
-                                <p class="text-[11px] text-[#6B7086] mt-1.5 mb-0">
-                                    Type a custom naming convention if required.
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Format Option (Years Only vs With SY Prefix) -->
-                        <div x-show="modalMode !== 'custom'" class="flex items-center gap-4 bg-slate-50 border border-black/10 rounded-xl px-3.5 py-2.5">
-                            <span class="text-[11px] font-black text-[#6B7086] uppercase tracking-wider">Format:</span>
-                            <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-[#1E2657]">
-                                <input type="radio" value="years_only" x-model="nameFormat" class="text-[#3B82F6] focus:ring-[#3B82F6]">
-                                <span>Years Only (<code class="text-[11px] font-mono text-blue-600" x-text="computedYearRange"></code>)</span>
-                            </label>
-                            <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-[#1E2657]">
-                                <input type="radio" value="with_sy" x-model="nameFormat" class="text-[#3B82F6] focus:ring-[#3B82F6]">
-                                <span>With "SY" (<code class="text-[11px] font-mono text-blue-600" x-text="'SY ' + computedYearRange"></code>)</span>
-                            </label>
                         </div>
 
                         <!-- Live Name Preview -->

@@ -13,19 +13,40 @@ use Illuminate\Support\Facades\Log;
 
 class IepGoalController extends Controller
 {
-    public function index() {
+    public function index(Request $request) {
         $teacherId = Auth::id();
 
-        // Get only the students assigned to this specific teacher
-        $myStudents = Student::where('teacher_id', $teacherId)->where('status', 'active')->get();
+        // Get all active students assigned to this specific teacher
+        $allStudents = Student::where('teacher_id', $teacherId)->where('status', 'active')->orderBy('first_name')->get();
         
-        // FIX: Added with(['comments.user']) to fetch the guardian's messages
-        $goals = IepGoal::with(['comments.user'])
+        $selectedStudentId = $request->query('student_id');
+        if ($selectedStudentId && $allStudents->contains('id', (int) $selectedStudentId)) {
+            // User picked a specific student: view ONLY that student
+            $myStudents = $allStudents->where('id', (int) $selectedStudentId);
+        } else {
+            $selectedStudentId = null;
+            $myStudents = $allStudents;
+        }
+
+        // Fetch goals, scoped if student is selected
+        $goalsQuery = IepGoal::with(['comments.user'])
             ->whereHas('student', function($query) use ($teacherId) {
                 $query->where('teacher_id', $teacherId);
-            })->latest()->get();
+            });
 
-        return view('teacher.iep.index', compact('myStudents', 'goals'));
+        if ($selectedStudentId) {
+            $goalsQuery->where('student_id', (int) $selectedStudentId);
+        }
+
+        $goals = $goalsQuery->latest()->get();
+
+        $allAssignedDomains = IepGoal::whereHas('student', function($query) use ($teacherId) {
+            $query->where('teacher_id', $teacherId);
+        })->get(['student_id', 'domain'])
+          ->groupBy('student_id')
+          ->map(fn($g) => $g->pluck('domain')->values());
+
+        return view('teacher.iep.index', compact('myStudents', 'allStudents', 'goals', 'selectedStudentId', 'allAssignedDomains'));
     }
 
     public function store(Request $request) {

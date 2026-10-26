@@ -16,7 +16,7 @@
 <div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8" 
      x-data="{ 
         showAddModal: false, 
-        activeAccordion: null, 
+        activeAccordion: {{ $selectedStudentId ? (int) $selectedStudentId : 'null' }}, 
         activeEditModal: null,
         showDeleteGoalModal: false,
         deleteGoalId: null,
@@ -126,7 +126,24 @@
         </div>
         
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            <div class="relative w-full sm:w-64 shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+            <!-- Student Selector Dropdown -->
+            <div class="relative w-full sm:w-56 shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#3B82F6] pointer-events-none">
+                    <i class="fa fa-user-graduate text-xs"></i>
+                </span>
+                <select id="studentFilterSelect" 
+                        onchange="if(this.value) { window.location.href = '{{ route('teacher.iep-goals.index') }}?student_id=' + this.value; } else { window.location.href = '{{ route('teacher.iep-goals.index') }}'; }" 
+                        class="w-full border-0 py-2.5 pl-8 pr-8 text-[13px] font-extrabold text-[#1E2657] focus:ring-0 bg-transparent cursor-pointer">
+                    <option value="">All Students ({{ $allStudents->count() }})</option>
+                    @foreach($allStudents as $studentOption)
+                        <option value="{{ $studentOption->id }}" {{ $selectedStudentId == $studentOption->id ? 'selected' : '' }}>
+                            {{ $studentOption->first_name }} {{ $studentOption->last_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="relative w-full sm:w-56 shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#9CA0AF] pointer-events-none">
                     <i class="fa fa-search"></i>
                 </span>
@@ -138,6 +155,26 @@
             </button>
         </div>
     </div>
+
+    @if($selectedStudentId && $myStudents->isNotEmpty())
+        @php $currentSelectedStudent = $myStudents->first(); @endphp
+        <div class="bg-blue-50/80 border border-blue-200/90 text-[#1E2657] px-4 sm:px-5 py-3 rounded-2xl shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-[#3B82F6] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
+                    {{ strtoupper(substr($currentSelectedStudent->first_name, 0, 1) . substr($currentSelectedStudent->last_name, 0, 1)) }}
+                </div>
+                <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#3B82F6] block leading-none mb-1">Single Student Filter Active</span>
+                    <span class="text-[13px] sm:text-[14px] font-extrabold text-[#1E2657]">
+                        Viewing IEP only for <span class="text-[#3B82F6]">{{ $currentSelectedStudent->first_name }} {{ $currentSelectedStudent->last_name }}</span>
+                    </span>
+                </div>
+            </div>
+            <a href="{{ route('teacher.iep-goals.index') }}" class="inline-flex items-center px-3.5 py-1.5 bg-white border border-black/15 text-[#6B7086] hover:text-[#1E2657] hover:border-black/30 text-[12px] font-extrabold rounded-xl shadow-2xs transition-all whitespace-nowrap">
+                <i class="fa fa-users mr-1.5 text-[#3B82F6]"></i> View All Students ({{ $allStudents->count() }})
+            </a>
+        </div>
+    @endif
 
     <!-- ACCORDION SECTION -->
     <div class="space-y-4" id="iepAccordion">
@@ -203,7 +240,7 @@
                         
                         <!-- MODULAR EXPANDABLE GOALS CONTAINER -->
                         <div id="student-table-container-{{ $student->id }}" class="p-4 sm:p-6 bg-[#F8FAFC]/40 {{ $studentGoals->count() > 0 ? '' : 'hidden' }}">
-                            <div id="student-goals-tbody-{{ $student->id }}" class="space-y-3 sm:space-y-3.5">
+                            <div id="student-goals-tbody-{{ $student->id }}" class="space-y-3 sm:space-y-3.5" x-data="{ openGoalId: null }">
                                 @foreach($studentGoals as $goal)
                                     @php
                                         // Bulletproof unread check for specific goal
@@ -309,17 +346,16 @@
                                     <!-- MODULAR GOAL CARD: Expandable Layout -->
                                     <div id="goal-row-{{ $goal->id }}" 
                                          x-data="{ 
-                                             isExpanded: false,
                                              goalUnread: {{ $goalUnreadCount > 0 ? 'true' : 'false' }}, 
                                              unreadCount: {{ (int) $goalUnreadCount }} 
                                          }" 
                                          class="goal-card-item bg-white border border-black/10 rounded-2xl shadow-xs overflow-hidden transition-all duration-200 hover:border-black/20 hover:shadow-sm"
-                                         :class="isExpanded ? 'ring-1 ring-[#3B82F6]/20 shadow-sm' : ''">
+                                         :class="openGoalId === {{ $goal->id }} ? 'ring-1 ring-[#3B82F6]/20 shadow-sm' : ''">
 
                                         <!-- DEFAULT (COLLAPSED) VIEW: INTERACTIVE HEADER -->
-                                        <div @click="isExpanded = !isExpanded" 
+                                        <div @click="openGoalId = openGoalId === {{ $goal->id }} ? null : {{ $goal->id }}" 
                                              class="w-full px-4 sm:px-5 py-3.5 sm:py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-left cursor-pointer transition-colors select-none"
-                                             :class="isExpanded ? 'bg-slate-50/80 border-b border-black/10' : 'hover:bg-slate-50/60'">
+                                             :class="openGoalId === {{ $goal->id }} ? 'bg-slate-50/80 border-b border-black/10' : 'hover:bg-slate-50/60'">
                                             
                                             <!-- Left: Domain Badge + Brief Summary of Objective -->
                                             <div class="flex items-start sm:items-center gap-3 flex-1 min-w-0">
@@ -379,15 +415,16 @@
 
                                                 <!-- Expand / Collapse Indicator Button -->
                                                 <button type="button" 
+                                                        @click.stop="openGoalId = openGoalId === {{ $goal->id }} ? null : {{ $goal->id }}"
                                                         class="w-7 h-7 rounded-lg bg-white border border-black/10 flex items-center justify-center text-[#9CA0AF] hover:text-[#1E2657] transition-all shrink-0 ml-1 shadow-xs"
                                                         aria-label="Expand goal details">
-                                                    <i class="fa fa-chevron-down text-xs transition-transform duration-300" :class="isExpanded ? 'rotate-180' : ''"></i>
+                                                    <i class="fa fa-chevron-down text-xs transition-transform duration-300" :class="openGoalId === {{ $goal->id }} ? 'rotate-180' : ''"></i>
                                                 </button>
                                             </div>
                                         </div>
 
                                         <!-- EXPANDED VIEW: REVEALED ON CLICK -->
-                                        <div x-show="isExpanded" x-collapse x-cloak>
+                                        <div x-show="openGoalId === {{ $goal->id }}" x-collapse x-cloak>
                                             <div class="p-4 sm:p-6 bg-white space-y-5">
                                                 
                                                 <!-- Baseline Present Level of Performance (PLOP) if available -->
@@ -711,9 +748,9 @@
                             <div>
                                 <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest mb-1.5">Select Student</label>
                                 <select x-ref="studentSelect" name="student_id" id="iep-student-select" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm" required>
-                                    <option value="" disabled selected>Choose a student...</option>
-                                    @foreach($myStudents as $student)
-                                        <option value="{{ $student->id }}">{{ $student->first_name }} {{ $student->last_name }}</option>
+                                    <option value="" disabled {{ !$selectedStudentId ? 'selected' : '' }}>Choose a student...</option>
+                                    @foreach($allStudents as $student)
+                                        <option value="{{ $student->id }}" {{ $selectedStudentId == $student->id ? 'selected' : '' }}>{{ $student->first_name }} {{ $student->last_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -917,11 +954,7 @@ const ALL_DEVELOPMENTAL_DOMAINS = [
     { value: "Self-Help", label: "Self - Help" }
 ];
 
-window.studentAssignedDomains = {
-    @foreach($myStudents as $s)
-        "{{ $s->id }}": {!! json_encode($goals->where('student_id', $s->id)->pluck('domain')->values()) !!},
-    @endforeach
-};
+window.studentAssignedDomains = {!! json_encode($allAssignedDomains ?? []) !!};
 
 window.updateAvailableDomains = function(preselectedDomain = '') {
     const studentSelect = document.getElementById('iep-student-select') || document.querySelector('select[name="student_id"]');
