@@ -62,12 +62,14 @@ class ArchiveController extends Controller
             return back()->withErrors(['one_time_password' => 'Invalid 2-Factor Authentication code. Please try again.'])->withInput();
         }
 
-        // Calculate real-time school year dynamically based on current date
+        // Determine school year: active SchoolYear model preferred, otherwise fallback to date calculation
+        $activeSY = \App\Models\SchoolYear::active();
         $currentYear = (int) date('Y');
         $currentMonth = (int) date('n');
-        $defaultSchoolYear = ($currentMonth >= 6) 
+        $fallbackSchoolYear = ($currentMonth >= 6) 
             ? $currentYear . '-' . ($currentYear + 1) 
             : ($currentYear - 1) . '-' . $currentYear;
+        $defaultSchoolYear = $activeSY ? $activeSY->name : $fallbackSchoolYear;
 
         $schoolYear = $request->input('school_year') ?: $defaultSchoolYear;
         $now = now();

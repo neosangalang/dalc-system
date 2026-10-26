@@ -5,9 +5,11 @@
 @section('content')
 
 @php
+    $activeSY = \App\Models\SchoolYear::active();
     $curY = (int) date('Y');
     $curM = (int) date('n');
-    $activeSchoolYear = ($curM >= 6) ? $curY . '-' . ($curY + 1) : ($curY - 1) . '-' . $curY;
+    $fallbackSY = ($curM >= 6) ? $curY . '-' . ($curY + 1) : ($curY - 1) . '-' . $curY;
+    $activeSchoolYear = $activeSY ? $activeSY->name : $fallbackSY;
 @endphp
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->

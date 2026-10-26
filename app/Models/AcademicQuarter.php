@@ -7,7 +7,7 @@ use Illuminate\Support\Carbon;
 
 class AcademicQuarter extends Model
 {
-    protected $fillable = ['name', 'start_date', 'end_date', 'is_active'];
+    protected $fillable = ['name', 'start_date', 'end_date', 'is_active', 'school_year_id'];
 
     protected $casts = [
         'is_active'  => 'boolean',
@@ -16,14 +16,44 @@ class AcademicQuarter extends Model
     ];
 
     /**
-     * Automatically sync is_active status based on today's date vs start_date & end_date
+     * Parent School Year relationship
+     */
+    public function schoolYear()
+    {
+        return $this->belongsTo(SchoolYear::class);
+    }
+
+    /**
+     * Hybrid Activation Logic:
+     * Automatically sync is_active status based on today's date vs start_date & end_date,
+     * with the condition that only quarters belonging to the active School Year can be active.
      */
     public static function syncActiveStatus()
     {
-        $today = Carbon::today();
-        $quarters = static::orderBy('id', 'asc')->get();
+        $activeYear = SchoolYear::active();
 
-        foreach ($quarters as $quarter) {
+        // 1. If school years exist but none is active, deactivate ALL quarters
+        if (SchoolYear::exists() && !$activeYear) {
+            static::query()->update(['is_active' => false]);
+            return;
+        }
+
+        // 2. If an active school year exists, ensure quarters in other years are deactivated
+        if ($activeYear) {
+            static::where(function ($query) use ($activeYear) {
+                $query->where('school_year_id', '!=', $activeYear->id)
+                      ->orWhereNull('school_year_id');
+            })->update(['is_active' => false]);
+
+            $targetQuarters = static::where('school_year_id', $activeYear->id)->orderBy('id', 'asc')->get();
+        } else {
+            // Fallback for standalone tests without school years
+            $targetQuarters = static::orderBy('id', 'asc')->get();
+        }
+
+        // 3. Auto-sync active status for target quarters based on today's date
+        $today = Carbon::today();
+        foreach ($targetQuarters as $quarter) {
             $shouldBeActive = false;
             if ($quarter->start_date && $quarter->end_date) {
                 $start = Carbon::parse($quarter->start_date)->startOfDay();
@@ -52,8 +82,10 @@ class AcademicQuarter extends Model
         $start = Carbon::parse($this->start_date)->startOfDay();
         $end   = Carbon::parse($this->end_date)->endOfDay();
 
+        $isParentActive = $this->school_year_id ? ($this->schoolYear?->is_active ?? false) : true;
+
         if ($today->between($start, $end)) {
-            return 'active';
+            return $isParentActive ? 'active' : 'standby';
         } elseif ($today->gt($end)) {
             return 'completed';
         } else {

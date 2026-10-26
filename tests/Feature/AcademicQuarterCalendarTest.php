@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\AcademicQuarter;
+use App\Models\SchoolYear;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 
@@ -13,6 +14,7 @@ class AcademicQuarterCalendarTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+    private SchoolYear $schoolYear;
     private AcademicQuarter $q1;
     private AcademicQuarter $q2;
     private AcademicQuarter $q3;
@@ -29,10 +31,15 @@ class AcademicQuarterCalendarTest extends TestCase
             'two_factor_secret' => 'JBSWY3DPEHPK3PXP',
         ]);
 
-        $this->q1 = AcademicQuarter::create(['name' => 'Q1']);
-        $this->q2 = AcademicQuarter::create(['name' => 'Q2']);
-        $this->q3 = AcademicQuarter::create(['name' => 'Q3']);
-        $this->q4 = AcademicQuarter::create(['name' => 'Q4']);
+        $this->schoolYear = SchoolYear::create([
+            'name' => 'SY 2026-2027',
+            'is_active' => true,
+        ]);
+
+        $this->q1 = AcademicQuarter::create(['name' => 'Q1', 'school_year_id' => $this->schoolYear->id]);
+        $this->q2 = AcademicQuarter::create(['name' => 'Q2', 'school_year_id' => $this->schoolYear->id]);
+        $this->q3 = AcademicQuarter::create(['name' => 'Q3', 'school_year_id' => $this->schoolYear->id]);
+        $this->q4 = AcademicQuarter::create(['name' => 'Q4', 'school_year_id' => $this->schoolYear->id]);
     }
 
     public function test_academic_quarters_page_renders_with_formatted_dates_and_statuses(): void
@@ -61,7 +68,7 @@ class AcademicQuarterCalendarTest extends TestCase
     {
         $response = $this->actingAs($this->admin)
             ->withSession(['mfa_verified' => true])
-            ->post(route('admin.quarters.update'), [
+            ->post(route('admin.quarters.update', $this->schoolYear->id), [
                 'quarters' => [
                     $this->q1->id => [
                         'start_date' => '2026-08-01',
@@ -109,7 +116,7 @@ class AcademicQuarterCalendarTest extends TestCase
     {
         $response = $this->actingAs($this->admin)
             ->withSession(['mfa_verified' => true])
-            ->post(route('admin.quarters.update'), [
+            ->post(route('admin.quarters.update', $this->schoolYear->id), [
                 'quarters' => [
                     $this->q1->id => [
                         'start_date' => '2026-08-01',
@@ -129,7 +136,7 @@ class AcademicQuarterCalendarTest extends TestCase
     {
         $response = $this->actingAs($this->admin)
             ->withSession(['mfa_verified' => true])
-            ->post(route('admin.quarters.update'), [
+            ->post(route('admin.quarters.update', $this->schoolYear->id), [
                 'quarters' => [
                     $this->q1->id => [
                         'start_date' => '2026-10-20',
@@ -139,5 +146,89 @@ class AcademicQuarterCalendarTest extends TestCase
             ]);
 
         $response->assertSessionHasErrors('quarters.' . $this->q1->id . '.end_date');
+    }
+
+    public function test_admin_can_create_new_school_year_in_standby_mode(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->post(route('admin.school-years.store'), [
+                'school_year_name' => 'SY 2027-2028',
+            ]);
+
+        $response->assertSessionHas('success');
+
+        $newSy = SchoolYear::where('name', 'SY 2027-2028')->first();
+        $this->assertNotNull($newSy);
+        $this->assertFalse($newSy->is_active, 'New school year must start in standby/inactive mode.');
+        $this->assertCount(4, $newSy->quarters, 'Four quarters (Q1-Q4) must be auto-provisioned.');
+    }
+
+    public function test_hybrid_activation_logic_scoping(): void
+    {
+        // 1. Create a future/inactive school year with dates that happen to span today
+        $futureSy = SchoolYear::create([
+            'name' => 'SY 2027-2028',
+            'is_active' => false,
+        ]);
+        $futureQ1 = AcademicQuarter::create([
+            'name' => 'Q1',
+            'school_year_id' => $futureSy->id,
+            'start_date' => Carbon::today()->subDays(5)->format('Y-m-d'),
+            'end_date' => Carbon::today()->addDays(5)->format('Y-m-d'),
+            'is_active' => false,
+        ]);
+
+        // 2. Give the active school year a Q1 that spans today
+        $this->q1->update([
+            'start_date' => Carbon::today()->subDays(2)->format('Y-m-d'),
+            'end_date' => Carbon::today()->addDays(20)->format('Y-m-d'),
+        ]);
+
+        // Run sync
+        AcademicQuarter::syncActiveStatus();
+
+        $this->q1->refresh();
+        $futureQ1->refresh();
+
+        // Condition check: Only active school year's quarter becomes active
+        $this->assertTrue($this->q1->is_active, 'Quarter in active school year must be active.');
+        $this->assertFalse($futureQ1->is_active, 'Quarter in inactive school year must NOT become active even if dates include today.');
+
+        // 3. Switch active year to futureSy
+        $futureSy->setAsActive();
+
+        $this->schoolYear->refresh();
+        $futureSy->refresh();
+        $this->q1->refresh();
+        $futureQ1->refresh();
+
+        $this->assertFalse($this->schoolYear->is_active, 'Previous school year must be deactivated.');
+        $this->assertTrue($futureSy->is_active, 'Selected school year must become active.');
+        $this->assertFalse($this->q1->is_active, 'Quarters in deactivated school year must become inactive.');
+        $this->assertTrue($futureQ1->is_active, 'Quarters in newly activated school year must auto-activate.');
+    }
+
+    public function test_cannot_delete_active_school_year_but_can_delete_inactive_year(): void
+    {
+        // Attempt deleting active year
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->delete(route('admin.school-years.destroy', $this->schoolYear->id));
+
+        $response->assertSessionHasErrors('delete');
+        $this->assertDatabaseHas('school_years', ['id' => $this->schoolYear->id]);
+
+        // Create inactive year and delete it
+        $inactiveSy = SchoolYear::create(['name' => 'SY 2028-2029', 'is_active' => false]);
+        $quarter = AcademicQuarter::create(['name' => 'Q1', 'school_year_id' => $inactiveSy->id]);
+
+        $deleteResponse = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->delete(route('admin.school-years.destroy', $inactiveSy->id));
+
+        $deleteResponse->assertSessionHas('success');
+        $this->assertDatabaseMissing('school_years', ['id' => $inactiveSy->id]);
+        $this->assertDatabaseMissing('academic_quarters', ['id' => $quarter->id]);
     }
 }

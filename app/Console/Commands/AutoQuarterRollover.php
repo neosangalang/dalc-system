@@ -18,6 +18,8 @@ class AutoQuarterRollover extends Command
 
     public function handle()
     {
+        AcademicQuarter::syncActiveStatus();
+
         // 1. Get the current active quarter from your database
         $currentQuarter = AcademicQuarter::where('is_active', true)->first();
 
@@ -40,10 +42,13 @@ class AutoQuarterRollover extends Command
             Log::info("SYSTEM: {$archivedCount} approved reports archived for {$currentQuarter->name}.");
             $this->info("{$archivedCount} reports archived.");
 
-            // 4. Move to the next quarter
+            // 4. Move to the next quarter within the same school year
             $currentQuarter->update(['is_active' => false]);
             
-            $nextQuarter = AcademicQuarter::where('id', '>', $currentQuarter->id)->first();
+            $nextQuarter = AcademicQuarter::where('school_year_id', $currentQuarter->school_year_id)
+                ->where('id', '>', $currentQuarter->id)
+                ->orderBy('id', 'asc')
+                ->first();
             if ($nextQuarter) {
                 $nextQuarter->update(['is_active' => true]);
                 Log::info("SYSTEM: Successfully moved to {$nextQuarter->name}.");

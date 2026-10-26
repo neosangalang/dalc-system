@@ -229,7 +229,10 @@ class ReportController extends Controller
             $logsQuery->whereDate('log_date', $request->report_date);
             
         } elseif (in_array($request->report_type, ['q1', 'q2', 'q3', 'q4'])) {
-            $quarterCalendar = AcademicQuarter::where('name', strtoupper($request->report_type))->first();
+            $activeSY = \App\Models\SchoolYear::active();
+            $quarterCalendar = $activeSY
+                ? $activeSY->quarters()->where('name', strtoupper($request->report_type))->first()
+                : AcademicQuarter::where('name', strtoupper($request->report_type))->first();
             
             if ($quarterCalendar && $quarterCalendar->start_date && $quarterCalendar->end_date) {
                 $logsQuery->whereBetween('log_date', [
@@ -240,16 +243,18 @@ class ReportController extends Controller
                 $logsQuery->where('quarter', strtoupper($request->report_type));
             }
         } elseif ($request->report_type === 'mid_year') {
-            $q1 = AcademicQuarter::where('name', 'Q1')->first();
-            $q2 = AcademicQuarter::where('name', 'Q2')->first();
+            $activeSY = \App\Models\SchoolYear::active();
+            $q1 = $activeSY ? $activeSY->quarters()->where('name', 'Q1')->first() : AcademicQuarter::where('name', 'Q1')->first();
+            $q2 = $activeSY ? $activeSY->quarters()->where('name', 'Q2')->first() : AcademicQuarter::where('name', 'Q2')->first();
             if ($q1 && $q2 && $q1->start_date && $q2->end_date) {
                 $logsQuery->whereBetween('log_date', [$q1->start_date, $q2->end_date]);
             } else {
                 $logsQuery->whereIn('quarter', ['Q1', 'Q2']);
             }
         } elseif ($request->report_type === 'year_end') {
-            $q1 = AcademicQuarter::where('name', 'Q1')->first();
-            $q4 = AcademicQuarter::where('name', 'Q4')->first();
+            $activeSY = \App\Models\SchoolYear::active();
+            $q1 = $activeSY ? $activeSY->quarters()->where('name', 'Q1')->first() : AcademicQuarter::where('name', 'Q1')->first();
+            $q4 = $activeSY ? $activeSY->quarters()->where('name', 'Q4')->first() : AcademicQuarter::where('name', 'Q4')->first();
             if ($q1 && $q4 && $q1->start_date && $q4->end_date) {
                 $logsQuery->whereBetween('log_date', [$q1->start_date, $q4->end_date]);
             } else {

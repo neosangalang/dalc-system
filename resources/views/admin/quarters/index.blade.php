@@ -1,12 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Manage Academic Calendar')
+@section('title', 'Manage Academic Calendar & School Years')
 
 @section('content')
 
 <!-- Main Container -->
-<div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+<div x-data="{ openAddModal: false }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
+    <!-- Flash Messages -->
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
         <div class="flex items-center">
@@ -31,112 +32,331 @@
     </div>
     @endif
 
-    <!-- Header -->
-    <div class="mb-6">
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E2657] tracking-tight mb-2 flex items-center">
-            <div class="w-10 h-10 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] mr-3 shadow-sm border border-[#3B82F6]/20 shrink-0">
-                <i class="fa fa-calendar-days text-lg"></i>
-            </div>
-            Academic Calendar
-        </h1>
-        <p class="text-[13px] font-medium text-[#6B7086] m-0 sm:ml-14">Set the start and end dates for each quarter. The active status is <strong>automatically determined</strong> <strong>based on today's date, and quarter dates <strong> </strong>.</p>
+    <!-- Header Section with Action -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E2657] tracking-tight mb-2 flex items-center">
+                <div class="w-10 h-10 rounded-full bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] mr-3 shadow-sm border border-[#3B82F6]/20 shrink-0">
+                    <i class="fa fa-calendar-days text-lg"></i>
+                </div>
+                Academic Calendar & School Years
+            </h1>
+            <p class="text-[13px] font-medium text-[#6B7086] m-0 sm:ml-14">
+                Hybrid Activation: Administrators manually set the live School Year. The system automatically switches quarters based on real-world dates within the active year.
+            </p>
+        </div>
+
+        <div class="sm:self-end">
+            <button @click="openAddModal = true" type="button" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 hover:-translate-y-0.5">
+                <i class="fa fa-plus mr-2 text-xs"></i> Add New School Year
+            </button>
+        </div>
     </div>
 
-    <!-- Calendar Table Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden">
-        <form action="{{ route('admin.quarters.update') }}" method="POST" class="m-0" id="calendarForm">
-            @csrf
+    <!-- Active School Year Summary Banner -->
+    <div class="bg-gradient-to-r from-[#1E2657] to-[#2B3577] text-white rounded-2xl p-6 shadow-sm border border-[#1E2657]/20 relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
 
-            <div class="overflow-x-hidden md:overflow-x-auto w-full">
-                <table class="w-full text-left border-collapse block md:table whitespace-normal md:whitespace-nowrap">
-
-                    <thead class="hidden md:table-header-group bg-[#F4F6FA] border-b border-black/10">
-                        <tr>
-                            <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[15%]">Quarter</th>
-                            <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[30%]">Start Date</th>
-                            <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[30%]">End Date</th>
-                            <th scope="col" class="px-6 py-4 text-center text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[25%]">Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="block md:table-row-group divide-y divide-black/5 bg-white">
-                        @foreach($quarters as $index => $quarter)
-                        @php
-                        $status = $quarter->computed_status;
-                        @endphp
-                        <tr class="block md:table-row relative md:static p-4 md:p-0 hover:bg-slate-50 transition-colors duration-150
-                                {{ $status === 'active' ? 'bg-[#3B82F6]/5' : '' }}">
-
-                            <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-4 md:mb-0">
-                                <span class="text-lg font-extrabold {{ $status === 'active' ? 'text-[#3B82F6]' : 'text-[#1E2657]' }}">
-                                    {{ $quarter->name }}
-                                </span>
-                                @if($status === 'active')
-                                <span class="ml-2 px-2.5 py-1 rounded-md text-[9px] font-extrabold bg-[#3B82F6]/10 text-[#3B82F6] uppercase tracking-widest border border-[#3B82F6]/20 inline-block">Active Now</span>
-                                @endif
-                            </td>
-
-                            <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-3 md:mb-0">
-                                <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Start Date</span>
-                                <input type="date"
-                                    id="start_date_{{ $quarter->id }}"
-                                    name="quarters[{{ $quarter->id }}][start_date]"
-                                    value="{{ old('quarters.'.$quarter->id.'.start_date', $quarter->start_date_formatted) }}"
-                                    class="start-date-input quarter-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
-                                    data-quarter-id="{{ $quarter->id }}"
-                                    data-quarter-index="{{ $index }}">
-                            </td>
-
-                            <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 mb-3 md:mb-0">
-                                <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">End Date</span>
-                                <input type="date"
-                                    id="end_date_{{ $quarter->id }}"
-                                    name="quarters[{{ $quarter->id }}][end_date]"
-                                    value="{{ old('quarters.'.$quarter->id.'.end_date', $quarter->end_date_formatted) }}"
-                                    class="end-date-input quarter-date-input w-full max-w-full md:max-w-[200px] rounded-xl border-black/15 px-4 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
-                                    data-quarter-id="{{ $quarter->id }}"
-                                    data-quarter-index="{{ $index }}">
-                            </td>
-
-                            <td class="block md:table-cell px-0 md:px-6 py-0 md:py-5 text-left md:text-center absolute md:static top-4 right-4">
-                                <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Status</span>
-                                @if($status === 'active')
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    Active Now
-                                </span>
-                                @elseif($status === 'completed')
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-500 border border-slate-200">
-                                    <i class="fa fa-check-circle text-[10px]"></i>
-                                    Completed
-                                </span>
-                                @elseif($status === 'upcoming')
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-amber-50 text-amber-600 border border-amber-200">
-                                    <i class="fa fa-clock text-[10px]"></i>
-                                    Upcoming
-                                </span>
-                                @else
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-gray-50 text-gray-400 border border-gray-200">
-                                    <i class="fa fa-minus-circle text-[10px]"></i>
-                                    Not Set
-                                </span>
-                                @endif
-                            </td>
-
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-400/20 text-emerald-300 border border-emerald-400/30 uppercase tracking-widest">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Currently Active School Year
+                    </span>
+                    <span class="text-xs text-slate-300">|</span>
+                    <span class="text-xs font-semibold text-slate-300">Live for Teachers & Guardians</span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white m-0">
+                    {{ $activeSchoolYear ? $activeSchoolYear->name : 'No Active School Year Set' }}
+                </h2>
             </div>
 
-            <!-- Footer -->
-            <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end">
-                <button type="submit" class="w-full md:w-auto inline-flex justify-center md:inline-flex items-center px-6 py-3 md:py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 hover:-translate-y-0.5">
-                    <i class="fa fa-save md:mr-2 mr-1.5"></i> Save Calendar Settings
-                </button>
+            <div class="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/10 self-start md:self-auto">
+                <div class="w-8 h-8 rounded-lg bg-[#3B82F6]/30 flex items-center justify-center text-blue-200">
+                    <i class="fa fa-clock"></i>
+                </div>
+                <div>
+                    @php
+                        $liveActiveQuarter = $activeSchoolYear ? $activeSchoolYear->quarters->where('is_active', true)->first() : null;
+                    @endphp
+                    <div class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Current Live Quarter</div>
+                    <div class="text-sm font-extrabold text-white">
+                        @if($liveActiveQuarter)
+                            <span class="text-emerald-300">{{ $liveActiveQuarter->name }}</span>
+                            <span class="text-[11px] font-medium text-slate-300">
+                                ({{ $liveActiveQuarter->start_date ? \Carbon\Carbon::parse($liveActiveQuarter->start_date)->format('M d') : '' }} - {{ $liveActiveQuarter->end_date ? \Carbon\Carbon::parse($liveActiveQuarter->end_date)->format('M d, Y') : '' }})
+                            </span>
+                        @else
+                            <span class="text-amber-300">Standby (Between Quarters)</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- School Years List -->
+    <div class="space-y-6">
+        @forelse($schoolYears as $sy)
+        <div class="bg-white rounded-2xl shadow-sm border {{ $sy->is_active ? 'border-[#3B82F6]/40 ring-1 ring-[#3B82F6]/20' : 'border-black/15' }} overflow-hidden transition-all duration-200">
+            
+            <!-- School Year Header Card -->
+            <div class="px-6 py-4 {{ $sy->is_active ? 'bg-gradient-to-r from-[#3B82F6]/5 via-white to-white border-b border-[#3B82F6]/20' : 'bg-[#F4F6FA] border-b border-black/10' }} flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg sm:text-xl font-extrabold {{ $sy->is_active ? 'text-[#3B82F6]' : 'text-[#1E2657]' }}">
+                        {{ $sy->name }}
+                    </span>
+
+                    @if($sy->is_active)
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Active Year
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-500 border border-slate-200">
+                            <i class="fa fa-pause-circle text-[10px]"></i>
+                            Standby / Inactive
+                        </span>
+                    @endif
+                </div>
+
+                <!-- Year Actions -->
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    @if(!$sy->is_active)
+                        <form action="{{ route('admin.school-years.set-active', $sy->id) }}" method="POST" class="inline m-0">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-extrabold rounded-xl transition-all shadow-sm hover:-translate-y-0.5" title="Make this School Year the active one">
+                                <i class="fa fa-check mr-1.5 text-xs"></i> Set Active Year
+                            </button>
+                        </form>
+
+                        <form action="{{ route('admin.school-years.destroy', $sy->id) }}" method="POST" class="inline m-0" onsubmit="return confirm('Are you sure you want to delete {{ $sy->name }} and its quarter dates? This cannot be undone.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex items-center px-3 py-2 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 border border-rose-200 hover:border-rose-300 text-[12px] font-bold rounded-xl transition-colors shadow-sm" title="Delete School Year">
+                                <i class="fa fa-trash-can mr-1.5 text-xs"></i> Delete
+                            </button>
+                        </form>
+                    @else
+                        <span class="inline-flex items-center text-[12px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                            <i class="fa fa-circle-check mr-1.5"></i> Live in System
+                        </span>
+                    @endif
+                </div>
             </div>
 
-        </form>
+            <!-- Quarter Settings Form -->
+            <form action="{{ route('admin.quarters.update', $sy->id) }}" method="POST" class="m-0 calendar-form" id="calendarForm_{{ $sy->id }}">
+                @csrf
+
+                <div class="overflow-x-hidden md:overflow-x-auto w-full">
+                    <table class="w-full text-left border-collapse block md:table whitespace-normal md:whitespace-nowrap">
+                        <thead class="hidden md:table-header-group bg-slate-50/50 border-b border-black/5">
+                            <tr>
+                                <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[18%]">Quarter</th>
+                                <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[30%]">Start Date</th>
+                                <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[30%]">End Date</th>
+                                <th scope="col" class="px-6 py-3.5 text-center text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest w-[22%]">Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="block md:table-row-group divide-y divide-black/5 bg-white">
+                            @foreach($sy->quarters as $index => $quarter)
+                            @php
+                                $status = $quarter->computed_status;
+                                $isLiveQuarter = $sy->is_active && $quarter->is_active;
+                            @endphp
+                            <tr class="block md:table-row relative md:static p-4 md:p-0 hover:bg-slate-50/80 transition-colors duration-150 {{ $isLiveQuarter ? 'bg-[#3B82F6]/5' : '' }}">
+                                
+                                <td class="block md:table-cell px-0 md:px-6 py-0 md:py-4 mb-3 md:mb-0">
+                                    <span class="text-base font-extrabold {{ $isLiveQuarter ? 'text-[#3B82F6]' : 'text-[#1E2657]' }}">
+                                        {{ $quarter->name }}
+                                    </span>
+                                    @if($isLiveQuarter)
+                                    <span class="ml-2 px-2 py-0.5 rounded text-[9px] font-extrabold bg-[#3B82F6]/10 text-[#3B82F6] uppercase tracking-widest border border-[#3B82F6]/20 inline-block">Active Now</span>
+                                    @endif
+                                </td>
+
+                                <td class="block md:table-cell px-0 md:px-6 py-0 md:py-4 mb-3 md:mb-0">
+                                    <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Start Date</span>
+                                    <input type="date"
+                                        id="start_date_{{ $quarter->id }}"
+                                        name="quarters[{{ $quarter->id }}][start_date]"
+                                        value="{{ old('quarters.'.$quarter->id.'.start_date', $quarter->start_date_formatted) }}"
+                                        class="start-date-input quarter-date-input-{{ $sy->id }} w-full max-w-full md:max-w-[210px] rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
+                                        data-quarter-id="{{ $quarter->id }}"
+                                        data-sy-id="{{ $sy->id }}"
+                                        data-quarter-index="{{ $index }}">
+                                </td>
+
+                                <td class="block md:table-cell px-0 md:px-6 py-0 md:py-4 mb-3 md:mb-0">
+                                    <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">End Date</span>
+                                    <input type="date"
+                                        id="end_date_{{ $quarter->id }}"
+                                        name="quarters[{{ $quarter->id }}][end_date]"
+                                        value="{{ old('quarters.'.$quarter->id.'.end_date', $quarter->end_date_formatted) }}"
+                                        class="end-date-input quarter-date-input-{{ $sy->id }} w-full max-w-full md:max-w-[210px] rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer transition-colors"
+                                        data-quarter-id="{{ $quarter->id }}"
+                                        data-sy-id="{{ $sy->id }}"
+                                        data-quarter-index="{{ $index }}">
+                                </td>
+
+                                <td class="block md:table-cell px-0 md:px-6 py-0 md:py-4 text-left md:text-center absolute md:static top-4 right-4">
+                                    <span class="md:hidden block text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Status</span>
+                                    @if($isLiveQuarter)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Active Now
+                                    </span>
+                                    @elseif(!$sy->is_active && $quarter->start_date && $quarter->end_date)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200" title="This year is not currently active">
+                                        <i class="fa fa-pause text-[9px]"></i>
+                                        Standby
+                                    </span>
+                                    @elseif($status === 'completed')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-500 border border-slate-200">
+                                        <i class="fa fa-check-circle text-[10px]"></i>
+                                        Completed
+                                    </span>
+                                    @elseif($status === 'upcoming')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-50 text-amber-600 border border-amber-200">
+                                        <i class="fa fa-clock text-[10px]"></i>
+                                        Upcoming
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-gray-50 text-gray-400 border border-gray-200">
+                                        <i class="fa fa-minus-circle text-[10px]"></i>
+                                        Not Set
+                                    </span>
+                                    @endif
+                                </td>
+
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-5 sm:px-6 py-3.5 bg-[#F4F6FA] border-t border-black/10 flex justify-between items-center">
+                    <span class="text-xs text-[#6B7086] font-medium hidden sm:inline">
+                        Saving commits the date range. Quarters will automatically activate once this School Year is live.
+                    </span>
+                    <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 hover:-translate-y-0.5">
+                        <i class="fa fa-save mr-2 text-xs"></i> Save Calendar Settings
+                    </button>
+                </div>
+            </form>
+
+        </div>
+        @empty
+        <div class="bg-white rounded-2xl p-12 text-center border border-black/15 shadow-sm">
+            <div class="w-16 h-16 rounded-full bg-blue-50 text-[#3B82F6] flex items-center justify-center mx-auto mb-4">
+                <i class="fa fa-calendar-plus text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-extrabold text-[#1E2657] mb-1">No School Years Found</h3>
+            <p class="text-sm text-[#6B7086] max-w-md mx-auto mb-6">Create a School Year to provision Q1–Q4 and configure your academic schedule.</p>
+            <button @click="openAddModal = true" type="button" class="inline-flex items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm">
+                <i class="fa fa-plus mr-2 text-xs"></i> Add School Year
+            </button>
+        </div>
+        @endforelse
+    </div>
+
+    <!-- Modal: Add New School Year -->
+    <div x-show="openAddModal"
+         x-cloak
+         class="fixed inset-0 z-50 overflow-y-auto"
+         aria-labelledby="modal-title"
+         role="dialog"
+         aria-modal="true">
+
+        <!-- Backdrop -->
+        <div x-show="openAddModal"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="openAddModal = false"
+             class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"></div>
+
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div x-show="openAddModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-black/10">
+
+                <form action="{{ route('admin.school-years.store') }}" method="POST" class="m-0">
+                    @csrf
+
+                    <!-- Modal Header -->
+                    <div class="px-6 pt-6 pb-4 border-b border-black/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-50 text-[#3B82F6] flex items-center justify-center">
+                                <i class="fa fa-calendar-plus text-base"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-extrabold text-[#1E2657] m-0" id="modal-title">Add New School Year</h3>
+                                <p class="text-xs text-[#6B7086] m-0">Provisions a fresh template for Q1–Q4.</p>
+                            </div>
+                        </div>
+                        <button @click="openAddModal = false" type="button" class="text-slate-400 hover:text-slate-600 transition-colors">
+                            <i class="fa fa-times text-base"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="px-6 py-5 space-y-4">
+                        <div>
+                            <label for="school_year_name" class="block text-xs font-extrabold text-[#1E2657] uppercase tracking-wider mb-2">
+                                School Year Label <span class="text-rose-500">*</span>
+                            </label>
+                            @php
+                                $suggestedStartYear = date('Y');
+                                $suggestedEndYear = date('Y') + 1;
+                            @endphp
+                            <input type="text"
+                                   id="school_year_name"
+                                   name="school_year_name"
+                                   required
+                                   maxlength="50"
+                                   placeholder="e.g. SY {{ $suggestedStartYear }}-{{ $suggestedEndYear }}"
+                                   value="{{ old('school_year_name') }}"
+                                   class="w-full rounded-xl border border-black/15 px-4 py-2.5 text-sm font-bold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm">
+                            <p class="text-[11px] text-[#6B7086] mt-2">
+                                Examples: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">SY 2026-2027</code> or <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">2027-2028</code>.
+                            </p>
+                        </div>
+
+                        <div class="bg-blue-50/60 border border-blue-100 rounded-xl p-3.5 flex items-start gap-2.5">
+                            <i class="fa fa-info-circle text-[#3B82F6] mt-0.5 text-xs"></i>
+                            <p class="text-xs text-slate-600 leading-relaxed m-0">
+                                The new school year is created in <strong>Standby mode</strong>. It will not become live until you input quarter dates and explicitly click <strong>"Set Active Year"</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="px-6 py-4 bg-[#F4F6FA] border-t border-black/5 flex justify-end gap-2.5">
+                        <button @click="openAddModal = false" type="button" class="px-4 py-2 text-xs font-bold text-[#6B7086] hover:text-[#1E2657] hover:bg-slate-200/50 rounded-xl transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-5 py-2 bg-[#3B82F6] hover:bg-blue-600 text-white text-xs font-extrabold rounded-xl transition-colors shadow-sm">
+                            Create School Year
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -144,9 +364,6 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const startInputs = Array.from(document.querySelectorAll('.start-date-input'));
-        const endInputs = Array.from(document.querySelectorAll('.end-date-input'));
-
         function getNextDay(dateStr) {
             if (!dateStr) return '';
             const parts = dateStr.split('-');
@@ -159,49 +376,54 @@
             return `${y}-${m}-${d}`;
         }
 
-        function syncDateConstraints() {
-            startInputs.forEach((startInput, idx) => {
-                const endInput = endInputs[idx];
+        // Apply constraints per school year form
+        document.querySelectorAll('.calendar-form').forEach(form => {
+            const startInputs = Array.from(form.querySelectorAll('.start-date-input'));
+            const endInputs = Array.from(form.querySelectorAll('.end-date-input'));
 
-                // 1. Enforce End Date min >= Start Date
-                if (startInput.value) {
-                    endInput.min = startInput.value;
-                    if (endInput.value && endInput.value < startInput.value) {
-                        endInput.value = startInput.value;
-                    }
-                } else {
-                    endInput.min = '';
-                }
+            function syncDateConstraints() {
+                startInputs.forEach((startInput, idx) => {
+                    const endInput = endInputs[idx];
+                    if (!endInput) return;
 
-                // 2. Enforce Next Quarter Start Date min > Current Quarter End Date (prevents quarter date overlap)
-                if (idx < startInputs.length - 1) {
-                    const nextStartInput = startInputs[idx + 1];
-                    if (endInput.value) {
-                        const minNextStart = getNextDay(endInput.value);
-                        nextStartInput.min = minNextStart;
-                        if (nextStartInput.value && nextStartInput.value < minNextStart) {
-                            nextStartInput.value = minNextStart;
-                        }
-                    } else if (startInput.value) {
-                        const minNextStart = getNextDay(startInput.value);
-                        nextStartInput.min = minNextStart;
-                        if (nextStartInput.value && nextStartInput.value < minNextStart) {
-                            nextStartInput.value = minNextStart;
+                    // 1. Enforce End Date min >= Start Date
+                    if (startInput.value) {
+                        endInput.min = startInput.value;
+                        if (endInput.value && endInput.value < startInput.value) {
+                            endInput.value = startInput.value;
                         }
                     } else {
-                        nextStartInput.min = '';
+                        endInput.min = '';
                     }
-                }
+
+                    // 2. Enforce Next Quarter Start Date min > Current Quarter End Date
+                    if (idx < startInputs.length - 1) {
+                        const nextStartInput = startInputs[idx + 1];
+                        if (endInput.value) {
+                            const minNextStart = getNextDay(endInput.value);
+                            nextStartInput.min = minNextStart;
+                            if (nextStartInput.value && nextStartInput.value < minNextStart) {
+                                nextStartInput.value = minNextStart;
+                            }
+                        } else if (startInput.value) {
+                            const minNextStart = getNextDay(startInput.value);
+                            nextStartInput.min = minNextStart;
+                            if (nextStartInput.value && nextStartInput.value < minNextStart) {
+                                nextStartInput.value = minNextStart;
+                            }
+                        } else {
+                            nextStartInput.min = '';
+                        }
+                    }
+                });
+            }
+
+            syncDateConstraints();
+
+            form.querySelectorAll('input[type="date"]').forEach(input => {
+                input.addEventListener('change', syncDateConstraints);
+                input.addEventListener('input', syncDateConstraints);
             });
-        }
-
-        // Run constraint sync on load
-        syncDateConstraints();
-
-        // Listen for date input changes immediately (input and change)
-        document.querySelectorAll('.quarter-date-input').forEach(input => {
-            input.addEventListener('change', syncDateConstraints);
-            input.addEventListener('input', syncDateConstraints);
         });
     });
 </script>

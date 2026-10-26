@@ -165,7 +165,10 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_manage_calendar'])->group(function() {
         Route::get('/academic-quarters', [AcademicQuarterController::class, 'index'])->name('quarters.index');
-        Route::post('/academic-quarters', [AcademicQuarterController::class, 'updateAll'])->name('quarters.update');
+        Route::post('/academic-quarters/{schoolYearId?}', [AcademicQuarterController::class, 'updateAll'])->name('quarters.update');
+        Route::post('/school-years', [AcademicQuarterController::class, 'store'])->name('school-years.store');
+        Route::patch('/school-years/{id}/set-active', [AcademicQuarterController::class, 'setActive'])->name('school-years.set-active');
+        Route::delete('/school-years/{id}', [AcademicQuarterController::class, 'destroy'])->name('school-years.destroy');
     });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_manage_credentials'])->group(function() {
