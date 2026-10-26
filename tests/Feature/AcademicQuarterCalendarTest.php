@@ -231,4 +231,67 @@ class AcademicQuarterCalendarTest extends TestCase
         $this->assertDatabaseMissing('school_years', ['id' => $inactiveSy->id]);
         $this->assertDatabaseMissing('academic_quarters', ['id' => $quarter->id]);
     }
+
+    public function test_admin_can_create_new_school_year_with_years_only_format_and_redirects_to_selected_year(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->post(route('admin.school-years.store'), [
+                'school_year_name' => '2027-2028',
+            ]);
+
+        $newSy = SchoolYear::where('name', '2027-2028')->first();
+        $this->assertNotNull($newSy);
+        $this->assertFalse($newSy->is_active);
+        $this->assertCount(4, $newSy->quarters);
+
+        $response->assertRedirect(route('admin.quarters.index', ['year' => $newSy->id]));
+        $response->assertSessionHas('success');
+    }
+
+    public function test_year_switcher_dropdown_renders_and_respects_selected_year(): void
+    {
+        $futureSy = SchoolYear::create(['name' => '2028-2029', 'is_active' => false]);
+        AcademicQuarter::create(['name' => 'Q1', 'school_year_id' => $futureSy->id]);
+
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('admin.quarters.index', ['year' => $futureSy->id]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Switch School Year:');
+        $response->assertSee('id="schoolYearSwitcher"', false);
+        $response->assertSee('2028-2029 — (Standby)');
+        $response->assertViewHas('selectedYearId', (string) $futureSy->id);
+    }
+
+    public function test_updating_quarters_and_setting_active_year_preserves_selected_year_in_redirect(): void
+    {
+        $futureSy = SchoolYear::create(['name' => '2029-2030', 'is_active' => false]);
+        $quarter = AcademicQuarter::create(['name' => 'Q1', 'school_year_id' => $futureSy->id]);
+
+        // 1. Update quarters
+        $updateResponse = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->post(route('admin.quarters.update', $futureSy->id), [
+                'quarters' => [
+                    $quarter->id => [
+                        'start_date' => '2029-08-01',
+                        'end_date'   => '2029-10-15',
+                    ],
+                ],
+            ]);
+
+        $updateResponse->assertRedirect(route('admin.quarters.index', ['year' => $futureSy->id]));
+        $updateResponse->assertSessionHas('success');
+
+        // 2. Set active
+        $activeResponse = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->patch(route('admin.school-years.set-active', $futureSy->id));
+
+        $activeResponse->assertRedirect(route('admin.quarters.index', ['year' => $futureSy->id]));
+        $activeResponse->assertSessionHas('success');
+        $this->assertTrue($futureSy->fresh()->is_active);
+    }
 }

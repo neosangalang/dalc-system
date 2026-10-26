@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 
 class AcademicQuarterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Auto-setup fallback: if no school years exist yet, create default initial year
         if (SchoolYear::count() === 0) {
@@ -43,10 +43,16 @@ class AcademicQuarterController extends Controller
         $schoolYears = SchoolYear::with('quarters')->orderByDesc('is_active')->orderByDesc('id')->get();
         $activeSchoolYear = SchoolYear::active();
 
+        // Determine which school year is currently selected in the UI dropdown
+        $selectedYearId = $request->query('year', session('selected_year_id'));
+        if (!$selectedYearId || !$schoolYears->contains('id', (int) $selectedYearId)) {
+            $selectedYearId = $activeSchoolYear ? $activeSchoolYear->id : ($schoolYears->first()->id ?? null);
+        }
+
         // Also pass active school year's quarters as $quarters for backward compatibility with views
         $quarters = $activeSchoolYear ? $activeSchoolYear->quarters : AcademicQuarter::orderBy('id', 'asc')->get();
 
-        return view('admin.quarters.index', compact('schoolYears', 'activeSchoolYear', 'quarters'));
+        return view('admin.quarters.index', compact('schoolYears', 'activeSchoolYear', 'quarters', 'selectedYearId'));
     }
 
     public function store(Request $request)
@@ -54,7 +60,7 @@ class AcademicQuarterController extends Controller
         $request->validate([
             'school_year_name' => 'required|string|max:50|unique:school_years,name',
         ], [
-            'school_year_name.required' => 'Please enter a name for the new School Year.',
+            'school_year_name.required' => 'Please enter or choose a name for the new School Year.',
             'school_year_name.unique'   => 'A School Year with this name already exists.',
         ]);
 
@@ -71,7 +77,9 @@ class AcademicQuarterController extends Controller
             ]);
         }
 
-        return back()->with('success', "School Year {$sy->name} created in Standby mode! You can now configure its quarter dates.");
+        return redirect()->route('admin.quarters.index', ['year' => $sy->id])
+            ->with('selected_year_id', $sy->id)
+            ->with('success', "School Year {$sy->name} created in Standby mode! You can now configure its quarter dates.");
     }
 
     public function updateAll(Request $request, $schoolYearId = null)
@@ -131,7 +139,9 @@ class AcademicQuarterController extends Controller
         // Auto-sync active status using Hybrid Activation Logic
         AcademicQuarter::syncActiveStatus();
 
-        return back()->with('success', 'Academic Calendar updated successfully!');
+        return redirect()->route('admin.quarters.index', ['year' => $schoolYearId])
+            ->with('selected_year_id', $schoolYearId)
+            ->with('success', 'Academic Calendar updated successfully!');
     }
 
     public function setActive($id)
@@ -139,7 +149,9 @@ class AcademicQuarterController extends Controller
         $schoolYear = SchoolYear::findOrFail($id);
         $schoolYear->setAsActive();
 
-        return back()->with('success', "School Year {$schoolYear->name} is now the Active Year. Quarter statuses have been synced.");
+        return redirect()->route('admin.quarters.index', ['year' => $schoolYear->id])
+            ->with('selected_year_id', $schoolYear->id)
+            ->with('success', "School Year {$schoolYear->name} is now the Active Year. Quarter statuses have been synced.");
     }
 
     public function destroy($id)
@@ -153,6 +165,7 @@ class AcademicQuarterController extends Controller
         $name = $schoolYear->name;
         $schoolYear->delete(); // Cascades to child academic_quarters
 
-        return back()->with('success', "School Year {$name} and its calendar settings have been deleted.");
+        return redirect()->route('admin.quarters.index')
+            ->with('success', "School Year {$name} and its calendar settings have been deleted.");
     }
 }
