@@ -304,10 +304,16 @@
                                     </a>
 
                                     @if(Auth::user()->can_edit_students)
-                                    <!-- Edit Student Button -->
-                                    <a href="{{ route('teacher.students.edit', $student->id) }}" class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-amber-50 hover:text-[#F59E0B] hover:border-amber-200 transition-colors flex items-center justify-center shadow-sm" title="Edit Student">
-                                        <i class="fa fa-edit text-[12px]"></i>
-                                    </a>
+                                        @if($student->status === 'archived')
+                                        <button type="button" disabled class="w-8 h-8 rounded-lg bg-slate-100 border border-black/10 text-slate-300 cursor-not-allowed flex items-center justify-center shadow-sm opacity-50" title="Archived student is uneditable">
+                                            <i class="fa fa-edit text-[12px]"></i>
+                                        </button>
+                                        @else
+                                        <!-- Edit Student Button -->
+                                        <a href="{{ route('teacher.students.edit', $student->id) }}" class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-amber-50 hover:text-[#F59E0B] hover:border-amber-200 transition-colors flex items-center justify-center shadow-sm" title="Edit Student">
+                                            <i class="fa fa-edit text-[12px]"></i>
+                                        </a>
+                                        @endif
                                     @endif
                                 </div>
                             </div>

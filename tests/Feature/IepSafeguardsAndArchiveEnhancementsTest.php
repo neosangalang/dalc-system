@@ -240,4 +240,97 @@ class IepSafeguardsAndArchiveEnhancementsTest extends TestCase
 
         $response->assertRedirect(route('admin.archive.pdf', $archive->id));
     }
+
+    public function test_run_archive_archives_all_reports_excluding_daily_reports_and_clears_teacher_report_list(): void
+    {
+        // 1. Create reports matching user scenario: 2 Daily reports, 2 Q1 reports (approved & rejected)
+        $daily1 = \App\Models\Report::create([
+            'student_id' => $this->student->id,
+            'teacher_id' => $this->teacher->id,
+            'report_type' => 'daily',
+            'report_date' => '2026-10-22',
+            'content' => 'Daily progress notes 1',
+            'status' => 'approved',
+        ]);
+
+        $q1Rejected = \App\Models\Report::create([
+            'student_id' => $this->student->id,
+            'teacher_id' => $this->teacher->id,
+            'report_type' => 'q1',
+            'report_date' => '2026-10-20',
+            'content' => 'Q1 needs revision content',
+            'status' => 'rejected',
+        ]);
+
+        $q1Approved = \App\Models\Report::create([
+            'student_id' => $this->student->id,
+            'teacher_id' => $this->teacher->id,
+            'report_type' => 'q1',
+            'report_date' => '2026-10-16',
+            'content' => 'Q1 approved content',
+            'status' => 'approved',
+        ]);
+
+        $daily2 = \App\Models\Report::create([
+            'student_id' => $this->student->id,
+            'teacher_id' => $this->teacher->id,
+            'report_type' => 'daily',
+            'report_date' => '2026-10-16',
+            'content' => 'Daily progress notes 2',
+            'status' => 'approved',
+        ]);
+
+        // 2. Before archive, teacher report list displays all active reports
+        $beforeResponse = $this->actingAs($this->teacher)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('teacher.reports.index'));
+
+        $beforeResponse->assertOk();
+        $beforeResponse->assertSee('Daily progress notes 1');
+        $beforeResponse->assertSee('Q1 needs revision content');
+        $beforeResponse->assertSee('Q1 approved content');
+        $beforeResponse->assertSee('Daily progress notes 2');
+
+        // 3. Admin runs archive with valid 2FA
+        $this->flushSession();
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $otp = $google2fa->getCurrentOtp($this->admin->two_factor_secret);
+
+        $archiveResponse = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->post(route('admin.archive.run'), [
+                'one_time_password' => $otp,
+                'school_year' => '2026-2027',
+            ]);
+
+        $archiveResponse->assertSessionHas('success');
+
+        // 4. Verify in DB: Non-daily reports are archived, daily reports remain approved
+        $this->assertEquals('archived', $q1Rejected->fresh()->status);
+        $this->assertEquals('archived', $q1Approved->fresh()->status);
+        $this->assertEquals('approved', $daily1->fresh()->status);
+        $this->assertEquals('approved', $daily2->fresh()->status);
+
+        // 5. Verify teacher report list: Non-daily reports are cleared up, daily reports remain visible
+        $this->flushSession();
+        $afterResponse = $this->actingAs($this->teacher)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('teacher.reports.index'));
+
+        $afterResponse->assertOk();
+        $afterResponse->assertSee('Daily progress notes 1');
+        $afterResponse->assertSee('Daily progress notes 2');
+        $afterResponse->assertDontSee('Q1 needs revision content');
+        $afterResponse->assertDontSee('Q1 approved content');
+
+        // 6. Explicitly filtering by archived shows the archived reports
+        $archivedFilterResponse = $this->actingAs($this->teacher)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('teacher.reports.index', ['status' => 'archived']));
+
+        $archivedFilterResponse->assertOk();
+        $archivedFilterResponse->assertSee('Q1 needs revision content');
+        $archivedFilterResponse->assertSee('Q1 approved content');
+    }
 }
+

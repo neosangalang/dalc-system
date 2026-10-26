@@ -207,7 +207,7 @@ class StudentMultiDocumentTest extends TestCase
         Storage::disk('local')->assertMissing($path);
     }
 
-    public function test_admin_student_index_view_renders_delete_document_form_and_handler(): void
+    public function test_admin_student_index_view_renders_deferred_delete_document_state(): void
     {
         $student = Student::create([
             'first_name' => 'Eve',
@@ -232,7 +232,147 @@ class StudentMultiDocumentTest extends TestCase
             ->get(route('admin.students.index'));
 
         $response->assertOk();
-        $response->assertSee('id="global-delete-doc-form"', false);
-        $response->assertSee("confirmDeleteDocument('" . route('admin.students.delete-document', $doc->id) . "')", false);
+        $response->assertSee('deletedDocIds.push(' . $doc->id . ')', false);
+        $response->assertSee('name="deleted_documents[]"', false);
+    }
+
+    public function test_document_is_retained_unless_save_changes_is_submitted(): void
+    {
+        $file = UploadedFile::fake()->create('retained.pdf', 50, 'application/pdf');
+        $path = $file->store('student_documents', 'local');
+
+        $student = Student::create([
+            'first_name' => 'Sam',
+            'last_name' => 'Smith',
+            'learners_reference_number' => '888888888888',
+            'class_name' => 'Faith',
+            'date_of_birth' => '2016-05-12',
+            'gender' => 'Male',
+            'diagnosis' => 'ASD',
+            'teacher_id' => $this->teacher->id,
+            'guardian_id' => $this->guardian->id,
+            'status' => 'active',
+        ]);
+
+        $doc = $student->documents()->create([
+            'file_path' => $path,
+            'original_name' => 'retained.pdf',
+        ]);
+
+        Storage::disk('local')->assertExists($path);
+
+        // Update student WITHOUT deleted_documents (simulating cancel or not deleting)
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->put(route('admin.students.update', $student->id), [
+                'first_name' => 'Sam',
+                'last_name' => 'Smith',
+                'learners_reference_number' => '888888888888',
+                'class_name' => 'Faith',
+                'date_of_birth' => '2016-05-12',
+                'gender' => 'Male',
+                'diagnosis' => 'ASD',
+                'teacher_id' => $this->teacher->id,
+                'guardian_id' => $this->guardian->id,
+                'status' => 'active',
+            ]);
+
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('student_documents', ['id' => $doc->id]);
+        Storage::disk('local')->assertExists($path);
+    }
+
+    public function test_document_is_only_deleted_when_save_changes_submits_deleted_documents(): void
+    {
+        $file = UploadedFile::fake()->create('delete_on_save.pdf', 50, 'application/pdf');
+        $path = $file->store('student_documents', 'local');
+
+        $student = Student::create([
+            'first_name' => 'Oliver',
+            'last_name' => 'Queen',
+            'learners_reference_number' => '999999999999',
+            'class_name' => 'Valor',
+            'date_of_birth' => '2015-08-20',
+            'gender' => 'Male',
+            'diagnosis' => 'ADHD',
+            'teacher_id' => $this->teacher->id,
+            'guardian_id' => $this->guardian->id,
+            'status' => 'active',
+        ]);
+
+        $doc = $student->documents()->create([
+            'file_path' => $path,
+            'original_name' => 'delete_on_save.pdf',
+        ]);
+
+        Storage::disk('local')->assertExists($path);
+
+        // Update student WITH deleted_documents (clicking Save Changes)
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->put(route('admin.students.update', $student->id), [
+                'first_name' => 'Oliver',
+                'last_name' => 'Queen',
+                'learners_reference_number' => '999999999999',
+                'class_name' => 'Valor',
+                'date_of_birth' => '2015-08-20',
+                'gender' => 'Male',
+                'diagnosis' => 'ADHD',
+                'teacher_id' => $this->teacher->id,
+                'guardian_id' => $this->guardian->id,
+                'status' => 'active',
+                'deleted_documents' => [$doc->id],
+            ]);
+
+        $response->assertSessionHas('success');
+        $this->assertDatabaseMissing('student_documents', ['id' => $doc->id]);
+        Storage::disk('local')->assertMissing($path);
+    }
+
+    public function test_archived_student_is_uneditable(): void
+    {
+        $student = Student::create([
+            'first_name' => 'Archived',
+            'last_name' => 'Student',
+            'learners_reference_number' => '112233445566',
+            'class_name' => 'Past',
+            'date_of_birth' => '2014-01-01',
+            'gender' => 'Female',
+            'diagnosis' => 'ASD',
+            'teacher_id' => $this->teacher->id,
+            'guardian_id' => $this->guardian->id,
+            'status' => 'archived',
+        ]);
+
+        // Attempting to update an archived student directly is rejected
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->put(route('admin.students.update', $student->id), [
+                'first_name' => 'Changed',
+                'last_name' => 'Student',
+                'learners_reference_number' => '112233445566',
+                'class_name' => 'Past',
+                'date_of_birth' => '2014-01-01',
+                'gender' => 'Female',
+                'diagnosis' => 'ASD',
+                'teacher_id' => $this->teacher->id,
+                'guardian_id' => $this->guardian->id,
+                'status' => 'archived',
+            ]);
+
+        $response->assertSessionHasErrors('error');
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'first_name' => 'Archived',
+            'status' => 'archived',
+        ]);
+
+        // View shows disabled edit button
+        $viewResponse = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('admin.students.index'));
+
+        $viewResponse->assertOk();
+        $viewResponse->assertSee('Archived student is uneditable');
     }
 }

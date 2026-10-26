@@ -93,6 +93,10 @@ class AdminStudentController extends Controller
     {
         $student = Student::findOrFail($id);
 
+        if ($student->status === 'archived') {
+            return redirect()->back()->withErrors(['error' => 'Archived students cannot be edited. Please re-enroll the student to make changes.']);
+        }
+
         $request->validate([
             'first_name'                => 'required|string|max:255',
             'last_name'                 => 'required|string|max:255',
@@ -108,6 +112,8 @@ class AdminStudentController extends Controller
             'documents'                 => 'nullable|array',
             'documents.*'               => 'file|mimes:pdf,jpg,jpeg,png|max:5120',
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'deleted_documents'         => 'nullable|array',
+            'deleted_documents.*'       => 'integer',
         ], [
             'diagnosis_other.required_if' => 'Please specify the diagnosis when selecting Other.',
         ]);
@@ -132,6 +138,21 @@ class AdminStudentController extends Controller
             $data['diagnosis'] = $finalDiagnosis;
 
             $student->update($data);
+
+            // Delete documents that were staged for deletion during this save
+            if ($request->filled('deleted_documents')) {
+                foreach ($request->deleted_documents as $docId) {
+                    $doc = $student->documents()->find($docId);
+                    if ($doc) {
+                        if (Storage::disk('local')->exists($doc->file_path)) {
+                            Storage::disk('local')->delete($doc->file_path);
+                        } elseif (Storage::disk('public')->exists($doc->file_path)) {
+                            Storage::disk('public')->delete($doc->file_path);
+                        }
+                        $doc->delete();
+                    }
+                }
+            }
 
             // Add newly uploaded multiple documents
             if ($request->hasFile('documents')) {

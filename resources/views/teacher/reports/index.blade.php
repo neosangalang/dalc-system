@@ -95,6 +95,7 @@
                             <option value="">All Statuses</option>
                             <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                             <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Needs Revision</option>
+                            <option value="archived" {{ request('status') == 'archived' ? 'selected' : '' }}>Archived</option>
                         </select>
                     </div>
                     
@@ -174,18 +175,21 @@
                                         'pending_approval' => 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20',
                                         'approved' => 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
                                         'rejected' => 'bg-rose-50 text-rose-600 border-rose-200',
+                                        'archived' => 'bg-slate-100 text-slate-600 border-black/10',
                                     ];
                                     $statusLabels = [
                                         'draft' => 'Draft',
                                         'pending_approval' => 'Pending Approval',
                                         'approved' => 'Approved',
                                         'rejected' => 'Needs Revision',
+                                        'archived' => 'Archived',
                                     ];
                                     $statusIcons = [
                                         'draft' => 'fa-solid fa-file-pen',
                                         'pending_approval' => 'fa-solid fa-clock',
                                         'approved' => 'fa-solid fa-circle-check',
                                         'rejected' => 'fa-solid fa-triangle-exclamation',
+                                        'archived' => 'fa-solid fa-box-archive',
                                     ];
                                 @endphp
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[9px] font-extrabold uppercase tracking-widest border shadow-sm {{ $statusClasses[$report->status] ?? 'bg-slate-100 text-[#6B7086] border-black/10' }}">

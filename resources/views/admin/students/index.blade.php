@@ -201,7 +201,7 @@
                     <tbody class="block md:table-row-group space-y-4 md:space-y-0 divide-y-0 md:divide-y divide-black/5 bg-transparent md:bg-white">
                         @forelse($students ?? [] as $student)
                         <!-- Added data-teacher attribute for JS filtering -->
-                        <tr x-data="{ showEditModal: false }"
+                        <tr x-data="{ showEditModal: false, deletedDocIds: [] }"
                             class="block md:table-row bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-black/15 md:border-none hover:bg-slate-50 transition-colors duration-150 student-row"
                             data-class="{{ strtolower($student->class_name ?? '') }}"
                             data-diagnosis="{{ strtolower($student->diagnosis ?? '') }}"
@@ -296,9 +296,15 @@
                                             <i class="fa fa-eye text-[12px]"></i>
                                         </a>
 
-                                        <button @click="showEditModal = true" class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-slate-200 hover:text-[#F59E0B] transition-colors flex items-center justify-center shadow-sm" title="Edit">
+                                        @if($student->status === 'archived')
+                                        <button type="button" disabled class="w-8 h-8 rounded-lg bg-slate-100 border border-black/10 text-slate-300 cursor-not-allowed flex items-center justify-center shadow-sm opacity-50" title="Archived student is uneditable">
                                             <i class="fa fa-edit text-[12px]"></i>
                                         </button>
+                                        @else
+                                        <button @click="showEditModal = true; deletedDocIds = [];" class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-slate-200 hover:text-[#F59E0B] transition-colors flex items-center justify-center shadow-sm" title="Edit">
+                                            <i class="fa fa-edit text-[12px]"></i>
+                                        </button>
+                                        @endif
 
                                         <button type="button" 
                                                 onclick="window.triggerDeleteStudentModal({{ $student->id }}, '{{ addslashes($student->first_name . ' ' . $student->last_name) }}', '{{ route('admin.students.destroy', $student->id) }}')" 
@@ -309,10 +315,11 @@
                                     </div>
                                 </div>
 
+                                @if($student->status !== 'archived')
                                 <!-- EDIT MODAL -->
                                 <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                                     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                        <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel editing this student?')) showEditModal = false"></div>
+                                        <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel editing this student?')) { showEditModal = false; deletedDocIds = []; }"></div>
 
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
@@ -433,7 +440,10 @@
                                                                     $totalDocs = $student->documents->count();
                                                                 @endphp
                                                                 @if($totalDocs > 0)
-                                                                <span class="text-[10px] text-[#10B981] font-extrabold uppercase tracking-widest"><i class="fa fa-check mr-1"></i> {{ $totalDocs }} document(s) on file</span>
+                                                                <span class="text-[10px] text-[#10B981] font-extrabold uppercase tracking-widest">
+                                                                    <i class="fa fa-check mr-1"></i> 
+                                                                    <span x-text="Math.max(0, {{ $totalDocs }} - deletedDocIds.length)">{{ $totalDocs }}</span> document(s) on file
+                                                                </span>
                                                                 @endif
                                                             </label>
 
@@ -441,15 +451,28 @@
                                                             @if($totalDocs > 0)
                                                             <div class="mb-3 space-y-2">
                                                                 @foreach($student->documents as $doc)
-                                                                <div class="p-2.5 bg-blue-50/50 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">
+                                                                <div x-show="!deletedDocIds.includes({{ $doc->id }})" class="p-2.5 bg-blue-50/50 border border-blue-200 rounded-xl flex items-center justify-between shadow-sm">
                                                                     <a href="{{ route('secure.student-document', $doc->id) }}" target="_blank" class="text-[12px] font-extrabold text-[#3B82F6] hover:underline flex items-center gap-2 truncate">
                                                                         <i class="fa fa-file-lines text-[#3B82F6] shrink-0"></i>
                                                                         <span class="truncate">{{ $doc->original_name }}</span>
                                                                     </a>
-                                                                    <button type="button" onclick="confirmDeleteDocument('{{ route('admin.students.delete-document', $doc->id) }}')" class="px-2.5 py-1 bg-white border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 ml-2">
+                                                                    <button type="button" @click="deletedDocIds.push({{ $doc->id }})" class="px-2.5 py-1 bg-white border border-rose-300 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 ml-2">
                                                                         <i class="fa fa-trash-alt mr-1"></i> Delete
                                                                     </button>
                                                                 </div>
+                                                                <div x-show="deletedDocIds.includes({{ $doc->id }})" x-cloak class="p-2.5 bg-rose-50/70 border border-rose-200 border-dashed rounded-xl flex items-center justify-between shadow-sm">
+                                                                    <span class="text-[12px] font-bold text-rose-500 line-through flex items-center gap-2 truncate opacity-75">
+                                                                        <i class="fa fa-file-lines text-rose-400 shrink-0"></i>
+                                                                        <span class="truncate">{{ $doc->original_name }}</span>
+                                                                        <span class="text-[10px] uppercase font-extrabold text-rose-600 bg-rose-100 px-1.5 py-0.5 rounded ml-1 no-underline">(Pending Deletion)</span>
+                                                                    </span>
+                                                                    <button type="button" @click="deletedDocIds = deletedDocIds.filter(id => id !== {{ $doc->id }})" class="px-2.5 py-1 bg-white border border-slate-300 text-slate-600 text-[11px] font-extrabold rounded-lg hover:bg-slate-100 transition-colors shadow-sm cursor-pointer shrink-0 ml-2">
+                                                                        <i class="fa fa-undo mr-1"></i> Undo
+                                                                    </button>
+                                                                </div>
+                                                                <template x-if="deletedDocIds.includes({{ $doc->id }})">
+                                                                    <input type="hidden" name="deleted_documents[]" value="{{ $doc->id }}">
+                                                                </template>
                                                                 @endforeach
                                                             </div>
                                                             @endif
@@ -581,7 +604,7 @@
                                                 </div>
 
                                                 <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="if(confirm('Do you want to cancel editing this student?')) showEditModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
+                                                    <button type="button" @click="if(confirm('Do you want to cancel editing this student?')) { showEditModal = false; deletedDocIds = []; }" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
                                                     <button type="submit" class="px-4 py-2 bg-[#4F46E5] rounded-xl text-[13px] font-extrabold text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
                                                         <i class="fa fa-save mr-1.5"></i> Save Changes
                                                     </button>
@@ -590,6 +613,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             </td>
                         </tr>
                         @empty

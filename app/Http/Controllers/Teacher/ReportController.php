@@ -54,6 +54,9 @@ class ReportController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } else {
+            // By default, exclude archived reports from the active list so it clears up after archive
+            $query->where('status', '!=', 'archived');
         }
 
         // 4. Execute the query with Pagination

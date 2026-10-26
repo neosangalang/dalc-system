@@ -34,8 +34,9 @@ class AutoQuarterRollover extends Command
             $this->info("Today is the end of {$currentQuarter->name}. Starting automatic rollover...");
             Log::info("SYSTEM: Automatic Quarterly Rollover triggered for {$currentQuarter->name}.");
 
-            // 3. Archive all approved reports up to this quarter's end date
+            // 3. Archive all approved reports up to this quarter's end date (excluding daily reports)
             $archivedCount = Report::where('status', 'approved')
+                                  ->where('report_type', '!=', 'daily')
                                   ->whereDate('created_at', '<=', $currentQuarter->end_date)
                                   ->update(['status' => 'archived']);
 

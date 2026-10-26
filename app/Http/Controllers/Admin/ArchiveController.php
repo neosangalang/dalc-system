@@ -119,6 +119,11 @@ class ArchiveController extends Controller
             $student->update(['status' => 'archived']);
         }
 
+        // Archive all student reports excluding daily reports so active report lists clear up
+        \App\Models\Report::whereIn('student_id', $activeStudents->pluck('id'))
+            ->where('report_type', '!=', 'daily')
+            ->update(['status' => 'archived']);
+
         return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "! Active student profiles are now transitioned to Archived status.");
     }
 
@@ -235,6 +240,7 @@ class ArchiveController extends Controller
 
     // 2. The "Scenario A" Magic: Just change the status!
     $archivedCount = \App\Models\Report::where('status', 'approved')
+                        ->where('report_type', '!=', 'daily')
                         ->whereDate('created_at', '<=', $request->cutoff_date)
                         ->update(['status' => 'archived']);
 
