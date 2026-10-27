@@ -695,26 +695,26 @@ Confidential medical history, psychological assessments, student photos, and dev
 
 ```mermaid
 flowchart TD
-    Req[Client Requests File:<br/>/secure-document/{id}] --> Ctl[SecureFileController]
-    Ctl --> AuthCheck{Is User Logged In?}
-    AuthCheck -- No --> Deny[403 / Redirect]
-    AuthCheck -- Yes --> RoleCheck{Inspect User Role}
+    Req["Client Requests File:<br>/secure-document/:id"] --> Ctl["SecureFileController"]
+    Ctl --> AuthCheck{"Is User Logged In?"}
+    AuthCheck -- No --> Deny["403 / Redirect"]
+    AuthCheck -- Yes --> RoleCheck{"Inspect User Role"}
     
-    RoleCheck -- Admin --> Grant[Authorized: Super Admin]
-    RoleCheck -- Teacher --> TeachCheck{teacher_id == user.id?}
-    RoleCheck -- Guardian --> GuardCheck{guardian_id == user.id?}
+    RoleCheck -- Admin --> Grant["Authorized: Super Admin"]
+    RoleCheck -- Teacher --> TeachCheck{"teacher_id == user.id?"}
+    RoleCheck -- Guardian --> GuardCheck{"guardian_id == user.id?"}
     
     TeachCheck -- Yes --> Grant
-    TeachCheck -- No --> Violate[Abort 403: Security Violation]
+    TeachCheck -- No --> Violate["Abort 403: Security Violation"]
     
     GuardCheck -- Yes --> Grant
     GuardCheck -- No --> Violate
     
-    Grant --> DiskCheck{Check Storage::disk('local')}
-    DiskCheck -- Found --> Stream[Stream Binary with MIME Headers]
-    DiskCheck -- Not in Local --> FallbackCheck{Check Storage::disk('public')}
+    Grant --> DiskCheck{"Check Storage::disk('local')"}
+    DiskCheck -- Found --> Stream["Stream Binary with MIME Headers"]
+    DiskCheck -- Not in Local --> FallbackCheck{"Check Storage::disk('public')"}
     FallbackCheck -- Found --> Stream
-    FallbackCheck -- Missing --> NotFound[Abort 404: File Not Found]
+    FallbackCheck -- Missing --> NotFound["Abort 404: File Not Found"]
 ```
 
 #### Secure Vault Authorization Rules

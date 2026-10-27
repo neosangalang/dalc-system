@@ -104,11 +104,16 @@ DALC safeguards confidential Special Education data through layered access contr
 
 ---
 
-## 📚 Complete Technical Documentation
+## 📚 Documentation Guides
 
-For in-depth architectural specifications, entity relationship diagrams (ERD), complete route and controller catalogs, and AI prompt engineering details, refer to:
+The documentation is organized into modular guides in the [`docs/`](docs/) directory:
 
-👉 **[docs/SYSTEM_DOCUMENTATION.md](docs/SYSTEM_DOCUMENTATION.md)**
+- 🛡️ [**docs/SECURITY.md**](docs/SECURITY.md) — 3-gate authentication, 2FA/TOTP, RBAC, file vault, and cryptographic policies.
+- 🎨 [**docs/DESIGN_SYSTEM.md**](docs/DESIGN_SYSTEM.md) — Brand identity, Navy & Gold color tokens, typography scale, components, and mobile UX.
+- 🏛️ [**docs/ARCHITECTURE.md**](docs/ARCHITECTURE.md) — System structure, MVC lifecycle, 11 Eloquent models, routes, and academic rollover.
+- 🤖 [**docs/AGENTS.md**](docs/AGENTS.md) — Groq Cloud LLM proxy, daily log rewriting, IEP goal generation, and report synthesis.
+- 📖 [**docs/README.md**](docs/README.md) — Documentation index & quick guide navigation.
+- 📜 [**docs/SYSTEM_DOCUMENTATION.md**](docs/SYSTEM_DOCUMENTATION.md) — Full authoritative technical and architectural reference.
 
 ---
 
