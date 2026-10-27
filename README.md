@@ -1,59 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Dream Achievers Learning Center (DALC) System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white)](https://alpinejs.dev)
+[![Groq AI](https://img.shields.io/badge/Groq_Cloud-AI_Engine-F55036?style=for-the-badge)](https://groq.com)
+[![Security](https://img.shields.io/badge/Security-3--Gate_MFA-10B981?style=for-the-badge)](#-security-architecture)
 
-## About Laravel
+A specialized enterprise web application engineered for **Special Education (SPED)** administration, individualized student development tracking, and secure home-school collaboration at **Dream Achievers Learning Center (DALC)**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🌟 Key Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **🛡️ 3-Gate Security Perimeter**: Enforces mandatory first-login password updates, TOTP 2FA (Google Authenticator) with 30-day remembered devices, and strict Role-Based Access Control (RBAC).
+- **🔑 Granular Module Permissions**: Super Admins can delegate administrative switches (`can_edit_students`, `can_manage_credentials`, `can_manage_calendar`, `can_create_profiles`, `can_archive_students`, `can_approve_reports`) to select educators.
+- **🤖 AI-Powered SPED Assistant**: Groq Cloud integration (`openai/gpt-oss-20b`) providing clinical rewrites for daily observation logs, SMART IEP goal drafting, quarterly progress narrative generation, and parent home recommendations.
+- **🎯 Individualized Education Programs (IEP)**: Track multi-domain objectives, Present Levels of Performance (PLOP) baselines, and milestone percentage progress bars.
+- **🔒 Secure File Vault**: Non-public private storage disk (`storage/app/`) protecting confidential medical histories, diagnostic assessments, and student media with per-request authorization checks.
+- **📦 Annual Archive & Rollover Engine**: End-of-year immutable JSON snapshots of student records, historical document retention, and DomPDF master archive compilation.
+- **💬 Polymorphic Discussions**: Contextual, real-time message threads between teachers and guardians attached directly to daily logs, IEP goals, progress reports, and announcements.
+- **📱 Mobile-First Responsive Design**: Optimized for mobile and tablet touchscreens with tactile feedback (`touch-press`), iOS 16px auto-zoom prevention, and role-specific 5-tab bottom navigation bars.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 👥 User Portals
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Role | Access Scope & Key Workflows |
+|---|---|
+| **Admin (`admin`)** | Institutional governance, user lifecycle management, granular permission assignment, academic calendar & quarter configuration, clinical report approvals, and annual student archival/rollovers. |
+| **Teacher (`teacher`)** | Pedagogical observation logging with photo attachments, IEP SMART goal authoring, AI-assisted progress report generation, student file vault uploads, and parent collaboration. |
+| **Guardian (`guardian`)** | Multi-child switching, real-time daily log monitoring, IEP milestone tracking, formal report/IEP PDF downloads, and accessing AI home learning activities. |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Technology Stack
 
-### Premium Partners
+- **Backend**: Laravel 12.x running on PHP 8.2+
+- **Frontend**: Laravel Blade, Tailwind CSS (CDN), Alpine.js 3.x
+- **Database**: SQLite (Development / Testing) / MySQL or PostgreSQL (Production)
+- **AI Inference**: Groq Cloud API (`openai/gpt-oss-20b`) via server-side proxy
+- **2FA / TOTP**: `pragmarx/google2fa` & `bacon/bacon-qr-code` (pure SVG generation)
+- **Document Processing**: `barryvdh/laravel-dompdf` & `intervention/image`
+- **Authorization**: `spatie/laravel-permission` + custom role & module permission middleware
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🚀 Quick Start Guide
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Prerequisites
+- **PHP**: >= 8.2 with extensions: `pdo_sqlite`, `curl`, `mbstring`, `openssl`, `gd`, `fileinfo`
+- **Composer**: >= 2.x
+- **Web Server**: Laragon, XAMPP, or built-in PHP CLI server
 
-## Code of Conduct
+### Installation Steps
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url> dalc-system
+   cd dalc-system
+   ```
 
-## Security Vulnerabilities
+2. **Install PHP dependencies**:
+   ```bash
+   composer install
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Configure Environment File**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-## License
+4. **Configure your Database & AI Service** in `.env`:
+   ```ini
+   DB_CONNECTION=sqlite
+   # Make sure database/database.sqlite exists (or touch database/database.sqlite)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   GROQ_API_KEY="gsk_your_groq_api_key_here"
+   ```
+
+5. **Run Migrations & Seeders**:
+   ```bash
+   php artisan migrate --seed
+   ```
+
+6. **Serve the Application**:
+   ```bash
+   php artisan serve
+   ```
+   Open your browser and navigate to `http://127.0.0.1:8000`.
+
+---
+
+## 🔐 Security Architecture
+
+DALC safeguards confidential Special Education data through layered access controls:
+
+1. **Gate 1 — Credential Verification**: Bcrypt password validation with rate-limited login attempts.
+2. **Gate 2 — Forced Password Update**: Any new account with a `NULL` `password_changed_at` timestamp is quarantined until a private, complex password is set.
+3. **Gate 3 — Mandatory 2FA**: Every user must configure TOTP via Google Authenticator or Microsoft Authenticator before accessing student records. Includes a secure 30-day remembered device cookie (`mfa_remember_{user_id}`) with HMAC signatures that auto-revoke on password changes.
+4. **Secure File Vault**: All medical reports, observation images, and IEP attachments are stored on private disks and streamed only after verifying `teacher_id` or `guardian_id` ownership.
+
+---
+
+## 📚 Complete Technical Documentation
+
+For in-depth architectural specifications, entity relationship diagrams (ERD), complete route and controller catalogs, and AI prompt engineering details, refer to:
+
+👉 **[docs/SYSTEM_DOCUMENTATION.md](docs/SYSTEM_DOCUMENTATION.md)**
+
+---
+
+## 📄 License & Attribution
+
+Internal system developed for **Dream Achievers Learning Center (DALC)**. All rights reserved.
