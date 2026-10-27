@@ -524,5 +524,105 @@ class IepReEnrollmentTest extends TestCase
         $this->assertDatabaseHas('student_documents', ['id' => $activeDoc->id]);
         Storage::disk('local')->assertExists($activeFilePath);
     }
+
+    public function test_re_enroll_index_view_only_includes_archived_students_and_excludes_active_students(): void
+    {
+        $activeStudent = Student::create([
+            'first_name'                => 'Active',
+            'last_name'                 => 'Learner',
+            'learners_reference_number' => '999888777666',
+            'class_name'                => 'Grade 2 - Peace',
+            'date_of_birth'             => '2018-05-10',
+            'gender'                    => 'Female',
+            'diagnosis'                 => 'ADHD',
+            'teacher_id'                => $this->priorTeacher->id,
+            'guardian_id'               => $this->guardian->id,
+            'status'                    => 'active',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('admin.students.index'));
+
+        $response->assertOk();
+        $response->assertViewHas('archivedStudents');
+
+        /** @var \Illuminate\Support\Collection $archivedInView */
+        $archivedInView = $response->viewData('archivedStudents');
+
+        // Assert only archived students are in the re-enroll selection list
+        $this->assertTrue($archivedInView->contains('id', $this->student->id));
+        $this->assertFalse($archivedInView->contains('id', $activeStudent->id));
+
+        // Assert searchable input placeholder exists
+        $response->assertSee('Search student name, ID, LRN...');
+    }
+
+    public function test_re_enroll_fails_if_student_is_already_active(): void
+    {
+        $activeStudent = Student::create([
+            'first_name'                => 'Active',
+            'last_name'                 => 'Learner',
+            'learners_reference_number' => '111222333444',
+            'class_name'                => 'Grade 2 - Peace',
+            'date_of_birth'             => '2018-05-10',
+            'gender'                    => 'Female',
+            'diagnosis'                 => 'ADHD',
+            'teacher_id'                => $this->priorTeacher->id,
+            'guardian_id'               => $this->guardian->id,
+            'status'                    => 'active',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->post(route('admin.students.re-enroll', $activeStudent->id), [
+                'first_name'                => 'Active',
+                'last_name'                 => 'Learner',
+                'learners_reference_number' => '111222333444',
+                'class_name'                => 'Grade 3 - Patience',
+                'date_of_birth'             => '2018-05-10',
+                'gender'                    => 'Female',
+                'diagnosis'                 => 'ADHD',
+                'teacher_id'                => $this->newTeacher->id,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'Only archived students can be re-enrolled. This student is currently active.');
+    }
+
+    public function test_student_profile_displays_guardian_email_and_phone(): void
+    {
+        $this->guardian->update([
+            'email'          => 'guardian.jane@example.com',
+            'contact_number' => '09171234567',
+        ]);
+
+        // 1. Admin student profile view
+        $adminResponse = $this->actingAs($this->admin)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('admin.students.show', $this->student->id));
+
+        $adminResponse->assertOk();
+        $adminResponse->assertSee('Primary Guardian');
+        $adminResponse->assertSee('Guardian Jane');
+        $adminResponse->assertSee('guardian.jane@example.com');
+        $adminResponse->assertSee('09171234567');
+
+        // 2. Teacher student profile view
+        $this->student->update([
+            'status'     => 'active',
+            'teacher_id' => $this->priorTeacher->id,
+        ]);
+
+        $teacherResponse = $this->actingAs($this->priorTeacher)
+            ->withSession(['mfa_verified' => true])
+            ->get(route('teacher.students.show', $this->student->id));
+
+        $teacherResponse->assertOk();
+        $teacherResponse->assertSee('Primary Guardian');
+        $teacherResponse->assertSee('Guardian Jane');
+        $teacherResponse->assertSee('guardian.jane@example.com');
+        $teacherResponse->assertSee('09171234567');
+    }
 }
 

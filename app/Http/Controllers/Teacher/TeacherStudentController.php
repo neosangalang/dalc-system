@@ -23,7 +23,8 @@ class TeacherStudentController extends Controller
     public function show($id)
     {
         // Fetch the active student, ensuring they belong to the currently logged-in teacher
-        $student = Student::where('id', $id)
+        $student = Student::with(['teacher', 'guardian', 'documents', 'iepGoals'])
+            ->where('id', $id)
             ->where('teacher_id', Auth::id())
             ->where('status', 'active')
             ->firstOrFail();

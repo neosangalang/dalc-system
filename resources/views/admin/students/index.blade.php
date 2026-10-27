@@ -894,15 +894,155 @@
 
                 <div class="p-5 sm:p-6 overflow-y-auto custom-scrollbar space-y-5">
                     <!-- Step 1 & 2: Select Student -->
-                    <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl">
-                        <label class="block text-[12px] font-extrabold text-emerald-900 uppercase tracking-wider mb-2 flex items-center">
-                            <i class="fa fa-search text-emerald-600 mr-2"></i> Step 1 & 2: Search & Choose Existing Student Profile
-                        </label>
-                        <select id="reEnrollStudentSelect" onchange="autoPopulateReEnrollForm(this)" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] font-bold text-[#1E2657] focus:border-[#10B981] shadow-sm bg-white cursor-pointer">
-                            <option value="">-- Select an Existing / Archived Student --</option>
-                            @foreach($students as $st)
+                    <div x-data="{
+                            search: '',
+                            isOpen: false,
+                            selectedStudent: null,
+                            students: {{ json_encode($archivedStudents ?? []) }},
+                            get filteredStudents() {
+                                if (!this.search.trim()) {
+                                    return this.students;
+                                }
+                                const q = this.search.toLowerCase().trim();
+                                return this.students.filter(s => {
+                                    const fullName = ((s.first_name || '') + ' ' + (s.last_name || '')).toLowerCase();
+                                    const lrn = String(s.learners_reference_number || '').toLowerCase();
+                                    const id = String(s.id);
+                                    const className = String(s.class_name || '').toLowerCase();
+                                    return fullName.includes(q) || lrn.includes(q) || id.includes(q) || className.includes(q);
+                                });
+                            },
+                            selectStudent(student) {
+                                this.selectedStudent = student;
+                                this.isOpen = false;
+                                this.search = '';
+                                const hiddenSelect = document.getElementById('reEnrollStudentSelect');
+                                if (hiddenSelect) {
+                                    hiddenSelect.value = student.id;
+                                }
+                                autoPopulateReEnrollForm(student);
+                            },
+                            clearSelection() {
+                                this.selectedStudent = null;
+                                this.search = '';
+                                const hiddenSelect = document.getElementById('reEnrollStudentSelect');
+                                if (hiddenSelect) {
+                                    hiddenSelect.value = '';
+                                }
+                                autoPopulateReEnrollForm(null);
+                            }
+                        }"
+                        @click.outside="isOpen = false"
+                        class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-3">
+                        
+                        <div class="flex items-center justify-between">
+                            <label class="block text-[12px] font-extrabold text-emerald-900 uppercase tracking-wider flex items-center m-0">
+                                <i class="fa fa-search text-emerald-600 mr-2"></i> Step 1 & 2: Search & Choose Existing Student Profile
+                            </label>
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Archived Students Only
+                            </span>
+                        </div>
+
+                        <!-- Selected Student Display Card -->
+                        <div x-show="selectedStudent" x-cloak class="p-3 bg-white border border-emerald-300 rounded-xl shadow-xs flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm shrink-0 border border-emerald-200">
+                                    <span x-text="(selectedStudent?.first_name?.charAt(0) || '') + (selectedStudent?.last_name?.charAt(0) || '')"></span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-xs sm:text-[13px] font-extrabold text-[#1E2657] truncate m-0" x-text="(selectedStudent?.first_name || '') + ' ' + (selectedStudent?.last_name || '')"></h4>
+                                        <span class="px-1.5 py-0.5 text-[9px] font-black uppercase rounded bg-slate-100 text-slate-700 border border-slate-200">Archived</span>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-[#6B7086] mt-0.5 font-medium">
+                                        <span>LRN: <strong class="text-[#3B82F6]" x-text="selectedStudent?.learners_reference_number || 'N/A'"></strong></span>
+                                        <span class="hidden sm:inline">•</span>
+                                        <span class="truncate">Class: <span x-text="selectedStudent?.class_name || 'Unassigned'"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" @click="clearSelection()" class="shrink-0 px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200 flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa fa-sync-alt text-[10px]"></i>
+                                <span>Change</span>
+                            </button>
+                        </div>
+
+                        <!-- Searchable Input & Dropdown -->
+                        <div x-show="!selectedStudent" class="relative">
+                            <div class="relative shadow-xs rounded-xl overflow-hidden border border-[#9CA0AF] bg-white focus-within:border-[#10B981] focus-within:ring-2 focus-within:ring-emerald-100 transition-all">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-[#9CA0AF] pointer-events-none">
+                                    <i class="fa fa-search text-xs"></i>
+                                </span>
+                                <input type="text" 
+                                       x-model="search" 
+                                       @focus="isOpen = true"
+                                       @input="isOpen = true"
+                                       @keydown.escape="isOpen = false"
+                                       placeholder="Search student name, ID, LRN..." 
+                                       class="w-full border-0 py-2.5 pl-9 pr-9 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent">
+                                <button type="button" 
+                                        x-show="search.length > 0" 
+                                        @click="search = ''; isOpen = true" 
+                                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
+                                    <i class="fa fa-times text-xs"></i>
+                                </button>
+                            </div>
+
+                            <!-- Dropdown Menu -->
+                            <div x-show="isOpen" 
+                                 x-transition.opacity.duration.150ms
+                                 x-cloak
+                                 class="absolute left-0 right-0 top-full mt-1.5 bg-white border border-black/15 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto custom-scrollbar divide-y divide-black/5">
+                                
+                                <template x-if="students.length === 0">
+                                    <div class="p-4 text-center text-[#9CA0AF] text-xs font-bold">
+                                        <i class="fa fa-folder-open mb-1 block text-slate-300 text-base"></i>
+                                        No archived students available to re-enroll.
+                                    </div>
+                                </template>
+
+                                <template x-if="students.length > 0 && filteredStudents.length === 0">
+                                    <div class="p-4 text-center text-[#9CA0AF] text-xs font-bold">
+                                        <i class="fa fa-search-minus mb-1 block text-slate-300 text-base"></i>
+                                        No archived student found matching "<span class="text-[#1E2657]" x-text="search"></span>".
+                                    </div>
+                                </template>
+
+                                <template x-for="st in filteredStudents" :key="st.id">
+                                    <button type="button" 
+                                            @click="selectStudent(st)" 
+                                            class="w-full p-2.5 sm:px-3.5 sm:py-2.5 text-left hover:bg-emerald-50/70 transition-colors flex items-center justify-between gap-2 group cursor-pointer">
+                                        <div class="min-w-0 flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-emerald-100 group-hover:text-emerald-700 text-slate-600 flex items-center justify-center text-[10px] font-black shrink-0 transition-colors">
+                                                <span x-text="(st.first_name?.charAt(0) || '') + (st.last_name?.charAt(0) || '')"></span>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="text-xs sm:text-[13px] font-extrabold text-[#1E2657] group-hover:text-emerald-900 truncate" x-text="st.first_name + ' ' + st.last_name"></div>
+                                                <div class="text-[10px] text-[#6B7086] font-medium flex items-center gap-2 mt-0.5">
+                                                    <span>LRN: <span class="font-bold text-[#3B82F6]" x-text="st.learners_reference_number || 'N/A'"></span></span>
+                                                    <span>•</span>
+                                                    <span class="truncate" x-text="st.class_name || 'Unassigned'"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="shrink-0 flex items-center gap-2">
+                                            <span class="px-2 py-0.5 text-[9px] font-extrabold rounded-md bg-slate-100 text-slate-600 uppercase tracking-wider group-hover:bg-emerald-100 group-hover:text-emerald-800">
+                                                Archived
+                                            </span>
+                                            <i class="fa fa-chevron-right text-[10px] text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all"></i>
+                                        </div>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Hidden select for fallback / form inspection compatibility -->
+                        <select id="reEnrollStudentSelect" class="hidden" onchange="autoPopulateReEnrollForm(this)">
+                            <option value="">-- Select an Archived Student --</option>
+                            @foreach($archivedStudents ?? [] as $st)
                             <option value="{{ $st->id }}" data-student="{{ json_encode($st) }}">
-                                {{ $st->first_name }} {{ $st->last_name }} (LRN: {{ $st->learners_reference_number ?? 'N/A' }}) — Status: {{ ucfirst($st->status === 'inactive' ? 'archived' : $st->status) }}
+                                {{ $st->first_name }} {{ $st->last_name }} (LRN: {{ $st->learners_reference_number ?? 'N/A' }}) — Status: Archived
                             </option>
                             @endforeach
                         </select>
@@ -914,7 +1054,7 @@
 
                         <div id="reEnrollFieldsNotice" class="text-center py-8 text-[#9CA0AF] font-bold text-sm bg-slate-50 border border-dashed border-slate-200 rounded-xl">
                             <i class="fa fa-hand-pointer text-xl mb-2 block text-[#10B981]"></i>
-                            Please select a student from the dropdown above to automatically populate enrollment details.
+                            Please search and select an archived student from above to automatically populate enrollment details.
                         </div>
 
                         <div id="reEnrollFormFields" class="hidden space-y-5">
@@ -1138,14 +1278,22 @@
             }
         }
     }
-    function autoPopulateReEnrollForm(selectEl) {
-        const selectedOption = selectEl.options[selectEl.selectedIndex];
-        if (!selectEl.value || !selectedOption || !selectedOption.dataset.student) {
+    function autoPopulateReEnrollForm(target) {
+        let student = null;
+        if (target && target.options) {
+            const selectedOption = target.options[target.selectedIndex];
+            if (target.value && selectedOption && selectedOption.dataset.student) {
+                student = JSON.parse(selectedOption.dataset.student);
+            }
+        } else if (target && typeof target === 'object' && target.id) {
+            student = target;
+        }
+
+        if (!student) {
             document.getElementById('reEnrollFormFields').classList.add('hidden');
             document.getElementById('reEnrollFieldsNotice').classList.remove('hidden');
             return;
         }
-        const student = JSON.parse(selectedOption.dataset.student);
         document.getElementById('reEnrollForm').action = '/admin/students/' + student.id + '/re-enroll';
         document.getElementById('re_first_name').value = student.first_name || '';
         document.getElementById('re_last_name').value = student.last_name || '';

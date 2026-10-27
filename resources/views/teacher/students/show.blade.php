@@ -115,14 +115,36 @@
                     </div>
                 </div>
 
-                <div class="flex items-center p-3.5 bg-[#F4F6FA] border border-black/5 rounded-xl">
-                    <div class="w-10 h-10 rounded-full bg-[#10B981]/10 text-[#10B981] flex items-center justify-center shrink-0 mr-3 border border-[#10B981]/20">
-                        <i class="fa fa-heart text-sm"></i>
+                <div class="p-3.5 bg-[#F4F6FA] border border-black/5 rounded-xl">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-[#10B981]/10 text-[#10B981] flex items-center justify-center shrink-0 mr-3 border border-[#10B981]/20">
+                            <i class="fa fa-heart text-sm"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5">Primary Guardian</div>
+                            <div class="text-[13px] font-bold text-[#1E2657] truncate">{{ $student->guardian->name ?? 'Unassigned' }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5">Primary Guardian</div>
-                        <div class="text-[13px] font-bold text-[#1E2657]">{{ $student->guardian->name ?? 'Unassigned' }}</div>
+                    @if($student->guardian)
+                    <div class="mt-3 pt-2.5 border-t border-black/5 space-y-1.5 pl-1">
+                        <div class="text-[11px] font-medium text-[#6B7086] flex items-center gap-2 truncate">
+                            <i class="fa fa-envelope text-[#10B981] w-3.5 text-center shrink-0 text-[10px]"></i>
+                            @if($student->guardian->email)
+                            <a href="mailto:{{ $student->guardian->email }}" class="text-[#3B82F6] hover:underline truncate" title="{{ $student->guardian->email }}">{{ $student->guardian->email }}</a>
+                            @else
+                            <span class="text-[#9CA0AF] italic">No email on file</span>
+                            @endif
+                        </div>
+                        <div class="text-[11px] font-medium text-[#6B7086] flex items-center gap-2">
+                            <i class="fa fa-phone text-[#10B981] w-3.5 text-center shrink-0 text-[10px]"></i>
+                            @if($student->guardian->contact_number)
+                            <a href="tel:{{ $student->guardian->contact_number }}" class="text-[#1E2657] font-bold hover:underline">{{ $student->guardian->contact_number }}</a>
+                            @else
+                            <span class="text-[#9CA0AF] italic">No phone number on file</span>
+                            @endif
+                        </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

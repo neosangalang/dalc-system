@@ -17,10 +17,13 @@ class AdminStudentController extends Controller
     public function index()
     {
         $students = Student::with(['teacher', 'guardian', 'documents'])->latest()->get();
+        $archivedStudents = $students->filter(function ($student) {
+            return in_array($student->status, ['archived', 'inactive']);
+        })->values();
         $teachers = User::where('role', 'teacher')->where('is_active', true)->get();
         $guardians = User::where('role', 'guardian')->where('is_active', true)->get();
 
-        return view('admin.students.index', compact('students', 'teachers', 'guardians'));
+        return view('admin.students.index', compact('students', 'teachers', 'guardians', 'archivedStudents'));
     }
 
     public function store(Request $request)
@@ -268,6 +271,10 @@ class AdminStudentController extends Controller
     public function reEnroll(Request $request, $id)
     {
         $student = Student::findOrFail($id);
+
+        if ($student->status === 'active') {
+            return redirect()->back()->with('error', 'Only archived students can be re-enrolled. This student is currently active.');
+        }
 
         $request->validate([
             'first_name'                => 'required|string|max:255',
