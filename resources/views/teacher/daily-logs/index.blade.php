@@ -124,13 +124,19 @@
 
                     <hr class="border-black/10 my-6">
 
+                    <!-- Notification Banner when no student is selected -->
+                    <div id="noStudentNotice" class="{{ empty($selectedStudentId) ? '' : 'hidden' }} p-3.5 bg-amber-50 border border-amber-200/80 rounded-xl text-amber-800 text-xs font-bold flex items-center gap-2.5 mb-4">
+                        <i class="fa fa-circle-info text-amber-500 text-sm shrink-0"></i>
+                        <span>Please select a student above to start typing quick notes or formal documentation.</span>
+                    </div>
+
                     <div class="p-5 bg-[#F4F6FA] border border-dashed border-[#3B82F6]/30 rounded-2xl relative overflow-hidden">
                         <div class="flex justify-between items-center mb-2">
                             <label class="text-[12px] font-extrabold text-[#3B82F6] uppercase tracking-widest m-0 flex items-center">
                                 <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
                             </label>
                         </div>
-                        <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white" rows="4" required placeholder="e.g., he ate snacks, played with blocks, got distracted...">{{ old('raw_notes') }}</textarea>
+                        <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white transition-all" rows="4" placeholder="e.g., he ate snacks, played with blocks, got distracted...">{{ old('raw_notes') }}</textarea>
                         
                         <button type="button" id="generateAiBtn" class="w-full inline-flex items-center justify-center px-4 py-3 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1">
                             <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally
@@ -145,12 +151,12 @@
                         <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
                             <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation (Standardized Notes)
                         </label>
-                        <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar" rows="6" required placeholder="The AI-standardized report will appear here...">{{ old('notes') }}</textarea>
+                        <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar transition-all" rows="6" placeholder="Type formal documentation directly here, or click 'Rewrite Professionally' above...">{{ old('notes') }}</textarea>
                     </div>
 
                     <!-- SUBMIT BUTTON -->
                     <div class="border-t border-black/10 pt-6">
-                        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-4 bg-[#1E2657] text-white text-[14px] font-extrabold rounded-xl hover:bg-[#12163A] transition-colors shadow-sm">
+                        <button type="submit" id="saveDailyLogBtn" class="w-full inline-flex items-center justify-center px-6 py-4 bg-[#1E2657] text-white text-[14px] font-extrabold rounded-xl hover:bg-[#12163A] transition-all shadow-sm">
                             <i class="fa fa-save mr-2"></i> Save Daily Log & Send to Formal Documentation
                         </button>
                     </div>
@@ -438,8 +444,65 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
+    function updateStudentInputState() {
+        const hasStudent = Boolean(studentIdInput && studentIdInput.value);
+        const noStudentNotice = document.getElementById('noStudentNotice');
+        const saveBtn = document.getElementById('saveDailyLogBtn');
+        const generateAiBtn = document.getElementById('generateAiBtn');
+
+        if (!hasStudent) {
+            if (rawNotes) {
+                rawNotes.disabled = true;
+                rawNotes.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                rawNotes.classList.remove('bg-white');
+                rawNotes.setAttribute('placeholder', 'Select a student above to enable Quick Notes...');
+            }
+            if (formalNotes) {
+                formalNotes.disabled = true;
+                formalNotes.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                formalNotes.classList.remove('bg-white');
+                formalNotes.setAttribute('placeholder', 'Select a student above to enable Formal Documentation...');
+            }
+            if (generateAiBtn) {
+                generateAiBtn.disabled = true;
+                generateAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            if (noStudentNotice) noStudentNotice.classList.remove('hidden');
+        } else {
+            if (rawNotes) {
+                rawNotes.disabled = false;
+                rawNotes.classList.remove('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                rawNotes.classList.add('bg-white');
+                rawNotes.setAttribute('placeholder', 'e.g., he ate snacks, played with blocks, got distracted...');
+            }
+            if (formalNotes) {
+                formalNotes.disabled = false;
+                formalNotes.classList.remove('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                formalNotes.classList.add('bg-white');
+                formalNotes.setAttribute('placeholder', 'Type formal documentation directly here, or click \'Rewrite Professionally\' above...');
+            }
+            if (generateAiBtn) {
+                generateAiBtn.disabled = false;
+                generateAiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            if (noStudentNotice) noStudentNotice.classList.add('hidden');
+        }
+    }
+
+    // Initial student input state
+    updateStudentInputState();
+
     if (studentIdInput) {
         studentIdInput.addEventListener('change', function() {
+            updateStudentInputState();
             loadFromCache();
             window.syncStudentFilter();
         });
@@ -450,7 +513,28 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (form) {
-        form.addEventListener('submit', function() {
+        form.addEventListener('submit', function(e) {
+            if (!studentIdInput || !studentIdInput.value) {
+                e.preventDefault();
+                alert('Please select a student before saving.');
+                if (studentIdInput) studentIdInput.focus();
+                return false;
+            }
+
+            const raw = rawNotes ? rawNotes.value.trim() : '';
+            const formal = formalNotes ? formalNotes.value.trim() : '';
+
+            if (!raw && !formal) {
+                e.preventDefault();
+                alert('Please provide notes in Quick Notes or directly in Formal Documentation before saving.');
+                if (formalNotes) formalNotes.focus();
+                return false;
+            }
+
+            // Ensure inputs are not disabled so their values are sent in POST
+            if (rawNotes) rawNotes.disabled = false;
+            if (formalNotes) formalNotes.disabled = false;
+
             window.hasUnsavedAiChanges = false;
         });
     }
@@ -499,6 +583,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // --- AI REWRITE LOGIC ---
 document.getElementById('generateAiBtn').addEventListener('click', function() {
+    let sid = document.getElementById('student_id') ? document.getElementById('student_id').value : '';
+    if (!sid) {
+        alert('Please select a student first!');
+        return;
+    }
     let rawNotes = document.getElementById('rawNotes').value;
     let btn = this;
     let loading = document.getElementById('aiLoading');

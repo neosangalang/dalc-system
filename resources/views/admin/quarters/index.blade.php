@@ -71,6 +71,45 @@
     get isDuplicate() {
         const target = this.computedRawName.toLowerCase();
         return target !== '' && this.existingNames.includes(target);
+    },
+
+    // Confirmation modal state for Set Active & Delete (Requires typing "CONFIRM")
+    confirmModalOpen: false,
+    confirmActionType: '', // 'set_active' or 'delete'
+    confirmSyId: null,
+    confirmSyName: '',
+    confirmActionUrl: '',
+    confirmInputText: '',
+
+    openSetActiveConfirm(syId, syName, actionUrl) {
+        this.confirmActionType = 'set_active';
+        this.confirmSyId = syId;
+        this.confirmSyName = syName;
+        this.confirmActionUrl = actionUrl;
+        this.confirmInputText = '';
+        this.confirmModalOpen = true;
+        this.$nextTick(() => {
+            const el = document.getElementById('syConfirmInput');
+            if (el) el.focus();
+        });
+    },
+
+    openDeleteConfirm(syId, syName, actionUrl) {
+        this.confirmActionType = 'delete';
+        this.confirmSyId = syId;
+        this.confirmSyName = syName;
+        this.confirmActionUrl = actionUrl;
+        this.confirmInputText = '';
+        this.confirmModalOpen = true;
+        this.$nextTick(() => {
+            const el = document.getElementById('syConfirmInput');
+            if (el) el.focus();
+        });
+    },
+
+    closeConfirmModal() {
+        this.confirmModalOpen = false;
+        this.confirmInputText = '';
     }
 }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
@@ -266,21 +305,19 @@
                 <!-- Year Actions -->
                 <div class="flex items-center gap-2 self-start sm:self-auto">
                     @if(!$sy->is_active)
-                        <form action="{{ route('admin.school-years.set-active', $sy->id) }}" method="POST" class="inline m-0">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-extrabold rounded-xl transition-all shadow-sm hover:-translate-y-0.5" title="Make this School Year the active one">
-                                <i class="fa fa-check mr-1.5 text-xs"></i> Set Active Year
-                            </button>
-                        </form>
+                        <button type="button" 
+                                @click="openSetActiveConfirm('{{ $sy->id }}', '{{ addslashes($sy->name) }}', '{{ route('admin.school-years.set-active', $sy->id) }}')"
+                                class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-extrabold rounded-xl transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer" 
+                                title="Make this School Year the active one">
+                            <i class="fa fa-check mr-1.5 text-xs"></i> Set Active Year
+                        </button>
 
-                        <form action="{{ route('admin.school-years.destroy', $sy->id) }}" method="POST" class="inline m-0" onsubmit="return confirm('Are you sure you want to delete {{ $sy->name }} and its quarter dates? This cannot be undone.');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="inline-flex items-center px-3 py-2 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 border border-rose-200 hover:border-rose-300 text-[12px] font-bold rounded-xl transition-colors shadow-sm" title="Delete School Year">
-                                <i class="fa fa-trash-can mr-1.5 text-xs"></i> Delete
-                            </button>
-                        </form>
+                        <button type="button" 
+                                @click="openDeleteConfirm('{{ $sy->id }}', '{{ addslashes($sy->name) }}', '{{ route('admin.school-years.destroy', $sy->id) }}')"
+                                class="inline-flex items-center px-3 py-2 bg-white hover:bg-rose-50 text-rose-600 hover:text-rose-700 border border-rose-200 hover:border-rose-300 text-[12px] font-bold rounded-xl transition-colors shadow-sm cursor-pointer" 
+                                title="Delete School Year">
+                            <i class="fa fa-trash-can mr-1.5 text-xs"></i> Delete
+                        </button>
                     @else
                         <span class="inline-flex items-center text-[12px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
                             <i class="fa fa-circle-check mr-1.5"></i> Live in System
@@ -571,6 +608,120 @@
                     </div>
 
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal for Set Active & Delete (Requires typing CONFIRM) -->
+    <div x-show="confirmModalOpen" 
+         x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto"
+         aria-labelledby="confirm-action-modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            
+            <div x-show="confirmModalOpen" 
+                 x-transition:enter="ease-out duration-300" 
+                 x-transition:enter-start="opacity-0" 
+                 x-transition:enter-end="opacity-100" 
+                 x-transition:leave="ease-in duration-200" 
+                 x-transition:leave-start="opacity-100" 
+                 x-transition:leave-end="opacity-0" 
+                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" 
+                 @click="closeConfirmModal()"></div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div x-show="confirmModalOpen" 
+                 x-transition:enter="ease-out duration-300" 
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                 x-transition:leave="ease-in duration-200" 
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                 class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full border border-black/10">
+
+                <form :action="confirmActionUrl" method="POST" class="m-0">
+                    @csrf
+                    <input type="hidden" name="_method" :value="confirmActionType === 'set_active' ? 'PATCH' : 'DELETE'">
+
+                    <div class="p-6 sm:p-7 space-y-5">
+                        <div class="flex items-start gap-3.5">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs"
+                                 :class="confirmActionType === 'delete' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'">
+                                <template x-if="confirmActionType === 'delete'">
+                                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                                </template>
+                                <template x-if="confirmActionType === 'set_active'">
+                                    <i class="fa-solid fa-calendar-check text-xl"></i>
+                                </template>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-extrabold text-[#1E2657] m-0" id="confirm-action-modal-title">
+                                    <span x-show="confirmActionType === 'set_active'">Set Active School Year</span>
+                                    <span x-show="confirmActionType === 'delete'">Delete School Year</span>
+                                </h4>
+                                <p class="text-xs text-[#6B7086] mt-1.5 font-medium leading-relaxed">
+                                    <template x-if="confirmActionType === 'set_active'">
+                                        <span>
+                                            Are you sure you want to make <strong class="text-emerald-700" x-text="confirmSyName"></strong> the active School Year? This will switch active quarters and live reporting across the school.
+                                        </span>
+                                    </template>
+                                    <template x-if="confirmActionType === 'delete'">
+                                        <span>
+                                            Are you sure you want to delete <strong class="text-rose-600" x-text="confirmSyName"></strong> and all associated quarter dates? This action cannot be undone.
+                                        </span>
+                                    </template>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl p-3 text-[11px] font-semibold leading-relaxed"
+                             :class="confirmActionType === 'delete' ? 'bg-rose-50/80 border border-rose-200/80 text-rose-700' : 'bg-emerald-50/80 border border-emerald-200/80 text-emerald-700'">
+                            <template x-if="confirmActionType === 'delete'">
+                                <div><i class="fa-solid fa-shield-halved mr-1 text-rose-500"></i> Deleting this school year permanently removes its academic quarters schedule.</div>
+                            </template>
+                            <template x-if="confirmActionType === 'set_active'">
+                                <div><i class="fa-solid fa-info-circle mr-1 text-emerald-500"></i> Teachers and guardians will immediately begin viewing records for this school year.</div>
+                            </template>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-wider mb-1.5">
+                                Type <span class="text-rose-600 font-mono font-black">CONFIRM</span> to verify authorization:
+                            </label>
+                            <input type="text"
+                                   id="syConfirmInput"
+                                   x-model="confirmInputText"
+                                   class="w-full text-center text-base font-mono font-black tracking-widest py-2.5 px-3.5 rounded-xl border border-black/20 focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 shadow-sm bg-white"
+                                   required
+                                   placeholder="Type CONFIRM"
+                                   autocomplete="off">
+                            <p class="text-[10px] text-[#9CA0AF] mt-1.5 font-medium">Please type <strong>CONFIRM</strong> in capital letters to enable the button below.</p>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 bg-[#F4F6FA] border-t border-black/5 flex justify-end gap-2.5">
+                        <button type="button"
+                                @click="closeConfirmModal()"
+                                class="px-4 py-2.5 text-xs font-bold text-[#6B7086] hover:text-[#1E2657] hover:bg-slate-200/50 rounded-xl transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                :disabled="confirmInputText.trim() !== 'CONFIRM'"
+                                :class="confirmInputText.trim() === 'CONFIRM'
+                                    ? (confirmActionType === 'delete' ? 'bg-rose-600 hover:bg-rose-700 cursor-pointer shadow-sm hover:-translate-y-0.5' : 'bg-emerald-600 hover:bg-emerald-700 cursor-pointer shadow-sm hover:-translate-y-0.5')
+                                    : 'bg-slate-300 opacity-50 cursor-not-allowed'"
+                                class="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5">
+                            <template x-if="confirmActionType === 'set_active'">
+                                <span><i class="fa fa-check mr-1.5"></i> Confirm Set Active</span>
+                            </template>
+                            <template x-if="confirmActionType === 'delete'">
+                                <span><i class="fa fa-trash-can mr-1.5"></i> Confirm Delete</span>
+                            </template>
+                        </button>
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>

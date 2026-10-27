@@ -86,7 +86,7 @@
                 </div>
                 
                 <!-- CARD BODY -->
-                <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start">
+                <div class="p-4 sm:p-6 flex flex-col gap-5 sm:gap-6">
                     @php
                         $photoUrl = null;
                         if ($log->image_path) {
@@ -146,71 +146,104 @@
                         };
                     @endphp
 
+                    <!-- TOP SECTION: DAILY REPORT (LEFT) + OBSERVATION PHOTO (RIGHT) -->
                     @if($photoUrl)
-                        <!-- OBSERVATION PHOTO COLUMN (Responsive for Mobile and PC) -->
-                        <div class="md:col-span-5 w-full">
-                            <div class="bg-slate-50/90 rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs flex flex-col justify-between">
-                                <div class="flex items-center justify-between mb-2.5 px-0.5">
-                                    <span class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
-                                        <i class="fa fa-camera text-indigo-500"></i> Observation Photo
-                                    </span>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline-block">
-                                        Click to enlarge
-                                    </span>
-                                </div>
-
-                                <div class="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-slate-200/90 shadow-xs bg-slate-200 flex items-center justify-center min-h-[200px] max-h-[300px] sm:max-h-[340px]"
-                                     @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
-                                     title="Click to view full image">
-                                    
-                                    <img src="{{ $photoUrl }}" 
-                                         alt="Activity Photo" 
-                                         class="w-full h-full max-h-[300px] sm:max-h-[340px] object-cover group-hover:scale-105 transition-transform duration-300 block"
-                                         loading="lazy">
-                                    
-                                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2 backdrop-blur-[1px]">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-base"></i> View full size
-                                    </div>
-                                </div>
-
-                                <button type="button" 
-                                        @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
-                                        class="w-full mt-3 py-2 px-3 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800 font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
-                                    <i class="fa-solid fa-expand text-indigo-500 text-xs"></i> View enlarged photo
-                                </button>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- CONTENT COLUMN (Responsive for Mobile and PC) -->
-                    <div class="{{ $photoUrl ? 'md:col-span-7' : 'md:col-span-12' }} w-full flex flex-col gap-4">
-                        
-                        <!-- 1. DAILY REPORT CARD -->
-                        @if(!empty($dailyReportText))
-                            <div class="p-5 sm:p-6 bg-white rounded-2xl border border-indigo-100/90 shadow-sm relative overflow-hidden">
-                                <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-50">
-                                    <div class="flex items-center gap-2.5">
-                                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
-                                            <i class="fa-solid fa-file-lines"></i>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+                            
+                            <!-- LEFT: DAILY REPORT CARD (Dark Blue / Indigo Accent) -->
+                            @if(!empty($dailyReportText))
+                                <div class="md:col-span-7 lg:col-span-8 flex flex-col">
+                                    <div class="p-5 sm:p-6 bg-white rounded-2xl border-2 border-indigo-200/90 shadow-sm relative overflow-hidden h-full flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-100">
+                                                <div class="flex items-center gap-2.5">
+                                                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
+                                                        <i class="fa-solid fa-file-lines"></i>
+                                                    </div>
+                                                    <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
+                                                        Daily Report:
+                                                    </h6>
+                                                </div>
+                                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
+                                                    Session Log
+                                                </span>
+                                            </div>
+                                            <div class="m-0 leading-relaxed text-slate-700 font-medium">
+                                                {!! $formatHtml($dailyReportText) !!}
+                                            </div>
                                         </div>
-                                        <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
-                                            Daily Report:
-                                        </h6>
                                     </div>
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/60">
-                                        Session Log
-                                    </span>
                                 </div>
-                                <div class="m-0 leading-relaxed text-slate-700 font-medium">
-                                    {!! $formatHtml($dailyReportText) !!}
+                            @endif
+
+                            <!-- RIGHT: OBSERVATION PHOTO (Light Blue Accent) -->
+                            <div class="{{ !empty($dailyReportText) ? 'md:col-span-5 lg:col-span-4' : 'md:col-span-12' }} flex flex-col">
+                                <div class="bg-slate-50/90 rounded-2xl border-2 border-indigo-200/80 p-3 sm:p-4 shadow-sm flex flex-col justify-between h-full">
+                                    <div>
+                                        <div class="flex items-center justify-between mb-2.5 px-0.5">
+                                            <span class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
+                                                <i class="fa fa-camera text-indigo-500"></i> Observation Photo
+                                            </span>
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline-block">
+                                                Click to enlarge
+                                            </span>
+                                        </div>
+
+                                        <div class="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-slate-300 shadow-xs bg-slate-200 flex items-center justify-center min-h-[180px] max-h-[260px] sm:max-h-[300px]"
+                                             @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
+                                             title="Click to view full image">
+                                            
+                                            <img src="{{ $photoUrl }}" 
+                                                 alt="Activity Photo" 
+                                                 class="w-full h-full max-h-[260px] sm:max-h-[300px] object-cover group-hover:scale-105 transition-transform duration-300 block"
+                                                 loading="lazy">
+                                            
+                                            <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2 backdrop-blur-[1px]">
+                                                <i class="fa-solid fa-magnifying-glass-plus text-base"></i> View full size
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" 
+                                            @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
+                                            class="w-full mt-3 py-2 px-3 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800 font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+                                        <i class="fa-solid fa-expand text-indigo-500 text-xs"></i> View enlarged photo
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    @else
+                        <!-- NO PHOTO: DAILY REPORT SPANS FULL WIDTH -->
+                        @if(!empty($dailyReportText))
+                            <div class="w-full">
+                                <div class="p-5 sm:p-6 bg-white rounded-2xl border-2 border-indigo-200/90 shadow-sm relative overflow-hidden">
+                                    <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-100">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
+                                                <i class="fa-solid fa-file-lines"></i>
+                                            </div>
+                                            <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
+                                                Daily Report:
+                                            </h6>
+                                        </div>
+                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
+                                            Session Log
+                                        </span>
+                                    </div>
+                                    <div class="m-0 leading-relaxed text-slate-700 font-medium">
+                                        {!! $formatHtml($dailyReportText) !!}
+                                    </div>
                                 </div>
                             </div>
                         @endif
+                    @endif
 
-                        <!-- 2. TONIGHT'S SUGGESTED ACTIVITY CARD -->
-                        @if(!empty($suggestedActivityText))
-                            <div class="p-5 sm:p-6 bg-emerald-50/40 rounded-2xl border border-emerald-200/90 shadow-sm relative overflow-hidden">
-                                <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-emerald-100/80">
+                    <!-- BOTTOM SECTION: TONIGHT'S SUGGESTED ACTIVITY (SPANS FULL WIDTH, Green Accent) -->
+                    @if(!empty($suggestedActivityText))
+                        <div class="w-full">
+                            <div class="p-5 sm:p-6 bg-emerald-50/40 rounded-2xl border-2 border-emerald-300/80 shadow-sm relative overflow-hidden">
+                                <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-emerald-100/90">
                                     <div class="flex items-center gap-2.5">
                                         <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm shadow-xs shrink-0">
                                             <i class="fa-solid fa-house-chimney-user"></i>
@@ -219,7 +252,7 @@
                                             Tonight's Suggested Activity:
                                         </h6>
                                     </div>
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-md border border-emerald-200">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-md border border-emerald-300">
                                         Home Recommendation
                                     </span>
                                 </div>
@@ -227,9 +260,9 @@
                                     {!! $formatHtml($suggestedActivityText) !!}
                                 </div>
                             </div>
-                        @endif
+                        </div>
+                    @endif
 
-                    </div>
                 </div>
 
                 <!-- CARD COMMENTS -->

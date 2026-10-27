@@ -79,15 +79,22 @@ class DailyLogController extends Controller
             'student_id' => 'required|exists:students,id',
             'log_date'   => 'required|date',
             'quarter'    => 'required|string',
-            'raw_notes'  => 'required|string',
+            'raw_notes'  => 'nullable|string',
             'notes'      => 'nullable|string',
             'photo'      => 'nullable|image|mimes:jpeg,png,jpg|max:5120', 
         ]);
 
+        $rawTrimmed = trim((string)$request->raw_notes);
+        $notesTrimmed = trim((string)$request->notes);
+
+        if ($rawTrimmed === '' && $notesTrimmed === '') {
+            return back()->withInput()->withErrors(['notes' => 'Please provide either Quick Notes or Formal Documentation.']);
+        }
+
         // Security check
         $student = Student::where('id', $request->student_id)->where('teacher_id', Auth::id())->firstOrFail();
 
-        $finalNotes = $request->filled('notes') ? $request->notes : $request->raw_notes;
+        $finalNotes = $notesTrimmed !== '' ? $request->notes : $request->raw_notes;
 
         // SECURE VAULT STORAGE & OPTIMIZATION
         $imagePath = null;

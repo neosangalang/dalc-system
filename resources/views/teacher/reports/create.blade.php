@@ -72,6 +72,12 @@
                     </div>
                 </div>
 
+                <!-- Notification Banner when no student is selected -->
+                <div id="reportNoStudentNotice" class="hidden p-3.5 bg-amber-50 border border-amber-200/80 rounded-xl text-amber-800 text-xs font-bold flex items-center gap-2.5 mb-6">
+                    <i class="fa fa-circle-info text-amber-500 text-sm shrink-0"></i>
+                    <span>Please select a student in Step 1 to unlock report typing and AI generation.</span>
+                </div>
+
                 <!-- DATE SELECTION (Only visible for Daily Report) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 hidden" id="date-selection-row">
                     <div>
@@ -353,23 +359,117 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         reviewActionSection.classList.remove('hidden');
+        applyStudentSelectionLock();
+    }
+
+    function applyStudentSelectionLock() {
+        const hasStudent = Boolean(currentActiveStudent);
+        const reportNoStudentNotice = document.getElementById('reportNoStudentNotice');
+
+        const textareas = [dailyContent, homeRec, generalContent];
+        const aiBtns = [triggerDailyBtn, triggerHomeBtn, triggerGeneralBtn];
+        const actionBtns = [
+            document.getElementById('btn-save-draft'),
+            document.getElementById('btn-publish-report'),
+            document.getElementById('btn-submit-approval')
+        ];
+
+        if (!hasStudent) {
+            textareas.forEach(ta => {
+                if (ta) {
+                    ta.disabled = true;
+                    ta.readOnly = true;
+                    ta.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                    ta.classList.remove('bg-white');
+                    ta.setAttribute('placeholder', 'Please select a student above to enable typing or generating report...');
+                }
+            });
+            aiBtns.forEach(btn => {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+            actionBtns.forEach(btn => {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+            if (dateInput) {
+                dateInput.disabled = true;
+                dateInput.classList.add('opacity-60', 'cursor-not-allowed');
+            }
+            if (reportNoStudentNotice && currentActiveType) {
+                reportNoStudentNotice.classList.remove('hidden');
+            }
+        } else {
+            textareas.forEach(ta => {
+                if (ta) {
+                    ta.disabled = false;
+                    ta.readOnly = false;
+                    ta.classList.remove('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                    ta.classList.add('bg-white');
+                }
+            });
+            if (dailyContent) {
+                dailyContent.setAttribute('placeholder', 'Daily Report content will appear here...');
+            }
+            if (homeRec) {
+                homeRec.setAttribute('placeholder', 'Home-based recommendations will appear here (optional)...');
+            }
+            if (generalContent) {
+                generalContent.setAttribute('placeholder', 'Report content will appear here...');
+            }
+            aiBtns.forEach(btn => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
+            actionBtns.forEach(btn => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
+            if (dateInput && currentActiveType === 'daily') {
+                dateInput.disabled = false;
+                dateInput.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+            if (reportNoStudentNotice) {
+                reportNoStudentNotice.classList.add('hidden');
+            }
+        }
     }
 
     // Save manual text edits to cache
     if (dailyContent) {
         dailyContent.addEventListener('input', function() {
+            if (!currentActiveStudent) {
+                this.value = '';
+                return;
+            }
             window.hasUnsavedAiChanges = true;
             saveActiveToCache();
         });
     }
     if (homeRec) {
         homeRec.addEventListener('input', function() {
+            if (!currentActiveStudent) {
+                this.value = '';
+                return;
+            }
             window.hasUnsavedAiChanges = true;
             saveActiveToCache();
         });
     }
     if (generalContent) {
         generalContent.addEventListener('input', function() {
+            if (!currentActiveStudent) {
+                this.value = '';
+                return;
+            }
             window.hasUnsavedAiChanges = true;
             saveActiveToCache();
         });
@@ -382,6 +482,7 @@ document.addEventListener("DOMContentLoaded", function() {
         saveActiveToCache();
         currentActiveStudent = nextStudent;
         syncState();
+        applyStudentSelectionLock();
     });
 
     // EVENT: Report Type Change
@@ -522,12 +623,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // FORM SUBMIT: Compile final content before sending
     form.addEventListener('submit', function(e) {
+        if (!studentSelect.value) {
+            e.preventDefault();
+            alert('Please select a student before saving or submitting the report.');
+            studentSelect.focus();
+            return false;
+        }
+
         const type = reportTypeSelect.value;
         if (!type) {
             e.preventDefault();
             alert('Please select a report type.');
             reportTypeSelect.focus();
-            return;
+            return false;
         }
 
         if (type === 'daily') {
@@ -535,14 +643,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.preventDefault();
                 alert('Please select a valid date for the Daily Report.');
                 dateInput.focus();
-                return;
+                return false;
             }
             let compiled = dailyContent.value.trim();
             if (!compiled) {
                 e.preventDefault();
                 alert('Please enter or generate the Daily Report content before saving.');
                 dailyContent.focus();
-                return;
+                return false;
             }
             finalContentInput.value = compiled;
         } else {
@@ -551,15 +659,23 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.preventDefault();
                 alert('Please enter or generate the report content before saving.');
                 generalContent.focus();
-                return;
+                return false;
             }
             finalContentInput.value = compiled;
         }
+
+        // Enable inputs right before submit so values are included
+        if (dailyContent) dailyContent.disabled = false;
+        if (homeRec) homeRec.disabled = false;
+        if (generalContent) generalContent.disabled = false;
+        if (dateInput && type === 'daily') dateInput.disabled = false;
+
         window.hasUnsavedAiChanges = false;
     });
 
     // Initial sync
     syncState();
+    applyStudentSelectionLock();
 });
 </script>
 @endpush
