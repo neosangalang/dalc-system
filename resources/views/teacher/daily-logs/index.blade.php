@@ -320,6 +320,19 @@
                             </div>
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
+
+                        @if($log->home_recommendations)
+                            <div class="mt-4 p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 text-emerald-950">
+                                <h6 class="text-[11px] font-extrabold text-emerald-700 uppercase tracking-widest mb-1.5 flex items-center m-0">
+                                    <i class="fa fa-house-user mr-1.5 text-emerald-600"></i> Tonight's Suggested Home Activity
+                                </h6>
+                                <p class="m-0 text-[13px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->home_recommendations }}</p>
+                            </div>
+                        @endif
+
+                        <div class="mt-4 pt-4 border-t border-dashed border-black/10">
+                            @include('components.comment-thread', ['item' => $log])
+                        </div>
                     </div>
                 </div>
             @empty

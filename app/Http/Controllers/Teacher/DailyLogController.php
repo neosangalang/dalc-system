@@ -30,6 +30,27 @@ class DailyLogController extends Controller
             ->take(15)
             ->get();
 
+        foreach ($recentLogs as $log) {
+            $logDate = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+            $matchingReport = Report::with('comments.user')
+                ->where('student_id', $log->student_id)
+                ->where('report_type', 'daily')
+                ->where(function($q) use ($logDate) {
+                    $q->whereDate('report_date', $logDate)
+                      ->orWhere(function($sub) use ($logDate) {
+                          $sub->whereNull('report_date')->whereDate('created_at', $logDate);
+                      });
+                })
+                ->first();
+            if ($matchingReport && $matchingReport->comments->isNotEmpty()) {
+                $merged = $log->comments->concat($matchingReport->comments)
+                    ->unique('id')
+                    ->sortByDesc('created_at')
+                    ->values();
+                $log->setRelation('comments', $merged);
+            }
+        }
+
         // Fetch active quarter for auto-selecting in log form
         \App\Models\AcademicQuarter::syncActiveStatus();
         $activeQuarter = \App\Models\AcademicQuarter::where('is_active', true)->first();

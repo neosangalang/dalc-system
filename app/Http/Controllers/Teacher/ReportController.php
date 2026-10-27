@@ -60,7 +60,25 @@ class ReportController extends Controller
         }
 
         // 4. Execute the query with Pagination
-        $reports = $query->latest()->paginate(10)->withQueryString();
+        $reports = $query->with(['student', 'teacher', 'comments.user'])->latest()->paginate(10)->withQueryString();
+
+        // Merge comments from matching DailyLogs for daily reports
+        foreach ($reports as $report) {
+            if ($report->report_type === 'daily') {
+                $repDate = $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
+                $matchingLog = DailyLog::with('comments.user')
+                    ->where('student_id', $report->student_id)
+                    ->whereDate('log_date', $repDate)
+                    ->first();
+                if ($matchingLog && $matchingLog->comments->isNotEmpty()) {
+                    $merged = $report->comments->concat($matchingLog->comments)
+                        ->unique('id')
+                        ->sortByDesc('created_at')
+                        ->values();
+                    $report->setRelation('comments', $merged);
+                }
+            }
+        }
 
         return view('teacher.reports.index', compact('reports', 'myStudents'));
     }
@@ -87,6 +105,8 @@ class ReportController extends Controller
             'action' => 'required|in:draft,submit'
         ]);
 
+        $reportDate = $request->report_date ?: date('Y-m-d');
+
         if ($request->report_type === 'daily') {
             // Daily reports skip admin review and are published directly to guardians
             $status = $request->action === 'submit' ? 'approved' : 'draft';
@@ -108,15 +128,22 @@ class ReportController extends Controller
         }
 
         // Capture the newly created report to use its ID for action routing
-        $report = Report::create([
+        $reportData = [
             'student_id' => $request->student_id,
             'teacher_id' => auth()->id(),
             'report_type' => $request->report_type,
-            'report_date' => $request->report_date,
+            'report_date' => $reportDate,
             'content' => $finalContent,
             'image_path' => $imagePath,
             'status' => $status,
-        ]);
+        ];
+
+        if ($status === 'approved') {
+            $reportData['approved_by'] = auth()->id();
+            $reportData['approved_at'] = now();
+        }
+
+        $report = Report::create($reportData);
 
         // Notify the Admin and route them directly to this specific report if pending approval
         if ($status === 'pending_approval') {
@@ -130,24 +157,39 @@ class ReportController extends Controller
             }
         }
 
-        // If Daily Report, sync home recommendations and photo to daily log for parents
+        // If Daily Report, sync narrative, home recommendations and photo to daily log for parents
         if ($request->report_type === 'daily') {
-            $logDate = $request->report_date ?: date('Y-m-d');
             $log = DailyLog::where('student_id', $request->student_id)
-                ->whereDate('log_date', $logDate)
+                ->whereDate('log_date', $reportDate)
                 ->first();
 
+            $homeRec = $request->filled('home_recommendations') ? trim($request->home_recommendations) : null;
+
             if ($log) {
-                $updates = [];
-                if ($request->filled('home_recommendations')) {
-                    $updates['home_recommendations'] = trim($request->home_recommendations);
+                $updates = [
+                    'notes' => $finalContent,
+                ];
+                if ($homeRec) {
+                    $updates['home_recommendations'] = $homeRec;
                 }
-                if ($imagePath && !$log->image_path) {
+                if ($imagePath) {
                     $updates['image_path'] = $imagePath;
                 }
-                if (!empty($updates)) {
-                    $log->update($updates);
-                }
+                $log->update($updates);
+            } else {
+                \App\Models\AcademicQuarter::syncActiveStatus();
+                $activeQuarter = \App\Models\AcademicQuarter::where('is_active', true)->first();
+                $quarterName = $activeQuarter ? strtoupper($activeQuarter->name) : 'Q1';
+
+                DailyLog::create([
+                    'student_id' => $request->student_id,
+                    'teacher_id' => auth()->id(),
+                    'log_date'   => $reportDate,
+                    'quarter'    => $quarterName,
+                    'notes'      => $finalContent,
+                    'home_recommendations' => $homeRec,
+                    'image_path' => $imagePath,
+                ]);
             }
         }
 

@@ -48,6 +48,55 @@ class CommentController extends Controller
             'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
         ]);
 
+        // 2b. Mirror comments between DailyLog and Daily Report so both views stay connected
+        try {
+            if ($request->commentable_type === 'App\Models\DailyLog') {
+                $log = DailyLog::find($request->commentable_id);
+                if ($log) {
+                    $logDate = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+                    $matchingReport = Report::where('student_id', $log->student_id)
+                        ->where('report_type', 'daily')
+                        ->where(function($q) use ($logDate) {
+                            $q->whereDate('report_date', $logDate)
+                              ->orWhere(function($sub) use ($logDate) {
+                                  $sub->whereNull('report_date')->whereDate('created_at', $logDate);
+                              });
+                        })
+                        ->first();
+                    if ($matchingReport) {
+                        Comment::create([
+                            'user_id'          => $user->id,
+                            'commentable_id'   => $matchingReport->id,
+                            'commentable_type' => 'App\Models\Report',
+                            'body'             => $request->body,
+                            'is_teacher_read'  => $user->role === 'teacher' ? 1 : 0,
+                            'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
+                        ]);
+                    }
+                }
+            } elseif ($request->commentable_type === 'App\Models\Report') {
+                $rep = Report::find($request->commentable_id);
+                if ($rep && $rep->report_type === 'daily') {
+                    $repDate = $rep->report_date ? \Carbon\Carbon::parse($rep->report_date)->format('Y-m-d') : $rep->created_at->format('Y-m-d');
+                    $matchingLog = DailyLog::where('student_id', $rep->student_id)
+                        ->whereDate('log_date', $repDate)
+                        ->first();
+                    if ($matchingLog) {
+                        Comment::create([
+                            'user_id'          => $user->id,
+                            'commentable_id'   => $matchingLog->id,
+                            'commentable_type' => 'App\Models\DailyLog',
+                            'body'             => $request->body,
+                            'is_teacher_read'  => $user->role === 'teacher' ? 1 : 0,
+                            'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Mirroring comment between DailyLog and Report failed: ' . $e->getMessage());
+        }
+
         // 3. Notify the respective party
         try {
             $target = null;

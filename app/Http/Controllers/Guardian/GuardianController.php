@@ -100,19 +100,25 @@ class GuardianController extends Controller
             ->get();
 
         // Active Daily Logs (Only logs posted within the last 24 hours or for today; older logs are archived)
-        $recentLogs = DailyLog::with(['student', 'teacher', 'comments.user'])
+        $rawRecentLogs = DailyLog::with(['student', 'teacher', 'comments.user'])
             ->where('student_id', $activeChild->id)
             ->where(function($query) {
                 $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
                       ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
             })
-            ->latest('log_date')
+            ->latest('id')
             ->get();
 
-        // Attach approved daily reports to daily logs
-        $dailyReports = Report::where('student_id', $activeChild->id)
+        // Deduplicate logs by date so parents don't see duplicate cards for the same day
+        $recentLogs = $rawRecentLogs->unique(function($log) {
+            return \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+        })->values();
+
+        // Attach daily reports to daily logs
+        $dailyReports = Report::with(['comments.user'])
+            ->where('student_id', $activeChild->id)
             ->where('report_type', 'daily')
-            ->where('status', 'approved')
+            ->whereIn('status', ['approved', 'pending_approval'])
             ->get()
             ->keyBy(function($report) {
                 return $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
@@ -121,6 +127,20 @@ class GuardianController extends Controller
         foreach ($recentLogs as $log) {
             $logDateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
             $log->daily_report = $dailyReports->get($logDateStr);
+
+            if ($log->daily_report) {
+                $reportComments = $log->daily_report->comments ?? collect();
+                $logComments = $log->comments ?? collect();
+                $mergedComments = $logComments->concat($reportComments)
+                    ->unique('id')
+                    ->sortByDesc('created_at')
+                    ->values();
+                $log->setRelation('comments', $mergedComments);
+
+                if (!$log->image_path && $log->daily_report->image_path) {
+                    $log->image_path = $log->daily_report->image_path;
+                }
+            }
         }
 
         // Active Home Recommendations (Within last 24 hours or for today)
@@ -294,27 +314,70 @@ class GuardianController extends Controller
 
         if ($activeChild) {
             // 1. Active Recommendations (Only within the last 24 hours or for today)
-            $recentRecommendations = DailyLog::with(['student', 'teacher', 'comments.user'])
+            $rawLogs = DailyLog::with(['student', 'teacher', 'comments.user'])
                 ->where('student_id', $activeChild->id)
                 ->where(function($query) {
                     $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
                           ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
                 })
-                ->latest('log_date')
+                ->latest('id')
                 ->get();
 
-            // Attach approved daily reports to daily logs
-            $dailyReports = Report::where('student_id', $activeChild->id)
+            // Deduplicate logs by date so parents don't see duplicate cards for the same day
+            $recentRecommendations = $rawLogs->unique(function($log) {
+                return \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+            })->values();
+
+            // Attach daily reports to daily logs
+            $dailyReports = Report::with(['comments.user'])
+                ->where('student_id', $activeChild->id)
                 ->where('report_type', 'daily')
-                ->where('status', 'approved')
+                ->whereIn('status', ['approved', 'pending_approval'])
                 ->get()
                 ->keyBy(function($report) {
                     return $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
                 });
 
+            // If an active daily report exists for today that has no DailyLog yet, include it
+            foreach ($dailyReports as $dateStr => $rep) {
+                $hasLog = $recentRecommendations->contains(function($log) use ($dateStr) {
+                    return \Carbon\Carbon::parse($log->log_date)->format('Y-m-d') === $dateStr;
+                });
+                if (!$hasLog) {
+                    $virtualLog = new DailyLog([
+                        'student_id' => $rep->student_id,
+                        'teacher_id' => $rep->teacher_id,
+                        'log_date' => $rep->report_date ?: $rep->created_at->format('Y-m-d'),
+                        'quarter' => 'Q1',
+                        'notes' => $rep->content,
+                        'image_path' => $rep->image_path,
+                    ]);
+                    $virtualLog->id = $rep->id;
+                    $virtualLog->setRelation('student', $rep->student);
+                    $virtualLog->setRelation('teacher', $rep->teacher);
+                    $virtualLog->setRelation('comments', $rep->comments ?? collect());
+                    $virtualLog->daily_report = $rep;
+                    $recentRecommendations->push($virtualLog);
+                }
+            }
+
             foreach ($recentRecommendations as $log) {
                 $logDateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
                 $log->daily_report = $dailyReports->get($logDateStr);
+
+                if ($log->daily_report) {
+                    $reportComments = $log->daily_report->comments ?? collect();
+                    $logComments = $log->comments ?? collect();
+                    $mergedComments = $logComments->concat($reportComments)
+                        ->unique('id')
+                        ->sortByDesc('created_at')
+                        ->values();
+                    $log->setRelation('comments', $mergedComments);
+
+                    if (!$log->image_path && $log->daily_report->image_path) {
+                        $log->image_path = $log->daily_report->image_path;
+                    }
+                }
             }
 
             // 2. Count Archived Past Due Logs for link badge
