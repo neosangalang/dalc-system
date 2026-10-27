@@ -210,4 +210,134 @@ class GuardianDailyReportAndRecommendationTest extends TestCase
         $teacherReportView->assertOk();
         $teacherReportView->assertSee('Thank you Teacher, Neo loved the activity!');
     }
+
+    public function test_activity_date_strictly_determines_active_session_vs_previous_reports(): void
+    {
+        $guardian = User::factory()->create([
+            'role' => 'guardian',
+            'is_active' => true,
+            'password_changed_at' => now(),
+            'two_factor_secret' => 'JBSWY3DPEHPK3PXP',
+        ]);
+        $teacher = User::factory()->create([
+            'role' => 'teacher',
+            'is_active' => true,
+            'password_changed_at' => now(),
+            'two_factor_secret' => 'JBSWY3DPEHPK3PXP',
+        ]);
+        $student = Student::create([
+            'first_name' => 'Lucas',
+            'last_name' => 'Miller',
+            'learners_reference_number' => '445566778899',
+            'class_name' => 'Bloom',
+            'date_of_birth' => '2016-04-12',
+            'gender' => 'Male',
+            'diagnosis' => 'Speech and Language Impairment',
+            'teacher_id' => $teacher->id,
+            'guardian_id' => $guardian->id,
+        ]);
+
+        $yesterday = now()->subDay()->format('Y-m-d');
+
+        // Teacher submits report TODAY, but for activity that happened YESTERDAY
+        DailyLog::create([
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'log_date' => $yesterday,
+            'quarter' => 'Q1',
+            'notes' => 'Lucas completed puzzle games yesterday.',
+            'home_recommendations' => 'Read bedtime story together.',
+            'created_at' => now(), // Typed in today
+        ]);
+
+        // 1. Visit "Today's Active Session": Yesterday's activity must NOT be displayed here
+        $todayResponse = $this->actingAs($guardian)
+            ->withSession(['mfa_verified' => true, 'active_child_id' => $student->id])
+            ->get(route('guardian.recommendations'));
+
+        $todayResponse->assertOk();
+        $todayResponse->assertDontSee('Lucas completed puzzle games yesterday.');
+        $todayResponse->assertSee("Today's Active Session", false);
+        $todayResponse->assertSee('Previous Reports (1)');
+        $todayResponse->assertDontSee('Archive & History');
+
+        // 2. Visit "Previous Reports" (Archive): Yesterday's activity must appear here
+        $archiveResponse = $this->actingAs($guardian)
+            ->withSession(['mfa_verified' => true, 'active_child_id' => $student->id])
+            ->get(route('guardian.logs.archive'));
+
+        $archiveResponse->assertOk();
+        $archiveResponse->assertSee('Lucas completed puzzle games yesterday.');
+        $archiveResponse->assertSee('Previous Reports (1)');
+        $archiveResponse->assertSee('id="activity_date_selector"', false);
+        // Quarter filter buttons should NOT exist
+        $archiveResponse->assertDontSee('>All<', false);
+        $archiveResponse->assertDontSee('>Q1<', false);
+    }
+
+    public function test_previous_reports_loads_strictly_one_report_by_selected_date(): void
+    {
+        $guardian = User::factory()->create([
+            'role' => 'guardian',
+            'is_active' => true,
+            'password_changed_at' => now(),
+            'two_factor_secret' => 'JBSWY3DPEHPK3PXP',
+        ]);
+        $teacher = User::factory()->create([
+            'role' => 'teacher',
+            'is_active' => true,
+            'password_changed_at' => now(),
+            'two_factor_secret' => 'JBSWY3DPEHPK3PXP',
+        ]);
+        $student = Student::create([
+            'first_name' => 'Maya',
+            'last_name' => 'Cruz',
+            'learners_reference_number' => '556677889900',
+            'class_name' => 'Sprout',
+            'date_of_birth' => '2017-08-20',
+            'gender' => 'Female',
+            'diagnosis' => 'Global Developmental Delay (GDD)',
+            'teacher_id' => $teacher->id,
+            'guardian_id' => $guardian->id,
+        ]);
+
+        $twoDaysAgo = now()->subDays(2)->format('Y-m-d');
+        $threeDaysAgo = now()->subDays(3)->format('Y-m-d');
+
+        DailyLog::create([
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'log_date' => $twoDaysAgo,
+            'quarter' => 'Q1',
+            'notes' => 'Report for Maya from TWO days ago.',
+            'home_recommendations' => 'Two days ago activity recommendation.',
+        ]);
+
+        DailyLog::create([
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'log_date' => $threeDaysAgo,
+            'quarter' => 'Q1',
+            'notes' => 'Report for Maya from THREE days ago.',
+            'home_recommendations' => 'Three days ago activity recommendation.',
+        ]);
+
+        // When requesting two days ago, strictly show two days ago
+        $responseTwoDays = $this->actingAs($guardian)
+            ->withSession(['mfa_verified' => true, 'active_child_id' => $student->id])
+            ->get(route('guardian.logs.archive', ['date' => $twoDaysAgo]));
+
+        $responseTwoDays->assertOk();
+        $responseTwoDays->assertSee('Report for Maya from TWO days ago.');
+        $responseTwoDays->assertDontSee('Report for Maya from THREE days ago.');
+
+        // When requesting three days ago, strictly show three days ago
+        $responseThreeDays = $this->actingAs($guardian)
+            ->withSession(['mfa_verified' => true, 'active_child_id' => $student->id])
+            ->get(route('guardian.logs.archive', ['date' => $threeDaysAgo]));
+
+        $responseThreeDays->assertOk();
+        $responseThreeDays->assertSee('Report for Maya from THREE days ago.');
+        $responseThreeDays->assertDontSee('Report for Maya from TWO days ago.');
+    }
 }

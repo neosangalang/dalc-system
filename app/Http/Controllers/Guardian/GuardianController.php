@@ -99,13 +99,10 @@ class GuardianController extends Controller
             ->take(5)
             ->get();
 
-        // Active Daily Logs (Only logs posted within the last 24 hours or for today; older logs are archived)
+        // Active Daily Logs (Strictly check activity date: must be today)
         $rawRecentLogs = DailyLog::with(['student', 'teacher', 'comments.user'])
             ->where('student_id', $activeChild->id)
-            ->where(function($query) {
-                $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
-                      ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
-            })
+            ->whereDate('log_date', \Carbon\Carbon::today())
             ->latest('id')
             ->get();
 
@@ -114,15 +111,45 @@ class GuardianController extends Controller
             return \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
         })->values();
 
-        // Attach daily reports to daily logs
+        // Attach daily reports to daily logs (Strictly check activity date: must be today)
         $dailyReports = Report::with(['comments.user'])
             ->where('student_id', $activeChild->id)
             ->where('report_type', 'daily')
             ->whereIn('status', ['approved', 'pending_approval'])
+            ->where(function($q) {
+                $q->whereDate('report_date', \Carbon\Carbon::today())
+                  ->orWhere(function($sub) {
+                      $sub->whereNull('report_date')
+                          ->whereDate('created_at', \Carbon\Carbon::today());
+                  });
+            })
             ->get()
             ->keyBy(function($report) {
                 return $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
             });
+
+        // If an active daily report exists for today that has no DailyLog yet, include it
+        foreach ($dailyReports as $dateStr => $rep) {
+            $hasLog = $recentLogs->contains(function($log) use ($dateStr) {
+                return \Carbon\Carbon::parse($log->log_date)->format('Y-m-d') === $dateStr;
+            });
+            if (!$hasLog) {
+                $virtualLog = new DailyLog([
+                    'student_id' => $rep->student_id,
+                    'teacher_id' => $rep->teacher_id,
+                    'log_date' => $rep->report_date ?: $rep->created_at->format('Y-m-d'),
+                    'quarter' => 'Q1',
+                    'notes' => $rep->content,
+                    'image_path' => $rep->image_path,
+                ]);
+                $virtualLog->id = $rep->id;
+                $virtualLog->setRelation('student', $rep->student);
+                $virtualLog->setRelation('teacher', $rep->teacher);
+                $virtualLog->setRelation('comments', $rep->comments ?? collect());
+                $virtualLog->daily_report = $rep;
+                $recentLogs->push($virtualLog);
+            }
+        }
 
         foreach ($recentLogs as $log) {
             $logDateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
@@ -148,14 +175,11 @@ class GuardianController extends Controller
             }
         }
 
-        // Active Home Recommendations (Within last 24 hours or for today)
+        // Active Home Recommendations (Strictly check activity date: must be today)
         $homeActivities = DailyLog::where('student_id', $activeChild->id)
             ->whereNotNull('home_recommendations')
             ->where('home_recommendations', '!=', '')
-            ->where(function($query) {
-                $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
-                      ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
-            })
+            ->whereDate('log_date', \Carbon\Carbon::today())
             ->latest('log_date')
             ->take(1)
             ->get();
@@ -318,13 +342,10 @@ class GuardianController extends Controller
         $archivedCount = 0;
 
         if ($activeChild) {
-            // 1. Active Recommendations (Only within the last 24 hours or for today)
+            // 1. Active Recommendations (Strictly check activity date: must be today)
             $rawLogs = DailyLog::with(['student', 'teacher', 'comments.user'])
                 ->where('student_id', $activeChild->id)
-                ->where(function($query) {
-                    $query->where('created_at', '>=', \Carbon\Carbon::now()->subHours(24))
-                          ->orWhereDate('log_date', '>=', \Carbon\Carbon::today());
-                })
+                ->whereDate('log_date', \Carbon\Carbon::today())
                 ->latest('id')
                 ->get();
 
@@ -333,11 +354,18 @@ class GuardianController extends Controller
                 return \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
             })->values();
 
-            // Attach daily reports to daily logs
+            // Attach daily reports to daily logs (Strictly check activity date: must be today)
             $dailyReports = Report::with(['comments.user'])
                 ->where('student_id', $activeChild->id)
                 ->where('report_type', 'daily')
                 ->whereIn('status', ['approved', 'pending_approval'])
+                ->where(function($q) {
+                    $q->whereDate('report_date', \Carbon\Carbon::today())
+                      ->orWhere(function($sub) {
+                          $sub->whereNull('report_date')
+                              ->whereDate('created_at', \Carbon\Carbon::today());
+                      });
+                })
                 ->get()
                 ->keyBy(function($report) {
                     return $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
@@ -390,53 +418,164 @@ class GuardianController extends Controller
                 }
             }
 
-            // 2. Count Archived Past Due Logs for link badge
-            $archivedCount = DailyLog::where('student_id', $activeChild->id)
-                ->where('created_at', '<', \Carbon\Carbon::now()->subHours(24))
+            // 2. Count Previous Reports (Activity happened yesterday or earlier)
+            $pastLogDates = DailyLog::where('student_id', $activeChild->id)
                 ->whereDate('log_date', '<', \Carbon\Carbon::today())
-                ->count();
+                ->pluck('log_date')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'));
+
+            $pastReportDates = Report::where('student_id', $activeChild->id)
+                ->where('report_type', 'daily')
+                ->where('status', 'approved')
+                ->where(function($q) {
+                    $q->whereDate('report_date', '<', \Carbon\Carbon::today())
+                      ->orWhere(function($sub) {
+                          $sub->whereNull('report_date')
+                              ->whereDate('created_at', '<', \Carbon\Carbon::today());
+                      });
+                })
+                ->get()
+                ->map(fn($r) => $r->report_date ? \Carbon\Carbon::parse($r->report_date)->format('Y-m-d') : $r->created_at->format('Y-m-d'));
+
+            $archivedCount = $pastLogDates->concat($pastReportDates)->unique()->count();
         }
 
         return view('guardian.recommendations', compact('recentRecommendations', 'archivedCount', 'myChildren', 'activeChild'));
     }
 
     // ==========================================
-    // DEDICATED LOGS & ACTIVITIES ARCHIVE
+    // DEDICATED PREVIOUS REPORTS & ACTIVITIES ARCHIVE
     // ==========================================
     public function logsArchive(Request $request)
     {
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
+        $selectedLog = null;
+        $selectedDate = null;
+        $availableDates = collect();
+        $prevDate = null;
+        $nextDate = null;
+        $archivedCount = 0;
         $archivedLogs = collect();
 
         if ($activeChild) {
-            $query = DailyLog::with(['student', 'teacher', 'comments.user'])
-                ->where('student_id', $activeChild->id)
-                ->where('created_at', '<', \Carbon\Carbon::now()->subHours(24))
-                ->whereDate('log_date', '<', \Carbon\Carbon::today());
+            // Find all historical dates where activities happened yesterday or earlier
+            $pastLogDates = DailyLog::where('student_id', $activeChild->id)
+                ->whereDate('log_date', '<', \Carbon\Carbon::today())
+                ->pluck('log_date')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'));
 
-            if ($request->filled('quarter')) {
-                $query->where('quarter', $request->quarter);
-            }
-
-            $archivedLogs = $query->latest('log_date')->get();
-
-            // Attach approved daily reports to archived daily logs
-            $dailyReports = Report::where('student_id', $activeChild->id)
+            $pastReportDates = Report::where('student_id', $activeChild->id)
                 ->where('report_type', 'daily')
                 ->where('status', 'approved')
+                ->where(function($q) {
+                    $q->whereDate('report_date', '<', \Carbon\Carbon::today())
+                      ->orWhere(function($sub) {
+                          $sub->whereNull('report_date')
+                              ->whereDate('created_at', '<', \Carbon\Carbon::today());
+                      });
+                })
                 ->get()
-                ->keyBy(function($report) {
-                    return $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
-                });
+                ->map(fn($r) => $r->report_date ? \Carbon\Carbon::parse($r->report_date)->format('Y-m-d') : $r->created_at->format('Y-m-d'));
 
-            foreach ($archivedLogs as $log) {
-                $logDateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
-                $log->daily_report = $dailyReports->get($logDateStr);
+            $availableDates = $pastLogDates->concat($pastReportDates)
+                ->unique()
+                ->sortDesc()
+                ->values();
+
+            $archivedCount = $availableDates->count();
+
+            // Determine selected historical date
+            $yesterdayStr = \Carbon\Carbon::yesterday()->format('Y-m-d');
+            if ($request->filled('date')) {
+                try {
+                    $parsed = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
+                    // Prevent picking today or future in the archive
+                    $selectedDate = $parsed < \Carbon\Carbon::today()->format('Y-m-d') ? $parsed : $yesterdayStr;
+                } catch (\Exception $e) {
+                    $selectedDate = $availableDates->first() ?: $yesterdayStr;
+                }
+            } else {
+                $selectedDate = $availableDates->first() ?: $yesterdayStr;
+            }
+
+            // Calculate previous (older) and next (newer) available report dates for quick navigation
+            if ($availableDates->isNotEmpty()) {
+                $newerDates = $availableDates->filter(fn($d) => $d > $selectedDate)->values();
+                $olderDates = $availableDates->filter(fn($d) => $d < $selectedDate)->values();
+
+                $nextDate = $newerDates->last(); // closest newer date
+                $prevDate = $olderDates->first(); // closest older date
+            }
+
+            // Strictly load ONE report corresponding to the selected date
+            $log = DailyLog::with(['student', 'teacher', 'comments.user'])
+                ->where('student_id', $activeChild->id)
+                ->whereDate('log_date', $selectedDate)
+                ->latest('id')
+                ->first();
+
+            $dailyReport = Report::with(['comments.user', 'teacher', 'student'])
+                ->where('student_id', $activeChild->id)
+                ->where('report_type', 'daily')
+                ->where('status', 'approved')
+                ->where(function($q) use ($selectedDate) {
+                    $q->whereDate('report_date', $selectedDate)
+                      ->orWhere(function($sub) use ($selectedDate) {
+                          $sub->whereNull('report_date')
+                              ->whereDate('created_at', $selectedDate);
+                      });
+                })
+                ->latest('id')
+                ->first();
+
+            if ($log) {
+                $log->daily_report = $dailyReport;
+                if ($dailyReport) {
+                    $reportComments = $dailyReport->comments ?? collect();
+                    $logComments = $log->comments ?? collect();
+                    $mergedComments = $logComments->concat($reportComments)
+                        ->unique('id')
+                        ->sortByDesc('created_at')
+                        ->values();
+                    $log->setRelation('comments', $mergedComments);
+
+                    if (!$log->image_path && $dailyReport->image_path) {
+                        $log->image_path = $dailyReport->image_path;
+                    }
+                }
+                $selectedLog = $log;
+                $archivedLogs = collect([$log]);
+            } elseif ($dailyReport) {
+                $virtualLog = new DailyLog([
+                    'student_id' => $dailyReport->student_id,
+                    'teacher_id' => $dailyReport->teacher_id,
+                    'log_date' => $dailyReport->report_date ?: $dailyReport->created_at->format('Y-m-d'),
+                    'quarter' => 'Q1',
+                    'notes' => $dailyReport->content,
+                    'image_path' => $dailyReport->image_path,
+                ]);
+                $virtualLog->id = $dailyReport->id;
+                $virtualLog->setRelation('student', $dailyReport->student);
+                $virtualLog->setRelation('teacher', $dailyReport->teacher);
+                $virtualLog->setRelation('comments', $dailyReport->comments ?? collect());
+                $virtualLog->daily_report = $dailyReport;
+                $selectedLog = $virtualLog;
+                $archivedLogs = collect([$virtualLog]);
             }
         }
 
-        return view('guardian.logs-archive', compact('archivedLogs', 'myChildren', 'activeChild'));
+        return view('guardian.logs-archive', compact(
+            'selectedLog',
+            'archivedLogs',
+            'selectedDate',
+            'availableDates',
+            'prevDate',
+            'nextDate',
+            'archivedCount',
+            'myChildren',
+            'activeChild'
+        ));
     }
 
     // ==========================================

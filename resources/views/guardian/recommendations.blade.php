@@ -57,7 +57,7 @@
             <i class="fa-solid fa-sparkles text-amber-300"></i> Today's Active Session
         </a>
         <a href="{{ route('guardian.logs.archive') }}" class="px-3.5 sm:px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-100 transition-all flex items-center gap-2 shrink-0 active:scale-95">
-            <i class="fa-solid fa-box-archive text-slate-400"></i> Archive & History ({{ $archivedCount ?? 0 }})
+            <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> Previous Reports ({{ $archivedCount ?? 0 }})
         </a>
     </div>
 
@@ -65,17 +65,22 @@
     <div class="flex flex-col gap-6 sm:gap-8">
         
         @forelse($recentRecommendations as $log)
-            <div class="bg-white rounded-[16px] sm:rounded-2xl shadow-sm border-2 border-slate-300 overflow-hidden border-t-4 border-t-emerald-500">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 
                 <!-- CARD HEADER -->
-                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b-2 border-slate-200 bg-white flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+                <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-200/80 bg-gradient-to-r from-slate-50/80 via-white to-white flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
                     <div>
                         <h5 class="font-extrabold text-slate-800 m-0 text-[15px] sm:text-lg flex items-center mb-1 leading-tight">
                             <i class="fa fa-star text-amber-400 mr-2"></i> {{ $log->student->first_name }}'s Daily Highlight
                         </h5>
-                        <p class="text-[11px] sm:text-xs font-bold text-slate-500 m-0">From today's session: {{ \Carbon\Carbon::parse($log->log_date)->format('F j, Y') }} ({{ \Carbon\Carbon::parse($log->log_date)->diffForHumans() }})</p>
+                        <p class="text-[11px] sm:text-xs font-semibold text-slate-500 m-0 flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-bold text-[10px]">
+                                <i class="fa-solid fa-circle-check text-[9px]"></i> Active Today
+                            </span>
+                            <span>{{ \Carbon\Carbon::parse($log->log_date)->format('F j, Y') }}</span>
+                        </p>
                     </div>
-                    <span class="self-start sm:self-auto inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] sm:text-xs shadow-sm border-2 border-emerald-200 uppercase tracking-wide">
+                    <span class="self-start sm:self-auto inline-flex items-center px-3 sm:px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 font-extrabold text-[10px] sm:text-xs border border-slate-200 uppercase tracking-wider">
                         {{ $log->quarter }}
                     </span>
                 </div>
@@ -84,10 +89,10 @@
                 <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start">
                     @php
                         $photoUrl = null;
-                        if (isset($log->daily_report) && $log->daily_report && $log->daily_report->image_path) {
-                            $photoUrl = route('secure.report-photo', $log->daily_report->id);
-                        } elseif ($log->image_path) {
+                        if ($log->image_path) {
                             $photoUrl = route('secure.log-photo', $log->id);
+                        } elseif (isset($log->daily_report) && $log->daily_report && $log->daily_report->image_path) {
+                            $photoUrl = route('secure.report-photo', $log->daily_report->id);
                         }
 
                         // Parse content and extract "Tonight's Suggested Activity" if nested inside report narrative
@@ -110,7 +115,6 @@
                         $formatHtml = function($rawText) {
                             if (empty($rawText)) return '';
                             $escaped = e(trim($rawText));
-                            // Replace markdown **bold** with <strong>
                             $formatted = preg_replace('/\*\*(.*?)\*\*/s', '<strong class="font-extrabold text-slate-900">$1</strong>', $escaped);
                             
                             $lines = explode("\n", $formatted);
@@ -124,14 +128,14 @@
                                         $output[] = '<ul class="list-none pl-0 space-y-2 mt-2 mb-2">';
                                         $inList = true;
                                     }
-                                    $output[] = '<li class="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-slate-700"><span class="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></span><span class="flex-1">' . $m[1] . '</span></li>';
+                                    $output[] = '<li class="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-slate-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><span class="flex-1">' . $m[1] . '</span></li>';
                                 } else {
                                     if ($inList) {
                                         $output[] = '</ul>';
                                         $inList = false;
                                     }
                                     if (!empty($trimmed)) {
-                                        $output[] = '<p class="m-0 mb-2 leading-relaxed text-[13px] sm:text-[14px] text-slate-700 font-medium">' . $trimmed . '</p>';
+                                        $output[] = '<p class="m-0 mb-2 leading-relaxed text-[13px] sm:text-[14px] text-slate-700 font-normal">' . $trimmed . '</p>';
                                     }
                                 }
                             }
@@ -145,7 +149,7 @@
                     @if($photoUrl)
                         <!-- OBSERVATION PHOTO COLUMN (Responsive for Mobile and PC) -->
                         <div class="md:col-span-5 w-full">
-                            <div class="bg-slate-50/90 rounded-2xl border-2 border-slate-200/90 p-3 sm:p-4 shadow-sm flex flex-col justify-between">
+                            <div class="bg-slate-50/90 rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs flex flex-col justify-between">
                                 <div class="flex items-center justify-between mb-2.5 px-0.5">
                                     <span class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
                                         <i class="fa fa-camera text-indigo-500"></i> Observation Photo
@@ -155,7 +159,7 @@
                                     </span>
                                 </div>
 
-                                <div class="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-slate-300 shadow-sm bg-slate-200 flex items-center justify-center min-h-[200px] max-h-[300px] sm:max-h-[340px]"
+                                <div class="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-slate-200/90 shadow-xs bg-slate-200 flex items-center justify-center min-h-[200px] max-h-[300px] sm:max-h-[340px]"
                                      @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
                                      title="Click to view full image">
                                     
@@ -171,7 +175,7 @@
 
                                 <button type="button" 
                                         @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
-                                        class="w-full mt-3 py-2 px-3 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800 font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200/80 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+                                        class="w-full mt-3 py-2 px-3 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800 font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
                                     <i class="fa-solid fa-expand text-indigo-500 text-xs"></i> View enlarged photo
                                 </button>
                             </div>
@@ -183,12 +187,17 @@
                         
                         <!-- 1. DAILY REPORT CARD -->
                         @if(!empty($dailyReportText))
-                            <div class="p-4 sm:p-5 bg-indigo-50/60 rounded-2xl border-2 border-indigo-200 shadow-sm">
-                                <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-indigo-200/60">
-                                    <h6 class="font-extrabold text-indigo-900 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                        <i class="fa-solid fa-file-lines text-indigo-600 mr-2 text-sm sm:text-base"></i> Daily Report:
-                                    </h6>
-                                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-700 bg-white px-2 py-0.5 rounded-md border border-indigo-200 shadow-xs">
+                            <div class="p-5 sm:p-6 bg-white rounded-2xl border border-indigo-100/90 shadow-sm relative overflow-hidden">
+                                <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-50">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
+                                            <i class="fa-solid fa-file-lines"></i>
+                                        </div>
+                                        <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
+                                            Daily Report:
+                                        </h6>
+                                    </div>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/60">
                                         Session Log
                                     </span>
                                 </div>
@@ -200,12 +209,17 @@
 
                         <!-- 2. TONIGHT'S SUGGESTED ACTIVITY CARD -->
                         @if(!empty($suggestedActivityText))
-                            <div class="p-4 sm:p-5 bg-emerald-50/60 rounded-2xl border-2 border-emerald-300/80 shadow-sm">
-                                <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-emerald-200/80">
-                                    <h6 class="font-extrabold text-emerald-900 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                        <i class="fa fa-house-user mr-2 text-emerald-600 text-sm sm:text-base"></i> Tonight's Suggested Activity:
-                                    </h6>
-                                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-300 shadow-xs">
+                            <div class="p-5 sm:p-6 bg-emerald-50/40 rounded-2xl border border-emerald-200/90 shadow-sm relative overflow-hidden">
+                                <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-emerald-100/80">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm shadow-xs shrink-0">
+                                            <i class="fa-solid fa-house-chimney-user"></i>
+                                        </div>
+                                        <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
+                                            Tonight's Suggested Activity:
+                                        </h6>
+                                    </div>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-md border border-emerald-200">
                                         Home Recommendation
                                     </span>
                                 </div>
@@ -219,20 +233,20 @@
                 </div>
 
                 <!-- CARD COMMENTS -->
-                <div class="px-4 sm:px-6 pb-4 sm:pb-6 pt-4 sm:pt-5 border-t-2 border-slate-200 bg-slate-50">
+                <div class="px-4 sm:px-6 pb-4 sm:pb-6 pt-4 sm:pt-5 border-t border-slate-200 bg-slate-50/70">
                     @include('components.comment-thread', ['item' => $log])
                 </div>
 
             </div>
         @empty
-            <div class="w-full text-center py-12 sm:py-16 px-4 sm:px-6 bg-white rounded-[16px] sm:rounded-2xl shadow-sm border-2 border-dashed border-slate-300">
-                <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4 text-emerald-600 text-3xl">
+            <div class="w-full text-center py-12 sm:py-16 px-4 sm:px-6 bg-white rounded-2xl shadow-sm border-2 border-dashed border-slate-200">
+                <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-4 text-emerald-600 text-3xl">
                     <i class="fa-solid fa-sparkles"></i>
                 </div>
                 <h5 class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-1">No Active Home Activity For Today</h5>
                 <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 max-w-md mx-auto mb-5">When the teacher submits today's session, today's notes, photos, and suggested activities will appear here.</p>
                 <a href="{{ route('guardian.logs.archive') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-extrabold text-xs rounded-xl border border-indigo-200 transition-colors shadow-sm">
-                    <i class="fa-solid fa-box-archive"></i> Browse Past Log History & Archive ({{ $archivedCount ?? 0 }})
+                    <i class="fa-solid fa-clock-rotate-left"></i> Browse Previous Reports ({{ $archivedCount ?? 0 }})
                 </a>
             </div>
         @endforelse
