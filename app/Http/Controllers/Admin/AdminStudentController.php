@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\StudentDocument;
+use App\Models\ArchivedStudent;
+use App\Models\SchoolYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -208,6 +210,35 @@ class AdminStudentController extends Controller
             : $request->diagnosis;
 
         DB::transaction(function () use ($request, $student, $finalDiagnosis) {
+            $student->loadMissing('iepGoals.comments', 'reports');
+
+            // Safety snapshot safeguard: If student has prior goals and no archive record exists, snapshot before reset
+            if ($student->iepGoals->isNotEmpty() && !ArchivedStudent::where('student_id', $student->id)->exists()) {
+                $activeSY = SchoolYear::active();
+                $currentYear = (int) date('Y');
+                $currentMonth = (int) date('n');
+                $fallbackSchoolYear = ($currentMonth >= 6) 
+                    ? $currentYear . '-' . ($currentYear + 1) 
+                    : ($currentYear - 1) . '-' . $currentYear;
+                $schoolYearName = $activeSY ? $activeSY->name : $fallbackSchoolYear;
+
+                ArchivedStudent::create([
+                    'student_id'        => $student->id,
+                    'school_year'       => $schoolYearName,
+                    'student_snapshot'  => $student->toArray(),
+                    'iep_snapshot'      => $student->iepGoals->toArray(),
+                    'progress_snapshot' => $student->reports->toArray(),
+                    'master_pdf_path'   => null,
+                    'archived_at'       => now(),
+                ]);
+            }
+
+            // Fresh IEP initialization: delete previous goals and their comments
+            foreach ($student->iepGoals as $iepGoal) {
+                $iepGoal->comments()->delete();
+                $iepGoal->delete();
+            }
+
             $data = $request->only([
                 'first_name',
                 'last_name',
@@ -247,7 +278,7 @@ class AdminStudentController extends Controller
             }
         });
 
-        return redirect()->back()->with('success', "Student {$student->first_name} {$student->last_name} has been successfully re-enrolled and reactivated for the new school year!");
+        return redirect()->back()->with('success', "Student {$student->first_name} {$student->last_name} has been successfully re-enrolled and reactivated for the new school year! A fresh IEP slate has been initialized.");
     }
 
     public function show($id)
@@ -262,7 +293,11 @@ class AdminStudentController extends Controller
             }
         ])->findOrFail($id);
 
-        return view('admin.students.show', compact('student'));
+        $pastArchives = ArchivedStudent::where('student_id', $student->id)
+            ->orderBy('school_year', 'desc')
+            ->get();
+
+        return view('admin.students.show', compact('student', 'pastArchives'));
     }
 
     public function destroy($id)

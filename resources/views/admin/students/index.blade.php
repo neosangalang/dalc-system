@@ -922,6 +922,11 @@
                                 <i class="fa fa-magic text-[#3B82F6] mr-2"></i> <span><strong>Step 3:</strong> Details automatically populated! Review and update any changed information for the new school year.</span>
                             </div>
 
+                            <div class="bg-emerald-50/70 border border-emerald-200 p-3 rounded-xl text-[12px] font-semibold text-emerald-900 flex items-start">
+                                <i class="fa fa-bullseye text-[#10B981] mr-2.5 mt-0.5 text-sm shrink-0"></i>
+                                <span><strong>New School Year IEP:</strong> Re-enrolling initializes a fresh IEP slate so the newly assigned teacher can formulate new baseline PLOP and goals. Previous IEP achievements remain safely preserved in the Year-End Archive.</span>
+                            </div>
+
                             <!-- Student Personal Info -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>

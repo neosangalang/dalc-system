@@ -130,10 +130,19 @@
         <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-sm border border-black/15 h-full flex flex-col overflow-hidden">
                 
-                <div class="p-6 border-b border-black/10 flex justify-between items-center bg-[#F4F6FA]">
+                <div class="p-6 border-b border-black/10 flex flex-wrap justify-between items-center gap-2 bg-[#F4F6FA]">
                     <h4 class="font-extrabold text-base sm:text-lg text-[#1E2657] m-0 flex items-center">
                         <i class="fa fa-bullseye mr-2.5 text-[#8B5CF6]"></i> IEP Goal Progress
                     </h4>
+                    @if(isset($pastArchives) && $pastArchives->isNotEmpty())
+                        <div class="flex items-center gap-2">
+                            @foreach($pastArchives as $archive)
+                                <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-white border border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 text-[11px] font-bold rounded-lg shadow-sm transition-all" title="View SY {{ $archive->school_year }} Archive PDF">
+                                    <i class="fa fa-file-pdf mr-1.5 text-rose-500"></i> SY {{ $archive->school_year }} Archive
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
                 
                 <div class="p-6 overflow-y-auto max-h-[800px] custom-scrollbar bg-white flex-1">
@@ -208,8 +217,26 @@
                             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F4F6FA] border border-black/5 mb-4 shadow-sm">
                                 <i class="fa fa-folder-open text-2xl text-[#9CA0AF]"></i>
                             </div>
-                            <h3 class="font-extrabold text-[#1E2657] text-[15px] mb-1">No IEP Goals Found</h3>
-                            <p class="text-[#6B7086] text-[13px] font-medium m-0">No IEP Goals or objectives have been generated for this student yet.</p>
+                            <h3 class="font-extrabold text-[#1E2657] text-[15px] mb-1">No Active IEP Goals Found</h3>
+                            <p class="text-[#6B7086] text-[13px] font-medium m-0 max-w-md mx-auto">
+                                @if($student->status === 'active')
+                                    This student is actively enrolled with a fresh IEP slate. Their assigned teacher can now establish new goals for the current school year.
+                                @else
+                                    No IEP Goals or objectives have been generated for this student yet.
+                                @endif
+                            </p>
+                            @if(isset($pastArchives) && $pastArchives->isNotEmpty())
+                                <div class="mt-5 pt-5 border-t border-black/10 inline-flex flex-col items-center">
+                                    <span class="text-[11px] font-extrabold text-[#9CA0AF] uppercase tracking-wider mb-2">Previous Enrollment Records</span>
+                                    <div class="flex flex-wrap justify-center gap-2">
+                                        @foreach($pastArchives as $archive)
+                                            <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-black/15 text-[#1E2657] text-[12px] font-bold rounded-xl shadow-sm transition-all">
+                                                <i class="fa fa-file-pdf mr-2 text-rose-500"></i> View SY {{ $archive->school_year }} Archived IEP
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @endforelse
                 </div>
