@@ -40,6 +40,28 @@ class SecureFileController extends Controller
             return Storage::disk('public')->response($log->image_path);
         }
 
+        // Cross-fallback: Check if matching Daily Report has the photo
+        $logDate = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
+        $matchingReport = Report::where('student_id', $log->student_id)
+            ->where('report_type', 'daily')
+            ->where(function($q) use ($logDate) {
+                $q->whereDate('report_date', $logDate)
+                  ->orWhere(function($sub) use ($logDate) {
+                      $sub->whereNull('report_date')->whereDate('created_at', $logDate);
+                  });
+            })
+            ->whereNotNull('image_path')
+            ->first();
+
+        if ($matchingReport && $matchingReport->image_path) {
+            if ($disk->exists($matchingReport->image_path)) {
+                return $disk->response($matchingReport->image_path);
+            }
+            if (Storage::disk('public')->exists($matchingReport->image_path)) {
+                return Storage::disk('public')->response($matchingReport->image_path);
+            }
+        }
+
         abort(404, 'File not found in the secure vault.');
     }
 
@@ -69,6 +91,24 @@ class SecureFileController extends Controller
         // Backward compatibility fallback for legacy public uploads
         if ($report->image_path && Storage::disk('public')->exists($report->image_path)) {
             return Storage::disk('public')->response($report->image_path);
+        }
+
+        // Cross-fallback: If daily report has no image directly, check corresponding DailyLog
+        if ($report->report_type === 'daily') {
+            $repDate = $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
+            $matchingLog = DailyLog::where('student_id', $report->student_id)
+                ->whereDate('log_date', $repDate)
+                ->whereNotNull('image_path')
+                ->first();
+
+            if ($matchingLog && $matchingLog->image_path) {
+                if ($disk->exists($matchingLog->image_path)) {
+                    return $disk->response($matchingLog->image_path);
+                }
+                if (Storage::disk('public')->exists($matchingLog->image_path)) {
+                    return Storage::disk('public')->response($matchingLog->image_path);
+                }
+            }
         }
 
         abort(404, 'Report photo not found in the secure vault.');

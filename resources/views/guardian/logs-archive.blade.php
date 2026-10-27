@@ -103,61 +103,137 @@
                 </div>
                 
                 <!-- CARD BODY -->
-                <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+                <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start">
                     @php
                         $photoUrl = null;
-                        if ($log->image_path) {
-                            $photoUrl = route('secure.log-photo', $log->id);
-                        } elseif (isset($log->daily_report) && $log->daily_report && $log->daily_report->image_path) {
+                        if (isset($log->daily_report) && $log->daily_report && $log->daily_report->image_path) {
                             $photoUrl = route('secure.report-photo', $log->daily_report->id);
+                        } elseif ($log->image_path) {
+                            $photoUrl = route('secure.log-photo', $log->id);
                         }
+
+                        // Parse content and extract "Tonight's Suggested Activity" if nested inside report narrative
+                        $fullContent = (isset($log->daily_report) && $log->daily_report && !empty($log->daily_report->content)) 
+                            ? $log->daily_report->content 
+                            : ($log->notes ?? '');
+
+                        $dailyReportText = $fullContent;
+                        $suggestedActivityText = $log->home_recommendations ?? '';
+
+                        if (preg_match('/^(.*?)(?:\r?\n)+(?:Tonight\'s Suggested Activity|Tonight\'s Suggested Home Activity|Home Activity):?\s*(.*)$/si', $fullContent, $matches)) {
+                            $dailyReportText = trim($matches[1]);
+                            if (empty($suggestedActivityText) && !empty($matches[2])) {
+                                $suggestedActivityText = trim($matches[2]);
+                            }
+                        }
+
+                        $formatHtml = function($rawText) {
+                            if (empty($rawText)) return '';
+                            $escaped = e(trim($rawText));
+                            $formatted = preg_replace('/\*\*(.*?)\*\*/s', '<strong class="font-extrabold text-slate-900">$1</strong>', $escaped);
+                            
+                            $lines = explode("\n", $formatted);
+                            $output = [];
+                            $inList = false;
+                            
+                            foreach ($lines as $line) {
+                                $trimmed = trim($line);
+                                if (preg_match('/^[-*•]\s+(.*)$/', $trimmed, $m)) {
+                                    if (!$inList) {
+                                        $output[] = '<ul class="list-none pl-0 space-y-2 mt-2 mb-2">';
+                                        $inList = true;
+                                    }
+                                    $output[] = '<li class="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-slate-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><span class="flex-1">' . $m[1] . '</span></li>';
+                                } else {
+                                    if ($inList) {
+                                        $output[] = '</ul>';
+                                        $inList = false;
+                                    }
+                                    if (!empty($trimmed)) {
+                                        $output[] = '<p class="m-0 mb-2 leading-relaxed text-[13px] sm:text-[14px] text-slate-700 font-medium">' . $trimmed . '</p>';
+                                    }
+                                }
+                            }
+                            if ($inList) {
+                                $output[] = '</ul>';
+                            }
+                            return implode("\n", $output);
+                        };
                     @endphp
 
                     @if($photoUrl)
-                        <div class="md:col-span-5 text-center">
-                            <div class="p-2 sm:p-3 bg-slate-50 rounded-xl border-[2px] border-dashed border-slate-300 h-full flex flex-col items-center justify-center">
-                                <div class="relative group cursor-pointer max-w-sm w-full overflow-hidden rounded-lg shadow-sm border border-slate-200"
+                        <!-- OBSERVATION PHOTO COLUMN (Responsive for Mobile and PC) -->
+                        <div class="md:col-span-5 w-full">
+                            <div class="bg-slate-50/90 rounded-2xl border-2 border-slate-200/90 p-3 sm:p-4 shadow-sm flex flex-col justify-between">
+                                <div class="flex items-center justify-between mb-2.5 px-0.5">
+                                    <span class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa fa-camera text-indigo-500"></i> Session Photo
+                                    </span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline-block">
+                                        Click to enlarge
+                                    </span>
+                                </div>
+
+                                <div class="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-slate-300 shadow-sm bg-slate-200 flex items-center justify-center min-h-[200px] max-h-[300px] sm:max-h-[340px]"
                                      @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
-                                     title="Click to enlarge photo">
-                                    <img src="{{ $photoUrl }}" alt="Session Photo" class="max-h-[220px] sm:max-h-[260px] w-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-base"></i> Click to enlarge
+                                     title="Click to view full image">
+                                    
+                                    <img src="{{ $photoUrl }}" 
+                                         alt="Session Photo" 
+                                         class="w-full h-full max-h-[300px] sm:max-h-[340px] object-cover group-hover:scale-105 transition-transform duration-300 block"
+                                         loading="lazy">
+                                    
+                                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2 backdrop-blur-[1px]">
+                                        <i class="fa-solid fa-magnifying-glass-plus text-base"></i> View full size
                                     </div>
                                 </div>
+
                                 <button type="button" 
                                         @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
-                                        class="text-indigo-600 hover:text-indigo-800 text-[11px] sm:text-xs font-bold mt-2.5 mb-0 flex items-center justify-center gap-1.5 cursor-pointer bg-transparent border-0 p-0">
-                                    <i class="fa fa-camera text-indigo-500"></i> View enlarged photo
+                                        class="w-full mt-3 py-2 px-3 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800 font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200/80 shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+                                    <i class="fa-solid fa-expand text-indigo-500 text-xs"></i> View enlarged photo
                                 </button>
                             </div>
                         </div>
                     @endif
 
-                    <div class="{{ $photoUrl ? 'md:col-span-7' : 'md:col-span-12' }} flex flex-col gap-4">
-                        @if(isset($log->daily_report) && $log->daily_report)
-                            <div class="p-4 sm:p-5 bg-indigo-50/60 rounded-xl border-2 border-indigo-200">
-                                <h6 class="font-extrabold text-indigo-800 mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                    <i class="fa-solid fa-file-lines text-indigo-600 mr-2"></i> Daily Report:
-                                </h6>
-                                <div class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->daily_report->content }}</div>
-                            </div>
-                        @elseif($log->notes)
-                            <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-200">
-                                <h6 class="font-extrabold text-[#1E2657] mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                    <i class="fa-solid fa-file-lines text-[#3B82F6] mr-2"></i> Daily Report:
-                                </h6>
-                                <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->notes }}</p>
+                    <!-- CONTENT COLUMN (Responsive for Mobile and PC) -->
+                    <div class="{{ $photoUrl ? 'md:col-span-7' : 'md:col-span-12' }} w-full flex flex-col gap-4">
+                        
+                        <!-- 1. DAILY REPORT CARD -->
+                        @if(!empty($dailyReportText))
+                            <div class="p-4 sm:p-5 bg-indigo-50/60 rounded-2xl border-2 border-indigo-200 shadow-sm">
+                                <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-indigo-200/60">
+                                    <h6 class="font-extrabold text-indigo-900 flex items-center m-0 text-[13px] sm:text-[14px]">
+                                        <i class="fa-solid fa-file-lines text-indigo-600 mr-2 text-sm sm:text-base"></i> Daily Report:
+                                    </h6>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-700 bg-white px-2 py-0.5 rounded-md border border-indigo-200 shadow-xs">
+                                        Archived Log
+                                    </span>
+                                </div>
+                                <div class="m-0 leading-relaxed text-slate-700 font-medium">
+                                    {!! $formatHtml($dailyReportText) !!}
+                                </div>
                             </div>
                         @endif
 
-                        @if($log->home_recommendations)
-                            <div class="p-4 sm:p-5 flex flex-col justify-center bg-slate-50 rounded-xl border-y-2 border-r-2 border-l-4 border-slate-300 border-l-emerald-500">
-                                <h6 class="font-extrabold text-emerald-600 mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
-                                    <i class="fa fa-house-user mr-2 text-emerald-500"></i> Home Activity:
-                                </h6>
-                                <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">{{ $log->home_recommendations }}</p>
+                        <!-- 2. HOME ACTIVITY CARD -->
+                        @if(!empty($suggestedActivityText))
+                            <div class="p-4 sm:p-5 bg-emerald-50/60 rounded-2xl border-2 border-emerald-300/80 shadow-sm">
+                                <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-emerald-200/80">
+                                    <h6 class="font-extrabold text-emerald-900 flex items-center m-0 text-[13px] sm:text-[14px]">
+                                        <i class="fa fa-house-user mr-2 text-emerald-600 text-sm sm:text-base"></i> Home Activity:
+                                    </h6>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-300 shadow-xs">
+                                        Home Practice
+                                    </span>
+                                </div>
+                                <div class="m-0 leading-relaxed text-slate-800 font-medium">
+                                    {!! $formatHtml($suggestedActivityText) !!}
+                                </div>
                             </div>
                         @endif
+
                     </div>
                 </div>
 

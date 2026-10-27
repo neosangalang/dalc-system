@@ -139,6 +139,11 @@ class GuardianController extends Controller
 
                 if (!$log->image_path && $log->daily_report->image_path) {
                     $log->image_path = $log->daily_report->image_path;
+                    try {
+                        if ($log->exists) {
+                            DailyLog::where('id', $log->id)->update(['image_path' => $log->daily_report->image_path]);
+                        }
+                    } catch (\Throwable $e) {}
                 }
             }
         }
@@ -376,6 +381,11 @@ class GuardianController extends Controller
 
                     if (!$log->image_path && $log->daily_report->image_path) {
                         $log->image_path = $log->daily_report->image_path;
+                        try {
+                            if ($log->exists) {
+                                DailyLog::where('id', $log->id)->update(['image_path' => $log->daily_report->image_path]);
+                            }
+                        } catch (\Throwable $e) {}
                     }
                 }
             }
