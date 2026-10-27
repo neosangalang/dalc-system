@@ -35,83 +35,89 @@
     $defaultEndYear   = $defaultCandidateItem ? $defaultCandidateItem['end'] : ($baseYear + 1);
 @endphp
 
-<!-- Main Container -->
-<div x-data="{
-    openAddModal: false,
-    selectedYearId: '{{ $selectedYearId }}',
-    switchYear(id) {
-        this.selectedYearId = id;
-        const url = new URL(window.location);
-        url.searchParams.set('year', id);
-        window.history.replaceState({}, '', url);
-    },
+<script>
+function academicCalendarManager() {
+    return {
+        openAddModal: false,
+        selectedYearId: '{{ $selectedYearId }}',
+        switchYear: function(id) {
+            this.selectedYearId = id;
+            var url = new URL(window.location);
+            url.searchParams.set('year', id);
+            window.history.replaceState({}, '', url);
+        },
 
-    // Modal creation state
-    modalMode: 'dropdown', // 'dropdown' or 'selectors'
-    selectedRange: '{{ $defaultCandidate }}',
-    startYear: {{ $defaultStartYear }},
-    endYear: {{ $defaultEndYear }},
-    existingNames: {{ json_encode($existingNamesLower) }},
+        // Modal creation state
+        modalMode: 'dropdown', // 'dropdown' or 'selectors'
+        selectedRange: '{{ $defaultCandidate }}',
+        startYear: {{ $defaultStartYear }},
+        endYear: {{ $defaultEndYear }},
+        existingNames: {{ json_encode($existingNamesLower) }},
 
-    get computedYearRange() {
-        if (this.modalMode === 'dropdown') {
-            return this.selectedRange;
-        } else if (this.modalMode === 'selectors') {
-            return `${this.startYear}-${this.endYear}`;
+        get computedYearRange() {
+            if (this.modalMode === 'dropdown') {
+                return this.selectedRange;
+            } else if (this.modalMode === 'selectors') {
+                return this.startYear + '-' + this.endYear;
+            }
+            return '';
+        },
+
+        get computedRawName() {
+            var range = this.computedYearRange;
+            if (!range) return '';
+            return 'SY ' + range;
+        },
+
+        get isDuplicate() {
+            var target = this.computedRawName.toLowerCase();
+            return target !== '' && this.existingNames.includes(target);
+        },
+
+        // Confirmation modal state for Set Active & Delete (Requires typing "CONFIRM")
+        confirmModalOpen: false,
+        confirmActionType: '', // 'set_active' or 'delete'
+        confirmSyId: null,
+        confirmSyName: '',
+        confirmActionUrl: '',
+        confirmInputText: '',
+
+        openSetActiveConfirm: function(syId, syName, actionUrl) {
+            this.confirmActionType = 'set_active';
+            this.confirmSyId = syId;
+            this.confirmSyName = syName;
+            this.confirmActionUrl = actionUrl;
+            this.confirmInputText = '';
+            this.confirmModalOpen = true;
+            this.$nextTick(function() {
+                var el = document.getElementById('syConfirmInput');
+                if (el) el.focus();
+            });
+        },
+
+        openDeleteConfirm: function(syId, syName, actionUrl) {
+            this.confirmActionType = 'delete';
+            this.confirmSyId = syId;
+            this.confirmSyName = syName;
+            this.confirmActionUrl = actionUrl;
+            this.confirmInputText = '';
+            this.confirmModalOpen = true;
+            this.$nextTick(function() {
+                var el = document.getElementById('syConfirmInput');
+                if (el) el.focus();
+            });
+        },
+
+        closeConfirmModal: function() {
+            this.confirmModalOpen = false;
+            this.confirmInputText = '';
         }
-        return '';
-    },
+    };
+}
+</script>
 
-    get computedRawName() {
-        const range = this.computedYearRange;
-        if (!range) return '';
-        return `SY ${range}`;
-    },
-
-    get isDuplicate() {
-        const target = this.computedRawName.toLowerCase();
-        return target !== '' && this.existingNames.includes(target);
-    },
-
-    // Confirmation modal state for Set Active & Delete (Requires typing "CONFIRM")
-    confirmModalOpen: false,
-    confirmActionType: '', // 'set_active' or 'delete'
-    confirmSyId: null,
-    confirmSyName: '',
-    confirmActionUrl: '',
-    confirmInputText: '',
-
-    openSetActiveConfirm(syId, syName, actionUrl) {
-        this.confirmActionType = 'set_active';
-        this.confirmSyId = syId;
-        this.confirmSyName = syName;
-        this.confirmActionUrl = actionUrl;
-        this.confirmInputText = '';
-        this.confirmModalOpen = true;
-        this.$nextTick(() => {
-            const el = document.getElementById('syConfirmInput');
-            if (el) el.focus();
-        });
-    },
-
-    openDeleteConfirm(syId, syName, actionUrl) {
-        this.confirmActionType = 'delete';
-        this.confirmSyId = syId;
-        this.confirmSyName = syName;
-        this.confirmActionUrl = actionUrl;
-        this.confirmInputText = '';
-        this.confirmModalOpen = true;
-        this.$nextTick(() => {
-            const el = document.getElementById('syConfirmInput');
-            if (el) el.focus();
-        });
-    },
-
-    closeConfirmModal() {
-        this.confirmModalOpen = false;
-        this.confirmInputText = '';
-    }
-}" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+<!-- Main Container -->
+<div x-data="academicCalendarManager()" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
     <!-- Flash Messages -->
     @if(session('success'))
