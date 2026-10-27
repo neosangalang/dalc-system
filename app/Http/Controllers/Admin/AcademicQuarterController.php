@@ -52,7 +52,46 @@ class AcademicQuarterController extends Controller
         // Also pass active school year's quarters as $quarters for backward compatibility with views
         $quarters = $activeSchoolYear ? $activeSchoolYear->quarters : AcademicQuarter::orderBy('id', 'asc')->get();
 
-        return view('admin.quarters.index', compact('schoolYears', 'activeSchoolYear', 'quarters', 'selectedYearId'));
+        // Prepare candidate academic years for the Add School Year modal
+        $baseYear = (int) date('Y');
+        $existingNames = $schoolYears->pluck('name')->all();
+        $existingNamesLower = array_map('strtolower', $existingNames);
+
+        $candidateYears = [];
+        for ($y = $baseYear - 2; $y <= $baseYear + 7; $y++) {
+            $range = $y . '-' . ($y + 1);
+            $isTaken = in_array($range, $existingNames)
+                || in_array('SY ' . $range, $existingNames)
+                || in_array(strtolower($range), $existingNamesLower)
+                || in_array(strtolower('SY ' . $range), $existingNamesLower);
+            $candidateYears[] = [
+                'label'   => $range,
+                'start'   => $y,
+                'end'     => $y + 1,
+                'isTaken' => $isTaken,
+            ];
+        }
+
+        $defaultCandidateItem = collect($candidateYears)->first(function ($item) use ($baseYear) {
+            return !$item['isTaken'] && $item['start'] >= $baseYear;
+        }) ?: collect($candidateYears)->firstWhere('isTaken', false);
+
+        $defaultCandidate = $defaultCandidateItem ? $defaultCandidateItem['label'] : ($baseYear . '-' . ($baseYear + 1));
+        $defaultStartYear = $defaultCandidateItem ? $defaultCandidateItem['start'] : $baseYear;
+        $defaultEndYear = $defaultCandidateItem ? $defaultCandidateItem['end'] : ($baseYear + 1);
+
+        return view('admin.quarters.index', compact(
+            'schoolYears',
+            'activeSchoolYear',
+            'quarters',
+            'selectedYearId',
+            'baseYear',
+            'candidateYears',
+            'defaultCandidate',
+            'defaultStartYear',
+            'defaultEndYear',
+            'existingNamesLower'
+        ));
     }
 
     public function store(Request $request)
