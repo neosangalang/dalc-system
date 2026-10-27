@@ -40,8 +40,15 @@ class Student extends Model
     public function reports() { 
         return $this->hasMany(Report::class); 
     }
-
     public function documents() {
+        return $this->hasMany(StudentDocument::class)->where('is_archived', false);
+    }
+
+    public function allDocuments() {
         return $this->hasMany(StudentDocument::class);
+    }
+
+    public function archivedDocuments() {
+        return $this->hasMany(StudentDocument::class)->where('is_archived', true);
     }
 }

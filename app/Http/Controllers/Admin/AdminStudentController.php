@@ -146,12 +146,18 @@ class AdminStudentController extends Controller
                 foreach ($request->deleted_documents as $docId) {
                     $doc = $student->documents()->find($docId);
                     if ($doc) {
-                        if (Storage::disk('local')->exists($doc->file_path)) {
-                            Storage::disk('local')->delete($doc->file_path);
-                        } elseif (Storage::disk('public')->exists($doc->file_path)) {
-                            Storage::disk('public')->delete($doc->file_path);
-                        }
+                        $filePath = $doc->file_path;
                         $doc->delete();
+
+                        // Safety check: only delete physical file if no other document or snapshot reference uses this path
+                        $isReferencedElsewhere = StudentDocument::where('file_path', $filePath)->exists();
+                        if (!$isReferencedElsewhere) {
+                            if (Storage::disk('local')->exists($filePath)) {
+                                Storage::disk('local')->delete($filePath);
+                            } elseif (Storage::disk('public')->exists($filePath)) {
+                                Storage::disk('public')->delete($filePath);
+                            }
+                        }
                     }
                 }
             }
@@ -165,6 +171,7 @@ class AdminStudentController extends Controller
                         'original_name' => $file->getClientOriginalName(),
                         'file_size'     => $file->getSize(),
                         'mime_type'     => $file->getClientMimeType(),
+                        'is_archived'   => false,
                     ]);
                 }
             }
@@ -178,11 +185,84 @@ class AdminStudentController extends Controller
                     'original_name' => $file->getClientOriginalName(),
                     'file_size'     => $file->getSize(),
                     'mime_type'     => $file->getClientMimeType(),
+                    'is_archived'   => false,
                 ]);
             }
         });
 
         return redirect()->back()->with('success', 'Student profile updated successfully!');
+    }
+
+    public function getArchivedDocuments($id)
+    {
+        $student = Student::findOrFail($id);
+
+        $latestArchive = ArchivedStudent::where('student_id', $student->id)
+            ->orderBy('archived_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $documents = [];
+        $schoolYear = null;
+        $archivedAt = null;
+
+        if ($latestArchive) {
+            $schoolYear = $latestArchive->school_year;
+            $archivedAt = $latestArchive->archived_at ? $latestArchive->archived_at->format('M j, Y') : ($latestArchive->created_at ? $latestArchive->created_at->format('M j, Y') : 'N/A');
+            $snapshot = $latestArchive->student_snapshot ?? [];
+            $rawDocs = $snapshot['documents'] ?? [];
+
+            if (empty($rawDocs)) {
+                $rawDocs = $latestArchive->documents->toArray();
+            }
+
+            foreach ($rawDocs as $index => $doc) {
+                $fileSize = $doc['file_size'] ?? 'N/A';
+                if (is_numeric($fileSize)) {
+                    $fileSize = number_format($fileSize / 1024, 1) . ' KB';
+                }
+
+                $documents[] = [
+                    'index'         => $index,
+                    'id'            => $doc['id'] ?? null,
+                    'original_name' => $doc['original_name'] ?? 'Document',
+                    'file_size'     => $fileSize,
+                    'mime_type'     => $doc['mime_type'] ?? 'application/pdf',
+                    'view_url'      => route('admin.archive.document', ['id' => $latestArchive->id, 'index' => $index]),
+                ];
+            }
+        }
+
+        // Fallback: If no archive record found or archive had no documents, check student's existing documents
+        if (empty($documents)) {
+            $existingDocs = $student->allDocuments()->get();
+            if ($existingDocs->isNotEmpty()) {
+                foreach ($existingDocs as $index => $doc) {
+                    $fileSize = $doc->file_size ?: 'N/A';
+                    if (is_numeric($fileSize)) {
+                        $fileSize = number_format($fileSize / 1024, 1) . ' KB';
+                    }
+
+                    $documents[] = [
+                        'index'         => $index,
+                        'id'            => $doc->id,
+                        'original_name' => $doc->original_name,
+                        'file_size'     => $fileSize,
+                        'mime_type'     => $doc->mime_type ?: 'application/pdf',
+                        'view_url'      => route('secure.student-document', $doc->id),
+                    ];
+                }
+            }
+        }
+
+        return response()->json([
+            'success'     => true,
+            'student_id'  => $student->id,
+            'has_archive' => $latestArchive !== null,
+            'school_year' => $schoolYear,
+            'archived_at' => $archivedAt,
+            'documents'   => $documents,
+        ]);
     }
 
     public function reEnroll(Request $request, $id)
@@ -210,7 +290,7 @@ class AdminStudentController extends Controller
             : $request->diagnosis;
 
         DB::transaction(function () use ($request, $student, $finalDiagnosis) {
-            $student->loadMissing('iepGoals.comments', 'reports');
+            $student->loadMissing('iepGoals.comments', 'reports', 'documents');
 
             // Safety snapshot safeguard: If student has prior goals and no archive record exists, snapshot before reset
             if ($student->iepGoals->isNotEmpty() && !ArchivedStudent::where('student_id', $student->id)->exists()) {
@@ -222,7 +302,7 @@ class AdminStudentController extends Controller
                     : ($currentYear - 1) . '-' . $currentYear;
                 $schoolYearName = $activeSY ? $activeSY->name : $fallbackSchoolYear;
 
-                ArchivedStudent::create([
+                $safetyArchive = ArchivedStudent::create([
                     'student_id'        => $student->id,
                     'school_year'       => $schoolYearName,
                     'student_snapshot'  => $student->toArray(),
@@ -230,6 +310,12 @@ class AdminStudentController extends Controller
                     'progress_snapshot' => $student->reports->toArray(),
                     'master_pdf_path'   => null,
                     'archived_at'       => now(),
+                ]);
+
+                // Mark current documents as archived for this safety snapshot
+                $student->documents()->update([
+                    'archived_student_id' => $safetyArchive->id,
+                    'is_archived'         => true,
                 ]);
             }
 
@@ -239,6 +325,63 @@ class AdminStudentController extends Controller
                 $iepGoal->delete();
             }
 
+            // Find documents to duplicate / clone from the latest archive snapshot
+            $latestArchive = ArchivedStudent::where('student_id', $student->id)
+                ->orderBy('archived_at', 'desc')
+                ->orderBy('id', 'desc')
+                ->first();
+
+            $docsToClone = [];
+            if ($latestArchive) {
+                $snapshot = $latestArchive->student_snapshot ?? [];
+                $docsToClone = $snapshot['documents'] ?? [];
+                if (empty($docsToClone)) {
+                    $docsToClone = $latestArchive->documents->toArray();
+                }
+            }
+
+            // Fallback if no archive docs, check student's existing documents
+            if (empty($docsToClone)) {
+                $docsToClone = $student->allDocuments->toArray();
+            }
+
+            // Decouple previous documents: mark any existing documents as archived
+            $student->allDocuments()->update([
+                'is_archived'         => true,
+                'archived_student_id' => $latestArchive?->id,
+            ]);
+
+            // Execute automatic file duplication upon re-enrollment confirmation:
+            // Cloning the snapshot's attached documents to generate new, independent file references for the active academic cycle
+            foreach ($docsToClone as $doc) {
+                $sourcePath = $doc['file_path'] ?? null;
+                if (!$sourcePath) {
+                    continue;
+                }
+
+                $extension = pathinfo($sourcePath, PATHINFO_EXTENSION);
+                $newFilename = 'student_documents/' . \Illuminate\Support\Str::random(40) . ($extension ? '.' . $extension : '');
+
+                $disk = Storage::disk('local')->exists($sourcePath)
+                    ? Storage::disk('local')
+                    : (Storage::disk('public')->exists($sourcePath) ? Storage::disk('public') : null);
+
+                if ($disk) {
+                    Storage::disk('local')->put($newFilename, $disk->get($sourcePath));
+                }
+
+                StudentDocument::create([
+                    'student_id'          => $student->id,
+                    'archived_student_id' => null,
+                    'is_archived'         => false,
+                    'file_path'           => $newFilename,
+                    'original_name'       => $doc['original_name'] ?? 'Cloned_Document',
+                    'file_size'           => $doc['file_size'] ?? null,
+                    'mime_type'           => $doc['mime_type'] ?? null,
+                ]);
+            }
+
+            // Maintain the single existing student profile by updating in place
             $data = $request->only([
                 'first_name',
                 'last_name',
@@ -254,14 +397,17 @@ class AdminStudentController extends Controller
 
             $student->update($data);
 
+            // Add newly uploaded multiple documents for this new academic cycle
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $file) {
                     $path = $file->store('student_documents', 'local');
                     $student->documents()->create([
-                        'file_path'     => $path,
-                        'original_name' => $file->getClientOriginalName(),
-                        'file_size'     => $file->getSize(),
-                        'mime_type'     => $file->getClientMimeType(),
+                        'file_path'           => $path,
+                        'original_name'       => $file->getClientOriginalName(),
+                        'file_size'           => $file->getSize(),
+                        'mime_type'           => $file->getClientMimeType(),
+                        'is_archived'         => false,
+                        'archived_student_id' => null,
                     ]);
                 }
             }
@@ -270,10 +416,12 @@ class AdminStudentController extends Controller
                 $file = $request->file('medical_document');
                 $path = $file->store('student_documents', 'local');
                 $student->documents()->create([
-                    'file_path'     => $path,
-                    'original_name' => $file->getClientOriginalName(),
-                    'file_size'     => $file->getSize(),
-                    'mime_type'     => $file->getClientMimeType(),
+                    'file_path'           => $path,
+                    'original_name'       => $file->getClientOriginalName(),
+                    'file_size'           => $file->getSize(),
+                    'mime_type'           => $file->getClientMimeType(),
+                    'is_archived'         => false,
+                    'archived_student_id' => null,
                 ]);
             }
         });
@@ -330,12 +478,19 @@ class AdminStudentController extends Controller
     {
         $doc = StudentDocument::find($id);
         if ($doc) {
-            if (Storage::disk('local')->exists($doc->file_path)) {
-                Storage::disk('local')->delete($doc->file_path);
-            } elseif (Storage::disk('public')->exists($doc->file_path)) {
-                Storage::disk('public')->delete($doc->file_path);
-            }
+            $filePath = $doc->file_path;
             $doc->delete();
+
+            // Safety check: only delete physical file if no other document or snapshot reference uses this path
+            $isReferencedElsewhere = StudentDocument::where('file_path', $filePath)->exists();
+            if (!$isReferencedElsewhere) {
+                if (Storage::disk('local')->exists($filePath)) {
+                    Storage::disk('local')->delete($filePath);
+                } elseif (Storage::disk('public')->exists($filePath)) {
+                    Storage::disk('public')->delete($filePath);
+                }
+            }
+
             return redirect()->back()->with('success', 'Document removed successfully.');
         }
 

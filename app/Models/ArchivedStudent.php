@@ -30,6 +30,10 @@ class ArchivedStudent extends Model
         return $this->belongsTo(Student::class);
     }
 
+    public function documents() {
+        return $this->hasMany(StudentDocument::class, 'archived_student_id');
+    }
+
     public function getStudentNameAttribute() {
         if ($this->student) {
             return $this->student->first_name . ' ' . $this->student->last_name;

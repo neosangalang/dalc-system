@@ -149,6 +149,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_create_profiles'])->group(function() {
+        Route::get('/students/{id}/archived-documents', [AdminStudentController::class, 'getArchivedDocuments'])->name('students.archived-documents');
         Route::post('/students/{id}/re-enroll', [AdminStudentController::class, 'reEnroll'])->name('students.re-enroll');
         Route::delete('/students/{id}/delete-document', [AdminStudentController::class, 'deleteDocument'])->name('students.delete-document');
         Route::resource('students', AdminStudentController::class);
@@ -160,6 +161,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
         Route::get('/archive/{id}/view', [ArchiveController::class, 'show'])->name('archive.show');
         Route::delete('/archive/{id}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
         Route::get('/archive/{id}/pdf', [ArchiveController::class, 'masterPdf'])->name('archive.pdf');
+        Route::get('/archive/{id}/document/{index}', [ArchiveController::class, 'streamArchiveDocument'])->name('archive.document');
         Route::post('/archive/execute-rollover', [ArchiveController::class, 'archiveQuarterlyReports'])->name('archive.reports');
     });
 

@@ -71,7 +71,7 @@ class TeacherStudentsViewTest extends TestCase
         $response->assertSee('Back to Dashboard');
 
         // Filter Bar elements
-        $response->assertSee('Search Keyword');
+        $response->assertSee('Search student name, ID, LRN...');
         $response->assertSee('Filter by Class');
         $response->assertSee('Filter by Diagnosis');
         $response->assertSee('Status');

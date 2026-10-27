@@ -1001,12 +1001,42 @@
                                 </select>
                             </div>
 
+                            <!-- Attached Records from Latest Archive Snapshot Preview -->
+                            <div id="re_enroll_archive_docs_card" class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs">
+                                            <i class="fa fa-folder-open"></i>
+                                        </span>
+                                        <div>
+                                            <h4 class="text-[12px] font-extrabold text-[#1E2657] m-0" id="re_archive_docs_title">Attached Records from Latest Snapshot</h4>
+                                            <p class="text-[10px] text-[#6B7086] m-0" id="re_archive_docs_subtitle">Loading previous documents...</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                        <i class="fa fa-shield-alt"></i> Auto-Cloned & Decoupled
+                                    </span>
+                                </div>
+
+                                <!-- Document Items Container -->
+                                <div id="re_archive_docs_list" class="space-y-2">
+                                    <div class="text-center py-3 text-[11px] text-[#9CA0AF] italic">
+                                        <i class="fa fa-spinner fa-spin mr-1"></i> Fetching attached snapshot records...
+                                    </div>
+                                </div>
+
+                                <div class="bg-blue-50/70 border border-blue-200/80 rounded-lg p-2.5 text-[11px] text-blue-900 flex items-start gap-2">
+                                    <i class="fa fa-info-circle text-blue-500 mt-0.5 shrink-0"></i>
+                                    <span><strong>Decoupled Archiving:</strong> The records listed above are preserved in the historical archive. Upon re-enrollment, they are automatically duplicated into new, independent files for the new academic cycle. Modifying or deleting documents during the year will never break historical snapshot links.</span>
+                                </div>
+                            </div>
+
                             <!-- File Upload with Remove Option -->
                             <div>
-                                <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Documents (Optional)</label>
+                                <label class="block text-[12px] font-extrabold text-[#1E2657] mb-1">Upload Additional Documents (Optional)</label>
                                 <input type="file" name="documents[]" multiple id="re_medical_doc_input" onchange="handleMultiFileInputChange(this, 're_med_doc_preview')" class="block w-full text-[13px] font-medium text-[#6B7086] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-[#F4F6FA] file:text-[#3B82F6] hover:file:bg-blue-50 border border-[#9CA0AF] rounded-xl cursor-pointer shadow-sm bg-white" accept=".pdf,.jpg,.jpeg,.png">
                                 <div id="re_med_doc_preview" class="hidden mt-2 space-y-1.5"></div>
-                                <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Optional. You may upload one or multiple files. Accepted formats: PDF, JPG, PNG (Max 5MB each).</p>
+                                <p class="text-[10px] text-[#9CA0AF] mt-1 m-0">Optional. Upload newly received evaluations, assessments, or medical clearances for the new school year (PDF, JPG, PNG, max 5MB each).</p>
                             </div>
 
                             <div class="pt-4 border-t border-black/10 flex justify-end gap-3">
@@ -1132,6 +1162,72 @@
         if (student.guardian_id) {
             document.getElementById('re_guardian_id').value = student.guardian_id;
         }
+
+        // Fetch and preview latest archived snapshot documents
+        const docsTitle = document.getElementById('re_archive_docs_title');
+        const docsSubtitle = document.getElementById('re_archive_docs_subtitle');
+        const docsList = document.getElementById('re_archive_docs_list');
+
+        if (docsList) {
+            docsList.innerHTML = '<div class="text-center py-3 text-[11px] text-[#9CA0AF] italic"><i class="fa fa-spinner fa-spin mr-1"></i> Fetching attached snapshot records...</div>';
+            if (docsSubtitle) docsSubtitle.textContent = 'Loading previous records...';
+
+            fetch('/admin/students/' + student.id + '/archived-documents')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.documents && data.documents.length > 0) {
+                        if (docsTitle) {
+                            docsTitle.textContent = 'Attached Records from Previous Snapshot' + (data.school_year ? ' (SY ' + data.school_year + ')' : '');
+                        }
+                        if (docsSubtitle) {
+                            docsSubtitle.textContent = (data.archived_at ? 'Archived on ' + data.archived_at + ' • ' : '') + data.documents.length + ' file(s) found';
+                        }
+                        
+                        let html = '';
+                        data.documents.forEach((doc) => {
+                            const isPdf = (doc.mime_type && doc.mime_type.includes('pdf')) || (doc.original_name && doc.original_name.toLowerCase().endsWith('.pdf'));
+                            const iconClass = isPdf ? 'fa-file-pdf text-rose-500' : 'fa-file-image text-blue-500';
+                            
+                            html += `
+                                <div class="flex items-center justify-between p-2.5 bg-white border border-slate-200 rounded-lg hover:border-slate-300 transition-colors shadow-sm">
+                                    <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                                        <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100">
+                                            <i class="fa ${iconClass} text-base"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-[12px] font-bold text-[#1E2657] truncate m-0" title="${doc.original_name}">${doc.original_name}</p>
+                                            <div class="flex items-center gap-2 mt-0.5">
+                                                <span class="text-[10px] text-[#9CA0AF] font-bold">${doc.file_size}</span>
+                                                <span class="text-[9px] bg-slate-100 text-slate-600 font-extrabold px-1.5 py-0.5 rounded">Historical Snapshot</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0">
+                                        <a href="${doc.view_url}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold text-[#3B82F6] hover:bg-blue-50 border border-blue-200 transition-colors">
+                                            <i class="fa fa-external-link-alt text-[10px]"></i> View / Preview
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        docsList.innerHTML = html;
+                    } else {
+                        if (docsTitle) docsTitle.textContent = 'Attached Records from Previous Snapshot';
+                        if (docsSubtitle) docsSubtitle.textContent = data.school_year ? 'Latest Archive SY ' + data.school_year : 'No previous archive';
+                        docsList.innerHTML = `
+                            <div class="text-center py-4 bg-white rounded-lg border border-dashed border-slate-200 text-[#9CA0AF]">
+                                <i class="fa fa-folder-open text-slate-300 text-xl mb-1 block"></i>
+                                <span class="text-[11px] font-bold">No documents attached to previous archive snapshot.</span>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching archived documents:', err);
+                    docsList.innerHTML = '<div class="text-center py-3 text-[11px] text-rose-500 font-bold">Failed to load archived documents. You may still upload new documents below.</div>';
+                });
+        }
+
         document.getElementById('reEnrollFormFields').classList.remove('hidden');
         document.getElementById('reEnrollFieldsNotice').classList.add('hidden');
     }

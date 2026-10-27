@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\ArchivedStudent;
+use App\Models\StudentDocument;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -105,7 +106,7 @@ class ArchiveController extends Controller
             Storage::disk('local')->put($fileName, $pdf->output());
 
             // Save to Database with real-time timestamp
-            ArchivedStudent::create([
+            $archive = ArchivedStudent::create([
                 'student_id'        => $student->id,
                 'school_year'       => $schoolYear,
                 'student_snapshot'  => $studentSnapshot,
@@ -113,6 +114,12 @@ class ArchiveController extends Controller
                 'progress_snapshot' => $progressSnapshot,
                 'master_pdf_path'   => $fileName,
                 'archived_at'       => $now,
+            ]);
+
+            // Mark active documents as archived for this snapshot
+            $student->documents()->update([
+                'archived_student_id' => $archive->id,
+                'is_archived'         => true,
             ]);
 
             // Update Status to Archived
@@ -167,7 +174,47 @@ class ArchiveController extends Controller
     }
 
     // ==========================================
-    // 5. THE DESTROY METHOD (Permanently delete archive)
+    // 4.1 STREAM ARCHIVE DOCUMENT (Stream file from snapshot)
+    // ==========================================
+    public function streamArchiveDocument($id, $index)
+    {
+        $archive = ArchivedStudent::with('student')->findOrFail($id);
+        $snapshot = $archive->student_snapshot ?? [];
+        $rawDocs = $snapshot['documents'] ?? [];
+
+        if (empty($rawDocs)) {
+            $rawDocs = $archive->documents->toArray();
+        }
+
+        if (!isset($rawDocs[$index])) {
+            abort(404, 'Document not found in archive snapshot.');
+        }
+
+        $doc = $rawDocs[$index];
+        $filePath = $doc['file_path'] ?? null;
+        $originalName = $doc['original_name'] ?? 'archived_document.pdf';
+        $mimeType = $doc['mime_type'] ?? 'application/pdf';
+
+        if (!$filePath) {
+            abort(404, 'File path not recorded in snapshot.');
+        }
+
+        $disk = Storage::disk('local')->exists($filePath)
+            ? Storage::disk('local')
+            : (Storage::disk('public')->exists($filePath) ? Storage::disk('public') : null);
+
+        if (!$disk) {
+            abort(404, 'Archived physical file not found on server.');
+        }
+
+        return $disk->response($filePath, $originalName, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $originalName . '"',
+        ]);
+    }
+
+    // ==========================================
+    // 5. THE DESTROY METHOD (Permanently delete archive snapshot)
     // ==========================================
     public function destroy(Request $request, $id)
     {
@@ -200,7 +247,7 @@ class ArchiveController extends Controller
             return back()->withErrors(['security_code' => 'Security verification failed: Invalid user code. Action aborted.']);
         }
 
-        $archive = ArchivedStudent::with('student.documents')->findOrFail($id);
+        $archive = ArchivedStudent::findOrFail($id);
         $studentName = $archive->student_name;
 
         // 1. Delete physical PDF file from storage disk
@@ -212,19 +259,32 @@ class ArchiveController extends Controller
             }
         }
 
-        // 2. Permanently delete student and attached files if student profile still exists in database
-        if ($archive->student_id && ($student = Student::with('documents')->find($archive->student_id))) {
-            foreach ($student->documents as $doc) {
-                if (Storage::disk('local')->exists($doc->file_path)) {
-                    Storage::disk('local')->delete($doc->file_path);
-                } elseif (Storage::disk('public')->exists($doc->file_path)) {
-                    Storage::disk('public')->delete($doc->file_path);
+        // 2. Decoupled purging: purge physical files belonging strictly to this historical snapshot
+        $snapshotDocs = $archive->student_snapshot['documents'] ?? [];
+        $archivedDocRecords = StudentDocument::where('archived_student_id', $archive->id)->get();
+
+        $pathsToPurge = collect($snapshotDocs)
+            ->pluck('file_path')
+            ->merge($archivedDocRecords->pluck('file_path'))
+            ->filter()
+            ->unique();
+
+        foreach ($pathsToPurge as $path) {
+            // Safety check: ensure no active student document references this file path
+            $isUsedByActive = StudentDocument::where('is_archived', false)->where('file_path', $path)->exists();
+            if (!$isUsedByActive) {
+                if (Storage::disk('local')->exists($path)) {
+                    Storage::disk('local')->delete($path);
+                } elseif (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
                 }
             }
-            $student->delete();
         }
 
-        // 3. Permanently delete the archived student record
+        // Delete the archived StudentDocument records linked to this snapshot
+        StudentDocument::where('archived_student_id', $archive->id)->delete();
+
+        // 3. Permanently delete the archived student snapshot record (Student profile is strictly preserved!)
         $archive->delete();
 
         return redirect()->route('admin.archive.index')
