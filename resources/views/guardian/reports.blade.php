@@ -8,7 +8,7 @@
     [x-cloak] { display: none !important; }
 </style>
 
-<div class="font-['Inter'] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block min-h-[100dvh]" x-data="{ activeViewModal: null }">
+<div class="font-['Inter'] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block min-h-[100dvh]" x-data="{ activeViewModal: null, enlargedPhotoUrl: null, enlargedPhotoTitle: '' }">
 
     <!-- HEADER SECTION -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 sm:mb-8 gap-4 w-full">
@@ -169,21 +169,60 @@
                                     $reportDate = $report->report_date ? $report->report_date : $report->created_at->format('Y-m-d');
                                     $dailyLogWithPhoto = \App\Models\DailyLog::where('student_id', $report->student_id)
                                         ->whereDate('log_date', $reportDate)
-                                        ->whereNotNull('image_path')
                                         ->latest()
                                         ->first();
+
+                                    $photoUrl = null;
+                                    if ($report->image_path) {
+                                        $photoUrl = route('secure.report-photo', $report->id);
+                                    } elseif ($dailyLogWithPhoto && $dailyLogWithPhoto->image_path) {
+                                        $photoUrl = route('secure.log-photo', $dailyLogWithPhoto->id);
+                                    }
                                 @endphp
 
-                                @if($dailyLogWithPhoto)
-                                    <div class="text-center mb-5 sm:mb-6 p-2 sm:p-3 bg-slate-50 rounded-xl border-[3px] border-dashed border-slate-300">
-                                        <img src="{{ route('secure.log-photo', $dailyLogWithPhoto->id) }}" alt="Student Progress Photo" class="max-h-56 sm:max-h-72 w-auto mx-auto rounded-lg shadow-sm border-4 border-white outline outline-1 outline-slate-200">
+                                @if($photoUrl)
+                                    <div class="mb-5 sm:mb-6 p-3 sm:p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 flex flex-col items-center">
+                                        <div class="relative group cursor-pointer max-w-md w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                                             @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($report->student->first_name) }}'"
+                                             title="Click to enlarge photo">
+                                            <img src="{{ $photoUrl }}" alt="Observation Photo" class="max-h-56 sm:max-h-72 w-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                                <i class="fa-solid fa-magnifying-glass-plus text-base"></i> Click to enlarge
+                                            </div>
+                                        </div>
+                                        <button type="button" 
+                                                @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($report->student->first_name) }}'"
+                                                class="mt-2.5 text-indigo-600 hover:text-indigo-800 font-bold text-xs flex items-center gap-1.5 cursor-pointer bg-transparent border-0 p-0">
+                                            <i class="fa-solid fa-camera text-indigo-500"></i> View enlarged photo
+                                        </button>
                                     </div>
                                 @endif
                                 
                                 <div class="p-4 sm:p-5 shadow-sm bg-white rounded-xl text-[13px] sm:text-base leading-relaxed border-y-2 border-r-2 border-l-4 border-slate-200 border-l-indigo-600 text-slate-700 whitespace-pre-wrap">{{ $report->content }}</div>
+
+                                @if($dailyLogWithPhoto && $dailyLogWithPhoto->home_recommendations)
+                                    <div class="mt-4 p-4 sm:p-5 flex flex-col justify-center bg-emerald-50/60 rounded-xl border-y-2 border-r-2 border-l-4 border-emerald-200 border-l-emerald-500 shadow-sm">
+                                        <h6 class="font-extrabold text-emerald-800 mb-1.5 flex items-center m-0 text-[13px] sm:text-[14px]">
+                                            <i class="fa fa-house-user mr-2 text-emerald-600"></i> Tonight's Suggested Home Activity:
+                                        </h6>
+                                        <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed text-emerald-950 whitespace-pre-wrap font-medium">{{ $dailyLogWithPhoto->home_recommendations }}</p>
+                                    </div>
+                                @endif
                                 
                                 <p class="mt-5 sm:mt-6 mb-0 text-slate-600 font-medium italic text-[13px] sm:text-base">Warmly,<br>Teacher {{ $report->teacher->name ?? 'Staff' }}</p>
                             @else
+                                @if($report->image_path)
+                                    <div class="mb-5 p-3 sm:p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 flex flex-col items-center">
+                                        <div class="relative group cursor-pointer max-w-md w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                                             @click="enlargedPhotoUrl = '{{ route('secure.report-photo', $report->id) }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($report->student->first_name) }}'"
+                                             title="Click to enlarge photo">
+                                            <img src="{{ route('secure.report-photo', $report->id) }}" alt="Report Photo" class="max-h-56 sm:max-h-72 w-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                                <i class="fa-solid fa-magnifying-glass-plus text-base"></i> Click to enlarge
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border-2 border-slate-300 whitespace-pre-wrap text-[13px] sm:text-sm text-slate-700 leading-relaxed">{{ $report->content }}</div>
                             @endif
 
@@ -209,6 +248,22 @@
             <span class="text-[13px] sm:text-sm font-bold leading-snug">No children are currently linked to your account.</span>
         </div>
     @endif
+
+    <!-- Enlarge Photo Lightbox Modal -->
+    <div x-show="enlargedPhotoUrl" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" @keydown.escape.window="enlargedPhotoUrl = null">
+        <div x-show="enlargedPhotoUrl" x-transition.opacity class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="enlargedPhotoUrl = null"></div>
+        <div x-show="enlargedPhotoUrl" x-transition class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col z-10 border border-slate-200">
+            <div class="px-5 py-3.5 bg-[#1E2657] text-white flex items-center justify-between">
+                <h4 class="font-extrabold text-sm sm:text-base truncate pr-4 m-0" x-text="enlargedPhotoTitle"></h4>
+                <button type="button" @click="enlargedPhotoUrl = null" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-auto flex items-center justify-center bg-slate-900/5 max-h-[calc(90vh-60px)]">
+                <img :src="enlargedPhotoUrl" :alt="enlargedPhotoTitle" class="max-h-[75vh] w-auto max-w-full object-contain rounded-lg shadow-md">
+            </div>
+        </div>
+    </div>
 
 </div>
 

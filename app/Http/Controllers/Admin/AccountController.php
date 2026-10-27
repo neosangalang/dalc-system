@@ -171,11 +171,12 @@ class AccountController extends Controller
         $user = User::findOrFail($id);
         
         $user->update([
-            'can_manage_credentials' => $request->has('can_manage_credentials'),
-            'can_manage_calendar'    => $request->has('can_manage_calendar'),
-            'can_create_profiles'    => $request->has('can_create_profiles'),
-            'can_archive_students'   => $request->has('can_archive_students'),
-            'can_approve_reports'    => $request->has('can_approve_reports'),
+            'can_manage_credentials'   => $request->has('can_manage_credentials'),
+            'can_manage_calendar'      => $request->has('can_manage_calendar'),
+            'can_create_profiles'      => $request->has('can_create_profiles'),
+            'can_archive_students'     => $request->has('can_archive_students'),
+            'can_approve_reports'      => $request->has('can_approve_reports'),
+            'can_manage_announcements' => $request->has('can_manage_announcements'),
         ]);
 
         return redirect()->back()->with('success', "Special permissions updated for {$user->name}.");

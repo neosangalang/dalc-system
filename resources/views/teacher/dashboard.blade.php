@@ -148,7 +148,7 @@
         <!-- 3.5 ADMIN MODULES (Only visible if teacher has any admin-granted permissions) -->
         @php
             $user = Auth::user();
-            $hasAnyAdminPermission = $user->can_approve_reports || $user->can_manage_credentials || $user->can_manage_calendar || $user->can_create_profiles || $user->can_archive_students;
+            $hasAnyAdminPermission = $user->can_approve_reports || $user->can_manage_credentials || $user->can_manage_calendar || $user->can_create_profiles || $user->can_archive_students || $user->can_manage_announcements;
         @endphp
 
         @if($hasAnyAdminPermission)
@@ -160,7 +160,7 @@
                 <span class="h-px flex-1 bg-black/10"></span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-5 w-full">
                 
                 {{-- Report Approvals --}}
                 @if($user->can_approve_reports)
@@ -235,6 +235,21 @@
                         <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Past Records</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#6B7086] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+                @endif
+
+                {{-- Announcement Module --}}
+                @if($user->can_manage_announcements)
+                <a href="{{ route('admin.announcements.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-9 h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10">
+                        <i class="fa-solid fa-bullhorn text-[#8B5CF6] text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">Announcements</h3>
+                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Post & Manage</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
                 @endif
 

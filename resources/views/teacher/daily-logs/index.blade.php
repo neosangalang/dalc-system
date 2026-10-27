@@ -14,7 +14,7 @@
 </style>
 
 <!-- Main Container -->
-<div x-data="{ activeTab: 'create' }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+<div x-data="{ activeTab: 'create', enlargedPhotoUrl: null, enlargedPhotoTitle: '' }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down mb-6">
@@ -295,7 +295,14 @@
                     <div class="p-5 sm:p-6 text-[13px] sm:text-[14px] text-[#6B7086] leading-relaxed bg-white font-medium">
                         @if($log->image_path)
                             <div class="mb-4 text-center">
-                                <img src="{{ route('secure.log-photo', $log->id) }}" alt="Observation Photo" class="max-h-[220px] w-auto mx-auto rounded-xl shadow-sm border border-black/10 object-cover">
+                                <div class="relative group cursor-pointer inline-block max-w-sm rounded-xl overflow-hidden shadow-sm border border-black/10"
+                                     @click="enlargedPhotoUrl = '{{ route('secure.log-photo', $log->id) }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
+                                     title="Click to enlarge photo">
+                                    <img src="{{ route('secure.log-photo', $log->id) }}" alt="Observation Photo" class="max-h-[220px] w-auto mx-auto object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                        <i class="fa-solid fa-magnifying-glass-plus text-base"></i> Click to enlarge
+                                    </div>
+                                </div>
                             </div>
                         @endif
 
@@ -324,6 +331,22 @@
                     <p class="text-[13px] font-medium text-[#9CA0AF] m-0">Submitted observation entries and standardized notes will automatically populate here.</p>
                 </div>
             @endforelse
+        </div>
+    </div>
+
+    <!-- Enlarge Photo Lightbox Modal -->
+    <div x-show="enlargedPhotoUrl" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" @keydown.escape.window="enlargedPhotoUrl = null">
+        <div x-show="enlargedPhotoUrl" x-transition.opacity class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="enlargedPhotoUrl = null"></div>
+        <div x-show="enlargedPhotoUrl" x-transition class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col z-10 border border-slate-200">
+            <div class="px-5 py-3.5 bg-[#1E2657] text-white flex items-center justify-between">
+                <h4 class="font-extrabold text-sm sm:text-base truncate pr-4 m-0" x-text="enlargedPhotoTitle"></h4>
+                <button type="button" @click="enlargedPhotoUrl = null" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-auto flex items-center justify-center bg-slate-900/5 max-h-[calc(90vh-60px)]">
+                <img :src="enlargedPhotoUrl" :alt="enlargedPhotoTitle" class="max-h-[75vh] w-auto max-w-full object-contain rounded-lg shadow-md">
+            </div>
         </div>
     </div>
 </div>

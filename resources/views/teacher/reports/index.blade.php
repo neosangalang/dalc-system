@@ -9,7 +9,7 @@
 </style>
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8" x-data="{ activeViewModal: null }">
+<div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8" x-data="{ activeViewModal: null, enlargedPhotoUrl: null, enlargedPhotoTitle: '' }">
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
@@ -261,10 +261,19 @@
                                             @if($report->image_path)
                                                 <div class="mb-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
                                                     <div class="flex items-center gap-3 min-w-0">
-                                                        <img src="{{ route('secure.report-photo', $report->id) }}" alt="Attached photo" class="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm shrink-0">
-                                                        <div>
-                                                            <h6 class="text-xs font-extrabold text-slate-800 m-0">Attached Observation Photo</h6>
-                                                            <p class="text-[11px] font-medium text-slate-500 m-0">Photo attached to this daily report.</p>
+                                                        <div class="relative group cursor-pointer shrink-0" 
+                                                             @click="enlargedPhotoUrl = '{{ route('secure.report-photo', $report->id) }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($report->student->first_name) }}'"
+                                                             title="Click to enlarge photo">
+                                                            <img src="{{ route('secure.report-photo', $report->id) }}" alt="Attached photo" class="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm transition-all group-hover:ring-2 group-hover:ring-[#3B82F6] group-hover:opacity-90">
+                                                            <div class="absolute inset-0 bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
+                                                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="cursor-pointer" @click="enlargedPhotoUrl = '{{ route('secure.report-photo', $report->id) }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($report->student->first_name) }}'">
+                                                            <h6 class="text-xs font-extrabold text-slate-800 m-0 hover:text-[#3B82F6] transition-colors flex items-center gap-1.5">
+                                                                Attached Observation Photo <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-slate-400"></i>
+                                                            </h6>
+                                                            <p class="text-[11px] font-medium text-slate-500 m-0">Click photo to enlarge & view properly.</p>
                                                         </div>
                                                     </div>
                                                     <form action="{{ route('teacher.reports.delete-attachment', $report->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to delete this attached photo?');">
@@ -329,6 +338,22 @@
                 {{ $reports->links() }}
             </div>
         @endif
+    </div>
+
+    <!-- Enlarge Photo Lightbox Modal -->
+    <div x-show="enlargedPhotoUrl" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" @keydown.escape.window="enlargedPhotoUrl = null">
+        <div x-show="enlargedPhotoUrl" x-transition.opacity class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="enlargedPhotoUrl = null"></div>
+        <div x-show="enlargedPhotoUrl" x-transition class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col z-10 border border-slate-200">
+            <div class="px-5 py-3.5 bg-[#1E2657] text-white flex items-center justify-between">
+                <h4 class="font-extrabold text-sm sm:text-base truncate pr-4 m-0" x-text="enlargedPhotoTitle"></h4>
+                <button type="button" @click="enlargedPhotoUrl = null" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-auto flex items-center justify-center bg-slate-900/5 max-h-[calc(90vh-60px)]">
+                <img :src="enlargedPhotoUrl" :alt="enlargedPhotoTitle" class="max-h-[75vh] w-auto max-w-full object-contain rounded-lg shadow-md">
+            </div>
+        </div>
     </div>
 </div>
 

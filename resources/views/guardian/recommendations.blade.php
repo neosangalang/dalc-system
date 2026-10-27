@@ -8,7 +8,7 @@
     [x-cloak] { display: none !important; }
 </style>
 
-<div class="font-['Inter'] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block min-h-[100dvh]">
+<div class="font-['Inter'] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block min-h-[100dvh]" x-data="{ enlargedPhotoUrl: null, enlargedPhotoTitle: '' }">
 
     <!-- HEADER SECTION -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 sm:mb-8 gap-4 w-full">
@@ -82,18 +82,36 @@
                 
                 <!-- CARD BODY -->
                 <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
-                    @if($log->image_path)
+                    @php
+                        $photoUrl = null;
+                        if ($log->image_path) {
+                            $photoUrl = route('secure.log-photo', $log->id);
+                        } elseif (isset($log->daily_report) && $log->daily_report && $log->daily_report->image_path) {
+                            $photoUrl = route('secure.report-photo', $log->daily_report->id);
+                        }
+                    @endphp
+
+                    @if($photoUrl)
                         <div class="md:col-span-5 text-center">
                             <div class="p-2 sm:p-3 bg-slate-50 rounded-xl border-[3px] border-dashed border-slate-300 h-full flex flex-col items-center justify-center">
-                                <img src="{{ route('secure.log-photo', $log->id) }}" alt="Activity Photo" class="max-h-[220px] sm:max-h-[280px] w-auto mx-auto rounded-lg shadow-sm border-2 border-slate-300 object-cover">
-                                <p class="text-slate-500 text-[11px] sm:text-xs font-bold mt-2.5 sm:mt-3 mb-1 flex items-center">
-                                    <i class="fa fa-camera text-slate-400 mr-1.5"></i> Photo from today's session
-                                </p>
+                                <div class="relative group cursor-pointer max-w-sm w-full overflow-hidden rounded-lg shadow-sm border-2 border-slate-300"
+                                     @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
+                                     title="Click to enlarge photo">
+                                    <img src="{{ $photoUrl }}" alt="Activity Photo" class="max-h-[220px] sm:max-h-[280px] w-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                        <i class="fa-solid fa-magnifying-glass-plus text-base"></i> Click to enlarge
+                                    </div>
+                                </div>
+                                <button type="button" 
+                                        @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
+                                        class="text-indigo-600 hover:text-indigo-800 text-[11px] sm:text-xs font-bold mt-2.5 sm:mt-3 mb-1 flex items-center justify-center gap-1.5 cursor-pointer bg-transparent border-0 p-0">
+                                    <i class="fa fa-camera text-indigo-500"></i> View enlarged photo
+                                </button>
                             </div>
                         </div>
                     @endif
 
-                    <div class="{{ $log->image_path ? 'md:col-span-7' : 'md:col-span-12' }} flex flex-col gap-4">
+                    <div class="{{ $photoUrl ? 'md:col-span-7' : 'md:col-span-12' }} flex flex-col gap-4">
                         @if(isset($log->daily_report) && $log->daily_report)
                             <div class="p-4 sm:p-5 bg-indigo-50/60 rounded-xl border-2 border-indigo-200">
                                 <h6 class="font-extrabold text-indigo-800 mb-2 flex items-center m-0 text-[13px] sm:text-[14px]">
@@ -147,6 +165,22 @@
             <span class="text-[13px] sm:text-sm font-bold leading-snug">No children are currently linked to your account.</span>
         </div>
     @endif
+
+    <!-- Enlarge Photo Lightbox Modal -->
+    <div x-show="enlargedPhotoUrl" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" @keydown.escape.window="enlargedPhotoUrl = null">
+        <div x-show="enlargedPhotoUrl" x-transition.opacity class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="enlargedPhotoUrl = null"></div>
+        <div x-show="enlargedPhotoUrl" x-transition class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col z-10 border border-slate-200">
+            <div class="px-5 py-3.5 bg-[#1E2657] text-white flex items-center justify-between">
+                <h4 class="font-extrabold text-sm sm:text-base truncate pr-4 m-0" x-text="enlargedPhotoTitle"></h4>
+                <button type="button" @click="enlargedPhotoUrl = null" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-auto flex items-center justify-center bg-slate-900/5 max-h-[calc(90vh-60px)]">
+                <img :src="enlargedPhotoUrl" :alt="enlargedPhotoTitle" class="max-h-[75vh] w-auto max-w-full object-contain rounded-lg shadow-md">
+            </div>
+        </div>
+    </div>
 
 </div>
 

@@ -347,7 +347,7 @@
                                                                 <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">1. Login Credentials Configuration</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">1. Login Credentials Configuration (FOR GUARDIAN ONLY)</div>
                                                         </label>
 
                                                         <label class="flex items-center cursor-pointer select-none">
@@ -384,6 +384,15 @@
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
                                                             <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">5. Admin Approval for Summaries</div>
+                                                        </label>
+
+                                                        <label class="flex items-center cursor-pointer select-none">
+                                                            <div class="relative shrink-0">
+                                                                <input type="checkbox" name="can_manage_announcements" value="1" class="sr-only peer" {{ $user->can_manage_announcements ? 'checked' : '' }}>
+                                                                <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
+                                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
+                                                            </div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">6. Announcement Module</div>
                                                         </label>
                                                     </div>
                                                 </div>

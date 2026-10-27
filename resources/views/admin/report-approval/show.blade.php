@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-4xl mx-auto block" x-data="{ showRevisionModal: false }">
+<div class="font-['Inter'] py-8 px-4 sm:px-6 lg:px-8 w-full max-w-4xl mx-auto block" x-data="{ showRevisionModal: false, enlargedPhotoUrl: null, enlargedPhotoTitle: '' }">
 
     <div class="flex items-center justify-between mb-8">
         <a href="{{ route('admin.report-approval.index') }}" class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors">
@@ -35,6 +35,28 @@
 
         <div class="px-8 py-8">
             <h4 class="font-extrabold text-slate-400 text-[10px] uppercase tracking-widest mb-4">Report Details</h4>
+
+            @if($report->image_path)
+                <div class="mb-5 p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="relative group cursor-pointer shrink-0" 
+                             @click="enlargedPhotoUrl = '{{ route('secure.report-photo', $report->id) }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($report->student->first_name) }}'"
+                             title="Click to enlarge photo">
+                            <img src="{{ route('secure.report-photo', $report->id) }}" alt="Attached photo" class="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm transition-all group-hover:ring-2 group-hover:ring-indigo-500 group-hover:opacity-90">
+                            <div class="absolute inset-0 bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </div>
+                        </div>
+                        <div class="cursor-pointer" @click="enlargedPhotoUrl = '{{ route('secure.report-photo', $report->id) }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($report->student->first_name) }}'">
+                            <h6 class="text-xs font-extrabold text-slate-800 m-0 hover:text-indigo-600 transition-colors flex items-center gap-1.5">
+                                Attached Observation Photo <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-slate-400"></i>
+                            </h6>
+                            <p class="text-[11px] font-medium text-slate-500 m-0">Click photo to enlarge & view properly.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="p-8 bg-slate-50 rounded-2xl border border-slate-200 shadow-inner">
                 <div class="prose max-w-none text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
                     {{ $report->content }}
@@ -116,6 +138,20 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    <!-- Enlarge Photo Lightbox Modal -->
+    <div x-show="enlargedPhotoUrl" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6" @keydown.escape.window="enlargedPhotoUrl = null">
+        <div x-show="enlargedPhotoUrl" x-transition.opacity class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="enlargedPhotoUrl = null"></div>
+        <div x-show="enlargedPhotoUrl" x-transition class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col z-10 border border-slate-200">
+            <div class="px-5 py-3.5 bg-[#1E2657] text-white flex items-center justify-between">
+                <h4 class="font-extrabold text-sm sm:text-base truncate pr-4 m-0" x-text="enlargedPhotoTitle"></h4>
+                <button type="button" @click="enlargedPhotoUrl = null" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-auto flex items-center justify-center bg-slate-900/5 max-h-[calc(90vh-60px)]">
+                <img :src="enlargedPhotoUrl" :alt="enlargedPhotoTitle" class="max-h-[75vh] w-auto max-w-full object-contain rounded-lg shadow-md">
             </div>
         </div>
     </div>

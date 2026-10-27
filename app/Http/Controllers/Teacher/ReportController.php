@@ -130,15 +130,24 @@ class ReportController extends Controller
             }
         }
 
-        // If Daily Report, sync home recommendations to daily log for parents
-        if ($request->report_type === 'daily' && $request->filled('home_recommendations')) {
+        // If Daily Report, sync home recommendations and photo to daily log for parents
+        if ($request->report_type === 'daily') {
             $logDate = $request->report_date ?: date('Y-m-d');
             $log = DailyLog::where('student_id', $request->student_id)
                 ->whereDate('log_date', $logDate)
                 ->first();
 
             if ($log) {
-                $log->update(['home_recommendations' => trim($request->home_recommendations)]);
+                $updates = [];
+                if ($request->filled('home_recommendations')) {
+                    $updates['home_recommendations'] = trim($request->home_recommendations);
+                }
+                if ($imagePath && !$log->image_path) {
+                    $updates['image_path'] = $imagePath;
+                }
+                if (!empty($updates)) {
+                    $log->update($updates);
+                }
             }
         }
 

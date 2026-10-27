@@ -27,6 +27,7 @@ class User extends Authenticatable
         'can_create_profiles',
         'can_archive_students',
         'can_approve_reports',
+        'can_manage_announcements',
         'signature_image',
         'last_seen_announcements_at',
     ];
@@ -45,6 +46,7 @@ class User extends Authenticatable
             'can_create_profiles' => 'boolean',
             'can_archive_students' => 'boolean',
             'can_approve_reports' => 'boolean',
+            'can_manage_announcements' => 'boolean',
         ];
     }
 

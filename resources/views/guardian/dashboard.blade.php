@@ -496,12 +496,23 @@
                                     </div>
                                 @endif
 
+                                @php
+                                    $logPhotoUrl = null;
+                                    if ($log->image_path) {
+                                        $logPhotoUrl = route('secure.log-photo', $log->id);
+                                    } elseif (isset($log->daily_report) && $log->daily_report && $log->daily_report->image_path) {
+                                        $logPhotoUrl = route('secure.report-photo', $log->daily_report->id);
+                                    }
+                                @endphp
+
                                 <!-- 3. Attached Session Photo (if present) -->
-                                @if($log->image_path)
+                                @if($logPhotoUrl)
                                     <div class="mt-1 flex items-center gap-2">
-                                        <a href="{{ route('secure.log-photo', $log->id) }}" target="_blank" class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#1E2657] text-[12px] font-extrabold rounded-xl transition-colors border border-black/10 shadow-sm">
+                                        <button type="button" 
+                                                @click="$dispatch('open-image-preview', { src: '{{ $logPhotoUrl }}', title: 'Observation Photo - {{ addslashes($log->student->first_name) }}' })"
+                                                class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#1E2657] text-[12px] font-extrabold rounded-xl transition-colors border border-black/10 shadow-sm cursor-pointer">
                                             <i class="fa-solid fa-camera text-[#3B82F6]"></i> View Today's Activity Photo
-                                        </a>
+                                        </button>
                                     </div>
                                 @endif
 

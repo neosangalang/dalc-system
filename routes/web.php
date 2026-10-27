@@ -123,13 +123,6 @@ Route::middleware(['auth', 'role:admin', \App\Http\Middleware\ForcePasswordChang
     ->name('admin.') 
     ->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
-    Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
-    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
-    Route::get('/announcements/{id}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
-    Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
-    Route::delete('/announcements/{id}/delete-image', [AnnouncementController::class, 'deleteImage'])->name('announcements.delete-image');
-    Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 });
 
 /*
@@ -141,6 +134,16 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     ->prefix('admin')
     ->name('admin.') 
     ->group(function () {
+
+    Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_manage_announcements'])->group(function() {
+        Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+        Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+        Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::get('/announcements/{id}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
+        Route::put('/announcements/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
+        Route::delete('/announcements/{id}/delete-image', [AnnouncementController::class, 'deleteImage'])->name('announcements.delete-image');
+        Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+    });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_approve_reports'])->group(function() {
         Route::get('/report-approval', [ReportApprovalController::class, 'index'])->name('report-approval.index');
