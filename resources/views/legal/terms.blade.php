@@ -1,145 +1,201 @@
 @extends('legal.layout')
 
-@section('title', 'Terms of Use')
-@section('page_title', 'Terms of Use & System Regulations')
-@section('doc_heading', 'Terms of Use Agreement')
+@section('title', 'Terms and Conditions')
+@section('page_title', 'Terms and Conditions of IEP Management and Generation System')
+@section('doc_heading', 'Terms and Conditions Agreement')
 
 @section('toc')
 <ul class="space-y-2 text-xs font-bold text-[#4B5563] list-none p-0 m-0">
-    <li><a href="#acceptance" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 1. Acceptance & Scope</a></li>
-    <li><a href="#accounts" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 2. User Accounts & 3-Gate MFA</a></li>
-    <li><a href="#roles" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 3. User Roles & Access Rights</a></li>
-    <li><a href="#conduct" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 4. Acceptable Use & Prohibitions</a></li>
-    <li><a href="#sped-records" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 5. SPED Records & File Vault</a></li>
-    <li><a href="#discussions" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 6. Communication Etiquette</a></li>
-    <li><a href="#disclaimers" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 7. Medical & Emergency Disclaimer</a></li>
-    <li><a href="#intellectual-property" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 8. Intellectual Property</a></li>
-    <li><a href="#termination" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 9. Termination of Access</a></li>
-    <li><a href="#governing-law" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 10. Governing Law & Jurisdiction</a></li>
+    <li class="text-[10px] uppercase tracking-wider text-[#9CA3AF] font-black pt-1">Institutional Scope</li>
+    <li><a href="#preamble" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> Acceptance & Purpose</a></li>
+
+    <li class="text-[10px] uppercase tracking-wider text-[#3B82F6] font-black pt-3">For Guardian / Parent Users</li>
+    <li><a href="#parent-security" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 1. Account Responsibility & Security</a></li>
+    <li><a href="#parent-confidentiality" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 2. Confidentiality of Learner Data</a></li>
+    <li><a href="#parent-media" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 3. Protection of Visual Media</a></li>
+    <li><a href="#parent-feedback" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 4. Collaborative Feedback Conduct</a></li>
+    <li><a href="#parent-availability" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 5. Non-Liability & Service Availability</a></li>
+
+    <li class="text-[10px] uppercase tracking-wider text-[#10B981] font-black pt-3">For School Users (Staff)</li>
+    <li><a href="#school-rbac" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 1. User Accountability & RBAC</a></li>
+    <li><a href="#school-dpa" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 2. Data Privacy Act (R.A. 10173)</a></li>
+    <li><a href="#school-human-in-the-loop" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 3. Mandatory Human-in-the-Loop</a></li>
+    <li><a href="#school-stamp" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 4. Report Approval & Digital Stamp</a></li>
+    <li><a href="#school-scope" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 5. Scope & Functional Boundaries</a></li>
+    <li><a href="#school-archiving" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> 6. Retention, MFA Archiving & Termination</a></li>
+
+    <li class="text-[10px] uppercase tracking-wider text-[#9CA3AF] font-black pt-3">Legal Governance</li>
+    <li><a href="#governing-law" class="hover:text-[#4F6AF5] transition-colors flex items-center gap-1.5"><i class="fa fa-angle-right text-[#C4922E]"></i> Statutory Governance & Jurisdiction</a></li>
 </ul>
 @endsection
 
 @section('document_body')
 
-<div class="space-y-6">
+<div class="space-y-8">
 
-    <section id="acceptance">
-        <h2><i class="fa fa-check-circle text-[#10B981]"></i> 1. Acceptance of Terms & Institutional Scope</h2>
-        <p>
-            Welcome to the <strong>Dream Achievers Learning Center (DALC) System</strong>. By accessing, logging into, or using this web application (the "System"), you ("User", "Teacher", "Guardian", or "Administrator") acknowledge that you have read, understood, and agree to be legally bound by these Terms of Use, along with our <a href="{{ route('legal.privacy') }}" class="text-[#4F6AF5] font-bold underline">Privacy Policy</a>, <a href="{{ route('legal.ai-ethics') }}" class="text-[#4F6AF5] font-bold underline">AI SPED Assistant Ethics Policy</a>, and <a href="{{ route('legal.parental-consent') }}" class="text-[#4F6AF5] font-bold underline">Parental Consent & Media Release Agreement</a>.
-        </p>
-        <p>
-            The System is a specialized private platform created solely to facilitate <strong>Special Education (SPED) administration</strong>, Individualized Education Program (IEP) tracking, clinical observation logging, and secure communication between Dream Achievers Learning Center educators and registered parents/guardians.
-        </p>
+    <!-- PREAMBLE & INSTITUTIONAL SCOPE -->
+    <section id="preamble">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#3B82F6] p-4 rounded-r-xl">
+            <h2 class="text-base font-extrabold text-[#1E2657] m-0 flex items-center gap-2 border-b-0 pb-0">
+                <i class="fa fa-school text-[#3B82F6]"></i> Institutional Scope & Acceptance
+            </h2>
+            <p class="text-xs text-[#1E2657] leading-relaxed mt-2 mb-0">
+                Welcome to the <strong>Web-Based AI-Assisted Individualized Education Plan (IEP) Management and Generation System</strong> for <strong>Dream Achievers Learning Center PH</strong>. This system is a specialized private platform engineered to streamline Special Education (SPED) administration, student developmental tracking, baseline assessments, and home-school coordination.
+            </p>
+            <p class="text-xs text-[#4B5563] leading-relaxed mt-1.5 mb-0">
+                By accessing, logging in, or operating the system, all users agree to comply with the terms set forth herein according to their assigned system classification.
+            </p>
+        </div>
     </section>
 
-    <section id="accounts">
-        <h2><i class="fa fa-shield-halved text-[#4F6AF5]"></i> 2. User Accounts, Security & Mandatory 3-Gate Perimeter</h2>
-        <p>
-            To protect minors' highly sensitive personal and developmental data, every account is subject to DALC's mandatory <strong>3-Gate Security Perimeter</strong>:
+    <!-- ===================================================================== -->
+    <!-- SECTION 1: FOR GUARDIAN / PARENT USERS                                -->
+    <!-- ===================================================================== -->
+    <div class="border-t-2 border-[#3B82F6]/20 pt-6">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="px-3 py-1 rounded-lg text-xs font-black bg-blue-100 text-[#1E2657] uppercase tracking-wider">
+                <i class="fa fa-user-group text-[#3B82F6] mr-1"></i> Part I
+            </span>
+            <h2 class="text-lg font-black text-[#1E2657] m-0 border-b-0 p-0">For Guardian / Parent Users</h2>
+        </div>
+        <p class="text-xs text-[#4B5563] leading-relaxed mb-6">
+            By using the Web-Based AI-Assisted Individualized Education Plan Management and Generation System for Dream Achievers Learning Center PH, designed to grant authorized guardians access to student developmental milestones, Individualized Education Plans (IEPs), daily logs, and home interventions, you agree to the following Terms and Conditions. Please read them carefully to ensure you understand your rights, responsibilities, and data protections.
         </p>
-        <ul>
-            <li><strong>Gate 1 — Primary Authentication:</strong> Users must log in using their verified username/email and strong cryptographic password.</li>
-            <li><strong>Gate 2 — Mandatory Password Initialization:</strong> Accounts provisioned with temporary default credentials must immediately update to a private, high-entropy password (minimum 8 characters with uppercase, lowercase, numbers, and symbols) prior to gaining system access.</li>
-            <li><strong>Gate 3 — Mandatory Two-Factor Authentication (TOTP 2FA):</strong> All users must link an RFC 6238-compliant authenticator app (such as Google Authenticator or Microsoft Authenticator). Access to student records without completing MFA verification is strictly barred.</li>
-        </ul>
-        <p>
-            <strong>Account Responsibility:</strong> You are solely responsible for maintaining the confidentiality of your credentials. Account sharing—whether between family members, colleagues, or third parties—is strictly prohibited. Any activity originating from your authenticated session is deemed your direct responsibility. You must report any suspected credential theft or unauthorized device access immediately to the DALC Administration.
-        </p>
-    </section>
 
-    <section id="roles">
-        <h2><i class="fa fa-users text-[#C4922E]"></i> 3. Role-Based Access Control (RBAC) & Scopes</h2>
-        <p>
-            Access within the System is partitioned strictly according to user roles:
-        </p>
-        <ul>
-            <li><strong>Administrators:</strong> Institutional governance, user provisioning, academic quarter and calendar scheduling, master student archival, and official report approvals.</li>
-            <li><strong>Teachers & SPED Specialists:</strong> Daily pedagogical observation logging, IEP SMART goal authoring, quarterly progress report draft generation, student file vault uploads, and parent collaboration for assigned learners.</li>
-            <li><strong>Guardians:</strong> Read-only access strictly restricted to their enrolled children's profiles, observation feeds, progress reports, IEP milestone tracking, and teacher-parent discussion threads.</li>
-        </ul>
-        <p>
-            Attempting to bypass role restrictions, manipulate URLs, query non-assigned student identifiers, or tamper with API parameters constitutes a material security violation resulting in immediate account revocation and potential legal reporting under the <em>Cybercrime Prevention Act of 2012 (RA 10175)</em>.
-        </p>
-    </section>
+        <div class="space-y-6">
+            <section id="parent-security" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-key text-[#C4922E]"></i> 1. Account Responsibility and Security
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    You are responsible for maintaining the strict confidentiality of your login credentials (username and temporary/permanent passwords). You agree to comply with the mandatory initial password change upon your first login. To safeguard minor learners' records, credential sharing across individuals or third parties is strictly prohibited. Any unauthorized access, suspected compromise, or misuse of your account must be reported to the school administration immediately.
+                </p>
+            </section>
 
-    <section id="conduct">
-        <h2><i class="fa fa-ban text-rose-500"></i> 4. Acceptable Use & Prohibited Activities</h2>
-        <p>
-            Users agree to use the DALC System strictly for legitimate educational, developmental, and home-school coordination purposes. You expressly agree <strong>NOT</strong> to:
-        </p>
-        <ol>
-            <li>Capture screenshots, download, copy, or redistribute photos, medical evaluations, diagnostic assessments, or observation notes of other learners who may appear in announcements or group activities.</li>
-            <li>Publish or post student records, behavioral challenges, or IEP benchmarks onto public social media platforms (Facebook, Instagram, TikTok, etc.).</li>
-            <li>Use automated bots, web scrapers, spiders, or extraction scripts to harvest student or teacher data.</li>
-            <li>Attempt to reverse-engineer, decompile, or tamper with the System's source code, security gates, or encryption keys.</li>
-            <li>Upload malicious payloads, viruses, executable binaries, or contaminated files into the Secure File Vault or comment threads.</li>
-            <li>Harass, intimidate, defame, or use inappropriate language toward school personnel, therapists, or other guardians in discussion channels.</li>
-        </ol>
-    </section>
+            <section id="parent-confidentiality" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-shield-cat text-[#3B82F6]"></i> 2. Confidentiality of Sensitive Learner Data
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    Through the Parent Portal, you are granted secure access to sensitive developmental, behavioral, and academic records regarding your child. You agree not to disclose, publicly disseminate, re-upload, or share downloadable PDF reports, clinical baselines, or associated learning objectives without appropriate written authorization from Dream Achievers Learning Center PH.
+                </p>
+            </section>
 
-    <section id="sped-records">
-        <h2><i class="fa fa-folder-closed text-[#3B82F6]"></i> 5. Confidential SPED Records & Private File Vault</h2>
-        <p>
-            All diagnostic documents, neurodevelopmental assessments, medical certifications, and photographic logs stored in the DALC File Vault reside on encrypted, private server disks (`storage/app/`) and are streamed dynamically via the authenticated `SecureFileController`.
-        </p>
-        <p>
-            Users acknowledge that these documents contain <strong>Sensitive Personal Information (SPI)</strong> governed by the Philippine <em>Data Privacy Act of 2012 (Republic Act No. 10173)</em>. Authorized downloads are meant solely for the personal archival of the student's legal guardians and pedagogical planning by assigned school staff.
-        </p>
-    </section>
+            <section id="parent-media" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-camera-retro text-[#10B981]"></i> 3. Privacy and Protection of Visual Media
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    Classroom activity photos uploaded by teachers to document learning sessions are strictly protected and session-authenticated through secure system tokens. You agree that any images displaying your child or fellow learners are strictly for personal developmental monitoring only. Unauthorized downloading, posting, or republishing of these photos on public social media platforms (e.g., Facebook, Instagram, TikTok) or external communication channels is strictly prohibited to protect the privacy and safety of all minors.
+                </p>
+            </section>
 
-    <section id="discussions">
-        <h2><i class="fa fa-comments text-[#10B981]"></i> 6. Home-School Discussion Channels & Communication Etiquette</h2>
-        <p>
-            The polymorphic comment threads attached to Daily Logs, IEP Goals, Progress Reports, and Announcements are dedicated channels for collaborative educational support.
-        </p>
-        <ul>
-            <li>Communications must be constructive, child-centered, respectful, and focused on learning objectives and coping strategies.</li>
-            <li>Teachers and school personnel will review and respond to communications during official school operating hours (Mondays to Fridays, 8:00 AM to 5:00 PM).</li>
-            <li>Discussion threads are subject to administrative auditing for child protection and quality assurance purposes pursuant to <em>DepEd Child Protection Policy (DepEd Order No. 40, s. 2012)</em>.</li>
-        </ul>
-    </section>
+            <section id="parent-feedback" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-comments text-[#8B5CF6]"></i> 4. Collaborative Feedback Conduct
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    The platform provides a direct, two-way Collaborative Feedback thread attached to daily logs, IEP objectives, quarterly progress reports, and School Announcements. You agree to utilize this communication channel in a professional, constructive, and respectful manner to facilitate coordinated learning between the classroom and home. Communications are monitored for child welfare and institutional decorum pursuant to the DepEd Child Protection Policy.
+                </p>
+            </section>
 
-    <section id="disclaimers">
-        <h2><i class="fa fa-triangle-exclamation text-amber-500"></i> 7. Medical, Clinical & Emergency Disclaimer</h2>
-        <p>
-            <strong>NON-EMERGENCY NOTICE:</strong> The DALC System is NOT an emergency response platform. In the event of acute medical emergencies, psychiatric crises, or urgent physical safety issues, contact local emergency services (911) or bring the individual to the nearest hospital emergency room immediately.
-        </p>
-        <p>
-            <strong>CLINICAL PROGRESS DISCLAIMER:</strong> All IEP goals, developmental benchmarks, and progress narratives recorded within the System reflect pedagogical assessments conducted in an educational setting. They do not constitute formal medical diagnoses, psychiatric prescriptions, or guarantees of developmental timelines. Every child progresses at their individual pace.
-        </p>
-    </section>
+            <section id="parent-liability" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-triangle-exclamation text-amber-500"></i> 5. Non-Liability and Service Availability
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    The IEP Management System operates as an online, web-dependent platform requiring a stable internet connection. Dream Achievers Learning Center PH and the system developers are not liable for temporary service interruptions or network-related delays in notifications or report updates.
+                </p>
+                <div class="mt-2.5 p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed font-semibold">
+                    <i class="fa fa-circle-exclamation mr-1 text-amber-600"></i> <strong>Medical Non-Emergency Notice:</strong> This platform is strictly an educational tool and does not provide clinical emergency dispatch. For acute medical, psychiatric, or physical safety emergencies, please contact emergency hotlines (911) or medical practitioners immediately.
+                </div>
+            </section>
+        </div>
+    </div>
 
-    <section id="intellectual-property">
-        <h2><i class="fa fa-copyright text-[#4F6AF5]"></i> 8. Intellectual Property Rights</h2>
-        <p>
-            All software code, user interface designs, logos, custom SPED rubrics, curriculum templates, and proprietary IEP methodologies developed by or for Dream Achievers Learning Center are the exclusive intellectual property of Dream Achievers Learning Center. Unauthorized commercial exploitation, white-labeling, or reproduction is strictly prohibited.
+    <!-- ===================================================================== -->
+    <!-- SECTION 2: FOR SCHOOL USERS (ADMINISTRATORS AND SPED TEACHERS)        -->
+    <!-- ===================================================================== -->
+    <div class="border-t-2 border-[#10B981]/20 pt-6">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="px-3 py-1 rounded-lg text-xs font-black bg-emerald-100 text-[#065F46] uppercase tracking-wider">
+                <i class="fa fa-chalkboard-user text-[#10B981] mr-1"></i> Part II
+            </span>
+            <h2 class="text-lg font-black text-[#1E2657] m-0 border-b-0 p-0">For School Users (Administrators and SPED Teachers)</h2>
+        </div>
+        <p class="text-xs text-[#4B5563] leading-relaxed mb-6">
+            The Web-Based AI-Assisted Individualized Education Plan Management and Generation System provides school personnel with a centralized workspace to manage student profiles, structure daily classroom observations, formulate measurable learning goals, and streamline periodic reporting. By accessing and operating the system, you agree to the following Terms and Conditions:
         </p>
-    </section>
 
-    <section id="termination">
-        <h2><i class="fa fa-user-xmark text-rose-600"></i> 9. Account Suspension & Offboarding</h2>
-        <p>
-            DALC reserves the right to suspend or terminate portal access immediately, without prior notice, upon:
-        </p>
-        <ul>
-            <li>Material breach of these Terms of Use or the Student Code of Conduct.</li>
-            <li>Compromised account security or suspected malicious activity.</li>
-            <li>Official withdrawal or graduation of the student from Dream Achievers Learning Center.</li>
-            <li>Separation or resignation of staff/educators from the institution.</li>
-        </ul>
-        <p>
-            Upon account deactivation, historical records remain protected within the institutional master archive in accordance with educational record-keeping retention guidelines.
-        </p>
-    </section>
+        <div class="space-y-6">
+            <section id="school-rbac" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-user-lock text-[#4F6AF5]"></i> 1. User Accountability and Role-Based Access
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    School personnel (Administrators and SPED Teachers) are responsible for maintaining the confidentiality of their login credentials and for all actions performed under their accounts. System access is strictly governed by Role-Based Access Control (RBAC). Personnel must operate exclusively within their assigned access levels and are strictly prohibited from attempting to bypass system restrictions, view unauthorized student data, or alter account permissions beyond their designated responsibilities.
+                </p>
+            </section>
 
-    <section id="governing-law">
-        <h2><i class="fa fa-gavel text-[#1E2657]"></i> 10. Governing Law, Dispute Resolution & Jurisdiction</h2>
-        <p>
-            These Terms of Use shall be governed by and construed in accordance with the laws of the <strong>Republic of the Philippines</strong>, including but not limited to <em>Republic Act No. 10173 (Data Privacy Act of 2012)</em>, <em>Republic Act No. 10175 (Cybercrime Prevention Act of 2012)</em>, <em>Republic Act No. 11650 (Inclusive Education Act)</em>, and relevant Department of Education (DepEd) regulations.
+            <section id="school-dpa" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-scale-balanced text-[#C4922E]"></i> 2. Data Privacy Act Compliance (R.A. 10173)
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    School users handle highly sensitive student information, including diagnostic profiles (e.g., Autism Spectrum Disorder, ADHD, Down Syndrome), baseline evaluations, and pediatric records. Personnel agree to comply strictly with the Philippine Data Privacy Act of 2012, ensuring student files and encrypted database records remain confidential and accessed solely on a legitimate, need-to-know pedagogical basis.
+                </p>
+            </section>
+
+            <section id="school-human-in-the-loop" class="bg-white p-5 rounded-2xl border-2 border-emerald-500/30 bg-emerald-50/20 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#065F46] flex items-center gap-2 m-0 pb-2 border-b border-emerald-100">
+                    <i class="fa fa-robot text-[#10B981]"></i> 3. Mandatory Human-in-the-Loop Validation
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    All artificial intelligence integrations—including the <strong>AI Daily Log Standardizer</strong>, <strong>SMART Goal Generator</strong>, <strong>AI Progress Summarizer</strong>, and <strong>Home Recommendation Assistant</strong>—serve strictly as drafting aids. SPED Teachers and Administrators agree that all AI outputs must undergo human verification, pedagogical review, and manual editing prior to publishing daily reports or periodic summaries. Personnel remain fully accountable for the educational appropriateness and accuracy of finalized records.
+                </p>
+            </section>
+
+            <section id="school-stamp" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-stamp text-[#3B82F6]"></i> 4. Report Approval and Digital Stamp Authorization
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    The partner institution authorizes the adoption and electronic application of an official digital stamp and administrator signature to authenticate school records generated by the system. School Administrators must formally review and approve all periodic summaries before they are published to the guardian portal. Approving a document automatically appends the Administrator’s digital stamp and signature, confirming the report's official institutional status.
+                </p>
+            </section>
+
+            <section id="school-scope" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-compass-drafting text-rose-500"></i> 5. Scope and Functional Boundaries
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    Personnel acknowledge that the system is strictly limited to IEP-related behavioral, academic, and developmental documentation. It must not be utilized for standardized diagnostic clinical scoring, external medical monitoring, tuition/billing, or general school admissions outside the defined scope of Dream Achievers Learning Center PH.
+                </p>
+            </section>
+
+            <section id="school-archiving" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b border-slate-100">
+                    <i class="fa fa-box-archive text-[#1E2657]"></i> 6. Record Retention, Archiving, and Account Termination
+                </h3>
+                <p class="text-xs text-[#374151] mt-2.5 leading-relaxed">
+                    Administrators agree to follow standardized archiving protocols, including executing Multi-Factor Authentication (MFA) prior to initiating Year-End Rollovers and capturing student snapshots. Dream Achievers Learning Center PH reserves the right to suspend or revoke system access for any user who violates data handling policies, misuses AI generation utilities, or breaches student record confidentiality.
+                </p>
+            </section>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 3: LEGAL GOVERNING LAW & JURISDICTION                         -->
+    <!-- ===================================================================== -->
+    <section id="governing-law" class="border-t-2 border-slate-200 pt-6">
+        <h2 class="text-sm font-extrabold text-[#1E2657] flex items-center gap-2 m-0 pb-2 border-b-0">
+            <i class="fa fa-gavel text-[#1E2657]"></i> Statutory Governance, Child Protection & Dispute Resolution
+        </h2>
+        <p class="text-xs text-[#4B5563] leading-relaxed mt-2">
+            These Terms and Conditions shall be governed by and construed in accordance with the laws of the <strong>Republic of the Philippines</strong>, including <em>Republic Act No. 10173 (Data Privacy Act of 2012)</em>, <em>Republic Act No. 10175 (Cybercrime Prevention Act of 2012)</em>, <em>Republic Act No. 11650 (Instituting a Policy of Inclusion and Services for Learners with Disabilities)</em>, and the <em>Department of Education Child Protection Policy (DepEd Order No. 40, s. 2012)</em>.
         </p>
-        <p>
-            Any dispute arising out of or related to the use of this System shall first be addressed through good-faith administrative dialog with the DALC Board of Trustees. If unresolved, disputes shall be submitted to the exclusive jurisdiction of the competent courts of the Philippines.
+        <p class="text-xs text-[#4B5563] leading-relaxed mt-2 mb-0">
+            Any disputes arising from or related to the operation of the system shall first be submitted to administrative dialog with the Dream Achievers Learning Center Administration. If unresolved, disputes shall fall under the jurisdiction of the competent courts of the Philippines.
         </p>
     </section>
 
