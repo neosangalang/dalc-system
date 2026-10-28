@@ -79,7 +79,7 @@
                 <div class="mt-4 pt-3 border-t border-slate-100 text-center">
                     <p class="text-[11px] text-slate-500 font-medium leading-relaxed m-0">
                         By signing in, you agree to our 
-                        <a href="{{ route('legal.terms') }}" target="_blank" class="text-[#4F6AF5] font-bold hover:underline">Terms of Use</a> 
+                        <a href="{{ route('legal.terms') }}" onclick="return openTermsModal(event)" class="text-[#4F6AF5] font-bold hover:underline cursor-pointer">Terms and Conditions</a> 
                         and 
                         <a href="{{ route('legal.privacy') }}" target="_blank" class="text-[#4F6AF5] font-bold hover:underline">Privacy Policy</a> (RA 10173).
                     </p>
@@ -94,6 +94,8 @@
             <a href="{{ route('legal.ai-ethics') }}" target="_blank" class="text-white/80 hover:text-white underline">AI Ethics Policy</a>
         </div>
     </div>
+
+    @include('components.terms-modal')
 
 </body>
 </html>
