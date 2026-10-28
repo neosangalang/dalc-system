@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Report;
 use App\Notifications\DocumentReadyNotification;
 use App\Notifications\SystemAlert; 
+use App\Notifications\GuardianAlertNotification;
+use Illuminate\Support\Facades\Log; 
 
 class ReportApprovalController extends Controller
 {
@@ -83,10 +85,18 @@ class ReportApprovalController extends Controller
             if ($report->student && $report->student->guardian) {
                 $documentType = strtoupper(str_replace('_', ' ', $report->report_type)) . ' Report';
 
-                $report->student->guardian->notify(new SystemAlert(
-                    "New {$documentType} for {$report->student->first_name} is approved and ready for viewing.",
-                    route('guardian.reports')
-                ));
+                try {
+                    $report->student->guardian->notify(new GuardianAlertNotification(
+                        title: "{$documentType} Approved",
+                        message: "A new {$documentType} for {$report->student->first_name} has been reviewed, approved, and is now available for viewing.",
+                        url: route('guardian.reports'),
+                        studentName: $report->student->first_name,
+                        actionText: 'View Progress Report',
+                        extraDetails: 'You can review the clinical progress evaluation and download the official signed PDF report directly from your portal.'
+                    ));
+                } catch (\Exception $e) {
+                    Log::error('Guardian notification failed on report approval: ' . $e->getMessage());
+                }
                 
                 return redirect()->route('admin.report-approval.index')->with('success', 'Report Approved! Guardian and Teacher have been notified.');
             }

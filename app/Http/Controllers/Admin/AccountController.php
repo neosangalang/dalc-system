@@ -52,7 +52,8 @@ class AccountController extends Controller
         ]);
 
         return redirect()->back()
-            ->with('success', 'Account created successfully!');
+            ->with('success', 'Account created successfully!')
+            ->with('active_tab', $validated['role'] === 'guardian' ? 'guardians' : 'teachers');
     }
     
     public function toggleStatus(User $account) {
@@ -70,7 +71,8 @@ class AccountController extends Controller
         $status = $account->is_active ? 'activated' : 'deactivated';
         
         return redirect()->back()
-            ->with('success', "Account successfully {$status}.");
+            ->with('success', "Account successfully {$status}.")
+            ->with('active_tab', $account->role === 'guardian' ? 'guardians' : 'teachers');
     }
 
     public function toggleEditPermission(User $account) {
@@ -87,7 +89,8 @@ class AccountController extends Controller
         
         $status = $account->can_edit_students ? 'granted' : 'revoked';
         
-        return back()->with('success', "Student editing permissions successfully {$status} for {$account->name}.");
+        return back()->with('success', "Student editing permissions successfully {$status} for {$account->name}.")
+            ->with('active_tab', 'teachers');
     }
     
     public function destroy(User $account) {
@@ -101,10 +104,12 @@ class AccountController extends Controller
                 ->withErrors(['Cannot delete your own admin account.']);
         }
 
+        $tab = request('tab', $account->role === 'guardian' ? 'guardians' : 'teachers');
         $account->delete();
         
         return redirect()->back()
-            ->with('success', "Account permanently deleted.");
+            ->with('success', "Account permanently deleted.")
+            ->with('active_tab', $tab);
     }
 
     public function updateCredentials(Request $request, $id)
@@ -158,7 +163,9 @@ class AccountController extends Controller
 
         $user->save();
 
-        return redirect()->back()->with('success', "Login credentials for {$user->name} have been successfully updated!");
+        return redirect()->back()
+            ->with('success', "Login credentials for {$user->name} have been successfully updated!")
+            ->with('active_tab', $user->role === 'guardian' ? 'guardians' : 'teachers');
     }
 
     public function updatePermissions(Request $request, $id)
@@ -179,6 +186,8 @@ class AccountController extends Controller
             'can_manage_announcements' => $request->has('can_manage_announcements'),
         ]);
 
-        return redirect()->back()->with('success', "Special permissions updated for {$user->name}.");
+        return redirect()->back()
+            ->with('success', "Special permissions updated for {$user->name}.")
+            ->with('active_tab', 'teachers');
     }
 }

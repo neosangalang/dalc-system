@@ -7,9 +7,11 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Student;
 use App\Models\IepGoal;
 use App\Notifications\SystemAlert;
+use App\Notifications\GuardianAlertNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class IepGoalController extends Controller
 {
@@ -82,13 +84,18 @@ class IepGoalController extends Controller
             'status'           => 'in_progress',
         ]);
 
-        // Notify the Guardian
+        // Notify the Guardian via in-app bell & email
         try {
             $student->load('guardian');
             if ($student->guardian) {
-                $student->guardian->notify(new \App\Notifications\SystemAlert(
-                    "Teacher " . Auth::user()->name . " added a new IEP Goal for {$student->first_name}: {$request->domain}.",
-                    route('guardian.goals')
+                $teacherName = Auth::user()->name;
+                $student->guardian->notify(new GuardianAlertNotification(
+                    title: 'New IEP Goal Assigned',
+                    message: "Teacher {$teacherName} added a new IEP Goal for {$student->first_name} under {$request->domain}.",
+                    url: route('guardian.goals'),
+                    studentName: $student->first_name,
+                    actionText: 'View IEP Goals',
+                    extraDetails: "Domain: {$request->domain} | Target: " . Str::limit(strip_tags($request->goal_description), 140)
                 ));
             }
         } catch (\Exception $e) {
@@ -179,13 +186,18 @@ class IepGoalController extends Controller
 
         $goal->update($updateData);
 
-        // Notify the Guardian
+        // Notify the Guardian via in-app bell & email
         try {
             $goal->student->load('guardian');
             if ($goal->student && $goal->student->guardian) {
-                $goal->student->guardian->notify(new \App\Notifications\SystemAlert(
-                    "IEP Progress updated for {$goal->student->first_name}: {$goal->domain} ({$request->progress_percentage}%).",
-                    route('guardian.goals')
+                $studentName = $goal->student->first_name;
+                $goal->student->guardian->notify(new GuardianAlertNotification(
+                    title: 'IEP Milestone Progress Update',
+                    message: "IEP progress updated for {$studentName}: {$goal->domain} is now at {$request->progress_percentage}%.",
+                    url: route('guardian.goals'),
+                    studentName: $studentName,
+                    actionText: 'View IEP Progress',
+                    extraDetails: "Milestone status: {$goal->domain} — {$request->progress_percentage}% achieved."
                 ));
             }
         } catch (\Exception $e) {

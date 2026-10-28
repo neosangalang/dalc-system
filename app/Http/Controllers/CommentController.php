@@ -12,6 +12,7 @@ use App\Models\DailyLog;
 use App\Models\IepGoal;
 use App\Models\Report;
 use App\Notifications\SystemAlert;
+use App\Notifications\GuardianAlertNotification;
 
 class CommentController extends Controller
 {
@@ -136,9 +137,20 @@ class CommentController extends Controller
                             default               => route('guardian.dashboard'),
                         };
                         $childName = $target->student->first_name ?? 'your child';
-                        $guardian->notify(new SystemAlert(
-                            "Teacher {$user->name} posted a reply regarding {$childName}.",
-                            $url
+                        $targetTypeLabel = match($request->commentable_type) {
+                            'App\Models\DailyLog' => 'Daily Log',
+                            'App\Models\IepGoal'  => 'IEP Goal',
+                            'App\Models\Report'   => 'Progress Report',
+                            default               => 'Update',
+                        };
+
+                        $guardian->notify(new GuardianAlertNotification(
+                            title: "New Reply on {$targetTypeLabel}",
+                            message: "Teacher {$user->name} posted a reply regarding {$childName}.",
+                            url: $url,
+                            studentName: $childName,
+                            actionText: 'View Reply',
+                            extraDetails: 'A new message was added to the discussion thread on your parent portal.'
                         ));
                     }
                 }

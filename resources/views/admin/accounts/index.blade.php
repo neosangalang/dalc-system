@@ -6,12 +6,22 @@
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
 <div class="w-full max-w-[1200px] mx-auto space-y-4 sm:space-y-8" x-data="{ 
-    activeTab: '{{ Auth::user()->role === 'teacher' ? 'guardians' : (old('role') === 'guardian' ? 'guardians' : 'teachers') }}',
+    activeTab: '{{ session('active_tab', request('tab', Auth::user()->role === 'teacher' ? 'guardians' : (old('role') === 'guardian' ? 'guardians' : 'teachers'))) }}',
     teacherSearch: '',
     guardianSearch: '', 
     showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher') ? 'true' : 'false' }},
     showCreateGuardianModal: {{ ($errors->any() && !old('_method') && old('role') === 'guardian') ? 'true' : 'false' }}
-}">
+}"
+x-init="
+    const sessionTab = '{{ session('active_tab') }}';
+    const hash = window.location.hash;
+    if (sessionTab) {
+        activeTab = sessionTab;
+        history.replaceState(null, null, '#' + sessionTab);
+    } else if (hash === '#guardians' || hash === '#teachers') {
+        activeTab = hash.replace('#', '');
+    }
+">
 
     <!-- ALERTS -->
     @if(session('success'))
@@ -31,7 +41,7 @@
     @if(Auth::user()->role === 'admin')
     <!-- ACCOUNT ROLE TABS SWITCHER -->
     <div class="flex items-center gap-2 sm:gap-3 bg-white p-1.5 sm:p-2 rounded-2xl border border-black/15 shadow-sm mb-4 sm:mb-6">
-        <button type="button" @click="activeTab = 'teachers'"
+        <button type="button" @click="activeTab = 'teachers'; history.replaceState(null, null, '#teachers')"
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95">
             <i class="fa fa-chalkboard-teacher text-xs sm:text-sm"></i>
@@ -41,7 +51,7 @@
             </span>
         </button>
         
-        <button type="button" @click="activeTab = 'guardians'"
+        <button type="button" @click="activeTab = 'guardians'; history.replaceState(null, null, '#guardians')"
                 :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
                 class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95">
             <i class="fa fa-user-shield text-xs sm:text-sm"></i>
@@ -186,6 +196,7 @@
                                     <form action="{{ route('admin.accounts.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this teacher?');" class="m-0 flex">
                                         @csrf
                                         @method('DELETE')
+                                        <input type="hidden" name="tab" value="teachers">
                                         <button type="submit" class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap">
                                             <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
                                         </button>
@@ -536,6 +547,7 @@
                                     <form action="{{ route('admin.accounts.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this guardian?');" class="m-0 flex">
                                         @csrf
                                         @method('DELETE')
+                                        <input type="hidden" name="tab" value="guardians">
                                         <button type="submit" class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap">
                                             <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
                                         </button>
