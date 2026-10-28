@@ -1,8 +1,8 @@
 @extends('legal.layout')
 
-@section('title', 'Data Privacy Policy')
-@section('page_title', 'Data Privacy Policy & NPC Compliance')
-@section('doc_heading', 'Data Privacy Notice (Republic Act No. 10173)')
+@section('title', 'Privacy Policy')
+@section('page_title', 'Privacy Policy of IEP Management and Generation System')
+@section('doc_heading', 'PRIVACY POLICY OF IEP MANAGEMENT AND GENERATION SYSTEM')
 
 @section('toc')
 <ul class="space-y-2 text-xs font-bold text-[#4B5563] list-none p-0 m-0">
@@ -23,13 +23,17 @@
 
 <div class="space-y-6">
 
-    <div class="bg-blue-50 border-l-4 border-[#3B82F6] p-4 rounded-r-xl">
-        <div class="flex items-start gap-3">
-            <i class="fa fa-circle-info text-[#3B82F6] text-lg mt-0.5 shrink-0"></i>
-            <div class="text-xs text-[#1E2657] leading-relaxed">
-                <strong>Statement of Compliance:</strong> Dream Achievers Learning Center (DALC) is committed to upholding the privacy rights of all individuals, especially minor children with special educational needs. This policy complies with <strong>Republic Act No. 10173 (Data Privacy Act of 2012)</strong>, its Implementing Rules and Regulations, and relevant directives of the <strong>National Privacy Commission (NPC)</strong>.
-            </div>
-        </div>
+    <!-- OFFICIAL INSTITUTIONAL POLICY STATEMENT (FROM GOVERNANCE PDF) -->
+    <div class="bg-blue-50/70 border-l-4 border-[#3B82F6] p-5 rounded-r-xl space-y-3.5 mb-6">
+        <p class="text-xs sm:text-[13px] text-[#1E2657] leading-relaxed m-0 font-medium">
+            The <strong>Web-Based AI-Assisted Individualized Education Plan Management and Generation System</strong> is committed to safeguarding the privacy of all users who engage with our platform at <strong>Dreams Achievers Learning Center PH</strong>. We strictly adhere to the principles set forth in the <strong>Data Privacy Act of 2012 (RA 10173)</strong>, ensuring that all personal, medical, and developmental information collected from learners, guardians, SPED educators, and school administrators is protected with the highest standards of confidentiality, security, and integrity.
+        </p>
+        <p class="text-xs sm:text-[13px] text-[#1E2657] leading-relaxed m-0 font-medium">
+            Our platform collects personal and educational data solely for the purpose of facilitating Special Education (SPED) processes, including student profiling, Present Level of Performance (PLOP) assessments, Individualized Education Plan (IEP) goal formulation, daily classroom observation logging, progress monitoring, secure activity photo documentation, and periodic report generation. We restrict access to authorized personnel and verified guardians through Role-Based Access Control (RBAC) and employ database encryption protocols to safeguard data in transit and at rest. Dreams Achievers Learning Center PH complies with all legal requirements regarding data processing, cloud storage, and scheduled archiving to guarantee that all sensitive learner information remains secure and is utilized strictly as explicitly stated.
+        </p>
+        <p class="text-xs sm:text-[13px] text-[#1E2657] leading-relaxed m-0 font-medium">
+            Users are provided with full transparency over how their information is collected, processed, and maintained, and we are committed to upholding their rights to access, review, and request the updating or rectification of their personal records as required by the Data Privacy Act. The platform also adheres to <strong>RA 10175 (the Cybercrime Prevention Act of 2012)</strong> to guard against unauthorized system access, data breaches, and cyber threats, enforcing Multi-Factor Authentication (MFA) and secure credential management to ensure a safe, protected digital ecosystem for learners with exceptionalities and their support network.
+        </p>
     </div>
 
     <section id="pic-identity">

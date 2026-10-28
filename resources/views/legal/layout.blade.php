@@ -130,7 +130,7 @@
             <div class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2.5 custom-scrollbar text-xs sm:text-sm font-extrabold">
                 <a href="{{ route('legal.terms') }}" 
                    class="px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-2 {{ request()->routeIs('legal.terms') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#4B5563] hover:text-[#1E2657] hover:bg-slate-100' }}">
-                    <i class="fa fa-file-contract"></i> Terms of Use
+                    <i class="fa fa-file-contract"></i> Terms & Conditions
                 </a>
                 <a href="{{ route('legal.privacy') }}" 
                    class="px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-2 {{ request()->routeIs('legal.privacy') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#4B5563] hover:text-[#1E2657] hover:bg-slate-100' }}">
@@ -217,7 +217,7 @@
             <div>
                 <h4 class="font-bold text-white text-xs uppercase tracking-wider mb-2.5">Legal & Compliance Quick Links</h4>
                 <ul class="space-y-1.5 list-none p-0 m-0">
-                    <li><a href="{{ route('legal.terms') }}" class="text-slate-300 hover:text-white transition-colors">Terms of Use</a></li>
+                    <li><a href="{{ route('legal.terms') }}" class="text-slate-300 hover:text-white transition-colors">Terms & Conditions</a></li>
                     <li><a href="{{ route('legal.privacy') }}" class="text-slate-300 hover:text-white transition-colors">Privacy Policy (RA 10173)</a></li>
                     <li><a href="{{ route('legal.ai-ethics') }}" class="text-slate-300 hover:text-white transition-colors">AI SPED Assistant Ethics & Clinical Disclaimer</a></li>
                     <li><a href="{{ route('legal.parental-consent') }}" class="text-slate-300 hover:text-white transition-colors">Parental Consent & Media Release Agreement</a></li>
