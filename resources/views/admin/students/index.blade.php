@@ -868,6 +868,23 @@
                                 </p>
                             </div>
 
+                            <!-- 3. DATA PRIVACY & PARENTAL CONSENT VERIFICATION (RA 10173) -->
+                            <h4 class="text-[#1E2657] font-extrabold mb-3 mt-6 flex items-center text-[12px] uppercase tracking-widest border-b border-black/5 pb-2">
+                                <i class="fa fa-shield-halved text-[#4F6AF5] mr-2"></i> 3. Data Privacy & Consent Verification (RA 10173) <span class="text-rose-500">*</span>
+                            </h4>
+
+                            <div class="p-4 bg-blue-50/60 border border-blue-200/80 rounded-xl space-y-2">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" id="verify_parental_consent" name="parental_consent_verified" value="1" required checked class="mt-0.5 rounded border-[#9CA0AF] text-[#4F6AF5] focus:ring-[#4F6AF5]">
+                                    <label for="verify_parental_consent" class="text-[12px] text-[#1E2657] font-bold leading-relaxed cursor-pointer m-0">
+                                        Parental / Guardian Consent &amp; Media Release Form verified on institutional record
+                                    </label>
+                                </div>
+                                <p class="text-[11px] text-[#6B7086] leading-relaxed pl-6 m-0">
+                                    In compliance with the <strong>Data Privacy Act of 2012 (RA 10173)</strong> and DepEd Child Protection guidelines, enrolling a minor certifies that the parent/guardian has formally consented to digital IEP tracking, clinical developmental logging, and DALC's <a href="{{ route('legal.privacy') }}" target="_blank" class="text-[#4F6AF5] underline font-bold">Privacy Policy</a> and <a href="{{ route('legal.parental-consent') }}" target="_blank" class="text-[#4F6AF5] underline font-bold">Parental Consent Agreement</a>.
+                                </p>
+                            </div>
+
                         </div>
 
                         <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">

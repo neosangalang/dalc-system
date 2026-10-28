@@ -224,9 +224,17 @@
         <div style="clear: both;"></div>
     </div>
 
-    <!-- Footer Notice -->
+    <!-- Legal Confidentiality Notice -->
     <div class="doc-footer">
-        Confidential Document &bull; Dream Achievers Learning Center &bull; Generated on {{ now()->format('M d, Y h:i A') }}
+        <div style="font-weight: bold; color: #1E2657; margin-bottom: 3px; font-size: 8.5pt;">
+            CONFIDENTIAL SPECIAL EDUCATION RECORD &bull; PROTECTED UNDER RA 10173 (DATA PRIVACY ACT OF 2012)
+        </div>
+        <div style="font-size: 8pt; color: #555; line-height: 1.35;">
+            This document contains sensitive personal and developmental information intended solely for authorized educators and guardians of the named student. Any unauthorized copying, distribution, or re-publication is strictly prohibited.
+        </div>
+        <div style="margin-top: 4px; font-size: 7.5pt; color: #888;">
+            Dream Achievers Learning Center &bull; 2 Masunurin St., Brgy. Sikatuna, Quezon City &bull; Generated {{ now()->format('M d, Y h:i A') }}
+        </div>
     </div>
 
 </body>

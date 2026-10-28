@@ -134,8 +134,16 @@
 
     <div style="clear: both;"></div>
 
-    <div class="footer">
-        This document is confidential and intended solely for the parents/guardians of the named student.
+    <div class="footer" style="margin-top: 35px; border-top: 1px solid #cbd5e1; padding-top: 12px; line-height: 1.45;">
+        <div style="font-weight: bold; color: #1E2657; font-size: 10px; margin-bottom: 2px;">
+            CONFIDENTIAL SPECIAL EDUCATION REPORT &bull; REPUBLIC ACT NO. 10173 (DATA PRIVACY ACT OF 2012)
+        </div>
+        <div style="color: #64748b; font-size: 9px;">
+            This formal progress evaluation contains sensitive personal information and clinical baselines prepared solely for the child's legal guardians and pedagogical team. Unauthorized duplication, scanning, or public re-distribution is strictly prohibited by law.
+        </div>
+        <div style="color: #94a3b8; font-size: 8.5px; margin-top: 4px;">
+            Dream Achievers Learning Center &bull; 2 Masunurin St., Brgy. Sikatuna, Quezon City &bull; Hotline: 0936-952-3782
+        </div>
     </div>
 
 </body>

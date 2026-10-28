@@ -142,6 +142,15 @@
                             <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally
                         </button>
 
+                        <!-- AI Clinical Disclaimer & Ethics Notice -->
+                        <div class="mt-2.5 flex items-center justify-between text-[11px] text-[#6B7086] px-1">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa fa-shield-halved text-[#3B82F6]"></i>
+                                <span>AI SPED Draft: Educator review required before saving (<a href="{{ route('legal.ai-ethics') }}" target="_blank" class="text-[#3B82F6] font-bold hover:underline">Clinical Policy</a>)</span>
+                            </span>
+                            <span class="text-[10px] text-[#9CA0AF] hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
+                        </div>
+
                         <div id="aiLoading" class="text-center text-[#3B82F6] text-[12px] mt-4 font-extrabold hidden">
                             <i class="fa fa-spinner fa-spin mr-1.5"></i> AI is thinking...
                         </div>

@@ -29,9 +29,18 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecureFileController;
 use App\Http\Controllers\AiAssistantController;
+use App\Http\Controllers\LegalController;
 
 // Root logic
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// ==========================================
+// INSTITUTIONAL LEGAL & COMPLIANCE (PUBLIC)
+// ==========================================
+Route::get('/terms', [LegalController::class, 'terms'])->name('legal.terms');
+Route::get('/privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/policies/ai-ethics', [LegalController::class, 'aiEthics'])->name('legal.ai-ethics');
+Route::get('/policies/parental-consent', [LegalController::class, 'parentalConsent'])->name('legal.parental-consent');
 
 // ==========================================
 // SECURITY, PROFILE & SHARED FEATURES (GLOBAL)

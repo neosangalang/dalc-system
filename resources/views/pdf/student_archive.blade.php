@@ -620,10 +620,17 @@
 
     {{-- ===== FOOTER ===== --}}
     <div class="footer">
-        <strong>Dream Achievers Learning Center PH</strong> &nbsp;|&nbsp;
-        Student Master Archive &nbsp;|&nbsp;
-        Generated on {{ now()->format('F j, Y \a\t g:i A') }} &nbsp;|&nbsp;
-        This document is system-generated and serves as an official archived record.
+        <div style="font-weight: 800; color: #1E2657; font-size: 9.5px; margin-bottom: 3px;">
+            CONFIDENTIAL SPECIAL EDUCATION MASTER ARCHIVE &bull; PROTECTED UNDER RA 10173 (DATA PRIVACY ACT OF 2012)
+        </div>
+        <div style="color: #64748b; font-size: 8.5px; line-height: 1.4; max-width: 90%; margin: 0 auto 4px auto;">
+            This master document is an official system-generated institutional snapshot of student records, evaluations, and clinical baselines. Unauthorized duplication, scanning, or external publication is strictly prohibited by law.
+        </div>
+        <div style="color: #94a3b8; font-size: 8px;">
+            <strong>Dream Achievers Learning Center PH</strong> &nbsp;|&nbsp;
+            Generated on {{ now()->format('F j, Y \a\t g:i A') }} &nbsp;|&nbsp;
+            2 Masunurin St., Brgy. Sikatuna, Quezon City
+        </div>
     </div>
 
 </body>

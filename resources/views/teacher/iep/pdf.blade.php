@@ -225,5 +225,15 @@
         </div>
     </div>
 
+    <!-- Legal Confidentiality Notice -->
+    <div style="margin-top: 15px; border-top: 1px solid #000; padding-top: 8px; font-size: 8pt; text-align: center; color: #444; line-height: 1.35;">
+        <div style="font-weight: bold; text-transform: uppercase; color: #000;">
+            CONFIDENTIAL SPECIAL EDUCATION RECORD &bull; REPUBLIC ACT NO. 10173 (DATA PRIVACY ACT OF 2012)
+        </div>
+        <div>
+            This Individualized Education Program (IEP) contains sensitive developmental baselines and clinical objectives. Strictly confidential and for the authorized use of Dream Achievers Learning Center educators and legal guardians only.
+        </div>
+    </div>
+
 </body>
 </html>

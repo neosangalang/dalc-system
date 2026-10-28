@@ -17,14 +17,24 @@ class PasswordSetupController extends Controller
         $request->validate([
             // Added ->symbols() to enforce the special character requirement matching the frontend
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
+            'agree_terms' => ['required', 'accepted'],
+        ], [
+            'agree_terms.accepted' => 'You must read and agree to the DALC Terms of Use, Privacy Policy, and AI Ethics Guidelines to proceed.',
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
         
-        $user->update([
+        $updateData = [
             'password' => Hash::make($request->password),
             'password_changed_at' => now(), // This unlocks their account!
-        ]);
+        ];
+
+        // If terms_accepted_at column is present in the database, record the timestamp
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'terms_accepted_at')) {
+            $updateData['terms_accepted_at'] = now();
+        }
+
+        $user->update($updateData);
 
         // If the user already has 2FA configured in their Authenticator app, ask for their 6-digit challenge code
         if (!empty($user->two_factor_secret)) {

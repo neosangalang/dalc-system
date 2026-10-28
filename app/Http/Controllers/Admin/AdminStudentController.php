@@ -42,6 +42,7 @@ class AdminStudentController extends Controller
             'documents.*'               => 'file|mimes:pdf,jpg,jpeg,png|max:5120',
             'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'guardian_id'               => 'required|exists:users,id', // Guardian is strictly required
+            'parental_consent_verified' => 'nullable|boolean',
         ], [
             'guardian_id.required'        => 'Please select an enrolled guardian account.',
             'diagnosis_other.required_if' => 'Please specify the diagnosis when selecting Other.',

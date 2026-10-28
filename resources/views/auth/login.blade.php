@@ -74,7 +74,24 @@
                     class="w-full bg-gradient-to-br from-[#4F6AF5] to-[#3751D7] text-white rounded-xl py-2.5 px-6 font-bold text-[14px] shadow-[0_4px_16px_rgba(79,106,245,0.3)] transition-all duration-200 hover:shadow-[0_6px_20px_rgba(79,106,245,0.4)] hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa fa-sign-in-alt text-[13px]"></i> Sign In
                 </button>
+
+                <!-- Terms and Privacy Agreement Micro-Notice -->
+                <div class="mt-4 pt-3 border-t border-slate-100 text-center">
+                    <p class="text-[11px] text-slate-500 font-medium leading-relaxed m-0">
+                        By signing in, you agree to our 
+                        <a href="{{ route('legal.terms') }}" target="_blank" class="text-[#4F6AF5] font-bold hover:underline">Terms of Use</a> 
+                        and 
+                        <a href="{{ route('legal.privacy') }}" target="_blank" class="text-[#4F6AF5] font-bold hover:underline">Privacy Policy</a> (RA 10173).
+                    </p>
+                </div>
             </form>
+        </div>
+
+        <!-- Compliance & Security Badge -->
+        <div class="absolute bottom-3 text-center text-white/70 text-[11px] font-semibold space-x-2">
+            <span><i class="fa fa-shield-halved text-emerald-400"></i> 3-Gate MFA Protected</span>
+            <span>&bull;</span>
+            <a href="{{ route('legal.ai-ethics') }}" target="_blank" class="text-white/80 hover:text-white underline">AI Ethics Policy</a>
         </div>
     </div>
 

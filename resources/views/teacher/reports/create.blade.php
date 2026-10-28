@@ -125,6 +125,10 @@
                         <button type="button" id="trigger-home-ai-btn" class="w-full inline-flex justify-center items-center px-4 py-3.5 sm:py-3 bg-amber-600 text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-amber-700 transition-colors shadow-sm focus:ring-2 focus:ring-amber-500 focus:ring-offset-1">
                             <i class="fa-solid fa-lightbulb mr-2"></i> <span>Generate Home-Based Recommendations via AI</span>
                         </button>
+
+                        <div class="mt-2 text-center text-[10.5px] text-amber-800/80 font-medium">
+                            <i class="fa-solid fa-info-circle mr-1"></i> Supplementary home activities only &bull; Review against student needs (<a href="{{ route('legal.ai-ethics') }}" target="_blank" class="underline font-bold">Policy</a>)
+                        </div>
                     </div>
 
                     <div>
@@ -165,6 +169,14 @@
                         <button type="button" id="trigger-general-ai-btn" class="w-full inline-flex justify-center items-center px-4 py-3.5 sm:py-3 bg-indigo-600 text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
                             <i class="fa-solid fa-robot mr-2"></i> <span id="general-btn-text">Generate Report</span>
                         </button>
+
+                        <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 px-1">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa fa-shield-halved text-indigo-500"></i>
+                                <span>AI SPED Draft: Educator review required before submitting (<a href="{{ route('legal.ai-ethics') }}" target="_blank" class="text-indigo-600 font-bold hover:underline">Clinical Policy</a>)</span>
+                            </span>
+                            <span class="text-[10px] text-slate-400 hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
+                        </div>
                     </div>
 
                     <div>

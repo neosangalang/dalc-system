@@ -116,3 +116,25 @@ Confidential student files and medical diagnostics are never placed in `public/s
   - Test `/security-setup` with new account
   - Test `/mfa-challenge` in incognito browser
   - Verify `403 Forbidden` on unauthorized file vault URLs
+
+---
+
+## 09 Legal & Privacy Compliance Architecture
+
+🏛️ **Statutory Alignment with Philippine Data Privacy & Special Education Laws**
+
+- [x] **Republic Act No. 10173 (Data Privacy Act of 2012)**:
+  - Formal Privacy Policy available at `/privacy` with designated DPO contact (`dpo@dalc.edu.ph`).
+  - Mandatory parental consent validation for all minor student records and diagnostic assessments.
+  - 72-hour security incident notification protocol to National Privacy Commission (NPC).
+- [x] **Institutional Terms of Use**:
+  - Live agreement at `/terms` establishing zero-trust credential handling and barring unauthorized re-publication.
+  - Enforced acceptance checkbox on Gate 2 first-login setup (`/security-setup`).
+- [x] **AI SPED Assistant Ethics & Clinical Disclaimer**:
+  - Documented guidelines at `/policies/ai-ethics`.
+  - Zero-PII server-side proxy stripping student surnames and LRN before forwarding context to Groq Cloud.
+  - Human-in-the-loop guarantee requiring educator verification prior to committing drafts.
+- [x] **Parental Consent & Media Release Policy**:
+  - Live policy at `/policies/parental-consent` regulating classroom observation photography and prohibiting peer photo sharing on public social networks.
+- [x] **Document Legal Watermarking**:
+  - Mandatory statutory confidentiality notice rendered across all generated PDFs (Daily Logs, IEPs, Progress Reports, Master Archives).

@@ -30,6 +30,7 @@ class User extends Authenticatable
         'can_manage_announcements',
         'signature_image',
         'last_seen_announcements_at',
+        'terms_accepted_at',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'last_seen_announcements_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_secret' => 'encrypted',
             'is_active' => 'boolean',
