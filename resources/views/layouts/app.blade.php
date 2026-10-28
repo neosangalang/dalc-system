@@ -149,7 +149,7 @@
                         <a href="{{ route('legal.terms') }}" @click="profileOpen = false" onclick="return openTermsModal(event)" class="w-full flex items-center gap-2 px-4 py-2 text-[12px] font-bold text-[#4B5563] hover:text-[#4F6AF5] hover:bg-slate-50 transition text-left decoration-transparent cursor-pointer">
                             <i class="fa fa-file-contract w-4 text-center text-[#9CA3AF]"></i> Terms & Conditions
                         </a>
-                        <a href="{{ route('legal.privacy') }}" target="_blank" class="w-full flex items-center gap-2 px-4 py-2 text-[12px] font-bold text-[#4B5563] hover:text-[#4F6AF5] hover:bg-slate-50 transition text-left decoration-transparent">
+                        <a href="{{ route('legal.privacy') }}" @click="profileOpen = false" onclick="return openPrivacyModal(event)" class="w-full flex items-center gap-2 px-4 py-2 text-[12px] font-bold text-[#4B5563] hover:text-[#4F6AF5] hover:bg-slate-50 transition text-left decoration-transparent cursor-pointer">
                             <i class="fa fa-shield-halved w-4 text-center text-[#9CA3AF]"></i> Privacy Policy
                         </a>
                     </div>
@@ -427,6 +427,7 @@
     </script>
 
     @include('components.terms-modal')
+    @include('components.privacy-modal')
 
 @stack('scripts')
 </body>

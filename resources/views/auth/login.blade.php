@@ -81,7 +81,7 @@
                         By signing in, you agree to our 
                         <a href="{{ route('legal.terms') }}" onclick="return openTermsModal(event)" class="text-[#4F6AF5] font-bold hover:underline cursor-pointer">Terms and Conditions</a> 
                         and 
-                        <a href="{{ route('legal.privacy') }}" target="_blank" class="text-[#4F6AF5] font-bold hover:underline">Privacy Policy</a> (RA 10173).
+                        <a href="{{ route('legal.privacy') }}" onclick="return openPrivacyModal(event)" class="text-[#4F6AF5] font-bold hover:underline cursor-pointer">Privacy Policy</a> (RA 10173).
                     </p>
                 </div>
             </form>
@@ -96,6 +96,7 @@
     </div>
 
     @include('components.terms-modal')
+    @include('components.privacy-modal')
 
 </body>
 </html>

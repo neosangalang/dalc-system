@@ -82,7 +82,7 @@
                         <label class="form-check-label text-secondary" for="agreeTerms" style="font-size: 12.5px; line-height: 1.5;">
                             I confirm that I have read, understood, and agree to the 
                             <a href="{{ route('legal.terms') }}" onclick="return openTermsModal(event)" class="fw-bold text-primary text-decoration-none" role="button">Terms and Conditions</a>, 
-                            <a href="{{ route('legal.privacy') }}" target="_blank" class="fw-bold text-primary text-decoration-none">Privacy Policy (RA 10173)</a>, and 
+                            <a href="{{ route('legal.privacy') }}" onclick="return openPrivacyModal(event)" class="fw-bold text-primary text-decoration-none" role="button">Privacy Policy (RA 10173)</a>, and 
                             <a href="{{ route('legal.ai-ethics') }}" target="_blank" class="fw-bold text-primary text-decoration-none">AI Ethics & Clinical Guidelines</a>.
                         </label>
                     </div>
@@ -203,5 +203,6 @@
     </script>
 
     @include('components.terms-modal')
+    @include('components.privacy-modal')
 </body>
 </html>
