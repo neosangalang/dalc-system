@@ -112,37 +112,87 @@ class IepGoalController extends Controller
             'present_level' => 'required|string|max:2000'
         ]);
 
-        // Fetching the API key from config or env
-        $apiKey = config('services.groq.api_key', env('GROQ_API_KEY'));
+        $apiKey = trim(config('services.groq.api_key') ?? env('GROQ_API_KEY'), '"\' ');
+        $model = config('services.groq.model', 'openai/gpt-oss-20b');
 
         if (!$apiKey) {
             return response()->json(['success' => false, 'message' => 'API key is missing. Please contact the administrator.'], 500);
         }
 
+        $systemPrompt = <<<PROMPT
+You are an expert Special Education (SPED) Specialist and Curriculum Designer.
+Generate 3 high-quality, practical, and sustainable IEP objectives with matching classroom activities based STRICTLY on the student's Present Level of Performance (PLOP) and Developmental Domain.
+
+CORE QUALITY STANDARDS:
+1. STRICT ANTI-HALLUCINATION / GROUNDEDNESS:
+   - Ground every objective and activity strictly in the provided Present Level of Performance (PLOP) and Domain.
+   - NEVER assume, hallucinate, or introduce unmentioned diagnoses, cognitive/physical deficits, medical conditions, or family backgrounds not stated in the input.
+
+2. SPECIFIC & PRECISE (SMART FORMAT):
+   - Objectives must be unambiguous, concrete, and measurable.
+   - Include: Target observable behavior, specific condition/support (e.g., visual schedule, verbal prompts), and a clear measurement criterion (e.g., 'in 4 out of 5 observed opportunities', 'with 80% accuracy over 2 consecutive weeks').
+   - Keep each objective concise (1-2 sentences), clear, and direct so the teacher immediately understands the goal without confusion.
+
+3. SUSTAINABLE & REALISTIC IN PRACTICE:
+   - Activities must be practical, sustainable, and feasible in everyday SPED classrooms.
+   - Avoid activities that require expensive specialized therapy equipment, excessive preparation time, or unrealistic continuous 1-on-1 supervision.
+   - Use accessible materials and natural routines: visual cue cards, token reinforcement, routine transitions, sensory corners, and everyday classroom manipulatives.
+
+4. NON-CONFUSING & ACTIONABLE ACTIVITIES:
+   - Provide 2-3 distinct, concrete activity names that explicitly describe what the teacher/student will do (e.g., 'First-Then visual routine card at desk', 'Structured 2-choice picture exchange board', 'Timed token board reinforcement for task completion').
+   - NEVER use vague or generic single-word phrases like 'Games / toys' or 'Social stories'.
+
+5. STRICT OUTPUT FORMAT:
+   - Output ONLY a valid JSON array of objects. No markdown backticks, no conversational preamble, no trailing notes.
+   - Format:
+   [
+     {
+       "objective": "The student will independently follow a 2-step classroom transition routine using a visual schedule with no more than 1 verbal prompt in 4 out of 5 daily trials.",
+       "activities": [
+         "First-Then visual routine card at desk",
+         "2-minute transition countdown timer",
+         "Token reinforcement board for timely transitions"
+       ]
+     }
+   ]
+PROMPT;
+
+        $userPrompt = "Developmental Domain: '{$request->domain}'\nPresent Level of Performance (PLOP): '{$request->present_level}'\n\nGenerate 3 specific, precise, sustainable, and non-confusing IEP objectives with 2-3 matching classroom activities for each. Output strictly valid JSON.";
+
         try {
-            // Using the exact model ID with the openai/ prefix
-            $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DALC-System/1.0',
+                    'Content-Type' => 'application/json',
+                ])
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
-                    'model' => 'openai/gpt-oss-20b', 
+                    'model' => $model, 
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => "You are an expert Special Education Teacher. Output STRICTLY a JSON array of objects. No markdown formatting, no conversational text."
+                            'content' => $systemPrompt
                         ],
                         [
                             'role' => 'user',
-                            'content' => "Domain: '{$request->domain}'\nPresent Level of Performance: '{$request->present_level}'\n\nGenerate 3 specific, measurable IEP objectives and 2-3 matching activities for each.\nFormat exactly like this:\n[\n  {\n    \"objective\": \"To follow classroom routines dependently...\",\n    \"activities\": [\"Games / toys\", \"Social stories\", \"Token system\"]\n  }\n]"
+                            'content' => $userPrompt
                         ]
                     ],
-                    'temperature' => 0.7,
+                    'temperature' => 0.2,
                 ]);
 
             if ($response->successful()) {
-                $aiText = $response->json('choices.0.message.content');
+                $aiText = $response->json('choices.0.message.content') ?? '';
                 
-                // Clean up any markdown blocks the AI might accidentally include
-                $aiText = str_replace(['```json', '```'], '', $aiText);
+                // Clean up any markdown blocks or stray text surrounding JSON
                 $aiText = trim($aiText);
+                $aiText = preg_replace('/^```(?:json)?\s*/i', '', $aiText);
+                $aiText = preg_replace('/\s*```$/', '', $aiText);
+                $aiText = trim($aiText);
+
+                if (preg_match('/\[\s*\{.*\}\s*\]/s', $aiText, $matches)) {
+                    $aiText = $matches[0];
+                }
 
                 $goalsArray = json_decode($aiText, true);
 

@@ -271,8 +271,8 @@ class ReportController extends Controller
         ]);
 
         $student = Student::findOrFail($request->student_id);
-        $apiKey = env('GROQ_API_KEY');
         $apiKey = trim(config('services.groq.api_key') ?? env('GROQ_API_KEY'), '"\' ');
+        $model = config('services.groq.model', 'openai/gpt-oss-20b');
 
         $goals = IepGoal::where('student_id', $student->id)->where('status', 'in_progress')->get();
         $goalDescriptions = $goals->pluck('goal_description')->implode('; ');
@@ -354,41 +354,52 @@ DAILY LOGS & CLASSROOM NOTES:
 
 STRICT REVISION RULES:
 1. Thoroughly incorporate and address all feedback and instructions provided by the Administrator.
-2. Refine, expand, or clarify the draft using supporting details from daily logs and IEP goals.
+2. Refine, expand, or clarify the draft using supporting details strictly from daily logs and IEP goals. Do NOT fabricate unrecorded student actions or achievements.
 3. Keep the format concise: write exactly 2 cohesive paragraphs (or 1 paragraph if daily report).
-4. Do NOT use headers, bullet points, asterisks, bold titles, or conversational filler. Output only clean narrative paragraphs.
+4. Do NOT use headers, bullet points, asterisks (**), bold titles, or conversational filler. Output only clean narrative paragraphs.
 5. Maintain a compassionate, objective, and professional Special Education tone.";
         }
         elseif ($request->report_type === 'daily') {
             if ($request->section === 'home_recommendation') {
-                $prompt = "You are an expert Special Education teacher writing home-based recommendations for a student named {$student->first_name}.
-                Read the following daily observation notes and generate 1-2 easy, practical, and engaging home activities for the parents to practice tonight with their child.
-                Do NOT output headers or daily report narratives. Output only 1-2 practical home-based activities for tonight.
-                
-                Rough Observation Notes:
-                " . $logSummaries;
+                $prompt = "You are an expert Special Education teacher writing actionable home-based recommendations for {$student->first_name}'s parents.
+
+OBSERVATION NOTES:
+{$logSummaries}
+
+STRICT QUALITY GUIDELINES:
+1. STRICT GROUNDING (NO HALLUCINATIONS): Suggest activities that directly connect to what was observed or practiced in the notes. Do not invent unmentioned skills, challenges, or behaviors.
+2. SUSTAINABLE: Activities must be realistic, take 5-10 minutes, and use common household objects (e.g., during dinner, bedtime, or routine play). Do not recommend complex therapeutic protocols or materials parents do not have.
+3. SPECIFIC & PRECISE: State exactly what parents can do and say in clear, concrete steps.
+4. FORMAT: Output exactly 1-2 clear, practical home activities in a warm, concise paragraph (under 4 sentences). Do NOT output headers, titles, bullet points, asterisks (**), or narrative summaries.";
             } else {
-                $prompt = "You are an expert Special Education teacher writing a formal Daily Report summary for a student named {$student->first_name}.
-                Read the following daily observation notes and generate a clear, warm, and professional daily report narrative paragraph summarizing the student's observations, activities, and progress today.
-                Do NOT include home recommendations or activity lists. Output only the classroom progress summary.
-                
-                Rough Observation Notes:
-                " . $logSummaries;
+                $prompt = "You are an expert Special Education teacher writing a formal Daily Report summary for {$student->first_name}.
+
+OBSERVATION NOTES:
+{$logSummaries}
+
+STRICT QUALITY GUIDELINES:
+1. STRICT FACTUAL ACCURACY (NO HALLUCINATIONS): Summarize ONLY what is documented in the observation notes. Do not extrapolate, exaggerate, or invent achievements or behavioral issues.
+2. PROFESSIONAL & WARM: Objective, supportive Special Education language suitable for official school records and parent viewing.
+3. CONCISE: Exactly one cohesive paragraph summarizing today's classroom activities, engagement, and support provided.
+4. FORMAT: Output only the narrative paragraph. Do NOT include headers, bullet points, asterisks (**), or home recommendations.";
             }
         } 
         else {
-            $prompt = "You are an expert Special Education Teacher. Write a highly professional {$timeframe} report for a student named {$student->first_name} {$student->last_name}. 
-            
-            Context 1: The student's current active IEP Goals: {$goalDescriptions}.
-            Context 2: The student's daily logs specifically from this {$timeframe} period: 
-            {$logSummaries}
-            
-            Strict Rules:
-            - You MUST write EXACTLY two paragraphs. No more, no less.
-            - Paragraph 1 should summarize the student's overall progress, highlighting strengths and achievements based on the daily logs.
-            - Paragraph 2 should address behavioral trends, areas needing support, and progress toward IEP goals.
-            - Do NOT use headers, titles, bullet points, or bold text. Just output two clean paragraphs.
-            - Use a warm, professional, and objective tone.";
+            $prompt = "You are an expert Special Education Teacher writing an official {$timeframe} progress report for {$student->first_name} {$student->last_name}.
+
+ACTIVE IEP GOALS:
+{$goalDescriptions}
+
+DOCUMENTED DAILY LOGS & CLASSROOM OBSERVATIONS:
+{$logSummaries}
+
+STRICT QUALITY RULES:
+1. STRICT GROUNDING (NO HALLUCINATION): Base every statement exclusively on the documented daily logs and active IEP goals. If logs are sparse, concisely summarize only observed patterns without inventing events, milestones, or diagnostic conclusions.
+2. PRECISE TWO-PARAGRAPH STRUCTURE:
+   - Paragraph 1: Summarize the student's documented academic and developmental progress, highlighting strengths and concrete achievements from this period.
+   - Paragraph 2: Address documented behavioral observations, support accommodations used, and measurable progress toward active IEP goals.
+3. SUSTAINABLE & CLEAR TONE: Use objective, professional, and compassionate Special Education terminology that is direct and easily understood by both educators and parents.
+4. FORMAT: Exactly two clean narrative paragraphs. Do NOT include titles, headers, bullet points, or markdown formatting like asterisks (**).";
         }
 
         try {
@@ -399,14 +410,14 @@ STRICT REVISION RULES:
                     'Content-Type' => 'application/json'
                 ])
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
-                    'model' => 'openai/gpt-oss-20b', 
+                    'model' => $model, 
                     'messages' => [
                         [
                             'role' => 'user',
                             'content' => $prompt
                         ]
                     ],
-                    'temperature' => 0.7
+                    'temperature' => 0.2
                 ]);
 
             if ($response->successful()) {

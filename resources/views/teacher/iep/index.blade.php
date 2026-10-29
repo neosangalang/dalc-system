@@ -787,10 +787,10 @@
                                 <h6 class="text-[13px] sm:text-[14px] font-extrabold text-[#8B5CF6] mb-1 flex items-center m-0">
                                     <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI IEP Builder
                                 </h6>
-                                <p class="text-[12px] font-medium text-[#9CA0AF] mb-5 m-0">Input the student's current status to generate Objectives and Activities.</p>
+                                <p class="text-[12px] font-medium text-[#9CA0AF] mb-5 m-0">Input specific baseline observations to generate measurable objectives and sustainable activities.</p>
                                 
                                 <label class="block text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5">Present Level of Performance</label>
-                                <textarea name="plop" id="ai-present-level" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar" rows="4" required placeholder="e.g., Can sit for 5-10 minutes but fidgety..."></textarea>
+                                <textarea name="plop" id="ai-present-level" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar" rows="4" required placeholder="e.g., Can sit for 5-10 minutes during group time with verbal cues; struggles with independent task transitions..."></textarea>
                                 
                                 <button type="button" id="generate-goals-btn" class="w-full inline-flex items-center justify-center px-4 py-3 bg-[#8B5CF6] text-white text-[13px] font-extrabold rounded-xl hover:bg-purple-600 transition-colors shadow-sm">
                                     <i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities

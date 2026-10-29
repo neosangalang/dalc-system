@@ -147,28 +147,48 @@ class DailyLogController extends Controller
             'raw_notes' => 'required|string|max:1000',
         ]);
 
-        $apiKey = config('services.groq.api_key', env('GROQ_API_KEY'));
+        $apiKey = trim(config('services.groq.api_key') ?? env('GROQ_API_KEY'), '"\' ');
+        $model = config('services.groq.model', 'openai/gpt-oss-20b');
 
         if (!$apiKey) {
             return response()->json(['error' => 'API key is missing. Please contact the administrator.'], 500);
         }
 
+        $systemPrompt = <<<PROMPT
+You are an expert Special Education (SPED) Teacher and Documentation Specialist. Convert informal daily notes into formal, objective, and professional IEP documentation language.
+
+CRITICAL INSTRUCTIONS:
+1. STRICT ZERO-HALLUCINATION RULE:
+   - Preserve 100% of the factual events, assistance levels, and observations from the informal notes.
+   - NEVER add, assume, embellish, or extrapolate any tasks, emotional states, behaviors, prompts, or results not explicitly present in the input notes.
+2. PRECISE & PROFESSIONAL LANGUAGE:
+   - Use objective, observable SPED terminology (e.g., 'demonstrated', 'completed with verbal prompting', 'participated in', 'engaged with visual supports').
+3. CONCISE & CLEAN OUTPUT:
+   - Output ONLY the final rewritten documentation text (1-3 sentences).
+   - Do NOT include any titles, prefixes, quotes, or introductory text (e.g., do NOT write 'Formal Documentation:' or 'The student...').
+   - Do NOT use markdown formatting like asterisks (**).
+PROMPT;
+
         try {
-            // FIXED: Using the exact model ID with the openai/ prefix
-            $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DALC-System/1.0',
+                    'Content-Type' => 'application/json',
+                ])
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
-                    'model' => 'openai/gpt-oss-20b',
+                    'model' => $model,
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => "You are an expert Special Education (SPED) teacher. Convert the following informal daily notes into formal, objective, professional IEP documentation language. Keep it concise, maintain the original meaning, and do not add fabricated details.\n\nCRITICAL INSTRUCTIONS:\n- Output ONLY the final rewritten sentence.\n- Do NOT include any titles, prefixes, or introductory text (e.g., do not write 'Formal Documentation:').\n- Do NOT use markdown formatting like asterisks (**)."
+                            'content' => $systemPrompt
                         ],
                         [
                             'role' => 'user',
                             'content' => "Informal Notes: " . $request->raw_notes
                         ]
                     ],
-                    'temperature' => 0.5,
+                    'temperature' => 0.2,
                 ]);
 
             if ($response->successful()) {
@@ -194,7 +214,8 @@ class DailyLogController extends Controller
             'student_id' => 'required|exists:students,id'
         ]);
 
-        $apiKey = config('services.groq.api_key', env('GROQ_API_KEY'));
+        $apiKey = trim(config('services.groq.api_key') ?? env('GROQ_API_KEY'), '"\' ');
+        $model = config('services.groq.model', 'openai/gpt-oss-20b');
 
         if (!$apiKey) {
             return response()->json(['success' => false, 'message' => 'API key is missing. Please check your .env file.']);
@@ -237,22 +258,49 @@ class DailyLogController extends Controller
         $contextPrompt .= "TODAY'S NEW NOTES:\n" . $request->notes . "\n\n";
         $contextPrompt .= "Based on the formal goals, recent history, and especially TODAY'S new notes, write the recommendation to the parents.";
 
+        $systemPrompt = <<<PROMPT
+You are an expert Special Education Teacher writing actionable, home-based recommendations for parents.
+
+CRITICAL QUALITY STANDARDS:
+1. STRICT ANTI-HALLUCINATION / GROUNDEDNESS:
+   - Anchor your suggestions ONLY to the specific skills practiced, progress made, or challenges documented in TODAY'S NEW NOTES.
+   - Do NOT invent, assume, or hallucinate events, tantrums, abilities, or behaviors that are not explicitly stated.
+
+2. SUSTAINABLE & LOW-BURDEN:
+   - Home activities must be sustainable and realistic for busy parents.
+   - Each activity must take only 5 to 10 minutes and use everyday household items (e.g., spoons during dinner, clothing items during dressing, bedtime reading, simple sorting).
+   - NEVER suggest complicated therapeutic protocols, expensive specialized equipment, or high-stress drills.
+
+3. SPECIFIC & PRECISE:
+   - State exactly what the parent should do and what the child practices in clear, concrete steps (e.g., 'Ask your child to hand you 2 blue socks while folding laundry to reinforce color identification').
+   - Avoid vague general advice like 'practice communication' or 'work on behavior'.
+
+4. CLEAR, WARM, AND CONCISE:
+   - Write a single cohesive, warm paragraph containing exactly 2 practical activities.
+   - Keep it strictly under 4 sentences.
+   - Do NOT use markdown asterisks (**), headers, bullet points, or numbering. Just clear, compassionate sentences.
+PROMPT;
+
         try {
-            // FIXED: Using the exact model ID with the openai/ prefix
-            $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DALC-System/1.0',
+                    'Content-Type' => 'application/json',
+                ])
                 ->post('https://api.groq.com/openai/v1/chat/completions', [
-                    'model' => 'openai/gpt-oss-20b',
+                    'model' => $model,
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => "You are a Special Education Teacher. Generate a short, friendly paragraph containing 2 specific, easy home-based activities the parents can do tonight. Keep it under 4 sentences. Tone must be warm and encouraging. Do not use markdown formatting like asterisks (**)."
+                            'content' => $systemPrompt
                         ],
                         [
                             'role' => 'user',
                             'content' => $contextPrompt
                         ]
                     ],
-                    'temperature' => 0.7,
+                    'temperature' => 0.2,
                 ]);
 
             if ($response->successful()) {
