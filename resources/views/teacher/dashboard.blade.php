@@ -25,31 +25,31 @@
 
         <!-- 2. STAT CARDS (4 Columns) -->
         <section>
-            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-full">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 w-full">
                 
                 <!-- Card 1: My Students (Blue Theme) -->
-                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[105px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] active:scale-[0.98]">
+                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[110px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] active:scale-[0.98]">
                     <h3 class="font-extrabold text-[26px] sm:text-[32px] text-[#3B82F6] leading-none mb-1.5 sm:mb-2 counter" data-target="{{ $myStudentsCount ?? ($myStudents ? $myStudents->count() : 0) }}">0</h3>
                     <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">My Students</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
                 <!-- Card 2: Logs This Week (Green Theme) -->
-                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[105px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] active:scale-[0.98]">
+                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[110px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] active:scale-[0.98]">
                     <h3 class="font-extrabold text-[26px] sm:text-[32px] text-[#10B981] leading-none mb-1.5 sm:mb-2 counter" data-target="{{ $logsThisWeek ?? 0 }}">0</h3>
                     <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">Logs This Week</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
                 <!-- Card 3: Active IEP Goals (Purple Theme) -->
-                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[105px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] active:scale-[0.98]">
+                <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[110px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] active:scale-[0.98]">
                     <h3 class="font-extrabold text-[26px] sm:text-[32px] text-[#8B5CF6] leading-none mb-1.5 sm:mb-2 counter" data-target="{{ $activeGoals ?? 0 }}">0</h3>
                     <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">Active IEP Goals</p>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
                 <!-- Card 4: Announcements Stat Card -->
-                <a href="{{ route('teacher.announcements') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6 flex flex-col justify-center relative overflow-hidden h-[105px] sm:h-[120px] block active:scale-[0.98]">
+                <a href="{{ route('teacher.announcements') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6 flex flex-col justify-center relative overflow-hidden h-[110px] sm:h-[120px] block active:scale-[0.98]">
                     
                     @if(isset($newAnnouncementsCount) && $newAnnouncementsCount > 0)
                         <div class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[20px] sm:min-w-[24px] z-20">
@@ -77,67 +77,65 @@
                 <span class="h-px flex-1 bg-black/10"></span>
             </div>
 
-            <!-- TEACHER MODULES -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-full">
+            <!-- TEACHER MODULES (2 cols on mobile, 4 on lg) -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 w-full">
                 
                 <!-- My Students -->
-                <a href="{{ route('teacher.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden active:scale-[0.98]">
-                    <div class="w-9 h-9 rounded-full bg-[#3B82F6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#3B82F6] relative z-10 shrink-0">
-                        <i class="fa-solid fa-users text-[#3B82F6] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('teacher.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#3B82F6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#3B82F6] relative z-10 shrink-0">
+                        <i class="fa-solid fa-users text-[#3B82F6] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#3B82F6]">My Students</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Manage Class</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#3B82F6]">My Students</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Manage Class</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
                 
                 <!-- IEP Goals (Updated with Notification Badge) -->
-                <a href="{{ route('teacher.iep-goals.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden active:scale-[0.98]">
-                    
+                <a href="{{ route('teacher.iep-goals.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
                     @if(isset($unreadIepCommentsCount) && $unreadIepCommentsCount > 0)
-                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20 animate-pulse">
-                            {{ $unreadIepCommentsCount }}
-                        </div>
+                        <span class="absolute top-3 sm:top-4 right-3 sm:right-4 flex h-3 w-3 z-20" title="{{ $unreadIepCommentsCount }} Unread Replies">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                        </span>
                     @endif
-
-                    <div class="w-9 h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10">
-                        <i class="fa-solid fa-bullseye text-[#8B5CF6] text-sm group-hover:text-white transition-colors"></i>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10 shrink-0">
+                        <i class="fa-solid fa-bullseye text-[#8B5CF6] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">IEP Goals</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Track Progress</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">IEP Goals</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Track Progress</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
                 
-                <!-- Daily Logs (Updated with Notification Badge) -->
-                <a href="{{ route('teacher.daily-logs.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    
+                <!-- Daily Logging (Updated with Notification Badge) -->
+                <a href="{{ route('teacher.daily-logs.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
                     @if(isset($unreadDailyLogCommentsCount) && $unreadDailyLogCommentsCount > 0)
-                        <div class="absolute top-4 right-4 bg-red-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[24px] z-20 animate-pulse">
-                            {{ $unreadDailyLogCommentsCount }}
-                        </div>
+                        <span class="absolute top-3 sm:top-4 right-3 sm:right-4 flex h-3 w-3 z-20" title="{{ $unreadDailyLogCommentsCount }} Unread Replies">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                        </span>
                     @endif
-
-                    <div class="w-9 h-9 rounded-full bg-[#10B981]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#10B981] relative z-10">
-                        <i class="fa-solid fa-pencil text-[#10B981] text-sm group-hover:text-white transition-colors"></i>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#10B981]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#10B981] relative z-10 shrink-0">
+                        <i class="fa-solid fa-pencil text-[#10B981] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#10B981]">Daily Logging</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Class Notes / List</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#10B981]">Daily Logging</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Class Notes / List</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
                 
                 <!-- Reports -->
-                <a href="{{ route('teacher.reports.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    <div class="w-9 h-9 rounded-full bg-[#F59E0B]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#F59E0B] relative z-10">
-                        <i class="fa-solid fa-file-signature text-[#F59E0B] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('teacher.reports.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#F59E0B]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#F59E0B] relative z-10 shrink-0">
+                        <i class="fa-solid fa-file-signature text-[#F59E0B] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#F59E0B]">Reports</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Report List</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#F59E0B]">Reports</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Report List</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#F59E0B] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
@@ -160,19 +158,18 @@
                 <span class="h-px flex-1 bg-black/10"></span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-5 w-full">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-5 w-full">
                 
                 {{-- Report Approvals --}}
                 @if($user->can_approve_reports)
-                <a href="{{ route('admin.report-approval.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    {{-- Admin badge --}}
-                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
-                    <div class="w-9 h-9 rounded-full bg-[#10B981]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#10B981] relative z-10">
-                        <i class="fa-solid fa-file-circle-check text-[#10B981] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('admin.report-approval.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#10B981]/30 hover:shadow-[0_8px_20px_-6px_rgba(16,185,129,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-2.5 right-2.5 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#10B981]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#10B981] relative z-10 shrink-0">
+                        <i class="fa-solid fa-file-circle-check text-[#10B981] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#10B981]">Approvals</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Review Reports</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#10B981]">Approvals</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Review Reports</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
@@ -180,14 +177,14 @@
 
                 {{-- User Accounts --}}
                 @if($user->can_manage_credentials)
-                <a href="{{ route('admin.accounts.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
-                    <div class="w-9 h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10">
-                        <i class="fa-solid fa-user-shield text-[#8B5CF6] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('admin.accounts.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-2.5 right-2.5 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10 shrink-0">
+                        <i class="fa-solid fa-user-shield text-[#8B5CF6] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">User Accounts</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Manage Access</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">User Accounts</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Manage Access</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
@@ -195,14 +192,14 @@
 
                 {{-- Academic Calendar --}}
                 @if($user->can_manage_calendar)
-                <a href="{{ route('admin.quarters.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
-                    <div class="w-9 h-9 rounded-full bg-[#F59E0B]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#F59E0B] relative z-10">
-                        <i class="fa-solid fa-calendar-days text-[#F59E0B] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('admin.quarters.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#F59E0B]/30 hover:shadow-[0_8px_20px_-6px_rgba(245,158,11,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-2.5 right-2.5 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#F59E0B]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#F59E0B] relative z-10 shrink-0">
+                        <i class="fa-solid fa-calendar-days text-[#F59E0B] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#F59E0B]">Calendar</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">System Terms</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#F59E0B]">Calendar</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">System Terms</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#F59E0B] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
@@ -210,14 +207,14 @@
 
                 {{-- Student Profiles (Create) --}}
                 @if($user->can_create_profiles)
-                <a href="{{ route('admin.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
-                    <div class="w-9 h-9 rounded-full bg-[#3B82F6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#3B82F6] relative z-10">
-                        <i class="fa-solid fa-user-plus text-[#3B82F6] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('admin.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-2.5 right-2.5 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#3B82F6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#3B82F6] relative z-10 shrink-0">
+                        <i class="fa-solid fa-user-plus text-[#3B82F6] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#3B82F6]">Student Profiles</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Create & Manage</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#3B82F6]">Student Profiles</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Create & Manage</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#3B82F6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
@@ -225,14 +222,14 @@
 
                 {{-- Archive --}}
                 @if($user->can_archive_students)
-                <a href="{{ route('admin.archive.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#6B7086]/30 hover:shadow-[0_8px_20px_-6px_rgba(107,112,134,0.2)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
-                    <div class="w-9 h-9 rounded-full bg-[#6B7086]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#6B7086] relative z-10">
-                        <i class="fa-solid fa-box-archive text-[#6B7086] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('admin.archive.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#6B7086]/30 hover:shadow-[0_8px_20px_-6px_rgba(107,112,134,0.2)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-2.5 right-2.5 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#6B7086]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#6B7086] relative z-10 shrink-0">
+                        <i class="fa-solid fa-box-archive text-[#6B7086] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#1E2657]">Archive</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Past Records</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#1E2657]">Archive</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Past Records</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#6B7086] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
@@ -240,14 +237,14 @@
 
                 {{-- Announcement Module --}}
                 @if($user->can_manage_announcements)
-                <a href="{{ route('admin.announcements.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 block p-5 h-[140px] flex flex-col justify-between relative overflow-hidden">
-                    <span class="absolute top-3 right-3 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
-                    <div class="w-9 h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10">
-                        <i class="fa-solid fa-bullhorn text-[#8B5CF6] text-sm group-hover:text-white transition-colors"></i>
+                <a href="{{ route('admin.announcements.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <span class="absolute top-2.5 right-2.5 text-[8px] font-extrabold text-[#C4922E] bg-[#C4922E]/10 px-1.5 py-0.5 rounded uppercase tracking-widest border border-[#C4922E]/20 z-20">Admin</span>
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10 shrink-0">
+                        <i class="fa-solid fa-bullhorn text-[#8B5CF6] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
                     </div>
                     <div class="relative z-10">
-                        <h3 class="text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">Announcements</h3>
-                        <p class="text-[12px] text-[#9CA0AF] font-medium m-0">Post & Manage</p>
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">Announcements</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Post & Manage</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
