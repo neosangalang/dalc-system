@@ -155,18 +155,40 @@ class DailyLogController extends Controller
         }
 
         $systemPrompt = <<<PROMPT
-You are an expert Special Education (SPED) Teacher and Documentation Specialist. Convert informal daily notes into formal, objective, and professional IEP documentation language.
+You are a Special Education teacher writing clear daily classroom observation notes. Your task is to polish informal, rough notes into simple, precise, and natural English.
 
-CRITICAL INSTRUCTIONS:
-1. STRICT ZERO-HALLUCINATION RULE:
-   - Preserve 100% of the factual events, assistance levels, and observations from the informal notes.
-   - NEVER add, assume, embellish, or extrapolate any tasks, emotional states, behaviors, prompts, or results not explicitly present in the input notes.
-2. PRECISE & PROFESSIONAL LANGUAGE:
-   - Use objective, observable SPED terminology (e.g., 'demonstrated', 'completed with verbal prompting', 'participated in', 'engaged with visual supports').
-3. CONCISE & CLEAN OUTPUT:
-   - Output ONLY the final rewritten documentation text (1-3 sentences).
-   - Do NOT include any titles, prefixes, quotes, or introductory text (e.g., do NOT write 'Formal Documentation:' or 'The student...').
-   - Do NOT use markdown formatting like asterisks (**).
+STRICT WRITING RULES:
+1. PRECISE & SIMPLE (NO COMPLICATED OR VAGUE JARGON):
+   - Keep the language simple, direct, and natural.
+   - Use straightforward everyday words. Describe what happened plainly without inflating or over-complicating it.
+   - DO NOT use stiff, robotic, or overly formal phrases.
+     * NEVER write: "demonstrated frustration following the occurrence of an error" -> INSTEAD write: "Neo became frustrated after making a mistake."
+     * NEVER write: "subsequent to the occurrence of" -> INSTEAD write: "after" or "when".
+     * NEVER write: "manifested behaviors indicative of" -> INSTEAD write: "showed" or "expressed".
+     * NEVER write: "engaged in the utilization of" -> INSTEAD write: "used".
+     * NEVER write: "participated in nutritional consumption" -> INSTEAD write: "ate lunch" or "ate snack".
+
+2. 100% FACTUAL & ACCURATE (ZERO HALLUCINATION):
+   - Only include what is explicitly mentioned in the teacher's rough note.
+   - Do NOT assume, invent, or extrapolate extra details, causes, interventions, or feelings.
+
+3. GRAMMAR & CLEANUP:
+   - Fix spelling, verb tenses (e.g., "become" -> "became"), and punctuation.
+   - Capitalize names (e.g., "neo" -> "Neo") and start of sentences.
+
+4. CLEAN, CONCISE OUTPUT:
+   - Output ONLY the rewritten note in 1 to 2 clear, simple sentences.
+   - Do NOT include quotes, bullet points, markdown bolding (**), or prefixes like "Daily Note:" or "Documentation:".
+
+EXAMPLES:
+- Input: neo become frustrated after making a mistake
+  Output: Neo became frustrated after making a mistake.
+- Input: worked on tracing letters needed 2 verbal reminders to stay on task
+  Output: Worked on tracing letters and needed two verbal reminders to stay on task.
+- Input: shared crayons with classmate during art time and smiled
+  Output: Shared crayons with a classmate during art class and showed a positive attitude.
+- Input: refused to wear shoes during sensory play but calmed down with teacher help
+  Output: Refused to wear shoes during sensory play, but calmed down with help from the teacher.
 PROMPT;
 
         try {
@@ -194,10 +216,12 @@ PROMPT;
             if ($response->successful()) {
                 $formalText = $response->json('choices.0.message.content');
                 
-                $formalText = preg_replace('/^\*\*.*?\*\*:?\s*/', '', trim($formalText));
-                $formalText = preg_replace('/^(Formal Documentation|Documentation):?\s*/i', '', $formalText);
+                $formalText = trim($formalText);
+                $formalText = preg_replace('/^\*\*.*?\*\*:?\s*/', '', $formalText);
+                $formalText = preg_replace('/^(Formal Documentation|Documentation|Daily Note|Note):?\s*/i', '', $formalText);
+                $formalText = trim($formalText, " \t\n\r\0\x0B\"'");
                 
-                return response()->json(['formal_note' => trim($formalText)]);
+                return response()->json(['formal_note' => $formalText]);
             }
 
             return response()->json(['error' => 'AI Error: ' . $response->body()], 500);

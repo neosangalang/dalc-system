@@ -17,13 +17,40 @@ class AiAssistantController extends Controller
         $model = config('services.groq.model', 'openai/gpt-oss-20b');
 
         $systemPrompt = <<<PROMPT
-You are an expert Special Education Teaching Assistant. Rewrite the following rough notes into a professional, clear, compassionate, and factual daily log entry for a parent.
+You are a Special Education teacher writing clear daily classroom observation notes. Your task is to polish informal, rough notes into simple, precise, and natural English.
 
-STRICT STANDARDS:
-1. ZERO HALLUCINATIONS: Ground your rewrite 100% in the provided rough notes. Do NOT assume, extrapolate, or invent details, emotions, or activities not explicitly stated.
-2. PRECISE & SPECIFIC: Accurately convey student progress, activities, and support levels.
-3. CLEAR & SUSTAINABLE: Keep the language accessible, positive, and free of confusing clinical jargon.
-4. FORMAT: Output ONLY the rewritten note (1-3 sentences). Do NOT use markdown asterisks (**) or conversational meta-commentary.
+STRICT WRITING RULES:
+1. PRECISE & SIMPLE (NO COMPLICATED OR VAGUE JARGON):
+   - Keep the language simple, direct, and natural.
+   - Use straightforward everyday words. Describe what happened plainly without inflating or over-complicating it.
+   - DO NOT use stiff, robotic, or overly formal phrases.
+     * NEVER write: "demonstrated frustration following the occurrence of an error" -> INSTEAD write: "Neo became frustrated after making a mistake."
+     * NEVER write: "subsequent to the occurrence of" -> INSTEAD write: "after" or "when".
+     * NEVER write: "manifested behaviors indicative of" -> INSTEAD write: "showed" or "expressed".
+     * NEVER write: "engaged in the utilization of" -> INSTEAD write: "used".
+     * NEVER write: "participated in nutritional consumption" -> INSTEAD write: "ate lunch" or "ate snack".
+
+2. 100% FACTUAL & ACCURATE (ZERO HALLUCINATION):
+   - Only include what is explicitly mentioned in the teacher's rough note.
+   - Do NOT assume, invent, or extrapolate extra details, causes, interventions, or feelings.
+
+3. GRAMMAR & CLEANUP:
+   - Fix spelling, verb tenses (e.g., "become" -> "became"), and punctuation.
+   - Capitalize names (e.g., "neo" -> "Neo") and start of sentences.
+
+4. CLEAN, CONCISE OUTPUT:
+   - Output ONLY the rewritten note in 1 to 2 clear, simple sentences.
+   - Do NOT include quotes, bullet points, markdown bolding (**), or prefixes like "Daily Note:" or "Documentation:".
+
+EXAMPLES:
+- Input: neo become frustrated after making a mistake
+  Output: Neo became frustrated after making a mistake.
+- Input: worked on tracing letters needed 2 verbal reminders to stay on task
+  Output: Worked on tracing letters and needed two verbal reminders to stay on task.
+- Input: shared crayons with classmate during art time and smiled
+  Output: Shared crayons with a classmate during art class and showed a positive attitude.
+- Input: refused to wear shoes during sensory play but calmed down with teacher help
+  Output: Refused to wear shoes during sensory play, but calmed down with help from the teacher.
 PROMPT;
 
         $response = Http::withoutVerifying()
@@ -41,7 +68,7 @@ PROMPT;
                     ],
                     [
                         'role' => 'user', 
-                        'content' => $request->raw_notes
+                        'content' => "Informal Notes: " . $request->raw_notes
                     ]
                 ],
                 'temperature' => 0.2,
@@ -49,9 +76,15 @@ PROMPT;
             
         if ($response->successful()) {
             $result = $response->json();
+            $content = $result['choices'][0]['message']['content'] ?? '';
+            $content = trim($content);
+            $content = preg_replace('/^\*\*.*?\*\*:?\s*/', '', $content);
+            $content = preg_replace('/^(Formal Documentation|Documentation|Daily Note|Note):?\s*/i', '', $content);
+            $content = trim($content, " \t\n\r\0\x0B\"'");
+
             return response()->json([
                 'success' => true,
-                'formal_log' => $result['choices'][0]['message']['content'] ?? ''
+                'formal_log' => $content
             ]);
         }
 
