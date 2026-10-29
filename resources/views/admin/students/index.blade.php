@@ -323,12 +323,10 @@
                                 @if($student->status !== 'archived')
                                 <!-- EDIT MODAL -->
                                 <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+                                    <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                                         <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel editing this student?')) { showEditModal = false; deletedDocIds = []; }"></div>
 
-                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                                        <div x-show="showEditModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border-t sm:border border-black/15 w-full relative z-10 max-h-[92dvh] sm:max-h-none flex flex-col">
+                                        <div x-show="showEditModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-3xl border-t sm:border border-black/15 z-10 flex flex-col overflow-hidden">
                                             <form action="{{ route('admin.students.update', $student->id) }}" method="POST" enctype="multipart/form-data" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PUT')
@@ -656,12 +654,10 @@
 
         <!-- CREATE MODAL -->
         <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+            <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                 <div x-show="showCreateModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false"></div>
 
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                <div x-show="showCreateModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border-t sm:border border-black/15 w-full relative z-10 max-h-[92dvh] sm:max-h-none flex flex-col">
+                <div x-show="showCreateModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-3xl border-t sm:border border-black/15 z-10 flex flex-col overflow-hidden">
                     <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none" onsubmit="if(!document.getElementById('create_guardian_id').value){ alert('Please select a guardian before submitting.'); return false; }">
                         @csrf
 

@@ -607,11 +607,10 @@
     @foreach($myStudents as $student)
         @foreach($goals->where('student_id', $student->id) as $goal)
             <div x-show="activeEditModal === {{ $goal->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+                <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                     <div x-show="activeEditModal === {{ $goal->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="activeEditModal = null"></div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                     
-                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border-t sm:border border-black/15 relative z-10 max-h-[92dvh] sm:max-h-[85vh] flex flex-col">
+                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="relative w-full max-h-[92dvh] sm:max-h-[85vh] rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-3xl border-t sm:border border-black/15 z-10 flex flex-col overflow-hidden">
                         
                         <div class="flex flex-col flex-1 overflow-hidden min-h-0">
                             
@@ -730,10 +729,9 @@
     <!-- CREATE IEP GOAL MODAL -->
     <!-- ========================================== -->
     <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+        <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
             <div x-show="showAddModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showAddModal = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showAddModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border-t sm:border border-black/15 relative z-10 max-h-[92dvh] sm:max-h-[85vh] flex flex-col">
+            <div x-show="showAddModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-[85vh] rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-3xl border-t sm:border border-black/15 z-10 flex flex-col overflow-hidden">
                 
                 <form action="{{ route('teacher.iep-goals.store') }}" method="POST" class="m-0 flex flex-col flex-1 overflow-hidden min-h-0">
                     @csrf

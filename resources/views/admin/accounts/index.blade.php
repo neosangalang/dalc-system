@@ -206,10 +206,9 @@ x-init="
 
                                 <!-- EDIT INFO MODAL (TEACHER) -->
                                 <div x-show="showEditInfoModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+                                    <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                                         <div x-show="showEditInfoModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false"></div>
-                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showEditInfoModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                                        <div x-show="showEditInfoModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-xl border-t sm:border border-black/15 flex flex-col overflow-hidden">
                                             
                                             <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
@@ -270,10 +269,9 @@ x-init="
 
                                 <!-- RESET PASSWORD MODAL (TEACHER) -->
                                 <div x-show="showResetModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+                                    <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                                         <div x-show="showResetModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showResetModal = false"></div>
-                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showResetModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                                        <div x-show="showResetModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-xl border-t sm:border border-black/15 flex flex-col overflow-hidden">
                                             
                                             <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
@@ -339,10 +337,9 @@ x-init="
 
                                 <!-- PERMISSIONS MODAL -->
                                 <div x-show="showPermModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+                                    <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                                         <div x-show="showPermModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="cancelPermModal()"></div>
-                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showPermModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                                        <div x-show="showPermModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-xl border-t sm:border border-black/15 flex flex-col overflow-hidden">
                                             <form x-ref="permForm" action="{{ route('admin.accounts.permissions', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PATCH')
@@ -586,10 +583,9 @@ x-init="
 
                                 <!-- EDIT INFO MODAL (GUARDIAN) -->
                                 <div x-show="showEditInfoModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+                                    <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                                         <div x-show="showEditInfoModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false"></div>
-                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showEditInfoModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                                        <div x-show="showEditInfoModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-xl border-t sm:border border-black/15 flex flex-col overflow-hidden">
                                             
                                             <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
@@ -664,10 +660,9 @@ x-init="
 
                                 <!-- RESET PASSWORD MODAL (GUARDIAN) -->
                                 <div x-show="showResetModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+                                    <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
                                         <div x-show="showResetModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showResetModal = false"></div>
-                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showResetModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                                        <div x-show="showResetModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-xl border-t sm:border border-black/15 flex flex-col overflow-hidden">
                                             
                                             <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
@@ -750,10 +745,9 @@ x-init="
     @if(Auth::user()->role === 'admin')
     <!-- ================= CREATE TEACHER ACCOUNT MODAL ================= -->
     <div x-show="showCreateTeacherModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+        <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
             <div x-show="showCreateTeacherModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showCreateTeacherModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+            <div x-show="showCreateTeacherModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-md border-t sm:border border-black/15 flex flex-col overflow-hidden">
                 <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                     @csrf
                     <input type="hidden" name="role" value="teacher">
@@ -832,10 +826,9 @@ x-init="
 
     <!-- ================= CREATE GUARDIAN ACCOUNT MODAL ================= -->
     <div x-show="showCreateGuardianModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
+        <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
             <div x-show="showCreateGuardianModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showCreateGuardianModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+            <div x-show="showCreateGuardianModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-md border-t sm:border border-black/15 flex flex-col overflow-hidden">
                 <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                     @csrf
                     <input type="hidden" name="role" value="guardian">
