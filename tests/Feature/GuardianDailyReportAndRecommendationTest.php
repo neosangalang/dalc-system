@@ -88,31 +88,27 @@ class GuardianDailyReportAndRecommendationTest extends TestCase
             'home_recommendations' => 'Practice counting with blocks tonight.',
         ]);
 
-        // 1. Without formal daily report, fallback classroom notes should be labeled "Daily Report:"
+        // 1. Without formal daily report, raw daily log notes should NOT appear for the guardian
         $response = $this->actingAs($guardian)
             ->withSession(['mfa_verified' => true, 'active_child_id' => $student->id])
             ->get(route('guardian.recommendations'));
         $response->assertOk();
-        $response->assertSee('Daily Report:');
-        $response->assertSee('Alice had a wonderful time in class today.');
-        $response->assertSee("Suggested Activity:");
-        $response->assertSee('Practice counting with blocks tonight.');
+        $response->assertDontSee('Alice had a wonderful time in class today.');
 
-        // Also check guardian dashboard session card
+        // Also check guardian dashboard: raw notes should NOT appear
         $dashResponse = $this->actingAs($guardian)
             ->withSession(['mfa_verified' => true, 'active_child_id' => $student->id])
             ->get(route('guardian.dashboard'));
         $dashResponse->assertOk();
-        $dashResponse->assertSee('Daily Report:');
-        $dashResponse->assertSee('Alice had a wonderful time in class today.');
+        $dashResponse->assertDontSee('Alice had a wonderful time in class today.');
 
-        // 2. When a formal approved Daily Report exists, its content should be displayed under "Daily Report:"
+        // 2. When a formal approved Daily Report exists, its content and home recommendations are displayed
         $report = Report::create([
             'student_id' => $student->id,
             'teacher_id' => $teacher->id,
             'report_type' => 'daily',
             'report_date' => $today,
-            'content' => 'Official AI-generated Daily Report narrative summary for Alice.',
+            'content' => "Official AI-generated Daily Report narrative summary for Alice.\n\nTonight's Suggested Activity:\nPractice counting with blocks tonight.",
             'status' => 'approved',
         ]);
 
@@ -122,6 +118,7 @@ class GuardianDailyReportAndRecommendationTest extends TestCase
         $responseWithReport->assertOk();
         $responseWithReport->assertSee('Daily Report:');
         $responseWithReport->assertSee('Official AI-generated Daily Report narrative summary for Alice.');
+        $responseWithReport->assertSee('Practice counting with blocks tonight.');
 
         $dashWithReport = $this->actingAs($guardian)
             ->withSession(['mfa_verified' => true, 'active_child_id' => $student->id])
@@ -239,7 +236,16 @@ class GuardianDailyReportAndRecommendationTest extends TestCase
 
         $yesterday = now()->subDay()->format('Y-m-d');
 
-        // Teacher submits report TODAY, but for activity that happened YESTERDAY
+        // Teacher submits daily report for activity that happened YESTERDAY
+        Report::create([
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'report_type' => 'daily',
+            'report_date' => $yesterday,
+            'content' => 'Lucas completed puzzle games yesterday.',
+            'status' => 'approved',
+        ]);
+
         DailyLog::create([
             'student_id' => $student->id,
             'teacher_id' => $teacher->id,
@@ -304,6 +310,14 @@ class GuardianDailyReportAndRecommendationTest extends TestCase
         $twoDaysAgo = now()->subDays(2)->format('Y-m-d');
         $threeDaysAgo = now()->subDays(3)->format('Y-m-d');
 
+        Report::create([
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'report_type' => 'daily',
+            'report_date' => $twoDaysAgo,
+            'content' => 'Report for Maya from TWO days ago.',
+            'status' => 'approved',
+        ]);
         DailyLog::create([
             'student_id' => $student->id,
             'teacher_id' => $teacher->id,
@@ -313,6 +327,14 @@ class GuardianDailyReportAndRecommendationTest extends TestCase
             'home_recommendations' => 'Two days ago activity recommendation.',
         ]);
 
+        Report::create([
+            'student_id' => $student->id,
+            'teacher_id' => $teacher->id,
+            'report_type' => 'daily',
+            'report_date' => $threeDaysAgo,
+            'content' => 'Report for Maya from THREE days ago.',
+            'status' => 'approved',
+        ]);
         DailyLog::create([
             'student_id' => $student->id,
             'teacher_id' => $teacher->id,

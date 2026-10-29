@@ -16,16 +16,18 @@ class GuardianAlertNotification extends Notification
     public ?string $studentName;
     public ?string $actionText;
     public ?string $extraDetails;
+    public bool $sendEmail;
 
     /**
      * Create a new notification instance.
      *
-     * @param string $title Short category/headline, e.g. "Daily Log & Home Activity", "Quarterly Report Approved"
+     * @param string $title Short category/headline, e.g. "Daily Report & Home Activity", "Quarterly Report Approved"
      * @param string $message Clear explanatory message for the guardian
      * @param string $url Link to the relevant portal page
      * @param string|null $studentName Child's name
      * @param string|null $actionText Button label (default: "View on Portal")
      * @param string|null $extraDetails Optional highlights (e.g., home reinforcement activity snippet)
+     * @param bool $sendEmail Whether to send an email in addition to database notification (default: true)
      */
     public function __construct(
         string $title,
@@ -33,7 +35,8 @@ class GuardianAlertNotification extends Notification
         string $url = '#',
         ?string $studentName = null,
         ?string $actionText = 'View on Portal',
-        ?string $extraDetails = null
+        ?string $extraDetails = null,
+        bool $sendEmail = true
     ) {
         $this->title = $title;
         $this->message = $message;
@@ -41,17 +44,18 @@ class GuardianAlertNotification extends Notification
         $this->studentName = $studentName;
         $this->actionText = $actionText ?: 'View on Portal';
         $this->extraDetails = $extraDetails;
+        $this->sendEmail = $sendEmail;
     }
 
     /**
      * Get the notification's delivery channels.
-     * Delivers to database bell, and if the user has a valid email, sends email as well.
+     * Delivers to database bell, and if the user has a valid email and $sendEmail is true, sends email as well.
      */
     public function via(object $notifiable): array
     {
         $channels = ['database'];
 
-        if (!empty($notifiable->email) && filter_var($notifiable->email, FILTER_VALIDATE_EMAIL)) {
+        if ($this->sendEmail && !empty($notifiable->email) && filter_var($notifiable->email, FILTER_VALIDATE_EMAIL)) {
             $channels[] = 'mail';
         }
 

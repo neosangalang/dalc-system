@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\DailyLog;
 use App\Models\Report; 
-use App\Notifications\SystemAlert;
-use App\Notifications\GuardianAlertNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -112,31 +110,6 @@ class DailyLogController extends Controller
             'home_recommendations' => $request->home_recommendations ?? null,
             'image_path' => $imagePath, 
         ]);
-
-        // Notify the Guardian via in-app bell & email
-        try {
-            $student->load('guardian');
-            if ($student->guardian) {
-                $hasHomeAdvice = !empty($request->home_recommendations);
-                $title = $hasHomeAdvice ? 'Daily Log & Home Activity' : 'Daily Observation Log';
-                $teacherName = Auth::user()->name;
-                $message = "Teacher {$teacherName} posted today's Daily Log" . ($hasHomeAdvice ? " and Home-based recommendations" : "") . " for {$student->first_name}.";
-                $extraDetails = $hasHomeAdvice 
-                    ? "Home Reinforcement Activity: " . Str::limit(strip_tags($request->home_recommendations), 140) 
-                    : "Notes: " . Str::limit(strip_tags($finalNotes), 120);
-
-                $student->guardian->notify(new GuardianAlertNotification(
-                    title: $title,
-                    message: $message,
-                    url: route('guardian.dashboard'),
-                    studentName: $student->first_name,
-                    actionText: 'View Daily Log & Activities',
-                    extraDetails: $extraDetails
-                ));
-            }
-        } catch (\Exception $e) {
-            Log::error('Guardian notification failed on daily log create: ' . $e->getMessage());
-        }
 
         return redirect()->route('teacher.daily-logs.index')->with('success', 'Daily log saved successfully!');
     }

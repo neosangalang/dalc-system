@@ -14,7 +14,10 @@ use App\Models\AcademicQuarter;
 use App\Models\DailyLog;
 use App\Models\User;
 use App\Notifications\SystemAlert;
+use App\Notifications\GuardianAlertNotification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ReportController extends Controller
 {
@@ -190,6 +193,38 @@ class ReportController extends Controller
                     'home_recommendations' => $homeRec,
                     'image_path' => $imagePath,
                 ]);
+            }
+        }
+
+        // When Daily Report is submitted (published), notify the Guardian via in-app bell & email
+        if ($request->report_type === 'daily' && $status === 'approved') {
+            try {
+                $student = Student::with('guardian')->find($request->student_id);
+                if ($student && $student->guardian) {
+                    $hasHomeAdvice = $request->filled('home_recommendations');
+                    $title = $hasHomeAdvice ? 'Daily Report & Home Activity' : 'Daily Report';
+                    $teacherName = auth()->user()->name;
+                    $message = "Teacher {$teacherName} published today's Daily Report" . ($hasHomeAdvice ? " and home recommendations" : "") . " for {$student->first_name}.";
+                    
+                    $extraDetails = $hasHomeAdvice 
+                        ? "Tonight's Suggested Activity: " . Str::limit(strip_tags($request->home_recommendations), 140) 
+                        : "Daily Summary: " . Str::limit(strip_tags($finalContent), 120);
+
+                    $targetUrl = \Carbon\Carbon::parse($reportDate)->isToday() 
+                        ? route('guardian.dashboard') 
+                        : route('guardian.reports');
+
+                    $student->guardian->notify(new GuardianAlertNotification(
+                        title: $title,
+                        message: $message,
+                        url: $targetUrl,
+                        studentName: $student->first_name,
+                        actionText: 'View Daily Report',
+                        extraDetails: $extraDetails
+                    ));
+                }
+            } catch (\Exception $e) {
+                Log::error('Guardian notification failed on daily report submit: ' . $e->getMessage());
             }
         }
 

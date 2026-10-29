@@ -95,10 +95,10 @@
                             $photoUrl = route('secure.report-photo', $log->daily_report->id);
                         }
 
-                        // Parse content and extract "Tonight's Suggested Activity" if nested inside report narrative
+                        // Parse content and extract "Tonight's Suggested Activity" if nested inside report narrative (strictly from approved Daily Report)
                         $fullContent = (isset($log->daily_report) && $log->daily_report && !empty($log->daily_report->content)) 
                             ? $log->daily_report->content 
-                            : ($log->notes ?? '');
+                            : '';
 
                         $dailyReportText = $fullContent;
                         $suggestedActivityText = $log->home_recommendations ?? '';
@@ -165,7 +165,7 @@
                                                     </h6>
                                                 </div>
                                                 <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
-                                                    Session Log
+                                                    Official Report
                                                 </span>
                                             </div>
                                             <div class="m-0 leading-relaxed text-slate-700 font-medium">
@@ -228,7 +228,7 @@
                                             </h6>
                                         </div>
                                         <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
-                                            Session Log
+                                            Official Report
                                         </span>
                                     </div>
                                     <div class="m-0 leading-relaxed text-slate-700 font-medium">

@@ -469,30 +469,35 @@
                             <!-- Unified Card Body -->
                             <div class="p-5 sm:p-6 flex flex-col gap-4">
                                 
-                                <!-- 1. Daily Report Block -->
-                                @if(isset($log->daily_report) && $log->daily_report)
+                                <!-- 1. Daily Report Block (Strictly from approved Daily Report) -->
+                                @php
+                                    $dashReportText = (isset($log->daily_report) && $log->daily_report) ? $log->daily_report->content : '';
+                                    $dashHomeRec = $log->home_recommendations ?? '';
+
+                                    if (preg_match('/^(.*?)(?:\r?\n)+(?:Tonight\'s Suggested Activity|Tonight\'s Suggested Home Activity|Home Activity):?\s*(.*)$/si', $dashReportText, $matches)) {
+                                        $dashReportText = trim($matches[1]);
+                                        if (empty($dashHomeRec) && !empty($matches[2])) {
+                                            $dashHomeRec = trim($matches[2]);
+                                        }
+                                    }
+                                @endphp
+
+                                @if(!empty($dashReportText))
                                     <div class="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-4 sm:p-5">
                                         <h5 class="text-[11px] font-extrabold uppercase tracking-widest text-indigo-700 mb-2 flex items-center gap-2">
                                             <i class="fa-solid fa-file-lines text-indigo-600"></i> Daily Report:
                                         </h5>
-                                        <p class="text-[14px] md:text-[13px] font-medium text-slate-800 leading-relaxed m-0 whitespace-pre-line">{{ $log->daily_report->content }}</p>
-                                    </div>
-                                @elseif($log->notes)
-                                    <div class="bg-[#F8FAFC] border border-black/10 rounded-2xl p-4 sm:p-5">
-                                        <h5 class="text-[11px] font-extrabold uppercase tracking-widest text-[#3B82F6] mb-2 flex items-center gap-2">
-                                            <i class="fa-solid fa-file-lines text-[#3B82F6]"></i> Daily Report:
-                                        </h5>
-                                        <p class="text-[14px] md:text-[13px] font-medium text-[#1E2657] leading-relaxed m-0 whitespace-pre-line">{{ $log->notes }}</p>
+                                        <p class="text-[14px] md:text-[13px] font-medium text-slate-800 leading-relaxed m-0 whitespace-pre-line">{{ $dashReportText }}</p>
                                     </div>
                                 @endif
 
                                 <!-- 2. Tonight's Suggested Home Activity Block (if present) -->
-                                @if($log->home_recommendations)
+                                @if(!empty($dashHomeRec))
                                     <div class="bg-emerald-50/70 border border-emerald-200/80 border-l-4 border-l-emerald-500 rounded-2xl p-4 sm:p-5">
                                         <h5 class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-700 mb-2 flex items-center gap-2">
                                             <i class="fa-solid fa-house-user text-emerald-600"></i> Tonight's Suggested Activity:
                                         </h5>
-                                        <p class="text-[14px] md:text-[13px] font-medium text-emerald-950 leading-relaxed m-0 whitespace-pre-line">{{ $log->home_recommendations }}</p>
+                                        <p class="text-[14px] md:text-[13px] font-medium text-emerald-950 leading-relaxed m-0 whitespace-pre-line">{{ $dashHomeRec }}</p>
                                     </div>
                                 @endif
 
