@@ -113,9 +113,6 @@
                 <span class="legal-badge bg-amber-500/20 text-amber-300 border border-amber-400/30">
                     <i class="fa fa-child-reaching"></i> Special Education Standards
                 </span>
-                <span class="legal-badge bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                    <i class="fa fa-robot"></i> Ethical AI Proxy
-                </span>
             </div>
             <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight m-0">@yield('page_title', 'Terms & Institutional Policies')</h2>
             <p class="text-xs sm:text-sm text-slate-200 mt-2 max-w-3xl leading-relaxed m-0">
@@ -135,10 +132,6 @@
                 <a href="{{ route('legal.privacy') }}" 
                    class="px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-2 {{ request()->routeIs('legal.privacy') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#4B5563] hover:text-[#1E2657] hover:bg-slate-100' }}">
                     <i class="fa fa-user-shield"></i> Privacy Policy (RA 10173)
-                </a>
-                <a href="{{ route('legal.ai-ethics') }}" 
-                   class="px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-2 {{ request()->routeIs('legal.ai-ethics') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#4B5563] hover:text-[#1E2657] hover:bg-slate-100' }}">
-                    <i class="fa fa-microchip"></i> AI SPED & Clinical Ethics
                 </a>
                 <a href="{{ route('legal.parental-consent') }}" 
                    class="px-3.5 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-2 {{ request()->routeIs('legal.parental-consent') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#4B5563] hover:text-[#1E2657] hover:bg-slate-100' }}">
@@ -219,7 +212,6 @@
                 <ul class="space-y-1.5 list-none p-0 m-0">
                     <li><a href="{{ route('legal.terms') }}" class="text-slate-300 hover:text-white transition-colors">Terms & Conditions</a></li>
                     <li><a href="{{ route('legal.privacy') }}" class="text-slate-300 hover:text-white transition-colors">Privacy Policy (RA 10173)</a></li>
-                    <li><a href="{{ route('legal.ai-ethics') }}" class="text-slate-300 hover:text-white transition-colors">AI SPED Assistant Ethics & Clinical Disclaimer</a></li>
                     <li><a href="{{ route('legal.parental-consent') }}" class="text-slate-300 hover:text-white transition-colors">Parental Consent & Media Release Agreement</a></li>
                 </ul>
             </div>

@@ -29,17 +29,6 @@ class LegalController extends Controller
     }
 
     /**
-     * Display the AI SPED Assistant Ethics & Clinical Disclaimer.
-     */
-    public function aiEthics()
-    {
-        return view('legal.ai-ethics', [
-            'activeTab' => 'ai-ethics',
-            'lastUpdated' => 'October 28, 2026',
-        ]);
-    }
-
-    /**
      * Display the Parental / Guardian Consent & Photo/Media Release Policy.
      */
     public function parentalConsent()

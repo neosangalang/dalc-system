@@ -130,8 +130,7 @@ Confidential student files and medical diagnostics are never placed in `public/s
 - [x] **Institutional Terms of Use**:
   - Live agreement at `/terms` establishing zero-trust credential handling and barring unauthorized re-publication.
   - Enforced acceptance checkbox on Gate 2 first-login setup (`/security-setup`).
-- [x] **AI SPED Assistant Ethics & Clinical Disclaimer**:
-  - Documented guidelines at `/policies/ai-ethics`.
+- [x] **AI SPED Assistant Data Security & Clinical Safeguards**:
   - Zero-PII server-side proxy stripping student surnames and LRN before forwarding context to Groq Cloud.
   - Human-in-the-loop guarantee requiring educator verification prior to committing drafts.
 - [x] **Parental Consent & Media Release Policy**:

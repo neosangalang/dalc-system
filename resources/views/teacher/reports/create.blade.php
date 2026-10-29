@@ -127,7 +127,7 @@
                         </button>
 
                         <div class="mt-2 text-center text-[10.5px] text-amber-800/80 font-medium">
-                            <i class="fa-solid fa-info-circle mr-1"></i> Supplementary home activities only &bull; Review against student needs (<a href="{{ route('legal.ai-ethics') }}" target="_blank" class="underline font-bold">Policy</a>)
+                            <i class="fa-solid fa-info-circle mr-1"></i> Supplementary home activities only &bull; Review against student needs
                         </div>
                     </div>
 
@@ -173,7 +173,7 @@
                         <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 px-1">
                             <span class="flex items-center gap-1.5">
                                 <i class="fa fa-shield-halved text-indigo-500"></i>
-                                <span>AI SPED Draft: Educator review required before submitting (<a href="{{ route('legal.ai-ethics') }}" target="_blank" class="text-indigo-600 font-bold hover:underline">Clinical Policy</a>)</span>
+                                <span>AI SPED Draft: Educator review required before submitting</span>
                             </span>
                             <span class="text-[10px] text-slate-400 hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                         </div>

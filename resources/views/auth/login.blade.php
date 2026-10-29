@@ -90,8 +90,6 @@
         <!-- Compliance & Security Badge -->
         <div class="absolute bottom-3 text-center text-white/70 text-[11px] font-semibold space-x-2">
             <span><i class="fa fa-shield-halved text-emerald-400"></i> 3-Gate MFA Protected</span>
-            <span>&bull;</span>
-            <a href="{{ route('legal.ai-ethics') }}" target="_blank" class="text-white/80 hover:text-white underline">AI Ethics Policy</a>
         </div>
     </div>
 

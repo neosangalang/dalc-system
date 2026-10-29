@@ -39,7 +39,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // ==========================================
 Route::get('/terms', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('/privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
-Route::get('/policies/ai-ethics', [LegalController::class, 'aiEthics'])->name('legal.ai-ethics');
 Route::get('/policies/parental-consent', [LegalController::class, 'parentalConsent'])->name('legal.parental-consent');
 
 // ==========================================

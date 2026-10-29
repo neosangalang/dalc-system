@@ -800,7 +800,7 @@
                                 <div class="mt-2.5 flex items-center justify-between text-[11px] text-[#6B7086] px-1">
                                     <span class="flex items-center gap-1.5">
                                         <i class="fa fa-shield-halved text-[#8B5CF6]"></i>
-                                        <span>AI SPED Assistant Draft &bull; Review against clinical baselines (<a href="{{ route('legal.ai-ethics') }}" target="_blank" class="text-[#8B5CF6] font-bold hover:underline">Clinical Policy</a>)</span>
+                                        <span>AI SPED Assistant Draft &bull; Review against clinical baselines</span>
                                     </span>
                                     <span class="text-[10px] text-[#9CA0AF] hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                                 </div>

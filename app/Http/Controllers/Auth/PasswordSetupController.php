@@ -19,7 +19,7 @@ class PasswordSetupController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
             'agree_terms' => ['required', 'accepted'],
         ], [
-            'agree_terms.accepted' => 'You must read and agree to the DALC Terms of Use, Privacy Policy, and AI Ethics Guidelines to proceed.',
+            'agree_terms.accepted' => 'You must read and agree to the DALC Terms and Conditions and Privacy Policy to proceed.',
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
