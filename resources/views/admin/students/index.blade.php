@@ -263,8 +263,13 @@
                                         @if($student->guardian)
                                         <div>
                                             <span class="hidden md:block text-[9px] font-extrabold tracking-widest text-[#9CA0AF] uppercase mb-0.5">Guardian</span>
-                                            <div class="text-[11px] md:text-[12px] text-[#1E2657] font-bold flex items-center bg-[#F4F6FA] md:bg-transparent px-2 py-1 md:p-0 rounded-md border border-black/5 md:border-none">
+                                            <div class="text-[11px] md:text-[12px] text-[#1E2657] font-bold flex items-center bg-[#F4F6FA] md:bg-transparent px-2 py-1 md:p-0 rounded-md border border-black/5 md:border-none flex-wrap gap-1">
                                                 <i class="fa fa-user-shield text-[#10B981] mr-1.5 w-4 text-center"></i> {{ $student->guardian->name }}
+                                                @if($student->guardian->mfa_enabled)
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20" title="MFA Required">MFA</span>
+                                                @else
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20" title="Normal Sign-In">Normal</span>
+                                                @endif
                                             </div>
                                         </div>
                                         @endif

@@ -143,6 +143,30 @@
                             <span class="text-[#9CA0AF] italic">No phone number on file</span>
                             @endif
                         </div>
+
+                        <!-- Guardian MFA / Sign-In Method Toggle for Teacher -->
+                        <div class="mt-3 pt-2.5 border-t border-black/10 flex items-center justify-between gap-2">
+                            <div>
+                                <span class="text-[9px] font-extrabold text-[#9CA0AF] uppercase tracking-widest block">Sign-In Method</span>
+                                @if($student->guardian->mfa_enabled)
+                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#8B5CF6]">
+                                        <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#3B82F6]">
+                                        <i class="fa fa-key text-[10px]"></i> Normal Sign-In
+                                    </span>
+                                @endif
+                            </div>
+                            <form action="{{ route('guardians.toggle-mfa', $student->guardian->id) }}" method="POST" class="m-0" onsubmit="return confirm('Change sign-in mode for {{ addslashes($student->guardian->name) }} to {{ $student->guardian->mfa_enabled ? 'Normal Sign-In' : 'MFA Required' }}?');">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="px-2.5 py-1.5 bg-white border border-black/15 text-[11px] font-extrabold rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-1.5 {{ $student->guardian->mfa_enabled ? 'text-[#8B5CF6] hover:border-[#8B5CF6]/40' : 'text-[#3B82F6] hover:border-[#3B82F6]/40' }}">
+                                    <i class="fa {{ $student->guardian->mfa_enabled ? 'fa-shield-halved' : 'fa-unlock-alt' }} text-xs"></i>
+                                    <span>{{ $student->guardian->mfa_enabled ? 'Disable MFA' : 'Enable MFA' }}</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     @endif
                 </div>

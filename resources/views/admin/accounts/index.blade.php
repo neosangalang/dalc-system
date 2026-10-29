@@ -477,6 +477,7 @@ x-init="
                         <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">User Profile</th>
                         <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Contact Information</th>
                         <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Status</th>
+                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Sign-In Method</th>
                         <th scope="col" class="px-6 py-4 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Actions</th>
                     </tr>
                 </thead>
@@ -523,10 +524,35 @@ x-init="
                                     @endif
                                 </div>
                             </td>
+
+                            <!-- 3.5 Sign-In Method (MFA vs Normal) -->
+                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle">
+                                <div class="pt-1">
+                                    @if($user->mfa_enabled)
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 uppercase tracking-wider shadow-sm">
+                                            <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 uppercase tracking-wider shadow-sm">
+                                            <i class="fa fa-key text-[10px]"></i> Normal Sign-In
+                                        </span>
+                                    @endif
+                                </div>
+                            </td>
                             
                             <!-- 4. Actions Footer -->
                             <td class="block md:table-cell px-4 py-4 md:px-6 md:py-4 md:bg-transparent align-middle">
                                 <div class="flex flex-wrap lg:flex-nowrap gap-2 w-full md:justify-end pt-1">
+
+                                    <!-- Toggle MFA Button -->
+                                    <form action="{{ route('guardians.toggle-mfa', $user->id) }}" method="POST" class="m-0 flex" onsubmit="return confirm('Change sign-in mode for {{ addslashes($user->name) }} to {{ $user->mfa_enabled ? 'Normal Sign-In' : 'MFA Required' }}?');">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50 transition-colors shadow-sm whitespace-nowrap" title="{{ $user->mfa_enabled ? 'Switch to Normal Sign-In' : 'Require Two-Factor Authentication' }}">
+                                            <i class="fa {{ $user->mfa_enabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]' }} mr-1.5"></i>
+                                            <span>{{ $user->mfa_enabled ? 'Disable MFA' : 'Enable MFA' }}</span>
+                                        </button>
+                                    </form>
 
                                     <!-- Edit Info Button -->
                                     <button @click="showEditInfoModal = true" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-sm whitespace-nowrap">
@@ -605,6 +631,20 @@ x-init="
                                                     <div>
                                                         <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">System Username <span class="text-rose-500">*</span></label>
                                                         <input type="text" name="username" value="{{ old('username', $user->username) }}" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] focus:border-[#10B981] focus:ring-[#10B981]" required>
+                                                    </div>
+
+                                                    <!-- Sign-In Method / MFA Option -->
+                                                    <div class="bg-white border border-black/15 rounded-xl p-3.5 mt-2">
+                                                        <input type="hidden" name="mfa_enabled_present" value="1">
+                                                        <label class="flex items-start gap-3 cursor-pointer select-none m-0">
+                                                            <div class="relative flex items-center pt-0.5">
+                                                                <input type="checkbox" name="mfa_enabled" value="1" {{ old('mfa_enabled', $user->mfa_enabled) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#10B981] border-black/20 focus:ring-[#10B981]">
+                                                            </div>
+                                                            <div>
+                                                                <span class="block text-[13px] font-extrabold text-[#1E2657]">Require Two-Factor Authentication (MFA)</span>
+                                                                <span class="block text-[11px] font-medium text-[#6B7086] leading-tight">When unchecked, this guardian can use normal sign-in (email/username and password).</span>
+                                                            </div>
+                                                        </label>
                                                     </div>
                                                     
                                                     <div class="bg-[#F4F6FA] border border-black/10 p-4 rounded-xl mt-4 shadow-sm">
@@ -695,7 +735,7 @@ x-init="
                         </tr>
                     @empty
                         <tr class="block md:table-row">
-                            <td colspan="4" class="block md:table-cell px-6 py-12 text-center bg-white rounded-2xl md:rounded-none border-t border-black/5">
+                            <td colspan="5" class="block md:table-cell px-6 py-12 text-center bg-white rounded-2xl md:rounded-none border-t border-black/5">
                                 <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#F4F6FA] mb-3 text-[#9CA0AF] border border-black/5"><i class="fa fa-user-slash text-xl"></i></div>
                                 <p class="text-[#6B7086] text-[13px] font-extrabold m-0">No guardian accounts found.</p>
                             </td>
@@ -840,6 +880,19 @@ x-init="
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Username <span class="text-rose-500">*</span></label>
                             <input type="text" name="username" id="create_guardian_username" value="{{ old('role') === 'guardian' ? old('username') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="e.g., juandc">
+                        </div>
+
+                        <!-- MFA Option for New Guardian Account -->
+                        <div class="bg-white border border-black/15 rounded-xl p-3.5 mt-2">
+                            <label class="flex items-start gap-3 cursor-pointer select-none m-0">
+                                <div class="relative flex items-center pt-0.5">
+                                    <input type="checkbox" name="mfa_enabled" value="1" {{ old('mfa_enabled') ? 'checked' : '' }} class="w-4 h-4 rounded text-[#10B981] border-black/20 focus:ring-[#10B981]">
+                                </div>
+                                <div>
+                                    <span class="block text-[13px] font-extrabold text-[#1E2657]">Require Two-Factor Authentication (MFA)</span>
+                                    <span class="block text-[11px] font-medium text-[#6B7086] leading-tight">Leave unchecked for normal sign-in (email/username + password). Check to enforce 6-digit Authenticator codes.</span>
+                                </div>
+                            </label>
                         </div>
                         
                         <div class="border-t border-black/5 pt-4 mt-2">

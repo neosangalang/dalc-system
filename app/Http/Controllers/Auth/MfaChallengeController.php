@@ -10,6 +10,11 @@ class MfaChallengeController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        if ($user && $user->role === 'guardian' && !$user->mfa_enabled) {
+            return redirect()->route('guardian.dashboard');
+        }
+
         return view('auth.mfa-challenge');
     }
 

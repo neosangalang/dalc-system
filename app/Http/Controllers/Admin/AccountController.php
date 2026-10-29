@@ -36,10 +36,15 @@ class AccountController extends Controller
             'contact_number'    => 'required|regex:/^09[0-9]{9}$/|unique:users,contact_number',
             'role'              => 'required|in:teacher,guardian',
             'password'          => 'required|string|min:8|confirmed',
+            'mfa_enabled'       => 'nullable|boolean',
         ], [
             'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
             'contact_number.unique' => 'This contact number is already registered to another account.',
         ]);
+
+        $mfaEnabled = ($validated['role'] === 'guardian')
+            ? $request->boolean('mfa_enabled')
+            : true;
 
         $user = User::create([
             'name'           => $validated['name'],
@@ -49,6 +54,7 @@ class AccountController extends Controller
             'password'       => Hash::make($validated['password']),
             'role'           => $validated['role'],
             'is_active'      => true,
+            'mfa_enabled'    => $mfaEnabled,
         ]);
 
         return redirect()->back()
@@ -73,6 +79,58 @@ class AccountController extends Controller
         return redirect()->back()
             ->with('success', "Account successfully {$status}.")
             ->with('active_tab', $account->role === 'guardian' ? 'guardians' : 'teachers');
+    }
+
+    public function toggleMfa(Request $request, User $account) {
+        $currentUser = Auth::user();
+
+        // 1. Only admin and teacher can perform this action
+        if (!in_array($currentUser->role, ['admin', 'teacher'])) {
+            abort(403, 'Security Violation: Only administrators and teachers can toggle sign-in MFA settings.');
+        }
+
+        // 2. Only guardian accounts can have MFA toggled (staff always require MFA)
+        if ($account->role !== 'guardian') {
+            return redirect()->back()
+                ->withErrors(['Two-Factor Authentication is mandatory for staff accounts and cannot be disabled.']);
+        }
+
+        // 3. For teachers without credential management permissions, ensure they teach at least one child of this guardian
+        if ($currentUser->role === 'teacher' && !$currentUser->can_manage_credentials) {
+            $isAssignedTeacher = Student::where('guardian_id', $account->id)
+                ->where('teacher_id', $currentUser->id)
+                ->exists();
+
+            if (!$isAssignedTeacher) {
+                abort(403, 'Security Violation: You can only configure MFA for guardians of your assigned students.');
+            }
+        }
+
+        // 4. Toggle mfa_enabled
+        $account->mfa_enabled = !$account->mfa_enabled;
+
+        // If disabling MFA, clear two_factor_secret so if re-enabled later the guardian can scan a fresh QR code
+        if (!$account->mfa_enabled) {
+            $account->two_factor_secret = null;
+        }
+
+        $account->save();
+
+        $statusLabel = $account->mfa_enabled ? 'MFA Required' : 'Normal Sign-In';
+        $message = "Authentication mode for {$account->name} updated to {$statusLabel}.";
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'mfa_enabled' => $account->mfa_enabled,
+                'status_label' => $statusLabel,
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()->back()
+            ->with('success', $message)
+            ->with('active_tab', 'guardians');
     }
 
     public function toggleEditPermission(User $account) {
@@ -155,6 +213,13 @@ class AccountController extends Controller
         $user->username = $request->username;
         $user->email = $request->email;
         $user->contact_number = $request->contact_number;
+
+        if ($user->role === 'guardian' && $request->has('mfa_enabled_present')) {
+            $user->mfa_enabled = $request->boolean('mfa_enabled');
+            if (!$user->mfa_enabled) {
+                $user->two_factor_secret = null;
+            }
+        }
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);

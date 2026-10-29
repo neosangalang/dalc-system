@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/secure-report-photo/{id}', [SecureFileController::class, 'reportPhoto'])->name('secure.report-photo');
     
     Route::post('/ai/rewrite-log', [AiAssistantController::class, 'rewriteDailyLog'])->name('ai.rewrite'); 
+    Route::patch('/guardians/{account}/toggle-mfa', [AccountController::class, 'toggleMfa'])->name('guardians.toggle-mfa'); 
 
     // ==========================================
     // REAL-TIME NOTIFICATION ENDPOINTS
@@ -187,6 +188,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_manage_credentials'])->group(function() {
         Route::patch('/accounts/{account}/toggle-status', [AccountController::class, 'toggleStatus'])->name('accounts.toggle');
         Route::patch('/accounts/{account}/toggle-edit', [AccountController::class, 'toggleEditPermission'])->name('accounts.toggle-edit');
+        Route::patch('/accounts/{account}/toggle-mfa', [AccountController::class, 'toggleMfa'])->name('accounts.toggle-mfa');
         Route::patch('/accounts/{id}/permissions', [AccountController::class, 'updatePermissions'])->name('accounts.permissions');
         Route::put('/accounts/{id}/credentials', [AccountController::class, 'updateCredentials'])->name('accounts.update-credentials');
         Route::resource('accounts', AccountController::class);

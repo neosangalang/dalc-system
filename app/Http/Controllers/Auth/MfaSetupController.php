@@ -13,6 +13,11 @@ class MfaSetupController extends Controller
     {
         $user = \Illuminate\Support\Facades\Auth::user();
 
+        // If the user is a guardian and MFA is optional/disabled, redirect to dashboard
+        if ($user && $user->role === 'guardian' && !$user->mfa_enabled) {
+            return redirect()->route('guardian.dashboard');
+        }
+
         // If the user already configured 2FA, do NOT show a new QR code! Send to challenge or dashboard
         if (!empty($user->two_factor_secret)) {
             if (session('mfa_verified') || request()->cookie('mfa_remember_' . $user->id)) {
@@ -62,7 +67,10 @@ class MfaSetupController extends Controller
         if ($isValid) {
             // It worked! Save the secret to the database permanently
             $user = Auth::user();
-            $user->update(['two_factor_secret' => $secretKey]);
+            $user->update([
+                'two_factor_secret' => $secretKey,
+                'mfa_enabled' => true,
+            ]);
             
             session()->forget('mfa_setup_secret');
             session(['mfa_verified' => true]);

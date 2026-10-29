@@ -18,6 +18,11 @@ class EnsureMfaIsVerified
         $user = $request->user();
 
         if ($user) {
+            // Optional MFA for guardians: if disabled, allow normal sign in without MFA challenge or setup
+            if ($user->role === 'guardian' && !$user->mfa_enabled) {
+                return $next($request);
+            }
+
             // 🚨 DOOR 1: New account (No 2FA secret set up yet) -> Show QR Code setup
             if (is_null($user->two_factor_secret) || trim($user->two_factor_secret) === '') {
                 

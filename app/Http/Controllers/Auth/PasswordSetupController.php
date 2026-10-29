@@ -36,6 +36,11 @@ class PasswordSetupController extends Controller
 
         $user->update($updateData);
 
+        // For guardian accounts with normal sign-in (MFA optional/disabled), skip MFA setup
+        if ($user->role === 'guardian' && !$user->mfa_enabled) {
+            return redirect()->route('guardian.dashboard')->with('success', 'Password successfully updated! Welcome to the DALC portal.');
+        }
+
         // If the user already has 2FA configured in their Authenticator app, ask for their 6-digit challenge code
         if (!empty($user->two_factor_secret)) {
             return redirect()->route('security.mfa.challenge')->with('success', 'Password updated! Please enter your 6-digit authenticator code.');
