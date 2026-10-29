@@ -574,7 +574,7 @@
                                     </div>
 
                                     <div class="flex justify-end items-center gap-2">
-                                        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3B82F6] text-white text-[12px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm cursor-pointer">
+                                        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3B82F6] text-white text-[12px] font-extrabold rounded-xl hover:bg-blue-600 transition-all active:scale-95 shadow-sm cursor-pointer">
                                             <i class="fa-solid fa-paper-plane text-[11px]"></i> Send Reply
                                         </button>
                                     </div>
@@ -609,12 +609,12 @@
     x-show="open" 
     x-cloak 
     @keydown.escape.window="open = false" 
-    class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6"
+    class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-6"
 >
     <div @click.away="open = false" class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col">
         <div class="px-5 py-3.5 bg-[#1E2657] text-white flex items-center justify-between">
             <h4 class="font-extrabold text-sm sm:text-base truncate pr-4" x-text="title"></h4>
-            <button @click="open = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition">
+            <button @click="open = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 flex items-center justify-center text-white transition cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>

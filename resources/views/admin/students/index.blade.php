@@ -318,26 +318,27 @@
                                 @if($student->status !== 'archived')
                                 <!-- EDIT MODAL -->
                                 <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                                         <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel editing this student?')) { showEditModal = false; deletedDocIds = []; }"></div>
 
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                                        <div x-show="showEditModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-black/15 w-full relative z-10">
-                                            <form action="{{ route('admin.students.update', $student->id) }}" method="POST" enctype="multipart/form-data" class="m-0">
+                                        <div x-show="showEditModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border-t sm:border border-black/15 w-full relative z-10 max-h-[92dvh] sm:max-h-none flex flex-col">
+                                            <form action="{{ route('admin.students.update', $student->id) }}" method="POST" enctype="multipart/form-data" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PUT')
 
                                                 <input type="hidden" name="guardian_action" value="update">
 
-                                                <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                                                    <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                                                     <h3 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-edit text-[#3B82F6] mr-2"></i> Edit Student</h3>
                                                     <button type="button" @click="if(confirm('Do you want to cancel editing this student?')) showEditModal = false" class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
                                                         <i class="fa fa-times text-xl"></i>
                                                     </button>
                                                 </div>
 
-                                                <div class="px-5 sm:px-6 py-5 sm:py-6 max-h-[70vh] overflow-y-auto space-y-6 custom-scrollbar text-left">
+                                                <div class="px-5 sm:px-6 py-5 sm:py-6 max-h-[calc(92dvh-130px)] sm:max-h-[70vh] overflow-y-auto space-y-6 custom-scrollbar text-left flex-1">
 
                                                     <h4 class="text-[#1E2657] font-extrabold mb-4 flex items-center text-[12px] uppercase tracking-widest border-b border-black/5 pb-2">
                                                         <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> 1. Info
@@ -603,9 +604,9 @@
 
                                                 </div>
 
-                                                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="if(confirm('Do you want to cancel editing this student?')) { showEditModal = false; deletedDocIds = []; }" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
-                                                    <button type="submit" class="px-4 py-2 bg-[#4F46E5] rounded-xl text-[13px] font-extrabold text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                                                    <button type="button" @click="if(confirm('Do you want to cancel editing this student?')) { showEditModal = false; deletedDocIds = []; }" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors active:scale-95">Cancel</button>
+                                                    <button type="submit" class="px-4 py-2 bg-[#4F46E5] rounded-xl text-[13px] font-extrabold text-white hover:bg-indigo-700 shadow-sm transition-colors flex items-center active:scale-95">
                                                         <i class="fa fa-save mr-1.5"></i> Save Changes
                                                     </button>
                                                 </div>
@@ -650,23 +651,24 @@
 
         <!-- CREATE MODAL -->
         <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                 <div x-show="showCreateModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false"></div>
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div x-show="showCreateModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-black/15 w-full relative z-10">
-                    <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="m-0" onsubmit="if(!document.getElementById('create_guardian_id').value){ alert('Please select a guardian before submitting.'); return false; }">
+                <div x-show="showCreateModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border-t sm:border border-black/15 w-full relative z-10 max-h-[92dvh] sm:max-h-none flex flex-col">
+                    <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none" onsubmit="if(!document.getElementById('create_guardian_id').value){ alert('Please select a guardian before submitting.'); return false; }">
                         @csrf
 
-                        <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                        <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                            <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                             <h3 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-plus text-[#3B82F6] mr-2"></i> Enroll Student</h3>
                             <button type="button" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false" class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors">
                                 <i class="fa fa-times text-xl"></i>
                             </button>
                         </div>
 
-                        <div class="px-5 sm:px-6 py-5 sm:py-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                        <div class="px-5 sm:px-6 py-5 sm:py-6 max-h-[calc(92dvh-130px)] sm:max-h-[70vh] overflow-y-auto space-y-6 custom-scrollbar flex-1">
 
                             <h4 class="text-[#1E2657] font-extrabold mb-4 flex items-center text-[12px] uppercase tracking-widest border-b border-black/5 pb-2">
                                 <i class="fa fa-user-graduate text-[#3B82F6] mr-2"></i> 1. Info
@@ -887,9 +889,9 @@
 
                         </div>
 
-                        <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                            <button type="button" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors">Cancel</button>
-                            <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Save & Enroll</button>
+                        <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                            <button type="button" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm transition-colors active:scale-95">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save & Enroll</button>
                         </div>
                     </form>
                 </div>
@@ -898,9 +900,10 @@
         <!-- ========================================== -->
         <!-- RE-ENROLL STUDENT MODAL                    -->
         <!-- ========================================== -->
-        <div x-show="showReEnrollModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-            <div @click.away="showReEnrollModal = false" class="bg-white rounded-2xl shadow-xl border border-black/15 w-full max-w-3xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
-                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-b border-black/10 flex justify-between items-center">
+        <div x-show="showReEnrollModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div @click.away="showReEnrollModal = false" class="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl border-t sm:border border-black/15 w-full max-w-3xl overflow-hidden sm:my-8 max-h-[92dvh] sm:max-h-[90vh] flex flex-col relative">
+                <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-b border-black/10 flex justify-between items-center shrink-0 relative">
+                    <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                     <h3 class="text-base sm:text-lg font-extrabold text-[#1E2657] m-0 flex items-center">
                         <i class="fa fa-user-check text-[#10B981] mr-2.5"></i> Re-Enroll Student for New School Year
                     </h3>
@@ -1211,11 +1214,11 @@
 
         <!-- DELETE PROFILE CONFIRMATION MODAL -->
         <div x-show="showDeleteModal" x-cloak class="fixed inset-0 z-[110] overflow-y-auto text-left" aria-labelledby="delete-profile-modal-title" role="dialog" aria-modal="true">
-            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="flex items-center justify-center min-h-screen p-4 text-center sm:block sm:p-0">
                 <div x-show="showDeleteModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="closeDeleteModal()"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div x-show="showDeleteModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 p-6 relative z-50">
+                <div x-show="showDeleteModal" x-transition class="inline-block align-middle bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-md w-full border border-black/15 p-5 sm:p-6 relative z-50">
                     <div class="flex items-start gap-4">
                         <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
                             <i class="fa-solid fa-triangle-exclamation text-xl"></i>

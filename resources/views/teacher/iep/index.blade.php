@@ -607,15 +607,15 @@
     @foreach($myStudents as $student)
         @foreach($goals->where('student_id', $student->id) as $goal)
             <div x-show="activeEditModal === {{ $goal->id }}" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                     <div x-show="activeEditModal === {{ $goal->id }}" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="activeEditModal = null"></div>
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                     
-                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border border-black/15 relative z-10">
+                    <div x-show="activeEditModal === {{ $goal->id }}" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border-t sm:border border-black/15 relative z-10 max-h-[92dvh] sm:max-h-[85vh] flex flex-col">
                         
-                        <div class="flex flex-col h-[90vh] sm:h-auto sm:max-h-[85vh]">
+                        <div class="flex flex-col flex-1 overflow-hidden min-h-0">
                             
-                            <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0">
+                            <div class="px-5 sm:px-6 pt-3 pb-3 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative"><div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                                 <h5 class="text-base font-extrabold text-[#1E2657] m-0 leading-tight">Track Progress: {{ $student->first_name }}</h5>
                                 <button type="button" @click="activeEditModal = null" class="text-[#9CA0AF] hover:text-[#1E2657] ml-4"><i class="fa fa-times text-xl"></i></button>
                             </div>
@@ -709,8 +709,8 @@
                                     </div>
 
                                     <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0 pt-2 mb-2">
-                                        <button type="button" @click="activeEditModal = null" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
+                                        <button type="button" @click="activeEditModal = null" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95 transition-all">Cancel</button>
+                                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
                                     </div>
                                 </form>
                                 
@@ -730,15 +730,15 @@
     <!-- CREATE IEP GOAL MODAL -->
     <!-- ========================================== -->
     <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
             <div x-show="showAddModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="showAddModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showAddModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border border-black/15 relative z-10">
+            <div x-show="showAddModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl w-full border-t sm:border border-black/15 relative z-10 max-h-[92dvh] sm:max-h-[85vh] flex flex-col">
                 
-                <form action="{{ route('teacher.iep-goals.store') }}" method="POST" class="m-0 flex flex-col h-[90vh] sm:h-auto sm:max-h-[85vh]">
+                <form action="{{ route('teacher.iep-goals.store') }}" method="POST" class="m-0 flex flex-col flex-1 overflow-hidden min-h-0">
                     @csrf
                     
-                    <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0">
+                    <div class="px-5 sm:px-6 pt-3 pb-3 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative"><div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                         <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-plus-circle text-[#3B82F6] mr-2"></i> Assign New IEP Goal</h5>
                         <button type="button" @click="showAddModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
@@ -860,8 +860,8 @@
                     </div>
                     
                     <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0">
-                        <button type="button" @click="showAddModal = false" class="px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                        <button type="submit" id="save-iep-goal-submit-btn" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
+                        <button type="button" @click="showAddModal = false" class="px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95 transition-all">Cancel</button>
+                        <button type="submit" id="save-iep-goal-submit-btn" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save IEP Goal</button>
                     </div>
                 </form>
             </div>
@@ -872,11 +872,11 @@
     <!-- MANDATORY IEP GOAL DELETION CONFIRMATION MODAL -->
     <!-- ========================================== -->
     <div x-show="showDeleteGoalModal" x-cloak class="fixed inset-0 z-[120] overflow-y-auto text-left" aria-labelledby="delete-goal-modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:block sm:p-0">
             <div x-show="showDeleteGoalModal" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="if(!isDeletingGoal) showDeleteGoalModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div x-show="showDeleteGoalModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 p-6 relative z-50">
+            <div x-show="showDeleteGoalModal" x-transition class="inline-block align-middle bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-md w-full border border-black/15 p-5 sm:p-6 relative z-50">
                 <div class="flex items-start gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
                         <i class="fa-solid fa-triangle-exclamation text-xl"></i>
@@ -896,13 +896,13 @@
                     <button type="button" 
                             @click="showDeleteGoalModal = false" 
                             :disabled="isDeletingGoal"
-                            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#6B7086] hover:text-[#1E2657] text-xs font-extrabold rounded-xl transition-colors cursor-pointer">
+                            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#6B7086] hover:text-[#1E2657] text-xs font-extrabold rounded-xl transition-all active:scale-95 cursor-pointer">
                         Cancel
                     </button>
                     <button type="button" 
                             @click="executeDeleteGoal()" 
                             :disabled="isDeletingGoal"
-                            class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold rounded-xl transition-all active:scale-95 shadow-sm flex items-center gap-1.5 cursor-pointer">
                         <template x-if="isDeletingGoal">
                             <span class="flex items-center"><i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Deleting...</span>
                         </template>

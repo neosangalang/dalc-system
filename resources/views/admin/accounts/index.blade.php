@@ -206,22 +206,23 @@ x-init="
 
                                 <!-- EDIT INFO MODAL (TEACHER) -->
                                 <div x-show="showEditInfoModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                                         <div x-show="showEditInfoModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false"></div>
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showEditInfoModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-black/15">
+                                        <div x-show="showEditInfoModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
                                             
-                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0">
+                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PUT')
                                                 <!-- Hidden empty password field prevents backend validation failures -->
                                                 <input type="hidden" name="password" value="">
                                                 
-                                                <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                                                    <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                                                     <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-edit text-[#3B82F6] mr-2"></i> Edit Information</h5>
                                                     <button type="button" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                                                 </div>
-                                                <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
+                                                <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
 
                                                     @if ($errors->any() && old('_method') === 'PUT')
                                                         <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
@@ -258,9 +259,9 @@ x-init="
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
-                                                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                                                    <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Save Information</button>
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95">Cancel</button>
+                                                    <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save Information</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -269,12 +270,12 @@ x-init="
 
                                 <!-- RESET PASSWORD MODAL (TEACHER) -->
                                 <div x-show="showResetModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                                         <div x-show="showResetModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showResetModal = false"></div>
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showResetModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-black/15">
+                                        <div x-show="showResetModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
                                             
-                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0">
+                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PUT')
                                                 <!-- Hidden fields to preserve existing info seamlessly -->
@@ -282,11 +283,12 @@ x-init="
                                                 <input type="hidden" name="contact_number" value="{{ $user->contact_number }}">
                                                 <input type="hidden" name="username" value="{{ $user->username }}">
 
-                                                <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                                                    <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                                                     <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-key text-[#F59E0B] mr-2"></i> Reset Password</h5>
                                                     <button type="button" @click="if(confirm('Do you want to cancel?')) showResetModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                                                 </div>
-                                                <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
+                                                <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
                                                     
                                                     @if ($errors->any() && old('_method') === 'PUT')
                                                         <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
@@ -326,9 +328,9 @@ x-init="
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
-                                                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showResetModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                                                    <button type="submit" class="px-4 py-2 bg-[#F59E0B] text-white text-[13px] font-extrabold rounded-xl hover:bg-amber-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Save Password</button>
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showResetModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95">Cancel</button>
+                                                    <button type="submit" class="px-4 py-2 bg-[#F59E0B] text-white text-[13px] font-extrabold rounded-xl hover:bg-amber-600 transition-colors shadow-sm flex items-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save Password</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -337,18 +339,19 @@ x-init="
 
                                 <!-- PERMISSIONS MODAL -->
                                 <div x-show="showPermModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                                         <div x-show="showPermModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="cancelPermModal()"></div>
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showPermModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-black/15">
-                                            <form x-ref="permForm" action="{{ route('admin.accounts.permissions', $user->id) }}" method="POST" class="m-0">
+                                        <div x-show="showPermModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                                            <form x-ref="permForm" action="{{ route('admin.accounts.permissions', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PATCH')
-                                                <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                                                    <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                                                     <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-sliders text-[#8B5CF6] mr-2"></i> Permissions</h5>
                                                     <button type="button" @click="cancelPermModal()" class="text-[#9CA0AF] hover:text-[#1E2657] cursor-pointer"><i class="fa fa-times text-xl"></i></button>
                                                 </div>
-                                                <div class="p-5 sm:p-6 whitespace-normal">
+                                                <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] whitespace-normal flex-1">
                                                     <p class="text-[13px] text-[#6B7086] mb-5 leading-snug">Grant <strong class="text-[#1E2657]">{{ $user->name }}</strong> access to specific Admin-level modules.</p>
                                                     
                                                     <div class="space-y-4">
@@ -407,9 +410,9 @@ x-init="
                                                         </label>
                                                     </div>
                                                 </div>
-                                                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="cancelPermModal()" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm cursor-pointer">Cancel</button>
-                                                    <button type="submit" class="px-4 py-2 bg-[#8B5CF6] text-white text-[13px] font-extrabold rounded-xl hover:bg-purple-700 transition-colors shadow-sm flex items-center cursor-pointer"><i class="fa fa-save mr-1.5"></i> Save Access</button>
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                                                    <button type="button" @click="cancelPermModal()" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm cursor-pointer active:scale-95">Cancel</button>
+                                                    <button type="submit" class="px-4 py-2 bg-[#8B5CF6] text-white text-[13px] font-extrabold rounded-xl hover:bg-purple-700 transition-colors shadow-sm flex items-center cursor-pointer active:scale-95"><i class="fa fa-save mr-1.5"></i> Save Access</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -557,22 +560,23 @@ x-init="
 
                                 <!-- EDIT INFO MODAL (GUARDIAN) -->
                                 <div x-show="showEditInfoModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                                         <div x-show="showEditInfoModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false"></div>
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showEditInfoModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-black/15">
+                                        <div x-show="showEditInfoModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
                                             
-                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0">
+                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PUT')
                                                 <!-- Hidden empty password field prevents backend validation failures -->
                                                 <input type="hidden" name="password" value="">
 
-                                                <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                                                    <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                                                     <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-edit text-[#10B981] mr-2"></i> Edit Information</h5>
                                                     <button type="button" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                                                 </div>
-                                                <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
+                                                <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
                                                     
                                                     @if ($errors->any() && old('_method') === 'PUT')
                                                         <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
@@ -609,9 +613,9 @@ x-init="
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
-                                                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                                                    <button type="submit" class="px-4 py-2 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Save Information</button>
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showEditInfoModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95">Cancel</button>
+                                                    <button type="submit" class="px-4 py-2 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save Information</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -620,12 +624,12 @@ x-init="
 
                                 <!-- RESET PASSWORD MODAL (GUARDIAN) -->
                                 <div x-show="showResetModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
                                         <div x-show="showResetModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showResetModal = false"></div>
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                                        <div x-show="showResetModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-black/15">
+                                        <div x-show="showResetModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
                                             
-                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0">
+                                            <form action="{{ route('admin.accounts.update-credentials', $user->id) }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                                                 @csrf
                                                 @method('PUT')
                                                 <!-- Hidden fields to preserve existing info seamlessly -->
@@ -633,11 +637,12 @@ x-init="
                                                 <input type="hidden" name="contact_number" value="{{ $user->contact_number }}">
                                                 <input type="hidden" name="username" value="{{ $user->username }}">
 
-                                                <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                                                    <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                                                     <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-key text-[#F59E0B] mr-2"></i> Reset Password</h5>
                                                     <button type="button" @click="if(confirm('Do you want to cancel?')) showResetModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                                                 </div>
-                                                <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
+                                                <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
                                                     
                                                     @if ($errors->any() && old('_method') === 'PUT')
                                                         <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
@@ -677,9 +682,9 @@ x-init="
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
-                                                <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showResetModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                                                    <button type="submit" class="px-4 py-2 bg-[#F59E0B] text-white text-[13px] font-extrabold rounded-xl hover:bg-amber-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Save Password</button>
+                                                <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                                                    <button type="button" @click="if(confirm('Do you want to cancel?')) showResetModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95">Cancel</button>
+                                                    <button type="submit" class="px-4 py-2 bg-[#F59E0B] text-white text-[13px] font-extrabold rounded-xl hover:bg-amber-600 transition-colors shadow-sm flex items-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save Password</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -705,19 +710,20 @@ x-init="
     @if(Auth::user()->role === 'admin')
     <!-- ================= CREATE TEACHER ACCOUNT MODAL ================= -->
     <div x-show="showCreateTeacherModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
             <div x-show="showCreateTeacherModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showCreateTeacherModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
-                <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
+            <div x-show="showCreateTeacherModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                     @csrf
                     <input type="hidden" name="role" value="teacher">
                     
-                    <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                    <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                        <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                         <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-chalkboard-teacher text-[#3B82F6] mr-2"></i> Generate Teacher Account</h5>
                         <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
-                    <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
+                    <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
 
                         @if ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher')
                             <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
@@ -774,9 +780,9 @@ x-init="
                             <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be forced to change this upon first login.</p>
                         </div>
                     </div>
-                    <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Teacher Account</button>
+                    <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateTeacherModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Create Teacher Account</button>
                     </div>
                 </form>
             </div>
@@ -786,19 +792,20 @@ x-init="
 
     <!-- ================= CREATE GUARDIAN ACCOUNT MODAL ================= -->
     <div x-show="showCreateGuardianModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto text-left" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-end sm:items-center justify-center min-h-full sm:min-h-screen p-0 sm:p-4 text-center sm:block">
             <div x-show="showCreateGuardianModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div x-show="showCreateGuardianModal" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-black/15 relative w-full">
-                <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0">
+            <div x-show="showCreateGuardianModal" x-transition class="inline-block align-bottom bg-white rounded-t-3xl sm:rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border-t sm:border border-black/15 max-h-[92dvh] sm:max-h-none flex flex-col relative w-full">
+                <form action="{{ route('admin.accounts.store') }}" method="POST" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none">
                     @csrf
                     <input type="hidden" name="role" value="guardian">
                     
-                    <div class="px-5 sm:px-6 py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center">
+                    <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
+                        <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto sm:hidden absolute top-2 left-1/2 -translate-x-1/2"></div>
                         <h5 class="text-base font-extrabold text-[#1E2657] m-0"><i class="fa fa-user-shield text-[#10B981] mr-2"></i> Generate Guardian Account</h5>
                         <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="text-[#9CA0AF] hover:text-[#1E2657]"><i class="fa fa-times text-xl"></i></button>
                     </div>
-                    <div class="p-5 sm:p-6 space-y-4 whitespace-normal">
+                    <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
 
                         @if ($errors->any() && !old('_method') && old('role') === 'guardian')
                             <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
@@ -855,9 +862,9 @@ x-init="
                             <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be forced to change this upon first login.</p>
                         </div>
                     </div>
-                    <div class="px-5 sm:px-6 py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full">
-                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center"><i class="fa fa-save mr-1.5"></i> Create Guardian Account</button>
+                    <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
+                        <button type="button" @click="if(confirm('Do you want to cancel?')) showCreateGuardianModal = false" class="px-4 py-2 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-[#10B981] text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-colors shadow-sm flex items-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Create Guardian Account</button>
                     </div>
                 </form>
             </div>

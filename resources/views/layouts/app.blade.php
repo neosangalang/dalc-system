@@ -106,8 +106,8 @@
                     <span x-show="unreadCount > 0" x-text="unreadCount" x-transition x-cloak class="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-sm animate-pulse min-w-[18px]"></span>
                 </button>
 
-                <!-- Dropdown (Mobile-Optimized Width) -->
-                <div x-show="notifOpen" x-transition x-cloak class="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl overflow-hidden z-[100]">
+                <!-- Dropdown (Mobile-Optimized Width & Viewport-Centered on Mobile) -->
+                <div x-show="notifOpen" x-transition x-cloak class="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-16 sm:top-auto mt-1 sm:mt-2 w-auto sm:w-80 max-w-none sm:max-w-sm bg-white border border-[#1E2657]/15 rounded-2xl shadow-xl overflow-hidden z-[100]">
                     <div class="bg-[#F8F9FD] px-4 py-3 border-b border-[#E8E5DC] flex justify-between items-center">
                         <span class="font-extrabold text-[13px] tracking-widest uppercase text-[#1E2657]">Notifications</span>
                     </div>
@@ -208,7 +208,7 @@
             @if($authRole === 'guardian')
                 <!-- 1. Home -->
                 @php $isHome = request()->routeIs('guardian.dashboard'); @endphp
-                <a href="{{ route('guardian.dashboard') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isHome ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('guardian.dashboard') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isHome ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isHome ? 'bg-[#3B82F6]/10' : '' }}">
                         <i class="fa-solid fa-house text-[15px]"></i>
                     </div>
@@ -217,7 +217,7 @@
 
                 <!-- 2. Daily Logs -->
                 @php $isLogs = request()->routeIs('guardian.recommendations') || request()->routeIs('guardian.logs.archive'); @endphp
-                <a href="{{ route('guardian.recommendations') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isLogs ? 'text-[#10B981]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('guardian.recommendations') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isLogs ? 'text-[#10B981]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isLogs ? 'bg-[#10B981]/10' : '' }}">
                         <i class="fa-solid fa-book-open-reader text-[15px]"></i>
                     </div>
@@ -226,7 +226,7 @@
 
                 <!-- 3. Goals -->
                 @php $isGoals = request()->routeIs('guardian.goals*'); @endphp
-                <a href="{{ route('guardian.goals') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isGoals ? 'text-[#8B5CF6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('guardian.goals') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isGoals ? 'text-[#8B5CF6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isGoals ? 'bg-[#8B5CF6]/10' : '' }}">
                         <i class="fa-solid fa-bullseye text-[15px]"></i>
                     </div>
@@ -235,7 +235,7 @@
 
                 <!-- 4. Reports -->
                 @php $isReports = request()->routeIs('guardian.reports*'); @endphp
-                <a href="{{ route('guardian.reports') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isReports ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('guardian.reports') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isReports ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isReports ? 'bg-[#3B82F6]/10' : '' }}">
                         <i class="fa-solid fa-file-signature text-[15px]"></i>
                     </div>
@@ -244,7 +244,7 @@
 
                 <!-- 5. Alerts -->
                 @php $isAlerts = request()->routeIs('guardian.announcements*'); @endphp
-                <a href="{{ route('guardian.announcements.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isAlerts ? 'text-[#F59E0B]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('guardian.announcements.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isAlerts ? 'text-[#F59E0B]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isAlerts ? 'bg-[#F59E0B]/10' : '' }}">
                         <i class="fa-solid fa-bullhorn text-[15px]"></i>
                     </div>
@@ -254,7 +254,7 @@
             @elseif($authRole === 'teacher')
                 <!-- 1. Home -->
                 @php $isHome = request()->routeIs('teacher.dashboard'); @endphp
-                <a href="{{ route('teacher.dashboard') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isHome ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('teacher.dashboard') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isHome ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isHome ? 'bg-[#3B82F6]/10' : '' }}">
                         <i class="fa-solid fa-house text-[15px]"></i>
                     </div>
@@ -263,7 +263,7 @@
 
                 <!-- 2. Daily Logs -->
                 @php $isLogs = request()->routeIs('teacher.daily-logs*'); @endphp
-                <a href="{{ route('teacher.daily-logs.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isLogs ? 'text-[#10B981]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('teacher.daily-logs.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isLogs ? 'text-[#10B981]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isLogs ? 'bg-[#10B981]/10' : '' }}">
                         <i class="fa-solid fa-pencil text-[15px]"></i>
                     </div>
@@ -272,7 +272,7 @@
 
                 <!-- 3. Goals -->
                 @php $isGoals = request()->routeIs('teacher.iep-goals*'); @endphp
-                <a href="{{ route('teacher.iep-goals.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isGoals ? 'text-[#8B5CF6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('teacher.iep-goals.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isGoals ? 'text-[#8B5CF6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isGoals ? 'bg-[#8B5CF6]/10' : '' }}">
                         <i class="fa-solid fa-bullseye text-[15px]"></i>
                     </div>
@@ -281,7 +281,7 @@
 
                 <!-- 4. Reports -->
                 @php $isReports = request()->routeIs('teacher.reports*'); @endphp
-                <a href="{{ route('teacher.reports.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isReports ? 'text-[#F59E0B]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('teacher.reports.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isReports ? 'text-[#F59E0B]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isReports ? 'bg-[#F59E0B]/10' : '' }}">
                         <i class="fa-solid fa-file-lines text-[15px]"></i>
                     </div>
@@ -290,7 +290,7 @@
 
                 <!-- 5. Students -->
                 @php $isStudents = request()->routeIs('teacher.students*'); @endphp
-                <a href="{{ route('teacher.students.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isStudents ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('teacher.students.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isStudents ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isStudents ? 'bg-[#3B82F6]/10' : '' }}">
                         <i class="fa-solid fa-users text-[15px]"></i>
                     </div>
@@ -300,7 +300,7 @@
             @elseif($authRole === 'admin')
                 <!-- 1. Home -->
                 @php $isHome = request()->routeIs('admin.dashboard'); @endphp
-                <a href="{{ route('admin.dashboard') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isHome ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('admin.dashboard') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isHome ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isHome ? 'bg-[#3B82F6]/10' : '' }}">
                         <i class="fa-solid fa-house text-[15px]"></i>
                     </div>
@@ -309,7 +309,7 @@
 
                 <!-- 2. Students -->
                 @php $isStudents = request()->routeIs('admin.students*'); @endphp
-                <a href="{{ route('admin.students.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isStudents ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('admin.students.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isStudents ? 'text-[#3B82F6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isStudents ? 'bg-[#3B82F6]/10' : '' }}">
                         <i class="fa-solid fa-users text-[15px]"></i>
                     </div>
@@ -318,7 +318,7 @@
 
                 <!-- 3. Accounts -->
                 @php $isAccounts = request()->routeIs('admin.accounts*'); @endphp
-                <a href="{{ route('admin.accounts.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isAccounts ? 'text-[#10B981]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('admin.accounts.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isAccounts ? 'text-[#10B981]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isAccounts ? 'bg-[#10B981]/10' : '' }}">
                         <i class="fa-solid fa-shield-halved text-[15px]"></i>
                     </div>
@@ -327,7 +327,7 @@
 
                 <!-- 4. Approvals -->
                 @php $isApprovals = request()->routeIs('admin.report-approval*'); @endphp
-                <a href="{{ route('admin.report-approval.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isApprovals ? 'text-[#F59E0B]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('admin.report-approval.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isApprovals ? 'text-[#F59E0B]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isApprovals ? 'bg-[#F59E0B]/10' : '' }}">
                         <i class="fa-solid fa-file-circle-check text-[15px]"></i>
                     </div>
@@ -336,7 +336,7 @@
 
                 <!-- 5. Alerts / Announcements -->
                 @php $isAlerts = request()->routeIs('admin.announcements*'); @endphp
-                <a href="{{ route('admin.announcements.index') }}" class="flex flex-col items-center justify-center py-1 transition-colors {{ $isAlerts ? 'text-[#8B5CF6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
+                <a href="{{ route('admin.announcements.index') }}" class="flex flex-col items-center justify-center py-1 transition-all active:scale-90 select-none {{ $isAlerts ? 'text-[#8B5CF6]' : 'text-[#6B7086] hover:text-[#1E2657]' }}">
                     <div class="relative flex items-center justify-center w-7 h-7 rounded-xl {{ $isAlerts ? 'bg-[#8B5CF6]/10' : '' }}">
                         <i class="fa-solid fa-bullhorn text-[15px]"></i>
                     </div>

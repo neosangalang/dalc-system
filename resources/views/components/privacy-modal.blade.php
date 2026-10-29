@@ -1,27 +1,27 @@
 <!-- Privacy Policy Modal Popup -->
-<div id="dalcPrivacyModal" style="display: none; position: fixed; inset: 0; z-index: 99999; overflow-y: auto; background-color: rgba(0, 0, 0, 0.55); align-items: center; justify-content: center; padding: 16px;" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
+<div id="dalcPrivacyModal" class="p-2 sm:p-4" style="display: none; position: fixed; inset: 0; z-index: 99999; overflow-y: auto; background-color: rgba(0, 0, 0, 0.55); align-items: center; justify-content: center;" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
     <div style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.55);" onclick="closePrivacyModal()"></div>
     
-    <div style="position: relative; background-color: #ffffff; width: 100%; max-width: 780px; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; overflow: hidden; margin: auto; z-index: 10;">
+    <div class="rounded-2xl sm:rounded-xl max-h-[92dvh] sm:max-h-[90vh]" style="position: relative; background-color: #ffffff; width: 100%; max-width: 780px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; overflow: hidden; margin: auto; z-index: 10;">
         
         <!-- Modal Top Bar -->
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid #e5e7eb; background: #ffffff;">
+        <div class="px-4 py-3 sm:px-6 sm:py-3.5" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; background: #ffffff;">
             <div id="privacyModalTitle" style="font-size: 13px; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.05em;">
                 Privacy Policy
             </div>
-            <button type="button" onclick="closePrivacyModal()" aria-label="Close" style="background: transparent; border: none; font-size: 24px; line-height: 1; color: #6b7280; cursor: pointer; padding: 2px 8px; border-radius: 6px;" onmouseover="this.style.color='#111827'; this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.color='#6b7280'; this.style.backgroundColor='transparent'">
+            <button type="button" onclick="closePrivacyModal()" aria-label="Close" class="active:scale-90 transition-transform" style="background: transparent; border: none; font-size: 24px; line-height: 1; color: #6b7280; cursor: pointer; padding: 2px 8px; border-radius: 6px;" onmouseover="this.style.color='#111827'; this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.color='#6b7280'; this.style.backgroundColor='transparent'">
                 &times;
             </button>
         </div>
 
         <!-- Modal Body (Clean Plain White Scrollable Document) -->
-        <div style="padding: 24px 28px; overflow-y: auto; background-color: #ffffff; flex: 1 1 auto;">
+        <div class="p-4 sm:p-7" style="overflow-y: auto; background-color: #ffffff; flex: 1 1 auto;">
             @include('legal.privacy-content')
         </div>
 
         <!-- Modal Bottom Bar -->
-        <div style="display: flex; justify-content: flex-end; padding: 12px 24px; border-top: 1px solid #e5e7eb; background-color: #ffffff;">
-            <button type="button" onclick="closePrivacyModal()" style="background-color: #111827; color: #ffffff; border: none; padding: 8px 22px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background-color 0.15s;" onmouseover="this.style.backgroundColor='#374151'" onmouseout="this.style.backgroundColor='#111827'">
+        <div class="px-4 py-3 sm:px-6" style="display: flex; justify-content: flex-end; border-top: 1px solid #e5e7eb; background-color: #ffffff;">
+            <button type="button" onclick="closePrivacyModal()" class="w-full sm:w-auto active:scale-95 transition-all" style="background-color: #111827; color: #ffffff; border: none; padding: 8px 22px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer;" onmouseover="this.style.backgroundColor='#374151'" onmouseout="this.style.backgroundColor='#111827'">
                 Close
             </button>
         </div>
