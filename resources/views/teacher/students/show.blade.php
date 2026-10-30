@@ -144,28 +144,61 @@
                             @endif
                         </div>
 
-                        <!-- Guardian MFA / Sign-In Method Toggle for Teacher -->
-                        <div class="mt-3 pt-2.5 border-t border-black/10 flex items-center justify-between gap-2">
+                        <!-- Guardian MFA / Sign-In Method Toggle for Teacher (Dynamic Modal + AJAX) -->
+                        <div class="mt-3 pt-2.5 border-t border-black/10 flex items-center justify-between gap-2"
+                             x-data="{
+                                 mfaEnabled: {{ $student->guardian->mfa_enabled ? 'true' : 'false' }},
+                                 toggleMfa() {
+                                     const willEnable = !this.mfaEnabled;
+                                     window.confirmAction({
+                                         title: willEnable ? 'Require Two-Factor Authentication?' : 'Switch to Normal Sign-In?',
+                                         message: willEnable 
+                                             ? 'Are you sure you want to require Multi-Factor Authentication for <strong>{{ addslashes($student->guardian->name) }}</strong>?<br><br><span class=\'text-[12px] text-[#6B7086]\'>On their next sign-in, they will be prompted to scan a QR code using an authenticator app (e.g., Google Authenticator).</span>' 
+                                             : 'Are you sure you want to switch <strong>{{ addslashes($student->guardian->name) }}</strong> to Normal Sign-In?<br><br><span class=\'text-[12px] text-[#6B7086]\'>They will only need their username and password to log in. Any existing authenticator pairings will be cleared.</span>',
+                                         confirmText: willEnable ? 'Require MFA' : 'Switch to Normal Sign-In',
+                                         confirmColor: willEnable ? 'purple' : 'blue',
+                                         icon: willEnable ? 'fa-shield-halved' : 'fa-unlock-alt',
+                                         onConfirm: async () => {
+                                             const response = await fetch('{{ route('guardians.toggle-mfa', $student->guardian->id) }}', {
+                                                 method: 'PATCH',
+                                                 headers: {
+                                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                     'Accept': 'application/json',
+                                                     'Content-Type': 'application/json'
+                                                 }
+                                             });
+                                             const data = await response.json();
+                                             if (data.success) {
+                                                 this.mfaEnabled = data.mfa_enabled;
+                                                 window.showToast?.(data.message, data.mfa_enabled ? 'purple' : 'info');
+                                             } else {
+                                                 alert(data.message || 'Action could not be completed.');
+                                             }
+                                         }
+                                     });
+                                 }
+                             }">
                             <div>
                                 <span class="text-[9px] font-extrabold text-[#9CA0AF] uppercase tracking-widest block">Sign-In Method</span>
-                                @if($student->guardian->mfa_enabled)
-                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#8B5CF6]">
-                                        <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#3B82F6]">
-                                        <i class="fa fa-key text-[10px]"></i> Normal Sign-In
-                                    </span>
-                                @endif
+                                <span x-show="mfaEnabled"
+                                      x-cloak
+                                      class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#8B5CF6] transition-all duration-200">
+                                    <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
+                                </span>
+                                <span x-show="!mfaEnabled"
+                                      x-cloak
+                                      class="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#3B82F6] transition-all duration-200">
+                                    <i class="fa fa-key text-[10px]"></i> Normal Sign-In
+                                </span>
                             </div>
-                            <form action="{{ route('guardians.toggle-mfa', $student->guardian->id) }}" method="POST" class="m-0" onsubmit="return confirm('Change sign-in mode for {{ addslashes($student->guardian->name) }} to {{ $student->guardian->mfa_enabled ? 'Normal Sign-In' : 'MFA Required' }}?');">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="px-2.5 py-1.5 bg-white border border-black/15 text-[11px] font-extrabold rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-1.5 {{ $student->guardian->mfa_enabled ? 'text-[#8B5CF6] hover:border-[#8B5CF6]/40' : 'text-[#3B82F6] hover:border-[#3B82F6]/40' }}">
-                                    <i class="fa {{ $student->guardian->mfa_enabled ? 'fa-shield-halved' : 'fa-unlock-alt' }} text-xs"></i>
-                                    <span>{{ $student->guardian->mfa_enabled ? 'Disable MFA' : 'Enable MFA' }}</span>
-                                </button>
-                            </form>
+                            <button type="button"
+                                    @click="toggleMfa()"
+                                    class="px-2.5 py-1.5 bg-white border border-black/15 text-[11px] font-extrabold rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                                    :class="mfaEnabled ? 'text-[#8B5CF6] hover:border-[#8B5CF6]/40' : 'text-[#3B82F6] hover:border-[#3B82F6]/40'"
+                                    :title="mfaEnabled ? 'Switch to Normal Sign-In' : 'Require Two-Factor Authentication'">
+                                <i class="fa text-xs" :class="mfaEnabled ? 'fa-shield-halved' : 'fa-unlock-alt'"></i>
+                                <span x-text="mfaEnabled ? 'Disable MFA' : 'Enable MFA'"></span>
+                            </button>
                         </div>
                     </div>
                     @endif

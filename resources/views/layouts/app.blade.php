@@ -273,6 +273,8 @@
 
     @include('components.terms-modal')
     @include('components.privacy-modal')
+    @include('components.confirm-modal')
+    @include('components.toast-notification')
 
 @stack('scripts')
 </body>

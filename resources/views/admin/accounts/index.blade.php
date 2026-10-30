@@ -482,7 +482,40 @@ x-init="
                     @forelse($users->where('role', 'guardian') as $user)
                         
                         <!-- ROW -->
-                        <tr x-data="{ showEditInfoModal: false, showResetModal: false }" x-show="guardianSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username)) }}'.includes(guardianSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
+                        <tr x-data="{ 
+                            showEditInfoModal: false, 
+                            showResetModal: false,
+                            mfaEnabled: {{ $user->mfa_enabled ? 'true' : 'false' }},
+                            toggleMfa() {
+                                const willEnable = !this.mfaEnabled;
+                                window.confirmAction({
+                                    title: willEnable ? 'Require Two-Factor Authentication?' : 'Switch to Normal Sign-In?',
+                                    message: willEnable 
+                                        ? 'Are you sure you want to require Multi-Factor Authentication for <strong>{{ addslashes($user->name) }}</strong>?<br><br><span class=\'text-[12px] text-[#6B7086]\'>On their next sign-in, they will be prompted to scan a QR code using an authenticator app (e.g., Google Authenticator).</span>' 
+                                        : 'Are you sure you want to switch <strong>{{ addslashes($user->name) }}</strong> to Normal Sign-In?<br><br><span class=\'text-[12px] text-[#6B7086]\'>They will only need their username and password to log in. Any existing authenticator pairings will be cleared.</span>',
+                                    confirmText: willEnable ? 'Require MFA' : 'Switch to Normal Sign-In',
+                                    confirmColor: willEnable ? 'purple' : 'blue',
+                                    icon: willEnable ? 'fa-shield-halved' : 'fa-unlock-alt',
+                                    onConfirm: async () => {
+                                        const response = await fetch('{{ route('guardians.toggle-mfa', $user->id) }}', {
+                                            method: 'PATCH',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Accept': 'application/json',
+                                                'Content-Type': 'application/json'
+                                            }
+                                        });
+                                        const data = await response.json();
+                                        if (data.success) {
+                                            this.mfaEnabled = data.mfa_enabled;
+                                            window.showToast?.(data.message, data.mfa_enabled ? 'purple' : 'info');
+                                        } else {
+                                            alert(data.message || 'Action could not be completed.');
+                                        }
+                                    }
+                                });
+                            }
+                        }" x-show="guardianSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username)) }}'.includes(guardianSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
                             
                             <!-- 1. Avatar, Name & Username -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6 align-middle">
@@ -525,15 +558,16 @@ x-init="
                             <!-- 3.5 Sign-In Method (MFA vs Normal) -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle">
                                 <div class="pt-1">
-                                    @if($user->mfa_enabled)
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 uppercase tracking-wider shadow-sm">
-                                            <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 uppercase tracking-wider shadow-sm">
-                                            <i class="fa fa-key text-[10px]"></i> Normal Sign-In
-                                        </span>
-                                    @endif
+                                    <span x-show="mfaEnabled"
+                                          x-cloak
+                                          class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 uppercase tracking-wider shadow-sm transition-all duration-200">
+                                        <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
+                                    </span>
+                                    <span x-show="!mfaEnabled"
+                                          x-cloak
+                                          class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 uppercase tracking-wider shadow-sm transition-all duration-200">
+                                        <i class="fa fa-key text-[10px]"></i> Normal Sign-In
+                                    </span>
                                 </div>
                             </td>
                             
@@ -541,15 +575,15 @@ x-init="
                             <td class="block md:table-cell px-4 py-4 md:px-6 md:py-4 md:bg-transparent align-middle">
                                 <div class="flex flex-wrap lg:flex-nowrap gap-2 w-full md:justify-end pt-1">
 
-                                    <!-- Toggle MFA Button -->
-                                    <form action="{{ route('guardians.toggle-mfa', $user->id) }}" method="POST" class="m-0 flex" onsubmit="return confirm('Change sign-in mode for {{ addslashes($user->name) }} to {{ $user->mfa_enabled ? 'Normal Sign-In' : 'MFA Required' }}?');">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50 transition-colors shadow-sm whitespace-nowrap" title="{{ $user->mfa_enabled ? 'Switch to Normal Sign-In' : 'Require Two-Factor Authentication' }}">
-                                            <i class="fa {{ $user->mfa_enabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]' }} mr-1.5"></i>
-                                            <span>{{ $user->mfa_enabled ? 'Disable MFA' : 'Enable MFA' }}</span>
-                                        </button>
-                                    </form>
+                                    <!-- Toggle MFA Button (Dynamic Modal + AJAX) -->
+                                    <button type="button"
+                                            @click="toggleMfa()"
+                                            class="w-full inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap active:scale-95 cursor-pointer"
+                                            :class="mfaEnabled ? 'hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50' : 'hover:text-[#3B82F6] hover:border-[#3B82F6]/50'"
+                                            :title="mfaEnabled ? 'Switch to Normal Sign-In' : 'Require Two-Factor Authentication'">
+                                        <i class="fa mr-1.5" :class="mfaEnabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]'"></i>
+                                        <span x-text="mfaEnabled ? 'Disable MFA' : 'Enable MFA'"></span>
+                                    </button>
 
                                     <!-- Edit Info Button -->
                                     <button @click="showEditInfoModal = true" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-sm whitespace-nowrap">
