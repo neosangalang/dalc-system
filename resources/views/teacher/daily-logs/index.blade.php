@@ -501,7 +501,7 @@ document.addEventListener("DOMContentLoaded", function() {
         form.addEventListener('submit', function(e) {
             if (!studentIdInput || !studentIdInput.value) {
                 e.preventDefault();
-                alert('Please select a student before saving.');
+                window.showToast('Please select a student before saving.', 'warning');
                 if (studentIdInput) studentIdInput.focus();
                 return false;
             }
@@ -511,7 +511,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (!raw && !formal) {
                 e.preventDefault();
-                alert('Please provide notes in Quick Notes or directly in Formal Documentation before saving.');
+                window.showToast('Please provide notes in Quick Notes or directly in Formal Documentation before saving.', 'warning');
                 if (formalNotes) formalNotes.focus();
                 return false;
             }
@@ -570,7 +570,7 @@ document.addEventListener("DOMContentLoaded", function() {
 document.getElementById('generateAiBtn').addEventListener('click', function() {
     let sid = document.getElementById('student_id') ? document.getElementById('student_id').value : '';
     if (!sid) {
-        alert('Please select a student first!');
+        window.showToast('Please select a student first!', 'warning');
         return;
     }
     let rawNotes = document.getElementById('rawNotes').value;
@@ -579,7 +579,7 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
     let output = document.getElementById('formalNotes');
 
     if (!rawNotes.trim()) {
-        alert('Please type some quick notes first!');
+        window.showToast('Please type some quick notes first!', 'warning');
         return;
     }
 
@@ -598,11 +598,12 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
     .then(response => response.json())
     .then(data => {
         if (data.error) {
-            alert(data.error);
+            window.showToast(data.error, 'error');
             output.value = "";
         } else {
             output.value = data.formal_note;
             window.hasUnsavedAiChanges = true;
+            window.showToast('Formal note generated successfully.', 'success');
 
             let sid = document.getElementById('student_id').value;
             let date = document.getElementById('log_date').value;
@@ -616,7 +617,7 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         }
     })
     .catch(error => {
-        alert('Something went wrong connecting to the AI.');
+        window.showToast('Something went wrong connecting to the AI.', 'error');
         output.value = "";
     })
     .finally(() => {

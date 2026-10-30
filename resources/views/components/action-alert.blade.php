@@ -7,7 +7,7 @@
     - Resume on mouse leave
     - Instant manual dismiss button
     - Smooth slide & collapse exit animation
-    - Zero height/DOM impact when no alerts exist
+    - Zero height/DOM impact when all alerts dismiss
 --}}
 @php
     $hasSuccess = session()->has('success');
@@ -16,10 +16,23 @@
     $hasWarning = session()->has('warning');
     $hasInfo    = session()->has('info');
     $hasErrors  = $errors->any() && !($ignoreErrors ?? false);
+    $totalAlertsCount = ($hasSuccess ? 1 : 0) + ($hasStatus && !$hasSuccess ? 1 : 0) + ($hasError ? 1 : 0) + ($hasWarning ? 1 : 0) + ($hasInfo ? 1 : 0) + ($hasErrors ? 1 : 0);
 @endphp
 
-@if($hasSuccess || $hasStatus || $hasError || $hasWarning || $hasInfo || $hasErrors)
-<div class="space-y-3 mb-6 w-full" id="dynamic-action-alerts-container">
+@if($totalAlertsCount > 0)
+<div x-data="{
+        remainingCount: {{ $totalAlertsCount }},
+        dismissOne() {
+            this.remainingCount = Math.max(0, this.remainingCount - 1);
+        }
+    }"
+    @alert-dismissed="dismissOne()"
+    x-show="remainingCount > 0"
+    x-transition:leave="transition-all ease-in-out duration-300"
+    x-transition:leave-start="opacity-100 max-h-[800px] mb-6"
+    x-transition:leave-end="opacity-0 max-h-0 mb-0 overflow-hidden"
+    class="space-y-3 mb-6 w-full"
+    id="dynamic-action-alerts-container">
 
     {{-- 1. SUCCESS / CONFIRMATION ALERT --}}
     @if($hasSuccess)
@@ -47,6 +60,7 @@
             dismiss() {
                 if (this.interval) clearInterval(this.interval);
                 this.show = false;
+                this.$dispatch('alert-dismissed');
             }
         }"
         x-show="show"
@@ -64,9 +78,12 @@
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-3">
                 <i class="fa fa-check-circle text-emerald-500 text-lg shrink-0"></i>
-                <span class="font-extrabold text-sm leading-snug">{{ session('success') }}</span>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700 block mb-0.5">Confirmation</span>
+                    <span class="font-extrabold text-sm leading-snug">{{ session('success') }}</span>
+                </div>
             </div>
-            <button @click="dismiss()" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors p-1 rounded-lg hover:bg-emerald-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss">
+            <button @click="dismiss()" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors p-1 rounded-lg hover:bg-emerald-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss immediately">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
@@ -103,6 +120,7 @@
             dismiss() {
                 if (this.interval) clearInterval(this.interval);
                 this.show = false;
+                this.$dispatch('alert-dismissed');
             }
         }"
         x-show="show"
@@ -120,9 +138,12 @@
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-3">
                 <i class="fa fa-check-circle text-emerald-500 text-lg shrink-0"></i>
-                <span class="font-extrabold text-sm leading-snug">{{ session('status') }}</span>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700 block mb-0.5">Status Update</span>
+                    <span class="font-extrabold text-sm leading-snug">{{ session('status') }}</span>
+                </div>
             </div>
-            <button @click="dismiss()" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors p-1 rounded-lg hover:bg-emerald-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss">
+            <button @click="dismiss()" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors p-1 rounded-lg hover:bg-emerald-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss immediately">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
@@ -159,6 +180,7 @@
             dismiss() {
                 if (this.interval) clearInterval(this.interval);
                 this.show = false;
+                this.$dispatch('alert-dismissed');
             }
         }"
         x-show="show"
@@ -176,9 +198,12 @@
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-3">
                 <i class="fa fa-circle-exclamation text-rose-500 text-lg shrink-0"></i>
-                <span class="font-extrabold text-sm leading-snug">{{ session('error') }}</span>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-700 block mb-0.5">Action Error</span>
+                    <span class="font-extrabold text-sm leading-snug">{{ session('error') }}</span>
+                </div>
             </div>
-            <button @click="dismiss()" type="button" class="text-rose-500 hover:text-rose-700 transition-colors p-1 rounded-lg hover:bg-rose-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss">
+            <button @click="dismiss()" type="button" class="text-rose-500 hover:text-rose-700 transition-colors p-1 rounded-lg hover:bg-rose-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss immediately">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
@@ -215,6 +240,7 @@
             dismiss() {
                 if (this.interval) clearInterval(this.interval);
                 this.show = false;
+                this.$dispatch('alert-dismissed');
             }
         }"
         x-show="show"
@@ -232,9 +258,12 @@
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-3">
                 <i class="fa fa-triangle-exclamation text-amber-500 text-lg shrink-0"></i>
-                <span class="font-extrabold text-sm leading-snug">{{ session('warning') }}</span>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-amber-700 block mb-0.5">Warning</span>
+                    <span class="font-extrabold text-sm leading-snug">{{ session('warning') }}</span>
+                </div>
             </div>
-            <button @click="dismiss()" type="button" class="text-amber-500 hover:text-amber-700 transition-colors p-1 rounded-lg hover:bg-amber-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss">
+            <button @click="dismiss()" type="button" class="text-amber-500 hover:text-amber-700 transition-colors p-1 rounded-lg hover:bg-amber-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss immediately">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
@@ -271,6 +300,7 @@
             dismiss() {
                 if (this.interval) clearInterval(this.interval);
                 this.show = false;
+                this.$dispatch('alert-dismissed');
             }
         }"
         x-show="show"
@@ -288,9 +318,12 @@
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-3">
                 <i class="fa fa-info-circle text-[#3B82F6] text-lg shrink-0"></i>
-                <span class="font-extrabold text-sm leading-snug">{{ session('info') }}</span>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-blue-700 block mb-0.5">Information</span>
+                    <span class="font-extrabold text-sm leading-snug">{{ session('info') }}</span>
+                </div>
             </div>
-            <button @click="dismiss()" type="button" class="text-[#3B82F6] hover:text-[#1E2657] transition-colors p-1 rounded-lg hover:bg-blue-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss">
+            <button @click="dismiss()" type="button" class="text-[#3B82F6] hover:text-[#1E2657] transition-colors p-1 rounded-lg hover:bg-blue-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss immediately">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
@@ -327,6 +360,7 @@
             dismiss() {
                 if (this.interval) clearInterval(this.interval);
                 this.show = false;
+                this.$dispatch('alert-dismissed');
             }
         }"
         x-show="show"
@@ -345,6 +379,7 @@
             <div class="flex items-start gap-3">
                 <i class="fa fa-triangle-exclamation text-rose-500 text-lg mt-0.5 shrink-0"></i>
                 <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-700 block mb-0.5">Action Notice</span>
                     <span class="font-extrabold text-sm block leading-snug">Please fix the following mistakes:</span>
                     <ul class="list-disc pl-5 text-sm space-y-1 font-medium mt-1.5 m-0 text-rose-700">
                         @foreach ($errors->all() as $error)
@@ -353,7 +388,7 @@
                     </ul>
                 </div>
             </div>
-            <button @click="dismiss()" type="button" class="text-rose-500 hover:text-rose-700 transition-colors p-1 rounded-lg hover:bg-rose-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss">
+            <button @click="dismiss()" type="button" class="text-rose-500 hover:text-rose-700 transition-colors p-1 rounded-lg hover:bg-rose-100/50 cursor-pointer ml-4 shrink-0" title="Dismiss immediately">
                 <i class="fa fa-times text-lg"></i>
             </button>
         </div>
@@ -366,4 +401,3 @@
 
 </div>
 @endif
-

@@ -515,20 +515,20 @@ document.addEventListener("DOMContentLoaded", function() {
         const date = currentActiveDate;
 
         if (!studentId) {
-            alert('Please select a student first.');
+            window.showToast('Please select a student first.', 'warning');
             studentSelect.focus();
             return;
         }
 
         if (!type) {
-            alert('Please select a report type first.');
+            window.showToast('Please select a report type first.', 'warning');
             reportTypeSelect.focus();
             return;
         }
 
         // DATE VALIDATION: Check if date is selected when generating Daily Report
         if (type === 'daily' && (!date || date.trim() === '')) {
-            alert('Please select a valid date before generating the Daily Report.');
+            window.showToast('Please select a valid date before generating the Daily Report.', 'warning');
             dateInput.focus();
             return;
         }
@@ -593,13 +593,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 }
             } else {
-                alert("AI Error: " + (data.message || 'Failed to generate report content.'));
+                window.showToast("AI Error: " + (data.message || 'Failed to generate report content.'), 'error');
                 syncState();
             }
         })
         .catch(err => {
             console.error(err);
-            alert("Something went wrong connecting to the server.");
+            window.showToast("Something went wrong connecting to the server.", 'error');
             syncState();
         });
     }
@@ -626,7 +626,7 @@ document.addEventListener("DOMContentLoaded", function() {
     form.addEventListener('submit', function(e) {
         if (!studentSelect.value) {
             e.preventDefault();
-            alert('Please select a student before saving or submitting the report.');
+            window.showToast('Please select a student before saving or submitting the report.', 'warning');
             studentSelect.focus();
             return false;
         }
@@ -634,7 +634,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const type = reportTypeSelect.value;
         if (!type) {
             e.preventDefault();
-            alert('Please select a report type.');
+            window.showToast('Please select a report type.', 'warning');
             reportTypeSelect.focus();
             return false;
         }
@@ -642,14 +642,14 @@ document.addEventListener("DOMContentLoaded", function() {
         if (type === 'daily') {
             if (!dateInput.value || dateInput.value.trim() === '') {
                 e.preventDefault();
-                alert('Please select a valid date for the Daily Report.');
+                window.showToast('Please select a valid date for the Daily Report.', 'warning');
                 dateInput.focus();
                 return false;
             }
             let compiled = dailyContent.value.trim();
             if (!compiled) {
                 e.preventDefault();
-                alert('Please enter or generate the Daily Report content before saving.');
+                window.showToast('Please enter or generate the Daily Report content before saving.', 'warning');
                 dailyContent.focus();
                 return false;
             }
@@ -658,7 +658,7 @@ document.addEventListener("DOMContentLoaded", function() {
             let compiled = generalContent.value.trim();
             if (!compiled) {
                 e.preventDefault();
-                alert('Please enter or generate the report content before saving.');
+                window.showToast('Please enter or generate the report content before saving.', 'warning');
                 generalContent.focus();
                 return false;
             }

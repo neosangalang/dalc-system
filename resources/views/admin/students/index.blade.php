@@ -637,7 +637,7 @@
                 <div x-show="showCreateModal" x-transition.opacity class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="if(confirm('Do you want to cancel student creation?')) showCreateModal = false"></div>
 
                 <div x-show="showCreateModal" x-transition class="relative w-full max-h-[92dvh] sm:max-h-none rounded-t-3xl sm:rounded-2xl bg-white text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-3xl border-t sm:border border-black/15 z-10 flex flex-col overflow-hidden">
-                    <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none" onsubmit="if(!document.getElementById('create_guardian_id').value){ alert('Please select a guardian before submitting.'); return false; }">
+                    <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="m-0 flex flex-col max-h-[92dvh] sm:max-h-none" onsubmit="if(!document.getElementById('create_guardian_id').value){ window.showToast('Please select a guardian before submitting.', 'warning'); return false; }">
                         @csrf
 
                         <div class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-black/10 bg-[#F4F6FA] flex justify-between items-center shrink-0 relative">
@@ -1270,7 +1270,22 @@
     };
 
     function confirmDeleteDocument(actionUrl) {
-        if (confirm('Are you sure you want to delete this document?')) {
+        if (typeof window.confirmAction === 'function') {
+            window.confirmAction({
+                title: 'Delete Document',
+                message: 'Are you sure you want to delete this document? This action cannot be undone.',
+                confirmText: 'Delete Document',
+                confirmColor: 'rose',
+                icon: 'fa-trash',
+                onConfirm: () => {
+                    const form = document.getElementById('global-delete-doc-form');
+                    if (form) {
+                        form.action = actionUrl;
+                        form.submit();
+                    }
+                }
+            });
+        } else if (confirm('Are you sure you want to delete this document?')) {
             const form = document.getElementById('global-delete-doc-form');
             if (form) {
                 form.action = actionUrl;

@@ -221,10 +221,10 @@
                 if (file) {
                     const validTypes = ['image/jpeg', 'image/png'];
                     if (!validTypes.includes(file.type)) {
-                        alert('Please select a valid image file (JPEG or PNG only).');
+                        window.showToast('Please select a valid image file (JPEG or PNG only).', 'warning');
                         this.value = ''; 
                     } else if (file.size > 5 * 1024 * 1024) {
-                        alert('File is too large. Please select an image smaller than 5MB.');
+                        window.showToast('File is too large. Please select an image smaller than 5MB.', 'warning');
                         this.value = ''; 
                     }
                 }

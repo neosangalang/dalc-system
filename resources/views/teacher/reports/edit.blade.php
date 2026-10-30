@@ -116,12 +116,13 @@
                     if(data.success) {
                         this.content = data.report_content;
                         window.hasUnsavedAiChanges = true;
+                        window.showToast('AI revised content generated successfully.', 'success');
                     } else {
-                        alert(data.message || 'Failed to generate AI content.');
+                        window.showToast(data.message || 'Failed to generate AI content.', 'error');
                     }
                 } catch(e) {
                     console.error(e);
-                    alert('An error occurred while communicating with the AI service.');
+                    window.showToast('An error occurred while communicating with the AI service.', 'error');
                 } finally {
                     this.aiLoading = false;
                 }

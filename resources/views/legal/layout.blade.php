@@ -231,5 +231,6 @@
         </div>
     </footer>
 
+    @include('components.toast-notification')
 </body>
 </html>

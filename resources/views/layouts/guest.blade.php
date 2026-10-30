@@ -26,5 +26,6 @@
                 {{ $slot }}
             </div>
         </div>
+        @include('components.toast-notification')
     </body>
 </html>

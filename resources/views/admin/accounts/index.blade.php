@@ -480,7 +480,7 @@ x-init="
                                             this.mfaEnabled = data.mfa_enabled;
                                             window.showToast?.(data.message, data.mfa_enabled ? 'purple' : 'info');
                                         } else {
-                                            alert(data.message || 'Action could not be completed.');
+                                            window.showToast(data.message || 'Action could not be completed.', 'error');
                                         }
                                     }
                                 });
@@ -912,7 +912,7 @@ x-init="
     function copyToClipboardRobust(text, successMessage) {
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(text).then(() => {
-                alert(successMessage);
+                window.showToast(successMessage, 'success');
             }).catch(err => {
                 fallbackCopy(text, successMessage);
             });
@@ -931,9 +931,9 @@ x-init="
         textArea.select();
         try {
             document.execCommand('copy');
-            alert(successMessage);
+            window.showToast(successMessage, 'success');
         } catch (err) {
-            alert('Failed to copy text. Please check your browser permissions.');
+            window.showToast('Failed to copy text. Please check your browser permissions.', 'error');
         }
         document.body.removeChild(textArea);
     }
@@ -948,7 +948,7 @@ x-init="
     function copyNewCredentials(username, userId) {
         const passField = document.getElementById('new_password_' + userId);
         if(passField.value === '') {
-            alert("Please type or auto-generate a New Password first before copying!");
+            window.showToast("Please type or auto-generate a New Password first before copying!", "warning");
             return;
         }
         
@@ -979,7 +979,7 @@ x-init="
         let passField = document.getElementById('create_teacher_password');
         
         if(!username || passField.value === '') {
-            alert("Please fill out the username and password (or click Auto-Generate) first before copying!");
+            window.showToast("Please fill out the username and password (or click Auto-Generate) first before copying!", "warning");
             return;
         }
         
@@ -1010,7 +1010,7 @@ x-init="
         let passField = document.getElementById('create_guardian_password');
         
         if(!username || passField.value === '') {
-            alert("Please fill out the username and password (or click Auto-Generate) first before copying!");
+            window.showToast("Please fill out the username and password (or click Auto-Generate) first before copying!", "warning");
             return;
         }
         

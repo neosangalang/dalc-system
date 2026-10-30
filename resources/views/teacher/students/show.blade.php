@@ -172,7 +172,7 @@
                                                  this.mfaEnabled = data.mfa_enabled;
                                                  window.showToast?.(data.message, data.mfa_enabled ? 'purple' : 'info');
                                              } else {
-                                                 alert(data.message || 'Action could not be completed.');
+                                                 window.showToast(data.message || 'Action could not be completed.', 'error');
                                              }
                                          }
                                      });

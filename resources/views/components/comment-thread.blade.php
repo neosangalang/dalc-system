@@ -141,7 +141,7 @@
                     });
 
                     if (!response.ok) {
-                        alert('Backend error: Could not save comment.');
+                        window.showToast('Backend error: Could not save comment.', 'error');
                         if (submitBtn) {
                             submitBtn.innerHTML = originalBtnText;
                             submitBtn.disabled = false;

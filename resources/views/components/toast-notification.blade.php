@@ -1,14 +1,48 @@
 <!-- Global Toast Notification Component (Tailwind + Alpine.js) -->
 <div x-data="{
     toasts: [],
+    init() {
+        if (window._pendingToasts && window._pendingToasts.length) {
+            window._pendingToasts.forEach(t => this.add(t));
+            window._pendingToasts = [];
+        }
+    },
     add(toast) {
         const id = Date.now() + Math.random();
-        const duration = toast.duration || (toast.type === 'error' ? 5000 : 3500);
+        const type = toast.type || 'success';
+        const defaultDurations = {
+            success: 3500,
+            info: 4000,
+            warning: 4500,
+            purple: 4000,
+            error: 5500
+        };
+        const duration = toast.duration || defaultDurations[type] || 3500;
+
+        let icon = toast.icon;
+        if (!icon) {
+            if (type === 'error') icon = 'fa-circle-exclamation';
+            else if (type === 'warning') icon = 'fa-triangle-exclamation';
+            else if (type === 'purple') icon = 'fa-shield-halved';
+            else if (type === 'info') icon = 'fa-circle-info';
+            else icon = 'fa-check-circle';
+        }
+
+        let title = toast.title;
+        if (!title && title !== false) {
+            if (type === 'success') title = 'Confirmation';
+            else if (type === 'error') title = 'Error';
+            else if (type === 'warning') title = 'Action Notice';
+            else if (type === 'purple') title = 'Security';
+            else if (type === 'info') title = 'Notice';
+        }
+
         const item = {
             id: id,
+            title: title,
             message: toast.message || 'Action completed successfully.',
-            type: toast.type || 'success',
-            icon: toast.icon || (toast.type === 'error' ? 'fa-circle-exclamation' : (toast.type === 'purple' ? 'fa-shield-halved' : 'fa-check-circle')),
+            type: type,
+            icon: icon,
             duration: duration,
             remaining: duration,
             progress: 100,
@@ -57,6 +91,7 @@ class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[10000] flex flex-col gap
                      'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20': t.type === 'success',
                      'bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20': t.type === 'purple',
                      'bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20': t.type === 'info',
+                     'bg-amber-50 text-amber-600 border border-amber-200': t.type === 'warning',
                      'bg-rose-50 text-rose-600 border border-rose-200': t.type === 'error'
                  }">
                 <i class="fa text-sm" :class="t.icon"></i>
@@ -64,24 +99,36 @@ class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[10000] flex flex-col gap
 
             <!-- Toast Body -->
             <div class="flex-1 min-w-0 pr-1">
-                <span class="block text-xs sm:text-[13px] font-extrabold text-[#1E2657] leading-tight" x-text="t.message"></span>
+                <template x-if="t.title">
+                    <span class="block text-[10px] font-black uppercase tracking-wider mb-0.5"
+                          :class="{
+                              'text-emerald-700': t.type === 'success',
+                              'text-purple-700': t.type === 'purple',
+                              'text-blue-700': t.type === 'info',
+                              'text-amber-700': t.type === 'warning',
+                              'text-rose-700': t.type === 'error'
+                          }"
+                          x-text="t.title"></span>
+                </template>
+                <span class="block text-xs sm:text-[13px] font-bold text-[#1E2657] leading-snug break-words" x-text="t.message"></span>
             </div>
 
-            <!-- Close Button -->
+            <!-- Optional Instant Close Button -->
             <button type="button"
                     @click="remove(t.id)"
-                    class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors p-1 rounded-md hover:bg-slate-100 cursor-pointer"
-                    title="Dismiss">
+                    class="text-[#9CA0AF] hover:text-[#1E2657] transition-colors p-1 rounded-md hover:bg-slate-100 cursor-pointer shrink-0"
+                    title="Dismiss immediately">
                 <i class="fa fa-times text-xs"></i>
             </button>
 
-            <!-- Dynamic Countdown Bar -->
+            <!-- Dynamic Countdown Bar (Removes toast without manual interaction) -->
             <div class="absolute bottom-0 left-0 right-0 h-1 bg-slate-100 overflow-hidden">
                 <div class="h-full transition-all duration-75 ease-linear"
                      :class="{
                          'bg-[#10B981]': t.type === 'success',
                          'bg-[#8B5CF6]': t.type === 'purple',
                          'bg-[#3B82F6]': t.type === 'info',
+                         'bg-amber-500': t.type === 'warning',
                          'bg-rose-500': t.type === 'error'
                      }"
                      :style="'width: ' + t.progress + '%'"></div>
@@ -92,16 +139,44 @@ class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[10000] flex flex-col gap
 </div>
 
 <script>
-    if (typeof window.showToast !== 'function') {
-        window.showToast = function(message, type = 'success', duration = 3500) {
-            window.dispatchEvent(new CustomEvent('show-toast', {
-                detail: {
-                    message: message,
-                    type: type,
-                    duration: duration,
-                    icon: type === 'purple' ? 'fa-shield-halved' : (type === 'error' ? 'fa-circle-exclamation' : 'fa-check-circle')
-                }
-            }));
+    // Global Toast Notification Helper
+    window.showToast = function(message, type = 'success', duration = null, title = null) {
+        if (!type) type = 'success';
+        
+        const payload = {
+            message: message,
+            type: type,
+            duration: duration,
+            title: title
         };
-    }
+
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: payload }));
+        
+        // Also queue in case Alpine is still initializing
+        if (!window.Alpine) {
+            window._pendingToasts = window._pendingToasts || [];
+            window._pendingToasts.push(payload);
+        }
+    };
+
+    // Polyfill/Override native alert to be non-blocking & dynamic auto-dismissing
+    window.alert = function(message) {
+        const msg = String(message ?? '');
+        const lower = msg.toLowerCase();
+        let type = 'info';
+        let title = 'Notice';
+
+        if (lower.includes('error') || lower.includes('failed') || lower.includes('wrong') || lower.includes('could not')) {
+            type = 'error';
+            title = 'Error';
+        } else if (lower.includes('please') || lower.includes('must') || lower.includes('required') || lower.includes('invalid') || lower.includes('too large') || lower.includes('select') || lower.includes('fill') || lower.includes('type')) {
+            type = 'warning';
+            title = 'Action Notice';
+        } else if (lower.includes('success') || lower.includes('copied') || lower.includes('saved') || lower.includes('done') || lower.includes('updated') || lower.includes('complete')) {
+            type = 'success';
+            title = 'Confirmation';
+        }
+
+        window.showToast(msg, type, null, title);
+    };
 </script>

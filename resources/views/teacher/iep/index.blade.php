@@ -96,7 +96,7 @@
             .catch(err => {
                 console.error(err);
                 this.isDeletingGoal = false;
-                alert('An error occurred while deleting the goal. Please try again.');
+                window.showToast('An error occurred while deleting the goal. Please try again.', 'error');
             });
         }
      }">
@@ -1289,8 +1289,8 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
     let resultsContainer = document.getElementById('ai-results-container');
     let tbody = document.getElementById('goals-list-tbody');
 
-    if(domainValue === '') { alert('Please select a Development Domain first!'); return; }
-    if(presentLevelText.trim() === '') { alert('Please enter the Present Level of Performance first!'); return; }
+    if(domainValue === '') { window.showToast('Please select a Development Domain first!', 'warning'); return; }
+    if(presentLevelText.trim() === '') { window.showToast('Please enter the Present Level of Performance first!', 'warning'); return; }
 
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Analyzing...';
     btn.disabled = true;
@@ -1352,12 +1352,12 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
                 tbody.appendChild(tr);
             });
         } else {
-            alert("AI Error: " + data.message);
+            window.showToast("AI Error: " + data.message, 'error');
         }
     }).catch(error => {
         btn.innerHTML = '<i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities';
         btn.disabled = false;
-        alert("Something went wrong communicating with the AI.");
+        window.showToast("Something went wrong communicating with the AI.", 'error');
     });
 });
 
@@ -1416,7 +1416,7 @@ document.addEventListener("DOMContentLoaded", function() {
             editAiBtn.addEventListener('click', function() {
                 let plopText = editPlopInput.value.trim();
                 if (!plopText) {
-                    alert('Please enter or update the Present Level of Performance (PLOP) first!');
+                    window.showToast('Please enter or update the Present Level of Performance (PLOP) first!', 'warning');
                     editPlopInput.focus();
                     return;
                 }
@@ -1483,13 +1483,13 @@ document.addEventListener("DOMContentLoaded", function() {
                             editAiList.appendChild(card);
                         });
                     } else {
-                        alert("AI Error: " + (data.message || 'Could not parse suggestions.'));
+                        window.showToast("AI Error: " + (data.message || 'Could not parse suggestions.'), 'error');
                     }
                 })
                 .catch(err => {
                     editAiBtn.innerHTML = originalBtnHtml;
                     editAiBtn.disabled = false;
-                    alert("Something went wrong communicating with the AI service.");
+                    window.showToast("Something went wrong communicating with the AI service.", 'error');
                 });
             });
         }
