@@ -23,18 +23,6 @@ x-init="
     }
 ">
 
-    <!-- ALERTS -->
-    @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-            <div class="flex items-center">
-                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-                <span class="font-extrabold text-sm">{{ session('success') }}</span>
-            </div>
-            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
-                <i class="fa fa-times text-lg"></i>
-            </button>
-        </div>
-    @endif
 
     @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
     
@@ -224,16 +212,7 @@ x-init="
                                                 <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
 
                                                     @if ($errors->any() && old('_method') === 'PUT')
-                                                        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
-                                                            <div class="flex items-center mb-1 font-extrabold text-[13px]">
-                                                                <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
-                                                            </div>
-                                                            <ul class="list-disc pl-5 text-[12px] font-medium m-0">
-                                                                @foreach ($errors->all() as $error)
-                                                                    <li>{{ $error }}</li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
+                                                        @include('components.form-errors')
                                                     @endif
 
                                                     <div class="bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#1E2657] px-4 py-3 rounded-xl text-[13px] font-medium leading-snug">
@@ -289,16 +268,7 @@ x-init="
                                                 <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
                                                     
                                                     @if ($errors->any() && old('_method') === 'PUT')
-                                                        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
-                                                            <div class="flex items-center mb-1 font-extrabold text-[13px]">
-                                                                <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
-                                                            </div>
-                                                            <ul class="list-disc pl-5 text-[12px] font-medium m-0">
-                                                                @foreach ($errors->all() as $error)
-                                                                    <li>{{ $error }}</li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
+                                                        @include('components.form-errors')
                                                     @endif
 
                                                     <div class="bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#1E2657] px-4 py-3 rounded-xl text-[13px] font-medium leading-snug mb-4">
@@ -635,16 +605,7 @@ x-init="
                                                 <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
                                                     
                                                     @if ($errors->any() && old('_method') === 'PUT')
-                                                        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
-                                                            <div class="flex items-center mb-1 font-extrabold text-[13px]">
-                                                                <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
-                                                            </div>
-                                                            <ul class="list-disc pl-5 text-[12px] font-medium m-0">
-                                                                @foreach ($errors->all() as $error)
-                                                                    <li>{{ $error }}</li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
+                                                        @include('components.form-errors')
                                                     @endif
 
                                                     <div class="bg-[#10B981]/10 border border-[#10B981]/20 text-[#1E2657] px-4 py-3 rounded-xl text-[13px] font-medium leading-snug">
@@ -714,16 +675,7 @@ x-init="
                                                 <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
                                                     
                                                     @if ($errors->any() && old('_method') === 'PUT')
-                                                        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
-                                                            <div class="flex items-center mb-1 font-extrabold text-[13px]">
-                                                                <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
-                                                            </div>
-                                                            <ul class="list-disc pl-5 text-[12px] font-medium m-0">
-                                                                @foreach ($errors->all() as $error)
-                                                                    <li>{{ $error }}</li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
+                                                        @include('components.form-errors')
                                                     @endif
 
                                                     <div class="bg-[#10B981]/10 border border-[#10B981]/20 text-[#1E2657] px-4 py-3 rounded-xl text-[13px] font-medium leading-snug mb-4">
@@ -794,16 +746,7 @@ x-init="
                     <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
 
                         @if ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher')
-                            <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
-                                <div class="flex items-center mb-1 font-extrabold text-[13px]">
-                                    <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
-                                </div>
-                                <ul class="list-disc pl-5 text-[12px] font-medium m-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                            @include('components.form-errors')
                         @endif
 
                         <div class="bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#1E2657] px-4 py-2.5 rounded-xl text-[12px] font-bold leading-snug flex items-center gap-2">
@@ -875,16 +818,7 @@ x-init="
                     <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] space-y-4 whitespace-normal flex-1">
 
                         @if ($errors->any() && !old('_method') && old('role') === 'guardian')
-                            <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl shadow-sm mb-4">
-                                <div class="flex items-center mb-1 font-extrabold text-[13px]">
-                                    <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
-                                </div>
-                                <ul class="list-disc pl-5 text-[12px] font-medium m-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                            @include('components.form-errors')
                         @endif
 
                         <div class="bg-[#10B981]/10 border border-[#10B981]/20 text-[#1E2657] px-4 py-2.5 rounded-xl text-[12px] font-bold leading-snug flex items-center gap-2">

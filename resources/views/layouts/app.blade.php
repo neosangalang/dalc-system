@@ -184,6 +184,11 @@
             </div>
         @endif
 
+        <!-- Dynamic Action Alert Notifications (Auto-dismissing) -->
+        <div class="w-full max-w-[1200px] mx-auto">
+            @include('components.action-alert')
+        </div>
+
         <!-- ========================================== -->
         <!-- YIELD CONTENT: Injects your specific files -->
         <!-- ========================================== -->

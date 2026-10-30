@@ -18,29 +18,6 @@
     }
 }">
 
-    @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-            <div class="flex items-center">
-                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-                <span class="font-extrabold text-sm">{{ session('success') }}</span>
-            </div>
-            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
-                <i class="fa fa-times text-lg"></i>
-            </button>
-        </div>
-    @endif
-
-    @if(session('warning'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-            <div class="flex items-center">
-                <i class="fa fa-exclamation-triangle mr-3 text-amber-500 text-lg"></i>
-                <span class="font-extrabold text-sm">{{ session('warning') }}</span>
-            </div>
-            <button @click="show = false" type="button" class="text-amber-500 hover:text-amber-700 transition-colors">
-                <i class="fa fa-times text-lg"></i>
-            </button>
-        </div>
-    @endif
 
     <!-- FILTER SECTION -->
     <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden mb-4 sm:mb-6">

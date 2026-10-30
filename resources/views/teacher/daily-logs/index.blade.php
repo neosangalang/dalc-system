@@ -16,30 +16,6 @@
 <!-- Main Container -->
 <div x-data="{ activeTab: 'create', enlargedPhotoUrl: null, enlargedPhotoTitle: '' }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
-    @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down mb-6">
-            <div class="flex items-center">
-                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-                <span class="font-extrabold text-sm">{{ session('success') }}</span>
-            </div>
-            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
-                <i class="fa fa-times text-lg"></i>
-            </button>
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl shadow-sm animate-fade-in-down mb-6">
-            <div class="flex items-center mb-2 font-extrabold text-sm">
-                <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Oops! Something went wrong:
-            </div>
-            <ul class="list-disc pl-5 text-[13px] sm:text-sm font-medium m-0 space-y-1">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>

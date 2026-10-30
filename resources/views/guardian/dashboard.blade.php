@@ -67,30 +67,6 @@
             @endif
         </header>
 
-        <!-- ALERTS -->
-        @if(session('success'))
-            <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-                <div class="flex items-center">
-                    <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-                    <span class="font-extrabold text-sm">{{ session('success') }}</span>
-                </div>
-                <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
-                    <i class="fa fa-times text-lg"></i>
-                </button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div x-data="{ show: true }" x-show="show" x-transition.opacity class="bg-rose-50 border border-rose-200 text-rose-800 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-                <div class="flex items-center">
-                    <i class="fa fa-exclamation-triangle mr-3 text-rose-500 text-lg"></i>
-                    <span class="font-extrabold text-sm">{{ session('error') }}</span>
-                </div>
-                <button @click="show = false" type="button" class="text-rose-500 hover:text-rose-700 transition-colors">
-                    <i class="fa fa-times text-lg"></i>
-                </button>
-            </div>
-        @endif
 
         <!-- 2. STAT CARDS (4 Columns on Desktop, 2 Columns on Mobile) -->
         <section>

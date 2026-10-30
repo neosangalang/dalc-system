@@ -13,6 +13,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 <body class="font-['Nunito'] antialiased text-gray-900">
 
@@ -35,9 +40,45 @@
 
             <!-- Errors Alert -->
             @if ($errors->any())
-                <div class="bg-rose-50 border border-rose-200 text-rose-600 text-[12px] py-2.5 px-3.5 rounded-xl mb-4 font-bold flex items-start gap-2 shadow-sm">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5 text-sm shrink-0"></i>
-                    <span>{{ $errors->first() }}</span>
+                <div x-data="{ 
+                        show: true, 
+                        duration: 6000, 
+                        remaining: 6000, 
+                        progress: 100, 
+                        paused: false, 
+                        interval: null,
+                        init() {
+                            const step = 25;
+                            this.interval = setInterval(() => {
+                                if (!this.paused) {
+                                    this.remaining -= step;
+                                    this.progress = Math.max(0, (this.remaining / this.duration) * 100);
+                                    if (this.remaining <= 0) {
+                                        if (this.interval) clearInterval(this.interval);
+                                        this.show = false;
+                                    }
+                                }
+                            }, step);
+                        }
+                    }"
+                    x-show="show"
+                    x-cloak
+                    @mouseenter="paused = true"
+                    @mouseleave="paused = false"
+                    x-transition:leave="transition-all ease-in-out duration-300"
+                    x-transition:leave-start="opacity-100 max-h-32 mb-4 py-2.5"
+                    x-transition:leave-end="opacity-0 max-h-0 mb-0 py-0 overflow-hidden border-transparent"
+                    class="relative overflow-hidden bg-rose-50 border border-rose-200 text-rose-600 text-[12px] py-2.5 px-3.5 rounded-xl mb-4 font-bold flex items-start justify-between gap-2 shadow-sm">
+                    <div class="flex items-start gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5 text-sm shrink-0"></i>
+                        <span>{{ $errors->first() }}</span>
+                    </div>
+                    <button type="button" @click="if (interval) clearInterval(interval); show = false" class="text-rose-400 hover:text-rose-600 p-0.5 cursor-pointer shrink-0">
+                        <i class="fa fa-times text-xs"></i>
+                    </button>
+                    <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-rose-200 overflow-hidden">
+                        <div class="h-full bg-rose-500 transition-all duration-75 ease-linear" :style="'width: ' + progress + '%'"></div>
+                    </div>
                 </div>
             @endif
             

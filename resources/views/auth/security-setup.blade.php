@@ -32,7 +32,7 @@
             </div>
 
             @if($errors->any())
-                <div class="alert alert-danger" style="border-radius: 8px; font-size: 13px; background-color: #fdf2f2; border-color: #fbc4c4; color: #c81e1e;">
+                <div id="security-setup-error-alert" class="alert alert-danger" style="border-radius: 8px; font-size: 13px; background-color: #fdf2f2; border-color: #fbc4c4; color: #c81e1e; transition: all 0.4s ease;">
                     <div class="fw-bold mb-1"><i class="fa fa-exclamation-circle me-1"></i> Please fix the following errors:</div>
                     <ul class="mb-0 ps-3">
                         @foreach($errors->all() as $error)
@@ -40,6 +40,16 @@
                         @endforeach
                     </ul>
                 </div>
+                <script>
+                    setTimeout(() => {
+                        const el = document.getElementById('security-setup-error-alert');
+                        if (el) {
+                            el.style.opacity = '0';
+                            el.style.transform = 'translateY(-6px)';
+                            setTimeout(() => el.style.display = 'none', 400);
+                        }
+                    }, 6500);
+                </script>
             @endif
 
             <form action="{{ route('security.setup.store') }}" method="POST" id="passwordForm">

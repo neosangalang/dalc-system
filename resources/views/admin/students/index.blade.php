@@ -7,27 +7,6 @@
 <!-- Main Container -->
 <div class="w-full max-w-[1200px] mx-auto space-y-6">
 
-    @if(session('success'))
-    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-        <div class="flex items-center">
-            <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-            <span class="font-extrabold text-sm">{{ session('success') }}</span>
-        </div>
-    </div>
-    @endif
-
-    @if ($errors->any())
-    <div class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl shadow-sm animate-fade-in-down">
-        <div class="flex items-center mb-2 font-extrabold text-sm">
-            <i class="fa fa-exclamation-triangle mr-2 text-rose-500"></i> Please fix the following errors:
-        </div>
-        <ul class="list-disc pl-5 text-sm space-y-1 font-medium m-0">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
 
     <div x-data="{ 
         showCreateModal: false, 

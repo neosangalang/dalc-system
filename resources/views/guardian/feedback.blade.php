@@ -17,17 +17,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border-[3px] border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl shadow-sm flex justify-between items-center animate-fade-in-down">
-            <div class="flex items-center">
-                <i class="fa fa-check-circle mr-3 text-emerald-600 text-lg"></i>
-                <span class="font-bold text-sm">{{ session('success') }}</span>
-            </div>
-            <button @click="show = false" type="button" class="text-emerald-600 hover:text-emerald-800 transition-colors">
-                <i class="fa fa-times text-lg"></i>
-            </button>
-        </div>
-    @endif
 
     <div class="bg-white rounded-2xl shadow-sm border-[3px] border-slate-300 overflow-hidden flex flex-col h-[600px]">
         

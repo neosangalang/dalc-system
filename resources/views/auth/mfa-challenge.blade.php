@@ -25,9 +25,19 @@
             <p class="text-muted mb-4">Please open your authenticator app and enter the 6-digit code to access your account.</p>
 
             @if($errors->any())
-                <div class="alert alert-danger" style="border-radius: 8px; font-size: 14px;">
+                <div id="mfa-error-alert" class="alert alert-danger" style="border-radius: 8px; font-size: 14px; transition: all 0.4s ease;">
                     {{ $errors->first() }}
                 </div>
+                <script>
+                    setTimeout(() => {
+                        const el = document.getElementById('mfa-error-alert');
+                        if (el) {
+                            el.style.opacity = '0';
+                            el.style.transform = 'translateY(-6px)';
+                            setTimeout(() => el.style.display = 'none', 400);
+                        }
+                    }, 5000);
+                </script>
             @endif
 
             <form action="{{ route('security.mfa.verify-login') }}" method="POST">

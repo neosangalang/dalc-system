@@ -21,17 +21,6 @@
         </a>
     </div>
 
-    @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-            <div class="flex items-center">
-                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-                <span class="font-extrabold text-sm">{{ session('success') }}</span>
-            </div>
-            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
-                <i class="fa fa-times text-lg"></i>
-            </button>
-        </div>
-    @endif
 
     <div class="bg-white rounded-[16px] sm:rounded-2xl shadow-sm sm:shadow-md border border-slate-300 overflow-hidden">
         <form action="{{ route('teacher.reports.store') }}" method="POST" id="report-generation-form" enctype="multipart/form-data" class="m-0">

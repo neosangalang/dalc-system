@@ -11,17 +11,6 @@
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
 <div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8" x-data="{ activeViewModal: null, enlargedPhotoUrl: null, enlargedPhotoTitle: '' }">
 
-    @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition.opacity class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl shadow-sm flex justify-between items-center animate-fade-in-down">
-            <div class="flex items-center">
-                <i class="fa fa-check-circle mr-3 text-emerald-500 text-lg"></i>
-                <span class="font-extrabold text-sm">{{ session('success') }}</span>
-            </div>
-            <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors">
-                <i class="fa fa-times text-lg"></i>
-            </button>
-        </div>
-    @endif
 
     <!-- FILTER SECTION -->
     <div class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden mb-4 sm:mb-6">

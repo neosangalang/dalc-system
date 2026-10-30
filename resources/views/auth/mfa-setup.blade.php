@@ -31,9 +31,19 @@
             <p class="text-muted small mb-4">Can't scan the code? Enter this setup key manually:<br> <code class="fs-6">{{ $secretKey }}</code></p>
 
             @if($errors->any())
-                <div class="alert alert-danger" style="border-radius: 8px; font-size: 14px;">
+                <div id="mfa-setup-error-alert" class="alert alert-danger" style="border-radius: 8px; font-size: 14px; transition: all 0.4s ease;">
                     {{ $errors->first() }}
                 </div>
+                <script>
+                    setTimeout(() => {
+                        const el = document.getElementById('mfa-setup-error-alert');
+                        if (el) {
+                            el.style.opacity = '0';
+                            el.style.transform = 'translateY(-6px)';
+                            setTimeout(() => el.style.display = 'none', 400);
+                        }
+                    }, 5000);
+                </script>
             @endif
 
             <form action="{{ route('security.mfa.verify') }}" method="POST">
