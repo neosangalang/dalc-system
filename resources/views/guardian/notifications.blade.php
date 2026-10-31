@@ -39,10 +39,10 @@
                     </div>
 
                     <div class="flex-1 min-w-0">
-                        <p class="text-[14px] sm:text-[15px] font-extrabold text-[#1E2657] mb-1.5 leading-snug">{{ $message }}</p>
+                        <a href="{{ route('notifications.read', $notif->id) }}" class="text-[14px] sm:text-[15px] font-extrabold text-[#1E2657] mb-1.5 leading-snug hover:text-[#3B82F6] transition-colors block decoration-transparent">{{ $message }}</a>
                         
                         <div class="flex items-center gap-4 flex-wrap mt-2">
-                            @if($url && $url !== '#')
+                            @if(true) <!-- Always available -->
                                 <a href="{{ route('notifications.read', $notif->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-[#3B82F6] text-white text-[12px] font-extrabold rounded-lg hover:bg-blue-600 transition-colors shadow-sm decoration-transparent">
                                     View Details <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
                                 </a>

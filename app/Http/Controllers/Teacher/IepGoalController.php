@@ -92,7 +92,7 @@ class IepGoalController extends Controller
                 $student->guardian->notify(new GuardianAlertNotification(
                     title: 'New IEP Goal Assigned',
                     message: "Teacher {$teacherName} added a new IEP Goal for {$student->first_name} under {$request->domain}.",
-                    url: route('guardian.goals'),
+                    url: route('guardian.goals', ['student_id' => $student->id, 'goal_id' => $goal->id]) . '#goal-' . $goal->id,
                     studentName: $student->first_name,
                     actionText: 'View IEP Goals',
                     extraDetails: "Domain: {$request->domain} | Target: " . Str::limit(strip_tags($request->goal_description), 140)
@@ -244,7 +244,7 @@ PROMPT;
                 $goal->student->guardian->notify(new GuardianAlertNotification(
                     title: 'IEP Milestone Progress Update',
                     message: "IEP progress updated for {$studentName}: {$goal->domain} is now at {$request->progress_percentage}%.",
-                    url: route('guardian.goals'),
+                    url: route('guardian.goals', ['student_id' => $goal->student_id, 'goal_id' => $goal->id]) . '#goal-' . $goal->id,
                     studentName: $studentName,
                     actionText: 'View IEP Progress',
                     extraDetails: "Milestone status: {$goal->domain} — {$request->progress_percentage}% achieved."

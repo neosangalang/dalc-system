@@ -211,8 +211,8 @@ class ReportController extends Controller
                         : "Daily Summary: " . Str::limit(strip_tags($finalContent), 120);
 
                     $targetUrl = \Carbon\Carbon::parse($reportDate)->isToday() 
-                        ? route('guardian.dashboard') 
-                        : route('guardian.reports');
+                        ? route('guardian.dashboard', array_filter(['student_id' => $student->id, 'open_log' => $log?->id])) . ($log ? '#log-' . $log->id : '')
+                        : route('guardian.reports', ['student_id' => $student->id, 'type' => 'daily', 'report_id' => $report->id]);
 
                     $student->guardian->notify(new GuardianAlertNotification(
                         title: $title,

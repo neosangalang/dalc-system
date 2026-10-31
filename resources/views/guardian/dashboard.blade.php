@@ -114,6 +114,8 @@
                         <a href="{{ route('guardian.reports', ['type' => 'q2']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 2 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q3']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 3 <i class="fa-solid fa-angle-right opacity-50"></i></a>
                         <a href="{{ route('guardian.reports', ['type' => 'q4']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Quarter 4 <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'mid_year']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Mid-Year Report <i class="fa-solid fa-angle-right opacity-50"></i></a>
+                        <a href="{{ route('guardian.reports', ['type' => 'year_end']) }}" class="block px-4 py-2.5 sm:py-2 text-[13px] sm:text-[14px] font-extrabold text-[#6B7086] hover:bg-[#F4F6FA] hover:text-[#3B82F6] rounded-xl transition-colors flex justify-between items-center">Year-End Report <i class="fa-solid fa-angle-right opacity-50"></i></a>
                     </div>
                 </div>
 
@@ -246,15 +248,6 @@
                                 <span>View Details & Comments</span>
                                 <i class="fa-solid fa-arrow-right text-xs"></i>
                             </a>
-
-                            @if($announcement->image_path)
-                            <button type="button" 
-                                    @click="$dispatch('open-image-preview', { src: '{{ asset('storage/' . $announcement->image_path) }}', title: '{{ addslashes($announcement->title) }}' })"
-                                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-100 text-[#1E2657] text-[13px] font-bold rounded-xl border border-slate-200 shadow-xs transition">
-                                <i class="fa-solid fa-expand text-xs text-[#8B5CF6]"></i>
-                                <span>Enlarge Picture</span>
-                            </button>
-                            @endif
                         </div>
                     </div>
 
@@ -419,7 +412,7 @@
 
                 <div class="flex flex-col gap-5">
                     @forelse($recentLogs ?? [] as $log)
-                        <div x-data="{ showComments: false }" class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
+                        <div id="log-{{ $log->id }}" x-data="{ showComments: {{ (request('open_log') == $log->id || request('log_id') == $log->id) ? 'true' : 'false' }} }" class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md {{ (request('open_log') == $log->id || request('log_id') == $log->id) ? 'ring-2 ring-[#3B82F6]' : '' }}">
                             
                             <!-- Unified Card Header -->
                             <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-black/10 bg-gradient-to-r from-[#F8FAFC] to-white flex items-center justify-between gap-3">
@@ -599,5 +592,19 @@
         </div>
     </div>
 </div>
+
+@if(request('open_log') || request('log_id'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const targetId = 'log-{{ request('open_log') ?? request('log_id') }}';
+        const el = document.getElementById(targetId);
+        if (el) {
+            setTimeout(function() {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    });
+</script>
+@endif
 
 @endsection

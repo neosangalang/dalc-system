@@ -139,10 +139,20 @@
                         class="w-full border-2 border-[#E8ECF8] rounded-xl px-3.5 py-2.5 text-[13px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4" x-data="{ showPassword: false }">
                     <label class="block font-bold text-[12px] text-[#1A1F4B] mb-1">Password</label>
-                    <input type="password" name="password" required placeholder="Enter your password"
-                        class="w-full border-2 border-[#E8ECF8] rounded-xl px-3.5 py-2.5 text-[13px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
+                    <div class="relative flex items-center">
+                        <input :type="showPassword ? 'text' : 'password'" name="password" required placeholder="Enter your password"
+                            class="w-full border-2 border-[#E8ECF8] rounded-xl pl-3.5 pr-11 py-2.5 text-[13px] outline-none transition-all focus:border-[#4F6AF5] focus:ring-4 focus:ring-[#4F6AF5]/10">
+                        <button type="button" 
+                            @click="showPassword = !showPassword" 
+                            tabindex="-1"
+                            class="absolute right-3.5 text-gray-400 hover:text-[#4F6AF5] transition-colors focus:outline-none cursor-pointer flex items-center justify-center p-1"
+                            :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                            :title="showPassword ? 'Hide password' : 'Show password'">
+                            <i class="fa-solid" :class="showPassword ? 'fa-eye-slash text-[#4F6AF5]' : 'fa-eye'"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex justify-end items-center mb-5">

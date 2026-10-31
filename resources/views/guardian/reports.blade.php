@@ -8,7 +8,7 @@
     [x-cloak] { display: none !important; }
 </style>
 
-<div class="font-['Inter'] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block min-h-[100dvh]" x-data="{ activeViewModal: null, enlargedPhotoUrl: null, enlargedPhotoTitle: '' }">
+<div class="font-['Inter'] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto block min-h-[100dvh]" x-data="{ activeViewModal: {{ request('report_id') ? (int)request('report_id') : 'null' }}, enlargedPhotoUrl: null, enlargedPhotoTitle: '' }">
 
     <!-- HEADER SECTION -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 sm:mb-8 gap-4 w-full">
@@ -75,7 +75,7 @@
                 <!-- MOBILE CARDS / DESKTOP ROWS -->
                 <tbody class="block md:table-row-group space-y-4 md:space-y-0 divide-y-0 md:divide-y-2 divide-slate-200 bg-transparent md:bg-white">
                     @forelse($reports as $report)
-                        <tr class="block md:table-row relative bg-white md:bg-transparent rounded-[16px] md:rounded-none shadow-sm md:shadow-none border-2 border-slate-200 md:border-none hover:bg-slate-50 transition-colors duration-150 pt-2 md:pt-0">
+                        <tr id="report-{{ $report->id }}" class="block md:table-row relative bg-white md:bg-transparent rounded-[16px] md:rounded-none shadow-sm md:shadow-none border-2 border-slate-200 md:border-none hover:bg-slate-50 transition-colors duration-150 pt-2 md:pt-0 {{ request('report_id') == $report->id ? 'ring-2 ring-indigo-500 bg-indigo-50/40' : '' }}">
                             
                             <!-- 1. Student Name -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-slate-100 md:border-none">

@@ -78,7 +78,7 @@ class ReportApprovalController extends Controller
             if ($report->teacher) {
                 $report->teacher->notify(new SystemAlert(
                     'Your report for ' . $report->student->first_name . ' was approved.',
-                    route('teacher.reports.index') 
+                    route('teacher.reports.index', ['student_id' => $report->student_id, 'type' => $report->report_type]) 
                 ));
             }
 
@@ -89,7 +89,11 @@ class ReportApprovalController extends Controller
                     $report->student->guardian->notify(new GuardianAlertNotification(
                         title: "{$documentType} Approved",
                         message: "A new {$documentType} for {$report->student->first_name} has been reviewed, approved, and is now available for viewing.",
-                        url: route('guardian.reports'),
+                        url: route('guardian.reports', [
+                            'student_id' => $report->student_id,
+                            'type'       => $report->report_type,
+                            'report_id'  => $report->id,
+                        ]),
                         studentName: $report->student->first_name,
                         actionText: 'View Progress Report',
                         extraDetails: 'You can review the clinical progress evaluation and download the official signed PDF report directly from your portal.'

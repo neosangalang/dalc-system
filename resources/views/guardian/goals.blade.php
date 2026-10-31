@@ -93,7 +93,8 @@
                                 }
                             }
                          }" 
-                         class="bg-white rounded-2xl border transition-all duration-300 shadow-sm overflow-hidden hover:shadow-md"
+                         id="goal-{{ $goal->id }}"
+                         class="bg-white rounded-2xl border transition-all duration-300 shadow-sm overflow-hidden hover:shadow-md {{ request('goal_id') == $goal->id ? 'ring-2 ring-[#8B5CF6] border-[#8B5CF6]' : '' }}"
                          :class="goalUnread ? 'border-red-400 ring-2 ring-red-400/20' : 'border-black/15'">
                         
                         <!-- GOAL HEADER -->
@@ -247,5 +248,19 @@
     @endif
 
 </div>
+
+@if(request('goal_id'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const targetId = 'goal-{{ request('goal_id') }}';
+        const el = document.getElementById(targetId);
+        if (el) {
+            setTimeout(function() {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    });
+</script>
+@endif
 
 @endsection

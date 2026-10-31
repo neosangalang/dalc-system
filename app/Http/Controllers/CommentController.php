@@ -114,10 +114,11 @@ class CommentController extends Controller
                     // Guardian commented -> Notify the teacher
                     $teacher = $target->teacher ?? ($target->student->teacher ?? null);
                     if ($teacher && $teacher->id !== $user->id) {
+                        $childId = $target->student_id ?? ($target->student->id ?? null);
                         $url = match($request->commentable_type) {
-                            'App\Models\DailyLog' => route('teacher.daily-logs.index'),
-                            'App\Models\IepGoal'  => route('teacher.iep-goals.index'),
-                            'App\Models\Report'   => route('teacher.reports.index'),
+                            'App\Models\DailyLog' => route('teacher.daily-logs.index', array_filter(['student_id' => $childId, 'log_id' => $target->id])),
+                            'App\Models\IepGoal'  => route('teacher.iep-goals.index', array_filter(['student_id' => $childId, 'goal_id' => $target->id])),
+                            'App\Models\Report'   => route('teacher.reports.index', array_filter(['student_id' => $childId])),
                             default               => route('teacher.dashboard'),
                         };
                         $childName = $target->student->first_name ?? 'your student';
@@ -130,13 +131,14 @@ class CommentController extends Controller
                     // Teacher/Admin commented -> Notify the guardian
                     $guardian = $target->student->guardian ?? null;
                     if ($guardian && $guardian->id !== $user->id) {
-                        $url = match($request->commentable_type) {
-                            'App\Models\DailyLog' => route('guardian.dashboard'),
-                            'App\Models\IepGoal'  => route('guardian.goals'),
-                            'App\Models\Report'   => route('guardian.reports'),
-                            default               => route('guardian.dashboard'),
-                        };
+                        $childId = $target->student_id ?? ($target->student->id ?? null);
                         $childName = $target->student->first_name ?? 'your child';
+                        $url = match($request->commentable_type) {
+                            'App\Models\DailyLog' => route('guardian.dashboard', ['student_id' => $childId, 'open_log' => $target->id]) . '#log-' . $target->id,
+                            'App\Models\IepGoal'  => route('guardian.goals', ['student_id' => $childId, 'goal_id' => $target->id]) . '#goal-' . $target->id,
+                            'App\Models\Report'   => route('guardian.reports', array_filter(['student_id' => $childId, 'type' => $target->report_type ?? null, 'report_id' => $target->id])),
+                            default               => route('guardian.dashboard', array_filter(['student_id' => $childId])),
+                        };
                         $targetTypeLabel = match($request->commentable_type) {
                             'App\Models\DailyLog' => 'Daily Log',
                             'App\Models\IepGoal'  => 'IEP Goal',

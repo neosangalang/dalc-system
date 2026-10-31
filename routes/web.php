@@ -76,11 +76,12 @@ Route::middleware(['auth'])->group(function () {
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        $notifications = $user->notifications()->latest()->take(10)->get()->map(function($notif) {
+        $notifications = $user->notifications()->latest()->take(10)->get()->map(function($notif) use ($user) {
+            $targetUrl = \App\Services\NotificationUrlResolver::resolve($notif, $user);
             return [
                 'id' => $notif->id,
                 'message' => $notif->data['message'] ?? ($notif->data['title'] ?? 'New Alert'),
-                'url' => $notif->data['url'] ?? '#',
+                'url' => $targetUrl,
                 'time' => $notif->created_at->diffForHumans(),
                 'is_read' => $notif->read_at !== null
             ];
@@ -100,13 +101,15 @@ Route::middleware(['auth'])->group(function () {
         return response()->json(['success' => true]);
     })->name('notifications.markAllRead');
 
-    // NEW ROUTE: Marks a single notification as read and redirects the user
+    // NEW ROUTE: Marks a single notification as read and redirects the user to the specific target location
     Route::get('/notifications/{id}/read', function($id) {
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $notification = $user->notifications()->findOrFail($id);
         $notification->markAsRead();
-        return redirect($notification->data['url'] ?? '/');
+        
+        $targetUrl = \App\Services\NotificationUrlResolver::resolve($notification, $user);
+        return redirect($targetUrl);
     })->name('notifications.read');
 
     Route::get('/test-alert', function () {

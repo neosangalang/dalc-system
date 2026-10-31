@@ -25,6 +25,25 @@ class GuardianController extends Controller
         $activeChild = null;
 
         if ($myChildren->isNotEmpty()) {
+            // Direct child switching via query parameter (e.g. from notification clicks)
+            if (request()->has('student_id')) {
+                $reqId = (int) request('student_id');
+                $matched = $myChildren->firstWhere('id', $reqId);
+                if ($matched) {
+                    session(['active_child_id' => $matched->id]);
+                }
+            } elseif (request()->has('student')) {
+                $studentParam = request('student');
+                $matched = is_numeric($studentParam)
+                    ? $myChildren->firstWhere('id', (int) $studentParam)
+                    : $myChildren->first(function($c) use ($studentParam) {
+                        return strcasecmp($c->first_name, $studentParam) === 0;
+                    });
+                if ($matched) {
+                    session(['active_child_id' => $matched->id]);
+                }
+            }
+
             $activeId = session('active_child_id');
             $activeChild = $myChildren->where('id', $activeId)->first();
             
@@ -262,11 +281,22 @@ class GuardianController extends Controller
             ->where('student_id', $activeChild->id)
             ->where('status', 'approved');
 
-        if ($request->has('type')) {
+        if ($request->has('type') && !empty($request->type)) {
             $query->where('report_type', $request->type);
         }
 
         $reports = $query->latest()->get();
+
+        if ($request->filled('report_id')) {
+            $specificReport = Report::with(['student', 'teacher'])
+                ->where('id', $request->report_id)
+                ->where('student_id', $activeChild->id)
+                ->where('status', 'approved')
+                ->first();
+            if ($specificReport && !$reports->contains('id', $specificReport->id)) {
+                $reports->prepend($specificReport);
+            }
+        }
 
         return view('guardian.reports', compact('reports', 'myChildren', 'activeChild'));
     }
