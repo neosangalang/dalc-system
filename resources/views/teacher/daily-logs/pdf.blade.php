@@ -194,31 +194,20 @@
         </tr>
     </table>
 
-    @php
-        $pdfNotes = $log->notes;
-        $pdfHomeRec = $log->home_recommendations;
-        if (preg_match('/^(.*?)(?:\r?\n)+(?:Tonight\'s Suggested Activity|Tonight\'s Suggested Home Activity|Home Activity):?\s*(.*)$/si', $pdfNotes, $pdfMatches)) {
-            $pdfNotes = trim($pdfMatches[1]);
-            if (empty($pdfHomeRec) && !empty($pdfMatches[2])) {
-                $pdfHomeRec = trim($pdfMatches[2]);
-            }
-        }
-    @endphp
-
     <!-- Documentation Notes -->
     <div class="section-box">
         <div class="section-heading">Standardized Observation & Progress Notes</div>
         <div class="section-content">
-            {!! nl2br(e($pdfNotes)) !!}
+            {!! nl2br(e($log->notes)) !!}
         </div>
     </div>
 
     <!-- Home Recommendations if present -->
-    @if(!empty($pdfHomeRec))
+    @if(!empty($log->home_recommendations))
         <div class="section-box">
             <div class="section-heading">Suggested Home Activities & Follow-Up</div>
             <div class="section-content">
-                {!! nl2br(e($pdfHomeRec)) !!}
+                {!! nl2br(e($log->home_recommendations)) !!}
             </div>
         </div>
     @endif

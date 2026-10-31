@@ -26,7 +26,7 @@ class DailyLogController extends Controller
         $recentLogs = DailyLog::with(['student', 'comments.user'])
             ->where('teacher_id', $teacherId)
             ->latest('log_date')
-            ->take(15)
+            ->latest('id')
             ->get();
 
         foreach ($recentLogs as $log) {
@@ -41,20 +41,12 @@ class DailyLogController extends Controller
                       });
                 })
                 ->first();
-            if ($matchingReport) {
-                if (!$log->image_path && $matchingReport->image_path) {
-                    $log->image_path = $matchingReport->image_path;
-                }
-                if (empty($log->home_recommendations) && !empty($matchingReport->home_recommendations)) {
-                    $log->home_recommendations = $matchingReport->home_recommendations;
-                }
-                if ($matchingReport->comments->isNotEmpty()) {
-                    $merged = $log->comments->concat($matchingReport->comments)
-                        ->unique('id')
-                        ->sortByDesc('created_at')
-                        ->values();
-                    $log->setRelation('comments', $merged);
-                }
+            if ($matchingReport && $matchingReport->comments->isNotEmpty()) {
+                $merged = $log->comments->concat($matchingReport->comments)
+                    ->unique('id')
+                    ->sortByDesc('created_at')
+                    ->values();
+                $log->setRelation('comments', $merged);
             }
         }
 
@@ -63,7 +55,15 @@ class DailyLogController extends Controller
         $activeQuarter = \App\Models\AcademicQuarter::where('is_active', true)->first();
         $activeQuarterName = $activeQuarter ? strtoupper($activeQuarter->name) : 'Q1';
 
-        return view('teacher.daily-logs.index', compact('myStudents', 'recentLogs', 'activeQuarterName'));
+        // Collect available archive dates sorted descending
+        $availableDates = DailyLog::where('teacher_id', $teacherId)
+            ->pluck('log_date')
+            ->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'))
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        return view('teacher.daily-logs.index', compact('myStudents', 'recentLogs', 'activeQuarterName', 'availableDates'));
     }
 
     public function markCommentsAsRead($id)

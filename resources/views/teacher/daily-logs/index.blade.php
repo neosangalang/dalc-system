@@ -14,7 +14,7 @@
 </style>
 
 <!-- Main Container -->
-<div x-data="{ activeTab: 'create', enlargedPhotoUrl: null, enlargedPhotoTitle: '' }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+<div x-data="{ activeTab: '{{ request('tab', 'create') }}' }" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
 
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
@@ -57,7 +57,7 @@
             </div>
             
             <div class="p-4 sm:p-8">
-                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0 space-y-6">
+                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" class="m-0 space-y-6">
                     @csrf
                     
                     <!-- STUDENT SELECTION DROPDOWN -->
@@ -139,44 +139,6 @@
                         <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar transition-all" rows="6" placeholder="Type formal documentation directly here, or click 'Rewrite Professionally' above...">{{ old('notes') }}</textarea>
                     </div>
 
-                    <!-- 3. Tonight's Suggested Activity (Home Practice) -->
-                    <div class="p-5 bg-emerald-50/50 border border-dashed border-emerald-300 rounded-2xl relative overflow-hidden">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="text-[12px] font-extrabold text-emerald-800 uppercase tracking-widest m-0 flex items-center">
-                                <i class="fa-solid fa-house-chimney-user mr-1.5 text-emerald-600"></i> 3. Tonight's Suggested Activity (Home Practice)
-                            </label>
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-md border border-emerald-300/70">Optional</span>
-                        </div>
-                        <p class="text-[11px] sm:text-xs font-medium text-slate-600 mb-3 m-0">Provide actionable 5-10 minute home activities for parents to practice with the child tonight.</p>
-
-                        <button type="button" id="btnGenerateRecommendations" class="w-full inline-flex items-center justify-center px-4 py-3 bg-emerald-600 text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-all active:scale-98 shadow-sm cursor-pointer mb-3">
-                            <i class="fa-solid fa-lightbulb mr-1.5"></i> Generate Suggested Activity via AI
-                        </button>
-
-                        <div id="recLoading" class="text-center text-emerald-600 text-[12px] mb-3 font-extrabold hidden">
-                            <i class="fa fa-spinner fa-spin mr-1.5"></i> AI is thinking...
-                        </div>
-
-                        <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-emerald-500 focus:ring-emerald-500 shadow-sm custom-scrollbar transition-all" rows="4" placeholder="Suggested home practice activities will appear here, or type your own instructions for parents...">{{ old('home_recommendations') }}</textarea>
-                    </div>
-
-                    <!-- 4. Attach Session Photo (Optional) -->
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                        <label class="block text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider mb-1.5 flex items-center">
-                            <i class="fa fa-camera text-indigo-500 mr-1.5"></i> Attach Session Photo (Optional)
-                        </label>
-                        <input type="file" name="photo" id="photoInput" onchange="handleFileInputChange(this, 'photo_input_preview', 'photo_input_filename')" class="block w-full text-[13px] font-medium text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 border border-slate-300 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png, image/jpg">
-                        <div id="photo_input_preview" class="hidden mt-2 p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-xl flex items-center justify-between shadow-sm">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <i class="fa fa-camera text-indigo-600 text-sm"></i>
-                                <span id="photo_input_filename" class="text-[12px] font-extrabold text-slate-800 truncate"></span>
-                            </div>
-                            <button type="button" onclick="clearSelectedFile('photoInput', 'photo_input_preview')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
-                                <i class="fa fa-times text-xs"></i> Remove
-                            </button>
-                        </div>
-                    </div>
-
                     <!-- SUBMIT BUTTON -->
                     <div class="border-t border-black/10 pt-6">
                         <button type="submit" id="saveDailyLogBtn" class="w-full inline-flex items-center justify-center px-6 py-4 bg-[#1E2657] text-white text-[14px] font-extrabold rounded-xl hover:bg-[#12163A] transition-all active:scale-98 shadow-sm cursor-pointer">
@@ -188,20 +150,28 @@
         </div>
     </div>
 
-    <!-- TAB 2: FORMAL DOCUMENTATION LIST -->
+    <!-- TAB 2: FORMAL DOCUMENTATION ARCHIVE & LIST -->
     <div x-show="activeTab === 'history'" x-transition.opacity.duration.300ms x-cloak class="w-full">
         
-        <!-- FILTER BAR WITH SORTING OPTIONS -->
-        <div class="bg-white p-3 sm:p-5 rounded-2xl shadow-sm border border-black/15 mb-4 sm:mb-6 space-y-2 sm:space-y-3">
-            <h6 class="text-xs sm:text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
-                <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Daily Logs Filters & Search
-            </h6>
+        <!-- FILTER BAR WITH GUARDIAN-STYLE ARCHIVE DATE NAVIGATION & SORTING -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-black/15 mb-4 sm:mb-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/10">
+                <h6 class="text-xs sm:text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
+                    <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Daily Logs Filters & Archive Navigation
+                </h6>
+                <span id="archiveCountBadge" class="text-[11px] font-extrabold text-[#6B7086] bg-[#F4F6FA] border border-black/10 px-3 py-1 rounded-xl self-start sm:self-auto flex items-center shadow-xs">
+                    <i class="fa-solid fa-clock-rotate-left text-[#3B82F6] mr-1.5"></i>
+                    <span id="archiveCountText">Loading archive...</span>
+                </span>
+            </div>
             
-            <div class="grid grid-cols-2 sm:grid-cols-12 gap-2 sm:gap-3">
-                <!-- Student Filter -->
-                <div class="col-span-2 sm:col-span-3">
-                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Filter by Student</label>
-                    <select id="filterStudent" class="w-full rounded-xl border-black/15 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-end">
+                <!-- 1. Student Filter -->
+                <div class="md:col-span-3">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5 flex items-center">
+                        <i class="fa fa-user-graduate text-[#3B82F6] mr-1.5"></i> Filter by Student
+                    </label>
+                    <select id="filterStudent" class="w-full rounded-xl border-black/15 px-3 py-2 text-xs sm:text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
                         <option value="all">All Assigned Students</option>
                         @foreach($myStudents as $student)
                             <option value="{{ $student->id }}" {{ $selectedStudentId == $student->id ? 'selected' : '' }}>
@@ -211,15 +181,42 @@
                     </select>
                 </div>
 
-                <!-- Date Filter -->
-                <div class="col-span-1 sm:col-span-3">
-                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Date</label>
-                    <input type="date" id="filterDate" class="w-full rounded-xl border-black/15 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
+                <!-- 2. Archive Date Navigation & Sorting Component (Guardian-style) -->
+                <div class="md:col-span-5">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5 flex items-center">
+                        <i class="fa-regular fa-calendar-days text-[#3B82F6] mr-1.5"></i> Archive Date Navigation
+                    </label>
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                        <!-- Step to Older Report (Previous) -->
+                        <button type="button" id="btnPrevDate" title="Previous older report" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200">
+                            <i class="fa-solid fa-chevron-left text-[11px] text-slate-500"></i>
+                            <span class="hidden sm:inline">Previous</span>
+                        </button>
+
+                        <!-- Date Picker Input -->
+                        <div class="relative flex items-center flex-1 min-w-[120px]">
+                            <div class="absolute left-2.5 pointer-events-none text-indigo-600 text-xs">
+                                <i class="fa-regular fa-calendar-days"></i>
+                            </div>
+                            <input type="date" id="filterDate" class="w-full pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 bg-white border-2 border-indigo-200 hover:border-indigo-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 text-slate-800 text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer" title="Select specific log date">
+                        </div>
+
+                        <!-- Quick Dropdown of Available Recorded Dates (Sorted Descending) -->
+                        <select id="filterDateSelect" class="py-1.5 sm:py-2 px-2 sm:px-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer max-w-[125px] sm:max-w-[160px] truncate" title="Jump to recorded date">
+                            <option value="">All Recorded Dates...</option>
+                        </select>
+
+                        <!-- Step to Newer Report (Next) -->
+                        <button type="button" id="btnNextDate" title="Next newer report" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200">
+                            <span class="hidden sm:inline">Next</span>
+                            <i class="fa-solid fa-chevron-right text-[11px] text-slate-500"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Quarter Filter -->
-                <div class="col-span-1 sm:col-span-2">
-                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Quarter</label>
+                <!-- 3. Quarter Filter -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Quarter</label>
                     <select id="filterQuarter" class="w-full rounded-xl border-black/15 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-[13px] font-extrabold text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white cursor-pointer">
                         <option value="all">All Quarters</option>
                         <option value="Q1">Q1</option>
@@ -229,14 +226,14 @@
                     </select>
                 </div>
 
-                <!-- Search Input -->
-                <div class="col-span-2 sm:col-span-4">
-                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-0.5 sm:mb-1">Search Keywords</label>
+                <!-- 4. Search Keywords -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5">Keywords</label>
                     <div class="relative w-full shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 sm:pl-3 text-[#9CA0AF] pointer-events-none">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 text-[#9CA0AF] pointer-events-none">
                             <i class="fa fa-search text-xs"></i>
                         </span>
-                        <input type="text" id="logSearch" class="w-full border-0 py-1.5 sm:py-2 pl-8 sm:pl-9 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search documentation content...">
+                        <input type="text" id="logSearch" class="w-full border-0 py-1.5 sm:py-2 pl-8 pr-2.5 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search notes...">
                     </div>
                 </div>
             </div>
@@ -270,7 +267,7 @@
                      }"
                      class="bg-white rounded-2xl shadow-sm border border-black/15 overflow-hidden hover:shadow-md transition-shadow duration-200 log-item" 
                      data-student-id="{{ $log->student_id }}"
-                     data-log-date="{{ $log->log_date }}"
+                     data-log-date="{{ \Carbon\Carbon::parse($log->log_date)->format('Y-m-d') }}"
                      data-quarter="{{ $log->quarter }}">
                     
                     <!-- Card Header -->
@@ -320,190 +317,34 @@
                         </form>
                     </div>
 
-                    <!-- Card Body -->
-                    <div class="p-5 sm:p-6 text-[13px] sm:text-[14px] text-[#6B7086] leading-relaxed bg-white font-medium flex flex-col gap-5 sm:gap-6">
-                        @php
-                            $photoUrl = $log->image_path ? route('secure.log-photo', $log->id) : null;
-
-                            $fullContent = $log->notes ?? '';
-                            $dailyReportText = $fullContent;
-                            $suggestedActivityText = $log->home_recommendations ?? '';
-
-                            if (preg_match('/^(.*?)(?:\r?\n)+(?:Tonight\'s Suggested Activity|Tonight\'s Suggested Home Activity|Home Activity):?\s*(.*)$/si', $fullContent, $matches)) {
-                                $dailyReportText = trim($matches[1]);
-                                if (empty($suggestedActivityText) && !empty($matches[2])) {
-                                    $suggestedActivityText = trim($matches[2]);
-                                }
-                            }
-
-                            $formatHtml = function($rawText) {
-                                if (empty($rawText)) return '';
-                                $escaped = e(trim($rawText));
-                                $formatted = preg_replace('/\*\*(.*?)\*\*/s', '<strong class="font-extrabold text-slate-900">$1</strong>', $escaped);
-                                
-                                $lines = explode("\n", $formatted);
-                                $output = [];
-                                $inList = false;
-                                
-                                foreach ($lines as $line) {
-                                    $trimmed = trim($line);
-                                    if (preg_match('/^[-*•]\s+(.*)$/', $trimmed, $m)) {
-                                        if (!$inList) {
-                                            $output[] = '<ul class="list-none pl-0 space-y-2 mt-2 mb-2">';
-                                            $inList = true;
-                                        }
-                                        $output[] = '<li class="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-slate-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><span class="flex-1">' . $m[1] . '</span></li>';
-                                    } else {
-                                        if ($inList) {
-                                            $output[] = '</ul>';
-                                            $inList = false;
-                                        }
-                                        if (!empty($trimmed)) {
-                                            $output[] = '<p class="m-0 mb-2 leading-relaxed text-[13px] sm:text-[14px] text-slate-700 font-normal">' . $trimmed . '</p>';
-                                        }
-                                    }
-                                }
-                                if ($inList) {
-                                    $output[] = '</ul>';
-                                }
-                                return implode("\n", $output);
-                            };
-                        @endphp
-
-                        <!-- TOP SECTION: DAILY REPORT (LEFT) + OBSERVATION PHOTO (RIGHT) -->
-                        @if($photoUrl)
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-stretch">
-                                
-                                <!-- LEFT: DAILY REPORT CARD (Dark Blue / Indigo Accent) -->
-                                @if(!empty($dailyReportText))
-                                    <div class="md:col-span-7 lg:col-span-8 flex flex-col">
-                                        <div class="p-5 sm:p-6 bg-white rounded-2xl border-2 border-indigo-200/90 shadow-sm relative overflow-hidden h-full flex flex-col justify-between">
-                                            <div>
-                                                <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-100 flex-wrap gap-2">
-                                                    <div class="flex items-center gap-2.5">
-                                                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
-                                                            <i class="fa-solid fa-file-lines"></i>
-                                                        </div>
-                                                        <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
-                                                            Daily Report:
-                                                        </h6>
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
-                                                            Archived Report
-                                                        </span>
-                                                        <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
-                                                           target="_blank"
-                                                           class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
-                                                           title="View Standardized Formal Documentation as PDF">
-                                                            <i class="fa-solid fa-file-pdf text-rose-500"></i>
-                                                            <span>View PDF</span>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                                <div class="m-0 leading-relaxed text-slate-700 font-medium">
-                                                    {!! $formatHtml($dailyReportText) !!}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- RIGHT: OBSERVATION PHOTO (Light Blue Accent) -->
-                                <div class="{{ !empty($dailyReportText) ? 'md:col-span-5 lg:col-span-4' : 'md:col-span-12' }} flex flex-col">
-                                    <div class="bg-slate-50/90 rounded-2xl border-2 border-indigo-200/80 p-3 sm:p-4 shadow-sm flex flex-col justify-between h-full">
-                                        <div>
-                                            <div class="flex items-center justify-between mb-2.5 px-0.5">
-                                                <span class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
-                                                    <i class="fa fa-camera text-indigo-500"></i> Session Photo
-                                                </span>
-                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline-block">
-                                                    Click to enlarge
-                                                </span>
-                                            </div>
-
-                                            <div class="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-slate-300 shadow-xs bg-slate-200 flex items-center justify-center min-h-[180px] max-h-[260px] sm:max-h-[300px]"
-                                                 @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Session Photo - {{ addslashes($log->student->first_name) }}'"
-                                                 title="Click to view full image">
-                                                <img src="{{ $photoUrl }}" 
-                                                     alt="Session Photo" 
-                                                     class="w-full h-full max-h-[260px] sm:max-h-[300px] object-cover group-hover:scale-105 transition-transform duration-300 block"
-                                                     loading="lazy">
-                                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2 backdrop-blur-[1px]">
-                                                    <i class="fa-solid fa-magnifying-glass-plus text-base"></i> View full size
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button type="button" 
-                                                @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Session Photo - {{ addslashes($log->student->first_name) }}'"
-                                                class="w-full mt-3 py-2 px-3 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800 font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
-                                            <i class="fa-solid fa-expand text-indigo-500 text-xs"></i> View enlarged photo
-                                        </button>
-                                    </div>
-                                </div>
-
+                    <!-- Card Body: Clean Standardized Formal Documentation -->
+                    <div class="p-5 sm:p-6 text-[13px] sm:text-[14px] text-[#6B7086] leading-relaxed bg-white font-medium">
+                        <div class="p-4 bg-[#F4F6FA] rounded-xl border border-black/10 text-[#1E2657]">
+                            <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                                <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest m-0 flex items-center">
+                                    <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
+                                </h6>
+                                <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
+                                   title="View Standardized Formal Documentation as PDF">
+                                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                    <span>View PDF</span>
+                                </a>
                             </div>
-                        @else
-                            <!-- NO PHOTO: DAILY REPORT SPANS FULL WIDTH -->
-                            @if(!empty($dailyReportText))
-                                <div class="w-full">
-                                    <div class="p-5 sm:p-6 bg-white rounded-2xl border-2 border-indigo-200/90 shadow-sm relative overflow-hidden">
-                                        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-100 flex-wrap gap-2">
-                                            <div class="flex items-center gap-2.5">
-                                                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
-                                                    <i class="fa-solid fa-file-lines"></i>
-                                                </div>
-                                                <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
-                                                    Daily Report:
-                                                </h6>
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
-                                                    Archived Report
-                                                </span>
-                                                <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
-                                                   target="_blank"
-                                                   class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
-                                                   title="View Standardized Formal Documentation as PDF">
-                                                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
-                                                    <span>View PDF</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="m-0 leading-relaxed text-slate-700 font-medium">
-                                            {!! $formatHtml($dailyReportText) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        @endif
+                            <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
+                        </div>
 
-                        <!-- BOTTOM SECTION: TONIGHT'S SUGGESTED ACTIVITY (SPANS FULL WIDTH, Green Accent) -->
-                        @if(!empty($suggestedActivityText))
-                            <div class="w-full">
-                                <div class="p-5 sm:p-6 bg-emerald-50/40 rounded-2xl border-2 border-emerald-300/80 shadow-sm relative overflow-hidden">
-                                    <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-emerald-100/90 flex-wrap gap-2">
-                                        <div class="flex items-center gap-2.5">
-                                            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm shadow-xs shrink-0">
-                                                <i class="fa-solid fa-house-chimney-user"></i>
-                                            </div>
-                                            <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
-                                                Tonight's Suggested Activity:
-                                            </h6>
-                                        </div>
-                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-md border border-emerald-300">
-                                            Home Practice
-                                        </span>
-                                    </div>
-                                    <div class="m-0 leading-relaxed text-slate-800 font-medium text-[13px] sm:text-[14px]">
-                                        {!! $formatHtml($suggestedActivityText) !!}
-                                    </div>
-                                </div>
+                        @if(!empty($log->home_recommendations))
+                            <div class="mt-4 p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 text-emerald-950">
+                                <h6 class="text-[11px] font-extrabold text-emerald-700 uppercase tracking-widest mb-1.5 flex items-center m-0">
+                                    <i class="fa fa-house-user mr-1.5 text-emerald-600"></i> Tonight's Suggested Home Activity
+                                </h6>
+                                <p class="m-0 text-[13px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->home_recommendations }}</p>
                             </div>
                         @endif
 
-                        <div class="mt-1 pt-4 border-t border-dashed border-black/10">
+                        <div class="mt-4 pt-4 border-t border-dashed border-black/10">
                             @include('components.comment-thread', ['item' => $log])
                         </div>
                     </div>
@@ -517,21 +358,21 @@
                     <p class="text-[13px] font-medium text-[#9CA0AF] m-0">Submitted observation entries and standardized notes will automatically populate here.</p>
                 </div>
             @endforelse
-        </div>
-    </div>
 
-    <!-- Enlarge Photo Lightbox Modal -->
-    <div x-show="enlargedPhotoUrl" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-6" @keydown.escape.window="enlargedPhotoUrl = null">
-        <div x-show="enlargedPhotoUrl" x-transition.opacity class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="enlargedPhotoUrl = null"></div>
-        <div x-show="enlargedPhotoUrl" x-transition class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col z-10 border border-slate-200">
-            <div class="px-5 py-3.5 bg-[#1E2657] text-white flex items-center justify-between">
-                <h4 class="font-extrabold text-sm sm:text-base truncate pr-4 m-0" x-text="enlargedPhotoTitle"></h4>
-                <button type="button" @click="enlargedPhotoUrl = null" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 flex items-center justify-center text-white transition cursor-pointer">
-                    <i class="fa-solid fa-xmark"></i>
+            <!-- Dynamic Empty State when filters yield no matches -->
+            <div id="noMatchingLogsState" class="hidden w-full text-center py-12 sm:py-16 px-4 sm:px-6 bg-white rounded-2xl shadow-sm border-2 border-dashed border-slate-200">
+                <div class="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto mb-4 text-slate-400 text-3xl">
+                    <i class="fa-regular fa-calendar-xmark"></i>
+                </div>
+                <h5 id="noMatchingLogsTitle" class="text-base sm:text-lg font-extrabold text-slate-800 m-0 mb-1">
+                    No Report Found for Selected Date
+                </h5>
+                <p id="noMatchingLogsDesc" class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 max-w-md mx-auto mb-5">
+                    There are no formal documentation records recorded on this specific date. Pick another date using the selector above or reset filters.
+                </p>
+                <button type="button" id="btnResetFilters" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1E2657] hover:bg-[#12163A] text-white font-extrabold text-xs rounded-xl transition-colors shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-rotate-left"></i> View All Recorded Logs
                 </button>
-            </div>
-            <div class="p-4 overflow-auto flex items-center justify-center bg-slate-900/5 max-h-[calc(90vh-60px)]">
-                <img :src="enlargedPhotoUrl" :alt="enlargedPhotoTitle" class="max-h-[75vh] w-auto max-w-full object-contain rounded-lg shadow-md">
             </div>
         </div>
     </div>
@@ -539,35 +380,15 @@
 
 @push('scripts')
 <script>
-// --- AUTO-SAVE DRAFT LOGIC ---
-// --- STRICT DATE BINDING & FILTER SYNC LOGIC ---
+// --- AUTO-SAVE DRAFT & CACHE LOGIC ---
 const dailyLogCache = {};
 let currentDailyLogKey = '';
-
-function handleFileInputChange(input, previewId, filenameId) {
-    const preview = document.getElementById(previewId);
-    const filenameEl = document.getElementById(filenameId);
-    if (input.files && input.files[0]) {
-        if (filenameEl) filenameEl.textContent = input.files[0].name;
-        if (preview) preview.classList.remove('hidden');
-    }
-}
-
-function clearSelectedFile(inputId, previewId) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    if (input) input.value = '';
-    if (preview) preview.classList.add('hidden');
-}
 
 document.addEventListener("DOMContentLoaded", function() {
     const studentIdInput = document.getElementById('student_id');
     const logDateInput = document.getElementById('log_date');
     const rawNotes = document.getElementById('rawNotes');
     const formalNotes = document.getElementById('formalNotes');
-    const homeRec = document.getElementById('home_recommendations');
-    const photoInput = document.getElementById('photoInput');
-    const btnGenRec = document.getElementById('btnGenerateRecommendations');
     const form = document.getElementById('dailyLogForm');
     const filterStudent = document.getElementById('filterStudent');
 
@@ -583,7 +404,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!dailyLogCache[currentDailyLogKey]) dailyLogCache[currentDailyLogKey] = {};
         if (rawNotes) dailyLogCache[currentDailyLogKey].rawNotes = rawNotes.value;
         if (formalNotes) dailyLogCache[currentDailyLogKey].formalNotes = formalNotes.value;
-        if (homeRec) dailyLogCache[currentDailyLogKey].homeRec = homeRec.value;
     }
 
     function loadFromCache() {
@@ -599,11 +419,9 @@ document.addEventListener("DOMContentLoaded", function() {
         if (cached) {
             if (rawNotes) rawNotes.value = cached.rawNotes || '';
             if (formalNotes) formalNotes.value = cached.formalNotes || '';
-            if (homeRec) homeRec.value = cached.homeRec || '';
         } else {
             if (rawNotes) rawNotes.value = '';
             if (formalNotes) formalNotes.value = '';
-            if (homeRec) homeRec.value = '';
         }
     }
 
@@ -612,14 +430,12 @@ document.addEventListener("DOMContentLoaded", function() {
     if (currentDailyLogKey) {
         dailyLogCache[currentDailyLogKey] = {
             rawNotes: rawNotes ? rawNotes.value : '',
-            formalNotes: formalNotes ? formalNotes.value : '',
-            homeRec: homeRec ? homeRec.value : ''
+            formalNotes: formalNotes ? formalNotes.value : ''
         };
     }
 
     if (rawNotes) rawNotes.addEventListener('input', saveCurrentToCache);
     if (formalNotes) formalNotes.addEventListener('input', saveCurrentToCache);
-    if (homeRec) homeRec.addEventListener('input', saveCurrentToCache);
 
     if (logDateInput) {
         logDateInput.addEventListener('change', loadFromCache);
@@ -654,19 +470,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 formalNotes.classList.remove('bg-white');
                 formalNotes.setAttribute('placeholder', 'Select a student above to enable Formal Documentation...');
             }
-            if (homeRec) {
-                homeRec.disabled = true;
-                homeRec.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
-                homeRec.classList.remove('bg-white');
-                homeRec.setAttribute('placeholder', 'Select a student above to enable Tonight\'s Suggested Activity...');
-            }
-            if (btnGenRec) {
-                btnGenRec.disabled = true;
-                btnGenRec.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-            if (photoInput) {
-                photoInput.disabled = true;
-            }
             if (generateAiBtn) {
                 generateAiBtn.disabled = true;
                 generateAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -688,19 +491,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 formalNotes.classList.remove('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
                 formalNotes.classList.add('bg-white');
                 formalNotes.setAttribute('placeholder', 'Type formal documentation directly here, or click \'Rewrite Professionally\' above...');
-            }
-            if (homeRec) {
-                homeRec.disabled = false;
-                homeRec.classList.remove('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
-                homeRec.classList.add('bg-white');
-                homeRec.setAttribute('placeholder', 'Suggested home practice activities will appear here, or type your own instructions for parents...');
-            }
-            if (btnGenRec) {
-                btnGenRec.disabled = false;
-                btnGenRec.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-            if (photoInput) {
-                photoInput.disabled = false;
             }
             if (generateAiBtn) {
                 generateAiBtn.disabled = false;
@@ -751,27 +541,167 @@ document.addEventListener("DOMContentLoaded", function() {
             // Ensure inputs are not disabled so their values are sent in POST
             if (rawNotes) rawNotes.disabled = false;
             if (formalNotes) formalNotes.disabled = false;
-            if (homeRec) homeRec.disabled = false;
-            if (photoInput) photoInput.disabled = false;
 
             window.hasUnsavedAiChanges = false;
         });
     }
 });
 
-// --- FEED SEARCH & FILTER LOGIC ---
+// --- FEED SEARCH, GUARDIAN-STYLE ARCHIVE DATE NAVIGATION & SORTING LOGIC ---
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('logSearch');
     const filterStudent = document.getElementById('filterStudent');
     const filterDate = document.getElementById('filterDate');
+    const filterDateSelect = document.getElementById('filterDateSelect');
+    const btnPrevDate = document.getElementById('btnPrevDate');
+    const btnNextDate = document.getElementById('btnNextDate');
     const filterQuarter = document.getElementById('filterQuarter');
     const logItems = document.querySelectorAll('.log-item');
+    const noMatchingLogsState = document.getElementById('noMatchingLogsState');
+    const noMatchingLogsTitle = document.getElementById('noMatchingLogsTitle');
+    const archiveCountText = document.getElementById('archiveCountText');
+    const btnResetFilters = document.getElementById('btnResetFilters');
 
+    // Helper: format YYYY-MM-DD to readable date like "Oct 29, 2026"
+    function formatDateReadable(dateStr) {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[month]} ${day}, ${year}`;
+    }
+
+    // Get all distinct recorded dates sorted descending for the selected student & quarter
+    function getAvailableDates() {
+        const studentId = filterStudent ? filterStudent.value : 'all';
+        const quarter = filterQuarter ? filterQuarter.value : 'all';
+        const datesSet = new Set();
+
+        logItems.forEach(card => {
+            const cardStudentId = card.getAttribute('data-student-id');
+            const cardQuarter = card.getAttribute('data-quarter');
+            const cardDate = card.getAttribute('data-log-date');
+
+            const matchesStudent = (studentId === 'all' || cardStudentId === studentId);
+            const matchesQuarter = (quarter === 'all' || cardQuarter === quarter);
+
+            if (matchesStudent && matchesQuarter && cardDate) {
+                datesSet.add(cardDate);
+            }
+        });
+
+        // Sort descending (newest first)
+        return Array.from(datesSet).sort((a, b) => b.localeCompare(a));
+    }
+
+    // Update the Available Dates dropdown options
+    function updateDateDropdown(availableDates) {
+        if (!filterDateSelect) return;
+        const currentSelectedDate = filterDate ? filterDate.value : '';
+
+        filterDateSelect.innerHTML = '';
+
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = availableDates.length > 0 
+            ? `All Recorded Dates (${availableDates.length})` 
+            : 'No Recorded Dates';
+        filterDateSelect.appendChild(defaultOpt);
+
+        availableDates.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = formatDateReadable(d);
+            if (currentSelectedDate === d) {
+                opt.selected = true;
+            }
+            filterDateSelect.appendChild(opt);
+        });
+
+        if (!currentSelectedDate) {
+            defaultOpt.selected = true;
+        }
+    }
+
+    // Update Previous / Next navigation buttons
+    function updateNavButtons(availableDates) {
+        const currentDate = filterDate ? filterDate.value : '';
+
+        if (!btnPrevDate || !btnNextDate) return;
+
+        if (availableDates.length === 0) {
+            btnPrevDate.disabled = true;
+            btnNextDate.disabled = true;
+            btnPrevDate.title = 'No archived dates available';
+            btnNextDate.title = 'No archived dates available';
+            return;
+        }
+
+        if (!currentDate) {
+            // Viewing all: Next is disabled, Previous jumps to the latest recorded date
+            btnNextDate.disabled = true;
+            btnNextDate.title = 'Already viewing latest records';
+
+            btnPrevDate.disabled = false;
+            btnPrevDate.title = `Jump to latest report: ${formatDateReadable(availableDates[0])}`;
+            return;
+        }
+
+        const currentIndex = availableDates.indexOf(currentDate);
+
+        if (currentIndex === -1) {
+            const newerDates = availableDates.filter(d => d > currentDate);
+            const olderDates = availableDates.filter(d => d < currentDate);
+
+            btnNextDate.disabled = newerDates.length === 0;
+            btnNextDate.title = newerDates.length > 0 
+                ? `Jump to newer report: ${formatDateReadable(newerDates[newerDates.length - 1])}` 
+                : 'No newer reports';
+
+            btnPrevDate.disabled = olderDates.length === 0;
+            btnPrevDate.title = olderDates.length > 0 
+                ? `Jump to older report: ${formatDateReadable(olderDates[0])}` 
+                : 'No older reports';
+            return;
+        }
+
+        // List is sorted descending: index 0 is newest, index N is oldest
+        // Next moves towards newer date (index - 1)
+        if (currentIndex > 0) {
+            const nextDate = availableDates[currentIndex - 1];
+            btnNextDate.disabled = false;
+            btnNextDate.title = `Next newer report: ${formatDateReadable(nextDate)}`;
+        } else {
+            btnNextDate.disabled = true;
+            btnNextDate.title = 'No newer archived reports (latest)';
+        }
+
+        // Previous moves towards older date (index + 1)
+        if (currentIndex < availableDates.length - 1) {
+            const prevDate = availableDates[currentIndex + 1];
+            btnPrevDate.disabled = false;
+            btnPrevDate.title = `Previous older report: ${formatDateReadable(prevDate)}`;
+        } else {
+            btnPrevDate.disabled = true;
+            btnPrevDate.title = 'No older archived reports (earliest)';
+        }
+    }
+
+    // Apply filtering to .log-item cards
     window.applyFilters = function() {
         const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const studentId = filterStudent ? filterStudent.value : 'all';
         const dateVal = filterDate ? filterDate.value : '';
         const quarter = filterQuarter ? filterQuarter.value : 'all';
+
+        const availableDates = getAvailableDates();
+        updateDateDropdown(availableDates);
+        updateNavButtons(availableDates);
+
+        let visibleCount = 0;
 
         logItems.forEach(card => {
             const text = card.textContent.toLowerCase();
@@ -786,17 +716,112 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (matchesSearch && matchesStudent && matchesDate && matchesQuarter) {
                 card.style.display = '';
+                visibleCount++;
             } else {
                 card.style.display = 'none';
             }
         });
+
+        // Update Archive Count Badge
+        if (archiveCountText) {
+            if (dateVal) {
+                archiveCountText.textContent = `${visibleCount} Entry on ${formatDateReadable(dateVal)}`;
+            } else {
+                archiveCountText.textContent = `${visibleCount} Recorded ${visibleCount === 1 ? 'Entry' : 'Entries'}`;
+            }
+        }
+
+        // Handle Empty State
+        if (noMatchingLogsState) {
+            if (visibleCount === 0 && logItems.length > 0) {
+                noMatchingLogsState.classList.remove('hidden');
+                if (noMatchingLogsTitle) {
+                    if (dateVal) {
+                        noMatchingLogsTitle.textContent = `No Report Found for ${formatDateReadable(dateVal)}`;
+                    } else {
+                        noMatchingLogsTitle.textContent = 'No Formal Documentation Records Found';
+                    }
+                }
+            } else {
+                noMatchingLogsState.classList.add('hidden');
+            }
+        }
     };
 
+    // Event listeners
     if (searchInput) searchInput.addEventListener('input', window.applyFilters);
     if (filterStudent) filterStudent.addEventListener('change', window.applyFilters);
-    if (filterDate) filterDate.addEventListener('change', window.applyFilters);
     if (filterQuarter) filterQuarter.addEventListener('change', window.applyFilters);
 
+    if (filterDate) {
+        filterDate.addEventListener('change', function() {
+            if (filterDateSelect) filterDateSelect.value = this.value;
+            window.applyFilters();
+        });
+    }
+
+    if (filterDateSelect) {
+        filterDateSelect.addEventListener('change', function() {
+            if (filterDate) filterDate.value = this.value;
+            window.applyFilters();
+        });
+    }
+
+    if (btnPrevDate) {
+        btnPrevDate.addEventListener('click', function() {
+            const availableDates = getAvailableDates();
+            if (availableDates.length === 0) return;
+            const currentDate = filterDate ? filterDate.value : '';
+
+            if (!currentDate) {
+                filterDate.value = availableDates[0];
+            } else {
+                const idx = availableDates.indexOf(currentDate);
+                if (idx !== -1 && idx < availableDates.length - 1) {
+                    filterDate.value = availableDates[idx + 1];
+                } else if (idx === -1) {
+                    const older = availableDates.filter(d => d < currentDate);
+                    if (older.length > 0) filterDate.value = older[0];
+                }
+            }
+
+            if (filterDateSelect) filterDateSelect.value = filterDate.value;
+            window.applyFilters();
+        });
+    }
+
+    if (btnNextDate) {
+        btnNextDate.addEventListener('click', function() {
+            const availableDates = getAvailableDates();
+            if (availableDates.length === 0) return;
+            const currentDate = filterDate ? filterDate.value : '';
+
+            if (currentDate) {
+                const idx = availableDates.indexOf(currentDate);
+                if (idx > 0) {
+                    filterDate.value = availableDates[idx - 1];
+                } else if (idx === -1) {
+                    const newer = availableDates.filter(d => d > currentDate);
+                    if (newer.length > 0) filterDate.value = newer[newer.length - 1];
+                }
+            }
+
+            if (filterDateSelect) filterDateSelect.value = filterDate.value;
+            window.applyFilters();
+        });
+    }
+
+    if (btnResetFilters) {
+        btnResetFilters.addEventListener('click', function() {
+            if (filterDate) filterDate.value = '';
+            if (filterDateSelect) filterDateSelect.value = '';
+            if (searchInput) searchInput.value = '';
+            if (filterQuarter) filterQuarter.value = 'all';
+            window.applyFilters();
+        });
+    }
+
+    // Initialize on page load
     window.applyFilters();
 });
 
@@ -859,71 +884,6 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         loading.classList.add('hidden'); 
     });
 });
-
-// --- AI HOME RECOMMENDATIONS LOGIC ---
-const btnGenRec = document.getElementById('btnGenerateRecommendations');
-if (btnGenRec) {
-    btnGenRec.addEventListener('click', function() {
-        const sid = document.getElementById('student_id') ? document.getElementById('student_id').value : '';
-        if (!sid) {
-            window.showToast('Please select a student first!', 'warning');
-            return;
-        }
-
-        const formalNotesEl = document.getElementById('formalNotes');
-        const rawNotesEl = document.getElementById('rawNotes');
-        const notesToSend = (formalNotesEl ? formalNotesEl.value.trim() : '') || (rawNotesEl ? rawNotesEl.value.trim() : '');
-        const targetBox = document.getElementById('home_recommendations');
-        const loading = document.getElementById('recLoading');
-
-        if (!notesToSend) {
-            window.showToast('Please provide some quick notes or formal documentation first so the AI knows what to recommend!', 'warning');
-            return;
-        }
-
-        btnGenRec.disabled = true;
-        if (loading) loading.classList.remove('hidden');
-
-        fetch('{{ route('teacher.daily-logs.generate-recommendations') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                notes: notesToSend,
-                student_id: sid
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.recommendation) {
-                if (targetBox) {
-                    targetBox.value = data.recommendation;
-                    window.hasUnsavedAiChanges = true;
-                }
-                window.showToast('Suggested activity generated successfully.', 'success');
-
-                const date = document.getElementById('log_date') ? document.getElementById('log_date').value : '';
-                if (sid && date) {
-                    const key = `${sid}_${date}`;
-                    if (!dailyLogCache[key]) dailyLogCache[key] = {};
-                    dailyLogCache[key].homeRec = data.recommendation;
-                }
-            } else {
-                window.showToast(data.message || 'Failed to generate recommendations.', 'error');
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            window.showToast('Something went wrong connecting to the AI recommendations.', 'error');
-        })
-        .finally(() => {
-            btnGenRec.disabled = false;
-            if (loading) loading.classList.add('hidden');
-        });
-    });
-}
 </script>
 @endpush
 @endsection
