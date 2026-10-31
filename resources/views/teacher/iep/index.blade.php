@@ -111,7 +111,7 @@
                 </div>
                 IEP & Goal Management
             </h1>
-            <p class="text-[13px] font-medium text-[#6B7086] mt-1 m-0 sm:ml-14 leading-tight">Manage individualized learning objectives for your students.</p>
+            <p class="text-[13px] font-medium text-[#6B7086] mt-1 m-0 sm:ml-14 leading-tight">Manage learning goals and activities for your students.</p>
         </div>
         
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
@@ -647,7 +647,7 @@
                                                         <i class="fa-solid fa-layer-group text-[9px]"></i> Domain: {{ $goal->domain }}
                                                     </span>
                                                 </div>
-                                                <p class="text-[11px] font-medium text-[#6B7086] mb-2.5 m-0 leading-relaxed">The student's baseline performance context. You can edit this directly and request additional AI suggestions below without restarting.</p>
+                                                <p class="text-[11px] font-medium text-[#6B7086] mb-2.5 m-0 leading-relaxed">The student's current learning skills and baseline. You can edit this directly or ask the AI helper for new ideas below without restarting.</p>
                                                 
                                                 <textarea name="plop" class="edit-plop-input w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[12px] font-medium text-[#1E2657] focus:border-[#8B5CF6] focus:ring-[#8B5CF6] shadow-sm bg-white mb-2.5 custom-scrollbar" rows="3" placeholder="Enter Present Level of Performance...">{{ $goal->plop }}</textarea>
                                                 
@@ -783,7 +783,7 @@
                                 <h6 class="text-[13px] sm:text-[14px] font-extrabold text-[#8B5CF6] mb-1 flex items-center m-0">
                                     <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI IEP Builder
                                 </h6>
-                                <p class="text-[12px] font-medium text-[#9CA0AF] mb-5 m-0">Input specific baseline observations to generate measurable objectives and sustainable activities.</p>
+                                <p class="text-[12px] font-medium text-[#9CA0AF] mb-5 m-0">Describe the student's current abilities to create clear learning goals and everyday classroom activities.</p>
                                 
                                 <label class="block text-[10px] font-extrabold text-[#6B7086] uppercase tracking-widest mb-1.5">Present Level of Performance</label>
                                 <textarea name="plop" id="ai-present-level" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar" rows="4" required placeholder="e.g., Can sit for 5-10 minutes during group time with verbal cues; struggles with independent task transitions..."></textarea>
@@ -796,7 +796,7 @@
                                 <div class="mt-2.5 flex items-center justify-between text-[11px] text-[#6B7086] px-1">
                                     <span class="flex items-center gap-1.5">
                                         <i class="fa fa-shield-halved text-[#8B5CF6]"></i>
-                                        <span>AI SPED Assistant Draft &bull; Review against clinical baselines</span>
+                                        <span>AI Assistant Suggestion &bull; Review and adjust to match student needs</span>
                                     </span>
                                     <span class="text-[10px] text-[#9CA0AF] hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                                 </div>
@@ -828,7 +828,7 @@
                                     <label class="block text-[12px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0 flex items-center">
                                         <i class="fa-solid fa-bullseye text-[#3B82F6] mr-2 text-sm"></i> Objectives & Activities Area
                                     </label>
-                                    <p class="text-[11px] font-medium text-[#6B7086] m-0 mt-0.5">Edit generated objectives or manually add customized activities in distinct fields.</p>
+                                    <p class="text-[11px] font-medium text-[#6B7086] m-0 mt-0.5">Edit the suggested goals or add your own custom goals and activities below.</p>
                                 </div>
                                 <button type="button" id="add-objective-card-btn" class="inline-flex items-center px-3 py-1.5 bg-white border border-[#3B82F6]/30 text-[#3B82F6] hover:bg-[#3B82F6]/10 text-xs font-extrabold rounded-xl transition-colors shadow-sm cursor-pointer shrink-0">
                                     <i class="fa fa-plus mr-1.5"></i> Add Objective
@@ -841,7 +841,7 @@
                                     <i class="fa-solid fa-layer-group text-sm"></i>
                                 </div>
                                 <p class="text-[12px] font-extrabold text-[#1E2657] m-0">No Objectives Staged Yet</p>
-                                <p class="text-[11px] font-medium text-[#9CA0AF] m-0 mt-1 mb-3">Generate strategies with AI above, or input your custom objectives manually from scratch.</p>
+                                <p class="text-[11px] font-medium text-[#9CA0AF] m-0 mt-1 mb-3">Use the AI assistant above to create suggestions, or type your own goals and activities from scratch.</p>
                                 <button type="button" id="empty-state-manual-btn" class="inline-flex items-center px-3.5 py-1.5 bg-[#3B82F6] text-white text-xs font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm cursor-pointer">
                                     <i class="fa-solid fa-plus mr-1.5"></i> Add Custom Objective
                                 </button>

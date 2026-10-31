@@ -14,7 +14,7 @@
     <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 sm:mb-8 gap-4 w-full">
         <div>
             <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1 m-0 leading-tight">Official Student Reports</h3>
-            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Review progress summaries and official documentation for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
+            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">View official progress reports and evaluations for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
         </div>
         
         @if(isset($activeChild) && isset($myChildren))

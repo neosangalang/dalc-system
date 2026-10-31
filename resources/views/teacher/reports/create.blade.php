@@ -14,7 +14,7 @@
                 </div>
                 AI-Assisted Report
             </h4>
-            <p class="text-slate-500 text-[13px] sm:text-sm font-medium mt-1 ml-[52px] m-0 leading-tight">Select a student and timeframe to automatically draft a formal progress summary.</p>
+            <p class="text-slate-500 text-[13px] sm:text-sm font-medium mt-1 ml-[52px] m-0 leading-tight">Select a student and period to create a student progress report.</p>
         </div>
         <a href="{{ route('teacher.reports.index') }}" class="w-full md:w-auto inline-flex justify-center items-center px-4 py-2.5 sm:py-2 bg-white border border-slate-300 text-slate-600 text-[13px] sm:text-sm font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm decoration-transparent mt-2 md:mt-0">
             <i class="fa fa-arrow-left mr-2"></i> Back to Reports
@@ -87,7 +87,7 @@
                                 <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 1. Daily Report Summary
                             </h6>
                         </div>
-                        <p class="text-[11px] sm:text-xs font-medium text-slate-500 mb-4 m-0">Generate a comprehensive summary of classroom observations for today.</p>
+                        <p class="text-[11px] sm:text-xs font-medium text-slate-500 mb-4 m-0">Create a complete summary of today's classroom activities and observations.</p>
                         
                         <button type="button" id="trigger-daily-ai-btn" class="w-full inline-flex justify-center items-center px-4 py-3.5 sm:py-3 bg-indigo-600 text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
                             <i class="fa-solid fa-robot mr-2"></i> <span>Generate Daily Report via AI</span>
@@ -109,14 +109,14 @@
                             </h6>
                             <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full border border-amber-200">Optional</span>
                         </div>
-                        <p class="text-[11px] sm:text-xs font-medium text-slate-600 mb-4 m-0">Generate tailored home activities for parents to practice tonight with their child.</p>
+                        <p class="text-[11px] sm:text-xs font-medium text-slate-600 mb-4 m-0">Create suggested home activities for parents to practice with their child.</p>
                         
                         <button type="button" id="trigger-home-ai-btn" class="w-full inline-flex justify-center items-center px-4 py-3.5 sm:py-3 bg-amber-600 text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-amber-700 transition-colors shadow-sm focus:ring-2 focus:ring-amber-500 focus:ring-offset-1">
                             <i class="fa-solid fa-lightbulb mr-2"></i> <span>Generate Home-Based Recommendations via AI</span>
                         </button>
 
                         <div class="mt-2 text-center text-[10.5px] text-amber-800/80 font-medium">
-                            <i class="fa-solid fa-info-circle mr-1"></i> Supplementary home activities only &bull; Review against student needs
+                            <i class="fa-solid fa-info-circle mr-1"></i> Home practice ideas &bull; Review to make sure it fits the student's needs
                         </div>
                     </div>
 
@@ -153,7 +153,7 @@
                         <h6 class="text-[13px] sm:text-sm font-extrabold text-indigo-600 mb-1 flex items-center m-0">
                             <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Generate Report via AI
                         </h6>
-                        <p class="text-[11px] sm:text-xs font-medium text-slate-500 mb-4 m-0">The AI will compile past logs and IEP goals to draft a formal summary report.</p>
+                        <p class="text-[11px] sm:text-xs font-medium text-slate-500 mb-4 m-0">The AI helper will gather past logs and goals to write a progress report.</p>
                         
                         <button type="button" id="trigger-general-ai-btn" class="w-full inline-flex justify-center items-center px-4 py-3.5 sm:py-3 bg-indigo-600 text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
                             <i class="fa-solid fa-robot mr-2"></i> <span id="general-btn-text">Generate Report</span>
@@ -162,7 +162,7 @@
                         <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 px-1">
                             <span class="flex items-center gap-1.5">
                                 <i class="fa fa-shield-halved text-indigo-500"></i>
-                                <span>AI SPED Draft: Educator review required before submitting</span>
+                                <span>AI Draft: Please review and adjust the text before submitting</span>
                             </span>
                             <span class="text-[10px] text-slate-400 hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                         </div>

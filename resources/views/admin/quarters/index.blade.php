@@ -115,7 +115,7 @@ $existingNamesLower = $existingNamesLower ?? [];
                     Academic Calendar & School Years
                 </h1>
                 <p class="text-[13px] font-medium text-[#6B7086] m-0 sm:ml-14">
-                    Hybrid Activation: Administrators manually set the live School Year. The system automatically switches quarters based on real-world dates within the active year.
+                    How it works: Administrators choose the active School Year. The system then automatically updates the quarter based on today's date.
                 </p>
             </div>
 
@@ -388,7 +388,7 @@ $existingNamesLower = $existingNamesLower ?? [];
                     <!-- Footer -->
                     <div class="px-5 sm:px-6 py-3.5 bg-[#F4F6FA] border-t border-black/10 flex justify-between items-center">
                         <span class="text-xs text-[#6B7086] font-medium hidden sm:inline">
-                            Saving commits the date range. Quarters will automatically activate once this School Year is live.
+                            Saving updates the dates. Quarters will automatically turn on based on the calendar once this School Year is active.
                         </span>
                         <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-1 hover:-translate-y-0.5">
                             <i class="fa fa-save mr-2 text-xs"></i> Save Calendar Settings
@@ -403,7 +403,7 @@ $existingNamesLower = $existingNamesLower ?? [];
                     <i class="fa fa-calendar-plus text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-extrabold text-[#1E2657] mb-1">No School Years Found</h3>
-                <p class="text-sm text-[#6B7086] max-w-md mx-auto mb-6">Create a School Year to provision Q1–Q4 and configure your academic schedule.</p>
+                <p class="text-sm text-[#6B7086] max-w-md mx-auto mb-6">Add a School Year to set up Quarters 1 to 4 and organize your school schedule.</p>
                 <button @click="openAddModal = true" type="button" class="inline-flex items-center px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-all shadow-sm">
                     <i class="fa fa-plus mr-2 text-xs"></i> Add School Year
                 </button>
@@ -451,7 +451,7 @@ $existingNamesLower = $existingNamesLower ?? [];
                                 </div>
                                 <div>
                                     <h3 class="text-base font-extrabold text-[#1E2657] m-0" id="modal-title">Add New School Year</h3>
-                                    <p class="text-xs text-[#6B7086] m-0">Provisions a fresh template for Q1–Q4.</p>
+                                    <p class="text-xs text-[#6B7086] m-0">Sets up standard dates for Quarters 1 to 4.</p>
                                 </div>
                             </div>
                             <button @click="openAddModal = false" type="button" class="text-slate-400 hover:text-slate-600 transition-colors">
@@ -491,7 +491,7 @@ $existingNamesLower = $existingNamesLower ?? [];
                                             x-model="selectedRange"
                                             class="w-full text-sm font-extrabold text-[#1E2657] bg-[#F4F6FA] hover:bg-slate-100 border border-black/15 rounded-xl pl-4 pr-10 py-2.5 focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all cursor-pointer shadow-sm appearance-none">
                                             @foreach($candidateYears as $cand)
-                                            <option value="{{ $cand['label'] }}" {{ $cand['isTaken'] ? 'disabled' : '' }}>
+                                             <option value="{{ $cand['label'] }}" {{ $cand['isTaken'] ? 'disabled' : '' }}>
                                                 SY {{ $cand['label'] }} {{ $cand['isTaken'] ? '— (Already exists)' : '' }}
                                             </option>
                                             @endforeach
@@ -501,7 +501,7 @@ $existingNamesLower = $existingNamesLower ?? [];
                                         </div>
                                     </div>
                                     <p class="text-[11px] text-[#6B7086] mt-1.5 mb-0">
-                                        Select the school year dates. Existing years are disabled to avoid duplication.
+                                        Choose the school year. Years that already exist cannot be selected again.
                                     </p>
                                 </div>
 

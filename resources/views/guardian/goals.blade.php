@@ -15,7 +15,7 @@
     <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-8 gap-4 w-full">
         <div>
             <h1 class="text-3xl sm:text-4xl font-extrabold text-[#1E2657] mb-1 m-0 tracking-tight">Learning Goals</h1>
-            <p class="text-[13px] sm:text-sm font-medium text-[#6B7086] m-0 leading-tight">Track your child's progress across all educational domains.</p>
+            <p class="text-[13px] sm:text-sm font-medium text-[#6B7086] m-0 leading-tight">Track your child's progress in learning, communication, and daily skills.</p>
         </div>
         
         @if(isset($activeChild) && isset($myChildren))

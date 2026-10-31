@@ -13,8 +13,8 @@ use PragmaRX\Google2FA\Google2FA;
 class AccountController extends Controller
 {
     public function index() {
-        // Grab all users who are either teachers or guardians
-        $users = User::whereIn('role', ['teacher', 'guardian'])->get();
+        // Grab all users who are either teachers or guardians with bound students
+        $users = User::with('children')->whereIn('role', ['teacher', 'guardian'])->get();
 
         // Grab all students
         $students = Student::orderBy('last_name')->get();
@@ -175,9 +175,14 @@ class AccountController extends Controller
         $user = User::findOrFail($id);
         $admin = Auth::user(); 
 
-        // SECURITY CHECK: Teachers cannot reset passwords for other Teachers
-        if ($admin->role === 'teacher' && $user->role === 'teacher') {
-            abort(403, 'Security Violation: Teachers cannot modify Teacher login credentials.');
+        // SECURITY CHECK: Teachers can only modify Guardian login credentials
+        if ($admin->role === 'teacher') {
+            if (!$admin->can_manage_credentials) {
+                abort(403, 'Security Violation: You do not have permission to manage credentials.');
+            }
+            if ($user->role !== 'guardian') {
+                abort(403, 'Security Violation: Teachers can only modify Guardian login credentials.');
+            }
         }
 
         // 1. VALIDATE INCOMING DATA (INCLUDING MFA CODE & UNIQUE CONSTRAINTS)

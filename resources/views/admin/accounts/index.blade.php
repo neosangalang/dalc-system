@@ -259,8 +259,8 @@ x-init="
                                                     </div>
                                                     
                                                     <div class="bg-[#F4F6FA] border border-black/10 p-4 rounded-xl mt-4 shadow-sm">
-                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> Admin Security Verification <span class="text-rose-500">*</span></label>
-                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Authorize these changes with your 6-digit MFA code.</p>
+                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> {{ Auth::user()->role === 'teacher' ? 'Teacher' : 'Admin' }} Security Verification <span class="text-rose-500">*</span></label>
+                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Enter your 6-digit authenticator code to confirm these changes.</p>
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
@@ -318,8 +318,8 @@ x-init="
                                                     </div>
 
                                                     <div class="bg-[#F4F6FA] border border-black/10 p-4 rounded-xl mt-6 shadow-sm">
-                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> Admin Security Verification <span class="text-rose-500">*</span></label>
-                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Authorize this reset with your 6-digit MFA code.</p>
+                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> {{ Auth::user()->role === 'teacher' ? 'Teacher' : 'Admin' }} Security Verification <span class="text-rose-500">*</span></label>
+                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Enter your 6-digit authenticator code to confirm this reset.</p>
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
@@ -346,7 +346,7 @@ x-init="
                                                     <button type="button" @click="cancelPermModal()" class="text-[#9CA0AF] hover:text-[#1E2657] cursor-pointer"><i class="fa fa-times text-xl"></i></button>
                                                 </div>
                                                 <div class="p-5 sm:px-6 py-5 overflow-y-auto max-h-[calc(92dvh-130px)] sm:max-h-[75vh] whitespace-normal flex-1">
-                                                    <p class="text-[13px] text-[#6B7086] mb-5 leading-snug">Grant <strong class="text-[#1E2657]">{{ $user->name }}</strong> access to specific Admin-level modules.</p>
+                                                    <p class="text-[13px] text-[#6B7086] mb-5 leading-snug">Choose which administrative tasks <strong class="text-[#1E2657]">{{ $user->name }}</strong> is allowed to do.</p>
                                                     
                                                     <div class="space-y-4">
                                                         <label class="flex items-center cursor-pointer select-none">
@@ -355,7 +355,7 @@ x-init="
                                                                 <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">1. Login Credentials Configuration (FOR GUARDIAN ONLY)</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">1. Manage Guardian Login Accounts</div>
                                                         </label>
 
                                                         <label class="flex items-center cursor-pointer select-none">
@@ -364,7 +364,7 @@ x-init="
                                                                 <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">2. Calendar Configuration</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">2. Manage School Calendar & Terms</div>
                                                         </label>
 
                                                         <label class="flex items-center cursor-pointer select-none">
@@ -373,7 +373,7 @@ x-init="
                                                                 <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">3. Initial Profile Creation</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">3. Enroll New Students</div>
                                                         </label>
 
                                                         <label class="flex items-center cursor-pointer select-none">
@@ -382,7 +382,7 @@ x-init="
                                                                 <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">4. Archiving Module</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">4. Archive Student Records</div>
                                                         </label>
 
                                                         <label class="flex items-center cursor-pointer select-none">
@@ -391,7 +391,7 @@ x-init="
                                                                 <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">5. Admin Approval for Summaries</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">5. Review & Approve Reports</div>
                                                         </label>
 
                                                         <label class="flex items-center cursor-pointer select-none">
@@ -400,7 +400,7 @@ x-init="
                                                                 <div class="w-10 h-6 bg-slate-200 peer-checked:bg-[#8B5CF6] rounded-full transition-colors duration-300"></div>
                                                                 <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 pointer-events-none peer-checked:translate-x-4"></div>
                                                             </div>
-                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">6. Announcement Module</div>
+                                                            <div class="ml-3 text-[13px] font-extrabold text-[#1E2657]">6. Post & Manage Announcements</div>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -486,11 +486,11 @@ x-init="
                             toggleMfa() {
                                 const willEnable = !this.mfaEnabled;
                                 window.confirmAction({
-                                    title: willEnable ? 'Require Two-Factor Authentication?' : 'Switch to Normal Sign-In?',
+                                    title: willEnable ? 'Require Authenticator App Code?' : 'Switch to Standard Sign-In?',
                                     message: willEnable 
-                                        ? 'Are you sure you want to require Multi-Factor Authentication for <strong>{{ addslashes($user->name) }}</strong>?<br><br><span class=\'text-[12px] text-[#6B7086]\'>On their next sign-in, they will be prompted to scan a QR code using an authenticator app (e.g., Google Authenticator).</span>' 
-                                        : 'Are you sure you want to switch <strong>{{ addslashes($user->name) }}</strong> to Normal Sign-In?<br><br><span class=\'text-[12px] text-[#6B7086]\'>They will only need their username and password to log in. Any existing authenticator pairings will be cleared.</span>',
-                                    confirmText: willEnable ? 'Require MFA' : 'Switch to Normal Sign-In',
+                                        ? 'Are you sure you want to require an Authenticator App code for <strong>{{ addslashes($user->name) }}</strong>?<br><br><span class=\'text-[12px] text-[#6B7086]\'>On their next sign-in, they will be asked to scan a QR code using an authenticator app (such as Google Authenticator).</span>' 
+                                        : 'Are you sure you want to switch <strong>{{ addslashes($user->name) }}</strong> to Standard Password Sign-In?<br><br><span class=\'text-[12px] text-[#6B7086]\'>They will only need their username and password to log in. Any connected authenticator apps will be removed.</span>',
+                                    confirmText: willEnable ? 'Require Authenticator' : 'Switch to Password Only',
                                     confirmColor: willEnable ? 'purple' : 'blue',
                                     icon: willEnable ? 'fa-shield-halved' : 'fa-unlock-alt',
                                     onConfirm: async () => {
@@ -512,7 +512,7 @@ x-init="
                                     }
                                 });
                             }
-                        }" x-show="guardianSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username)) }}'.includes(guardianSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
+                        }" x-show="guardianSearch === '' || '{{ strtolower(addslashes($user->name . ' ' . $user->email . ' ' . $user->contact_number . ' ' . $user->username . ' ' . ($user->children ? $user->children->map(fn($s) => $s->first_name . ' ' . $s->last_name)->join(' ') : '')) ) }}'.includes(guardianSearch.toLowerCase().trim())" class="block md:table-row relative border-b border-black/5 hover:bg-slate-50 transition-colors duration-150 p-4 md:p-0">
                             
                             <!-- 1. Avatar, Name & Username -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6 align-middle">
@@ -525,6 +525,21 @@ x-init="
                                         <div class="text-[12px] text-[#10B981] font-bold mt-0.5">
                                             {{ $user->username }}
                                         </div>
+                                        @if($user->children && $user->children->isNotEmpty())
+                                            <div class="text-[11px] font-medium text-[#6B7086] mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                                <i class="fa fa-user-graduate text-[#10B981] text-[10px]"></i>
+                                                <span class="text-[#9CA0AF]">Student:</span>
+                                                <span class="font-extrabold text-[#1E2657]">
+                                                    {{ $user->children->map(fn($s) => trim($s->first_name . ' ' . $s->last_name))->join(', ') }}
+                                                </span>
+                                            </div>
+                                        @else
+                                            <div class="text-[11px] font-medium text-slate-400 mt-1.5 flex items-center gap-1.5">
+                                                <i class="fa fa-user-slash text-slate-300 text-[10px]"></i>
+                                                <span class="text-slate-400">Student:</span>
+                                                <span class="italic text-slate-400">No student profile bound</span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -634,7 +649,21 @@ x-init="
                                                     @endif
 
                                                     <div class="bg-[#10B981]/10 border border-[#10B981]/20 text-[#1E2657] px-4 py-3 rounded-xl text-[13px] font-medium leading-snug">
-                                                        <i class="fa fa-info-circle text-[#10B981] mr-1.5"></i> Modifying contact details for <strong>{{ $user->name }}</strong> (Guardian).
+                                                        <div class="flex items-center">
+                                                            <i class="fa fa-info-circle text-[#10B981] mr-1.5 shrink-0"></i>
+                                                            <span>Modifying contact details for <strong>{{ $user->name }}</strong> (Guardian).</span>
+                                                        </div>
+                                                        <div class="mt-2 pt-2 border-t border-[#10B981]/20 text-[12px] flex items-center gap-1.5 flex-wrap">
+                                                            <i class="fa fa-user-graduate text-[#10B981] shrink-0"></i>
+                                                            <span class="font-bold text-[#6B7086]">Bound Student:</span>
+                                                            @if($user->children && $user->children->isNotEmpty())
+                                                                <span class="font-extrabold text-[#1E2657]">
+                                                                    {{ $user->children->map(fn($s) => trim($s->first_name . ' ' . $s->last_name))->join(', ') }}
+                                                                </span>
+                                                            @else
+                                                                <span class="text-slate-500 font-medium italic">No student profile bound</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
                                                     <div>
                                                         <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Email Address <span class="text-rose-500">*</span></label>
@@ -657,15 +686,15 @@ x-init="
                                                                 <input type="checkbox" name="mfa_enabled" value="1" {{ old('mfa_enabled', $user->mfa_enabled) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#10B981] border-black/20 focus:ring-[#10B981]">
                                                             </div>
                                                             <div>
-                                                                <span class="block text-[13px] font-extrabold text-[#1E2657]">Require Two-Factor Authentication (MFA)</span>
-                                                                <span class="block text-[11px] font-medium text-[#6B7086] leading-tight">When unchecked, this guardian can use normal sign-in (email/username and password).</span>
+                                                                <span class="block text-[13px] font-extrabold text-[#1E2657]">Extra Security (Authenticator App)</span>
+                                                                <span class="block text-[11px] font-medium text-[#6B7086] leading-tight">When unchecked, this guardian can sign in simply with their username and password.</span>
                                                             </div>
                                                         </label>
                                                     </div>
                                                     
                                                     <div class="bg-[#F4F6FA] border border-black/10 p-4 rounded-xl mt-4 shadow-sm">
-                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> Admin Security Verification <span class="text-rose-500">*</span></label>
-                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Authorize these changes with your 6-digit MFA code.</p>
+                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> {{ Auth::user()->role === 'teacher' ? 'Teacher' : 'Admin' }} Security Verification <span class="text-rose-500">*</span></label>
+                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Enter your 6-digit authenticator code to confirm these changes.</p>
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
@@ -704,7 +733,21 @@ x-init="
                                                     @endif
 
                                                     <div class="bg-[#10B981]/10 border border-[#10B981]/20 text-[#1E2657] px-4 py-3 rounded-xl text-[13px] font-medium leading-snug mb-4">
-                                                        <i class="fa fa-info-circle text-[#10B981] mr-1.5"></i> Resetting password for <strong>{{ $user->name }}</strong> (Guardian).
+                                                        <div class="flex items-center">
+                                                            <i class="fa fa-info-circle text-[#10B981] mr-1.5 shrink-0"></i>
+                                                            <span>Resetting password for <strong>{{ $user->name }}</strong> (Guardian).</span>
+                                                        </div>
+                                                        <div class="mt-2 pt-2 border-t border-[#10B981]/20 text-[12px] flex items-center gap-1.5 flex-wrap">
+                                                            <i class="fa fa-user-graduate text-[#10B981] shrink-0"></i>
+                                                            <span class="font-bold text-[#6B7086]">Bound Student:</span>
+                                                            @if($user->children && $user->children->isNotEmpty())
+                                                                <span class="font-extrabold text-[#1E2657]">
+                                                                    {{ $user->children->map(fn($s) => trim($s->first_name . ' ' . $s->last_name))->join(', ') }}
+                                                                </span>
+                                                            @else
+                                                                <span class="text-slate-500 font-medium italic">No student profile bound</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
                                                     
                                                     <div>
@@ -723,8 +766,8 @@ x-init="
                                                     </div>
 
                                                     <div class="bg-[#F4F6FA] border border-black/10 p-4 rounded-xl mt-6 shadow-sm">
-                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> Admin Security Verification <span class="text-rose-500">*</span></label>
-                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Authorize this reset with your 6-digit MFA code.</p>
+                                                        <label class="block text-[13px] font-extrabold text-[#1E2657] mb-2"><i class="fa fa-shield-alt text-[#10B981] mr-1.5"></i> {{ Auth::user()->role === 'teacher' ? 'Teacher' : 'Admin' }} Security Verification <span class="text-rose-500">*</span></label>
+                                                        <p class="text-[12px] text-[#6B7086] mb-3 leading-tight">Enter your 6-digit authenticator code to confirm this reset.</p>
                                                         <input type="text" name="mfa_code" class="w-full rounded-xl border-black/15 px-4 py-2.5 text-center text-lg font-extrabold tracking-[0.25em] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="123456" maxlength="6" required>
                                                     </div>
                                                 </div>
@@ -813,7 +856,7 @@ x-init="
                             
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Confirm Password <span class="text-rose-500">*</span></label>
                             <input type="text" name="password_confirmation" id="create_teacher_password_confirmation" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#3B82F6] shadow-sm" required placeholder="Type it again">
-                            <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be forced to change this upon first login.</p>
+                            <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be asked to change this password when they first log in.</p>
                         </div>
                     </div>
                     <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">
@@ -875,8 +918,8 @@ x-init="
                                     <input type="checkbox" name="mfa_enabled" value="1" {{ old('mfa_enabled') ? 'checked' : '' }} class="w-4 h-4 rounded text-[#10B981] border-black/20 focus:ring-[#10B981]">
                                 </div>
                                 <div>
-                                    <span class="block text-[13px] font-extrabold text-[#1E2657]">Require Two-Factor Authentication (MFA)</span>
-                                    <span class="block text-[11px] font-medium text-[#6B7086] leading-tight">Leave unchecked for normal sign-in (email/username + password). Check to enforce 6-digit Authenticator codes.</span>
+                                    <span class="block text-[13px] font-extrabold text-[#1E2657]">Extra Security (Authenticator App)</span>
+                                    <span class="block text-[11px] font-medium text-[#6B7086] leading-tight">Leave unchecked for normal sign-in with username and password. Check to require a 6-digit code from an authenticator app.</span>
                                 </div>
                             </label>
                         </div>
@@ -898,7 +941,7 @@ x-init="
                             
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Confirm Password <span class="text-rose-500">*</span></label>
                             <input type="text" name="password_confirmation" id="create_guardian_password_confirmation" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] font-extrabold focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="Type it again">
-                            <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be forced to change this upon first login.</p>
+                            <p class="text-[11px] text-[#9CA0AF] mt-2 m-0 leading-tight"><i class="fa fa-shield-alt mr-1"></i> They will be asked to change this password when they first log in.</p>
                         </div>
                     </div>
                     <div class="px-5 sm:px-6 py-3.5 sm:py-4 bg-[#F4F6FA] border-t border-black/10 flex justify-end gap-3 w-full shrink-0">

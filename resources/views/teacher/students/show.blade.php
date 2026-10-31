@@ -151,11 +151,11 @@
                                  toggleMfa() {
                                      const willEnable = !this.mfaEnabled;
                                      window.confirmAction({
-                                         title: willEnable ? 'Require Two-Factor Authentication?' : 'Switch to Normal Sign-In?',
+                                         title: willEnable ? 'Require Authenticator App Code?' : 'Switch to Standard Sign-In?',
                                          message: willEnable 
-                                             ? 'Are you sure you want to require Multi-Factor Authentication for <strong>{{ addslashes($student->guardian->name) }}</strong>?<br><br><span class=\'text-[12px] text-[#6B7086]\'>On their next sign-in, they will be prompted to scan a QR code using an authenticator app (e.g., Google Authenticator).</span>' 
-                                             : 'Are you sure you want to switch <strong>{{ addslashes($student->guardian->name) }}</strong> to Normal Sign-In?<br><br><span class=\'text-[12px] text-[#6B7086]\'>They will only need their username and password to log in. Any existing authenticator pairings will be cleared.</span>',
-                                         confirmText: willEnable ? 'Require MFA' : 'Switch to Normal Sign-In',
+                                             ? 'Are you sure you want to require an Authenticator App code for <strong>{{ addslashes($student->guardian->name) }}</strong>?<br><br><span class=\'text-[12px] text-[#6B7086]\'>On their next sign-in, they will be asked to scan a QR code using an authenticator app (such as Google Authenticator).</span>' 
+                                             : 'Are you sure you want to switch <strong>{{ addslashes($student->guardian->name) }}</strong> to Standard Password Sign-In?<br><br><span class=\'text-[12px] text-[#6B7086]\'>They will only need their username and password to log in. Any connected authenticator apps will be removed.</span>',
+                                         confirmText: willEnable ? 'Require Authenticator' : 'Switch to Password Only',
                                          confirmColor: willEnable ? 'purple' : 'blue',
                                          icon: willEnable ? 'fa-shield-halved' : 'fa-unlock-alt',
                                          onConfirm: async () => {

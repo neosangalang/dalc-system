@@ -9,7 +9,7 @@
     <div class="flex flex-wrap justify-between items-center gap-4">
         <div>
             <h3 class="text-2xl font-extrabold text-[#1E2657] mb-1 m-0">Notifications</h3>
-            <p class="text-sm font-medium text-[#6B7086] m-0">Recent classroom updates, IEP milestones, and center announcements.</p>
+            <p class="text-sm font-medium text-[#6B7086] m-0">Recent classroom updates, learning goal progress, and school announcements.</p>
         </div>
         <form action="{{ route('notifications.markAllRead') }}" method="POST" class="m-0">
             @csrf

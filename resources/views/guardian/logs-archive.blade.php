@@ -19,7 +19,7 @@
                 </a>
             </div>
             <h3 class="text-xl sm:text-2xl font-extrabold text-slate-800 m-0 leading-tight">Previous Daily Reports & Activities</h3>
-            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Historical archive of daily reports and home recommendations for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
+            <p class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 leading-tight">Past daily reports, classroom notes, and home activities for <strong class="text-slate-700">{{ $activeChild->first_name ?? 'your child' }}</strong>.</p>
         </div>
 
         @if(isset($activeChild) && isset($myChildren))

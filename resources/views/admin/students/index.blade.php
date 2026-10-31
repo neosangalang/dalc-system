@@ -37,7 +37,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div>
                 <h1 class="text-xl sm:text-3xl font-extrabold text-[#1E2657] tracking-tight m-0">Student Profiles</h1>
-                <p class="text-xs sm:text-[13px] font-medium text-[#6B7086] mt-0.5 m-0">Manage all enrolled students, assignments, and medical records.</p>
+                <p class="text-xs sm:text-[13px] font-medium text-[#6B7086] mt-0.5 m-0">View and manage enrolled students, teacher assignments, and records.</p>
             </div>
 
             <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full sm:w-auto">
@@ -1064,7 +1064,7 @@
 
                             <div class="bg-emerald-50/70 border border-emerald-200 p-3 rounded-xl text-[12px] font-semibold text-emerald-900 flex items-start">
                                 <i class="fa fa-bullseye text-[#10B981] mr-2.5 mt-0.5 text-sm shrink-0"></i>
-                                <span><strong>New School Year IEP:</strong> Re-enrolling initializes a fresh IEP slate so the newly assigned teacher can formulate new baseline PLOP and goals. Previous IEP achievements remain safely preserved in the Year-End Archive.</span>
+                                <span><strong>Fresh Learning Plan for the New Year:</strong> Re-enrolling creates a clean learning plan so the student's new teacher can set up new goals and notes. Past achievements and records remain safely saved in the Archive.</span>
                             </div>
 
                             <!-- Student Personal Info -->
@@ -1149,25 +1149,25 @@
                                             <i class="fa fa-folder-open"></i>
                                         </span>
                                         <div>
-                                            <h4 class="text-[12px] font-extrabold text-[#1E2657] m-0" id="re_archive_docs_title">Attached Records from Latest Snapshot</h4>
+                                            <h4 class="text-[12px] font-extrabold text-[#1E2657] m-0" id="re_archive_docs_title">Documents from Previous School Year</h4>
                                             <p class="text-[10px] text-[#6B7086] m-0" id="re_archive_docs_subtitle">Loading previous documents...</p>
                                         </div>
                                     </div>
                                     <span class="text-[10px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                        <i class="fa fa-shield-alt"></i> Auto-Cloned & Decoupled
+                                        <i class="fa fa-shield-alt"></i> Safe Independent Copies
                                     </span>
                                 </div>
 
                                 <!-- Document Items Container -->
                                 <div id="re_archive_docs_list" class="space-y-2">
                                     <div class="text-center py-3 text-[11px] text-[#9CA0AF] italic">
-                                        <i class="fa fa-spinner fa-spin mr-1"></i> Fetching attached snapshot records...
+                                        <i class="fa fa-spinner fa-spin mr-1"></i> Loading saved documents...
                                     </div>
                                 </div>
 
                                 <div class="bg-blue-50/70 border border-blue-200/80 rounded-lg p-2.5 text-[11px] text-blue-900 flex items-start gap-2">
                                     <i class="fa fa-info-circle text-blue-500 mt-0.5 shrink-0"></i>
-                                    <span><strong>Decoupled Archiving:</strong> The records listed above are preserved in the historical archive. Upon re-enrollment, they are automatically duplicated into new, independent files for the new academic cycle. Modifying or deleting documents during the year will never break historical snapshot links.</span>
+                                    <span><strong>Safe Record Keeping:</strong> The documents above are safely preserved from the past school year. When you re-enroll the student, fresh copies are created for the new school year so you can update or change files without affecting past records.</span>
                                 </div>
                             </div>
 
@@ -1332,7 +1332,7 @@
         const docsList = document.getElementById('re_archive_docs_list');
 
         if (docsList) {
-            docsList.innerHTML = '<div class="text-center py-3 text-[11px] text-[#9CA0AF] italic"><i class="fa fa-spinner fa-spin mr-1"></i> Fetching attached snapshot records...</div>';
+            docsList.innerHTML = '<div class="text-center py-3 text-[11px] text-[#9CA0AF] italic"><i class="fa fa-spinner fa-spin mr-1"></i> Loading saved documents...</div>';
             if (docsSubtitle) docsSubtitle.textContent = 'Loading previous records...';
 
             fetch('/admin/students/' + student.id + '/archived-documents')
@@ -1340,7 +1340,7 @@
                 .then(data => {
                     if (data.success && data.documents && data.documents.length > 0) {
                         if (docsTitle) {
-                            docsTitle.textContent = 'Attached Records from Previous Snapshot' + (data.school_year ? ' (SY ' + data.school_year + ')' : '');
+                            docsTitle.textContent = 'Documents from Previous School Year' + (data.school_year ? ' (SY ' + data.school_year + ')' : '');
                         }
                         if (docsSubtitle) {
                             docsSubtitle.textContent = (data.archived_at ? 'Archived on ' + data.archived_at + ' • ' : '') + data.documents.length + ' file(s) found';

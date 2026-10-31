@@ -96,7 +96,7 @@
                             <i class="fa fa-triangle-exclamation text-[#F59E0B] mr-2"></i> Real-Time Year-End Archive (SY {{ $activeSchoolYear }})
                         </strong>
                         <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed ml-0 sm:ml-6 mt-1.5 sm:mt-0">
-                            This will capture real-time student snapshots, generate master PDFs for safekeeping with live digital audit timestamps, and archive active records.
+                            This will save a complete copy of student records, generate printable PDF summaries, and archive current files for the end of the school year.
                         </p>
                     </div>
                     
@@ -105,20 +105,20 @@
                         
                         <div class="relative pl-6 sm:pl-8">
                             <span class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#3B82F6] border-4 border-white shadow-sm"></span>
-                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Snapshot Student Data</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Capture all profiles, IEP goals, and progress notes</p>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Save Student Records</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Save all student profiles, learning goals, and daily progress notes</p>
                         </div>
                         
                         <div class="relative pl-6 sm:pl-8">
                             <span class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#3B82F6] border-4 border-white shadow-sm"></span>
-                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Generate Master PDFs</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Create one comprehensive PDF file per student</p>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Create PDF Summaries</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Make one complete printable PDF report for each student</p>
                         </div>
                         
                         <div class="relative pl-6 sm:pl-8">
                             <span id="step3Dot" class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#E8E5DC] border-4 border-white shadow-sm transition-colors duration-500"></span>
-                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">State Freezing (End School Year)</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Transition active student profiles to Archived status to reset rosters while keeping historical snapshots permanently safe</p>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Close School Year</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Move active students to the archive to prepare clean class lists for the new year while keeping past records completely safe</p>
                         </div>
                         
                     </div>
@@ -131,9 +131,9 @@
                     <i class="fa fa-robot text-lg sm:text-xl"></i>
                 </div>
                 <div>
-                    <h5 class="font-extrabold text-[14px] sm:text-[15px] text-[#1E2657] mb-1 sm:mb-1.5 m-0 leading-tight">Automated Quarterly Rollover Active</h5>
+                    <h5 class="font-extrabold text-[14px] sm:text-[15px] text-[#1E2657] mb-1 sm:mb-1.5 m-0 leading-tight">Automatic Quarter Transition Active</h5>
                     <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed">
-                        This system is configured with automated background tasks (Cron Jobs). The system will securely archive all approved daily reports and clear active Teacher dashboards automatically at midnight on the closing date of the current quarter. <strong class="text-[#1E2657]">No manual initialization is required.</strong>
+                        The system automatically saves all approved daily reports and refreshes teacher dashboards at midnight on the last day of each quarter. <strong class="text-[#1E2657]">No manual action is required.</strong>
                     </p>
                 </div>
             </div>

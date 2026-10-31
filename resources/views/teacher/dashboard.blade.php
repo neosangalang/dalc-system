@@ -23,9 +23,9 @@
             </div>
         </header>
 
-        <!-- 2. STAT CARDS (4 Columns) -->
+        <!-- 2. STAT CARDS (3 Columns - Viewing Only) -->
         <section>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 w-full">
                 
                 <!-- Card 1: My Students (Blue Theme) -->
                 <div class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] p-4 sm:p-6 flex flex-col justify-center h-[110px] sm:h-[120px] relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] active:scale-[0.98]">
@@ -48,24 +48,6 @@
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </div>
 
-                <!-- Card 4: Announcements Stat Card -->
-                <a href="{{ route('teacher.announcements') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-6 flex flex-col justify-center relative overflow-hidden h-[110px] sm:h-[120px] block active:scale-[0.98]">
-                    
-                    @if(isset($newAnnouncementsCount) && $newAnnouncementsCount > 0)
-                        <div class="absolute top-3 right-3 sm:top-4 sm:right-4 bg-red-500 text-white text-[10px] sm:text-[11px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full shadow-sm flex items-center justify-center min-w-[20px] sm:min-w-[24px] z-20">
-                            {{ $newAnnouncementsCount }}
-                        </div>
-                    @endif
-
-                    <h3 class="font-extrabold text-[24px] sm:text-[32px] text-[#8B5CF6] group-hover:text-[#8B5CF6] transition-colors duration-300 leading-none mb-1.5 sm:mb-2">
-                        <i class="fa-solid fa-bullhorn text-[22px] sm:text-[28px]"></i>
-                    </h3>
-                    
-                    <p class="text-[#9CA0AF] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest m-0 relative z-10 truncate">Announcements</p>
-
-                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
-                </a>
-
             </div>
         </section>
 
@@ -77,8 +59,8 @@
                 <span class="h-px flex-1 bg-black/10"></span>
             </div>
 
-            <!-- TEACHER MODULES (2 cols on mobile, 4 on lg) -->
-            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 w-full">
+            <!-- TEACHER MODULES (2 cols on mobile, 3 on md, 5 on lg) -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5 w-full">
                 
                 <!-- My Students -->
                 <a href="{{ route('teacher.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
@@ -138,6 +120,24 @@
                         <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">Report List</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#F59E0B] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+
+                <!-- Announcements -->
+                <a href="{{ route('teacher.announcements') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#8B5CF6]/30 hover:shadow-[0_8px_20px_-6px_rgba(139,92,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    @if(isset($newAnnouncementsCount) && $newAnnouncementsCount > 0)
+                        <span class="absolute top-3 sm:top-4 right-3 sm:right-4 flex h-3 w-3 z-20" title="{{ $newAnnouncementsCount }} New Announcements">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                        </span>
+                    @endif
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#8B5CF6]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#8B5CF6] relative z-10 shrink-0">
+                        <i class="fa-solid fa-bullhorn text-[#8B5CF6] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#8B5CF6]">Announcements</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0 truncate">School Updates</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#8B5CF6] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
                 
             </div>

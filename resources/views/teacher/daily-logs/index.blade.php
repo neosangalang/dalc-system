@@ -25,7 +25,7 @@
                 </div>
                 Daily Logging
             </h1>
-            <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-14 m-0 leading-tight">Record observations.</p>
+            <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-14 m-0 leading-tight">Record daily student activities and observations.</p>
         </div>
 
         <!-- TAB NAVIGATION -->
@@ -122,7 +122,7 @@
                         <div class="mt-2.5 flex items-center justify-between text-[11px] text-[#6B7086] px-1">
                             <span class="flex items-center gap-1.5">
                                 <i class="fa fa-shield-halved text-[#3B82F6]"></i>
-                                <span>AI SPED Draft: Educator review required before saving</span>
+                                <span>AI Draft: Please review and adjust notes before saving</span>
                             </span>
                             <span class="text-[10px] text-[#9CA0AF] hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                         </div>
@@ -134,7 +134,7 @@
 
                     <div>
                         <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
-                            <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation (Standardized Notes)
+                            <i class="fa fa-file-alt mr-1.5"></i> 2. Official Classroom Notes
                         </label>
                         <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar transition-all" rows="6" placeholder="Type formal documentation directly here, or click 'Rewrite Professionally' above...">{{ old('notes') }}</textarea>
                     </div>
@@ -142,7 +142,7 @@
                     <!-- SUBMIT BUTTON -->
                     <div class="border-t border-black/10 pt-6">
                         <button type="submit" id="saveDailyLogBtn" class="w-full inline-flex items-center justify-center px-6 py-4 bg-[#1E2657] text-white text-[14px] font-extrabold rounded-xl hover:bg-[#12163A] transition-all active:scale-98 shadow-sm cursor-pointer">
-                            <i class="fa fa-save mr-2"></i> Save Daily Log & Send to Formal Documentation
+                            <i class="fa fa-save mr-2"></i> Save Daily Log
                         </button>
                     </div>
                 </form>
@@ -157,7 +157,7 @@
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-black/15 mb-4 sm:mb-6 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/10">
                 <h6 class="text-xs sm:text-[14px] font-extrabold text-[#1E2657] m-0 flex items-center">
-                    <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Daily Logs Filters & Archive Navigation
+                    <i class="fa fa-filter text-[#3B82F6] mr-2"></i> Filter Past Logs
                 </h6>
                 <span id="archiveCountBadge" class="text-[11px] font-extrabold text-[#6B7086] bg-[#F4F6FA] border border-black/10 px-3 py-1 rounded-xl self-start sm:self-auto flex items-center shadow-xs">
                     <i class="fa-solid fa-clock-rotate-left text-[#3B82F6] mr-1.5"></i>
@@ -349,8 +349,8 @@
                     <div class="w-14 h-14 rounded-full bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center mx-auto mb-3 text-2xl">
                         <i class="fa fa-file-contract"></i>
                     </div>
-                    <h6 class="text-[15px] font-extrabold text-[#1E2657] m-0 mb-1">No formal documentation records found</h6>
-                    <p class="text-[13px] font-medium text-[#9CA0AF] m-0">Submitted observation entries and standardized notes will automatically populate here.</p>
+                    <h6 class="text-[15px] font-extrabold text-[#1E2657] m-0 mb-1">No daily logs found</h6>
+                    <p class="text-[13px] font-medium text-[#9CA0AF] m-0">Completed observation notes and daily logs will appear here.</p>
                 </div>
             @endforelse
 
@@ -363,7 +363,7 @@
                     No Report Found for Selected Date
                 </h5>
                 <p id="noMatchingLogsDesc" class="text-[13px] sm:text-sm font-medium text-slate-500 m-0 max-w-md mx-auto mb-5">
-                    There are no formal documentation records recorded on this specific date. Pick another date using the selector above or reset filters.
+                    There are no daily logs saved for this date. Choose another date above or reset the filter.
                 </p>
                 <button type="button" id="btnResetFilters" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1E2657] hover:bg-[#12163A] text-white font-extrabold text-xs rounded-xl transition-colors shadow-sm cursor-pointer">
                     <i class="fa-solid fa-rotate-left"></i> View All Recorded Logs
