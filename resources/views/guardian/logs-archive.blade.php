@@ -75,12 +75,12 @@
                    title="Previous report: {{ \Carbon\Carbon::parse($prevDate)->format('M d, Y') }}"
                    class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95">
                     <i class="fa-solid fa-chevron-left text-[11px] text-slate-500"></i>
-                    <span class="hidden sm:inline">Older</span>
+                    <span class="hidden sm:inline">Previous</span>
                 </a>
             @else
                 <span class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-1.5 shadow-xs">
                     <i class="fa-solid fa-chevron-left text-[11px] text-slate-300"></i>
-                    <span class="hidden sm:inline">Older</span>
+                    <span class="hidden sm:inline">Previous</span>
                 </span>
             @endif
 
@@ -120,12 +120,12 @@
                 <a href="{{ route('guardian.logs.archive', ['date' => $nextDate]) }}" 
                    title="Next report: {{ \Carbon\Carbon::parse($nextDate)->format('M d, Y') }}"
                    class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95">
-                    <span class="hidden sm:inline">Newer</span>
+                    <span class="hidden sm:inline">Next</span>
                     <i class="fa-solid fa-chevron-right text-[11px] text-slate-500"></i>
                 </a>
             @else
                 <span class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-1.5 shadow-xs">
-                    <span class="hidden sm:inline">Newer</span>
+                    <span class="hidden sm:inline">Next</span>
                     <i class="fa-solid fa-chevron-right text-[11px] text-slate-300"></i>
                 </span>
             @endif

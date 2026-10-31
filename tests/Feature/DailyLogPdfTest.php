@@ -49,16 +49,16 @@ class DailyLogPdfTest extends TestCase
             'home_recommendations' => 'Encourage hand-eye coordination games at home.',
         ]);
 
-        // 1. Verify Download PDF button is visible on the daily logs index page
+        // 1. Verify View PDF button is visible on the daily logs index page
         $indexResponse = $this->actingAs($teacher)
             ->withSession(['mfa_verified' => true])
             ->get(route('teacher.daily-logs.index'));
 
         $indexResponse->assertOk();
         $indexResponse->assertSee(route('teacher.daily-logs.pdf', $log->id), false);
-        $indexResponse->assertSee('Download PDF', false);
+        $indexResponse->assertSee('View PDF', false);
 
-        // 2. Verify PDF download endpoint returns a valid PDF download
+        // 2. Verify PDF stream endpoint returns a valid inline PDF for viewing
         $pdfResponse = $this->actingAs($teacher)
             ->withSession(['mfa_verified' => true])
             ->get(route('teacher.daily-logs.pdf', $log->id));
@@ -66,6 +66,7 @@ class DailyLogPdfTest extends TestCase
         $pdfResponse->assertOk();
         $this->assertEquals('application/pdf', $pdfResponse->headers->get('content-type'));
         $this->assertStringContainsString('DailyLog_smith_alex_2026-10-12.pdf', $pdfResponse->headers->get('content-disposition'));
+        $this->assertStringContainsString('inline', $pdfResponse->headers->get('content-disposition'));
         $this->assertNotEmpty($pdfResponse->getContent());
     }
 

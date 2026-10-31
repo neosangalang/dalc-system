@@ -344,6 +344,6 @@ PROMPT;
         $dateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
         $fileName = "DailyLog_{$safeLastName}_{$safeFirstName}_{$dateStr}.pdf";
 
-        return $pdf->download($fileName);
+        return $pdf->stream($fileName);
     }
 }

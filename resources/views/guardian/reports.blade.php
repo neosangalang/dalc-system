@@ -120,7 +120,7 @@
                                         <i class="fa fa-book-open mr-1.5 text-indigo-500"></i> Read
                                     </button>
                                     
-                                    <a href="{{ route('guardian.reports.pdf', $report->id) }}" title="Download PDF" class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 md:py-1.5 bg-rose-500 text-white text-[13px] md:text-xs font-bold rounded-lg border-2 border-rose-600 hover:bg-rose-600 transition-colors shadow-sm decoration-transparent focus:ring-2 focus:ring-rose-500 focus:ring-offset-1">
+                                    <a href="{{ route('guardian.reports.pdf', $report->id) }}" target="_blank" title="View PDF Report" class="w-full md:w-auto inline-flex justify-center md:justify-start items-center px-3 py-2 md:py-1.5 bg-rose-500 text-white text-[13px] md:text-xs font-bold rounded-lg border-2 border-rose-600 hover:bg-rose-600 transition-colors shadow-sm decoration-transparent focus:ring-2 focus:ring-rose-500 focus:ring-offset-1">
                                         <i class="fa fa-file-pdf mr-1.5"></i> PDF
                                     </a>
                                 </div>
@@ -232,10 +232,13 @@
                         </div>
                         
                         <!-- Modal Footer -->
-                        <div class="px-4 sm:px-6 py-4 sm:py-5 bg-slate-50 border-t-2 border-slate-200 flex justify-end shrink-0">
+                        <div class="px-4 sm:px-6 py-4 sm:py-5 bg-slate-50 border-t-2 border-slate-200 flex flex-col-reverse sm:flex-row justify-between items-center gap-3 shrink-0">
                             <button type="button" @click="activeViewModal = null" class="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-slate-800 text-white text-[13px] sm:text-sm font-bold rounded-xl border-2 border-slate-900 hover:bg-slate-900 transition-colors shadow-sm">
                                 Close Window
                             </button>
+                            <a href="{{ route('guardian.reports.pdf', $report->id) }}" target="_blank" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-rose-500 text-white text-[13px] sm:text-sm font-bold rounded-xl border-2 border-rose-600 hover:bg-rose-600 transition-colors shadow-sm decoration-transparent">
+                                <i class="fa fa-file-pdf mr-2"></i> View PDF Report
+                            </a>
                         </div>
                     </div>
                 </div>

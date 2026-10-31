@@ -284,7 +284,7 @@ class GuardianController extends Controller
         $pdf = Pdf::loadView('teacher.reports.pdf', compact('report'));
         $fileName = $report->student->last_name . '_' . $report->student->first_name . '_Report.pdf';
 
-        return $pdf->download($fileName);
+        return $pdf->stream($fileName);
     }
 
     // ==========================================
@@ -312,7 +312,7 @@ class GuardianController extends Controller
         $pdf = Pdf::loadView('teacher.iep.pdf', compact('student'));
         $fileName = 'IEP_' . $student->last_name . '_' . $student->first_name . '_SY2025-2026.pdf';
         
-        return $pdf->download($fileName);
+        return $pdf->stream($fileName);
     }
 
     // ==========================================

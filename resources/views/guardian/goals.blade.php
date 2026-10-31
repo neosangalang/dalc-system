@@ -61,8 +61,8 @@
                     <i class="fa fa-chart-pie text-[#8B5CF6] mr-2.5"></i> {{ $activeChild->first_name }}'s IEP Goal Progress
                 </h5>
                 
-                <a href="{{ route('guardian.goals.download-iep', $activeChild->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#EF4444] text-white text-[13px] font-extrabold rounded-xl hover:bg-red-600 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
-                    <i class="fa fa-file-pdf mr-2"></i> Download Official IEP
+                <a href="{{ route('guardian.goals.download-iep', $activeChild->id) }}" target="_blank" title="View Official IEP" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-[#EF4444] text-white text-[13px] font-extrabold rounded-xl hover:bg-red-600 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
+                    <i class="fa fa-file-pdf mr-2"></i> View Official IEP
                 </a>
             </div>
             

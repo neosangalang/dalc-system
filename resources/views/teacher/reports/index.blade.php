@@ -202,7 +202,7 @@
                                         </a>
                                     @endif
                                     
-                                    <a href="{{ route('teacher.reports.pdf', $report->id) }}" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
+                                    <a href="{{ route('teacher.reports.pdf', $report->id) }}" target="_blank" title="View PDF Report" class="flex-1 md:flex-none inline-flex justify-center md:justify-start items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors shadow-sm decoration-transparent">
                                         <i class="fa fa-file-pdf mr-1.5"></i> PDF
                                     </a>
 
@@ -294,8 +294,8 @@
                                                         <i class="fa-solid fa-pen-to-square mr-2"></i> Edit & Revise Report
                                                     </a>
                                                 @endif
-                                                <a href="{{ route('teacher.reports.pdf', $report->id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-rose-50 sm:bg-white border border-rose-200 text-rose-600 text-[13px] font-extrabold rounded-xl hover:bg-rose-100 sm:hover:bg-rose-50 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
-                                                    <i class="fa fa-file-pdf mr-2"></i> Download PDF
+                                                <a href="{{ route('teacher.reports.pdf', $report->id) }}" target="_blank" title="View PDF Report" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-rose-50 sm:bg-white border border-rose-200 text-rose-600 text-[13px] font-extrabold rounded-xl hover:bg-rose-100 sm:hover:bg-rose-50 transition-colors shadow-sm decoration-transparent uppercase tracking-widest">
+                                                    <i class="fa fa-file-pdf mr-2"></i> View PDF
                                                 </a>
                                             </div>
                                         </div>

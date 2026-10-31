@@ -229,6 +229,15 @@
                         
                         <!-- MODULAR EXPANDABLE GOALS CONTAINER -->
                         <div id="student-table-container-{{ $student->id }}" class="p-4 sm:p-6 bg-[#F8FAFC]/40 {{ $studentGoals->count() > 0 ? '' : 'hidden' }}">
+                            <div class="flex items-center justify-between pb-3.5 mb-4 border-b border-black/10">
+                                <div>
+                                    <span class="text-[12px] font-extrabold text-[#1E2657] uppercase tracking-wider">Individualized Education Plan</span>
+                                </div>
+                                <a href="{{ route('teacher.iep-goals.pdf', $student->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 rounded-xl text-[11px] font-extrabold transition-all shadow-2xs decoration-transparent" title="View Full Official IEP as PDF">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                    <span>View Official IEP (PDF)</span>
+                                </a>
+                            </div>
                             <div id="student-goals-tbody-{{ $student->id }}" class="space-y-3 sm:space-y-3.5" x-data="{ openGoalId: null }">
                                 @foreach($studentGoals as $goal)
                                     @php

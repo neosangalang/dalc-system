@@ -25,7 +25,7 @@
                 </div>
                 Daily Logging
             </h1>
-            <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-14 m-0 leading-tight">Record observations and confirm formal documentation.</p>
+            <p class="text-[13px] font-medium text-[#6B7086] mt-1 sm:ml-14 m-0 leading-tight">Record observations.</p>
         </div>
 
         <!-- TAB NAVIGATION -->
@@ -303,10 +303,11 @@
                                     <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
                                 </h6>
                                 <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
+                                   target="_blank"
                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
-                                   title="Download Standardized Formal Documentation as PDF">
+                                   title="View Standardized Formal Documentation as PDF">
                                     <i class="fa-solid fa-file-pdf text-rose-500"></i>
-                                    <span>Download PDF</span>
+                                    <span>View PDF</span>
                                 </a>
                             </div>
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>

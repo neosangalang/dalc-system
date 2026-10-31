@@ -277,8 +277,8 @@
                                         <i class="fa fa-bullseye text-[12px]"></i>
                                     </a>
 
-                                    <!-- Print Full IEP Button -->
-                                    <a href="{{ route('teacher.iep-goals.pdf', $student->id) }}" target="_blank" class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors flex items-center justify-center shadow-sm" title="Print Full IEP">
+                                    <!-- View Full IEP Button -->
+                                    <a href="{{ route('teacher.iep-goals.pdf', $student->id) }}" target="_blank" class="w-8 h-8 rounded-lg bg-white md:bg-[#F4F6FA] border border-black/15 md:border-black/10 text-[#6B7086] hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-colors flex items-center justify-center shadow-sm" title="View Full IEP (PDF)">
                                         <i class="fa fa-file-pdf text-[12px]"></i>
                                     </a>
 

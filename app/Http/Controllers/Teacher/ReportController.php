@@ -512,6 +512,6 @@ STRICT QUALITY RULES:
         $pdf = Pdf::loadView('teacher.reports.pdf', compact('report'));
         $fileName = $report->student->last_name . '_' . $report->student->first_name . '_Report.pdf';
 
-        return $pdf->download($fileName);
+        return $pdf->stream($fileName);
     }
 }

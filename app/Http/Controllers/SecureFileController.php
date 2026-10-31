@@ -165,12 +165,20 @@ class SecureFileController extends Controller
         }
 
         $disk = Storage::disk('local');
+        $fileName = $document->original_name ?? basename($document->file_path);
+        $headers = [
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+        ];
+        if (!empty($document->mime_type)) {
+            $headers['Content-Type'] = $document->mime_type;
+        }
+
         if ($disk->exists($document->file_path)) {
-            return $disk->response($document->file_path, $document->original_name);
+            return $disk->response($document->file_path, $fileName, $headers, 'inline');
         }
 
         if (Storage::disk('public')->exists($document->file_path)) {
-            return Storage::disk('public')->response($document->file_path, $document->original_name);
+            return Storage::disk('public')->response($document->file_path, $fileName, $headers, 'inline');
         }
 
         abort(404, 'Document file not found.');
