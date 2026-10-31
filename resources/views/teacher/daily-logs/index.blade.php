@@ -181,7 +181,7 @@
                     </select>
                 </div>
 
-                <!-- 2. Archive Date Navigation & Sorting Component (Guardian-style) -->
+                <!-- 2. Archive Date Navigation & Sorting Component -->
                 <div class="md:col-span-5">
                     <label class="block text-[9px] sm:text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-widest mb-1.5 flex items-center">
                         <i class="fa-regular fa-calendar-days text-[#3B82F6] mr-1.5"></i> Archive Date Navigation
@@ -200,11 +200,6 @@
                             </div>
                             <input type="date" id="filterDate" class="w-full pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 bg-white border-2 border-indigo-200 hover:border-indigo-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 text-slate-800 text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer" title="Select specific log date">
                         </div>
-
-                        <!-- Quick Dropdown of Available Recorded Dates (Sorted Descending) -->
-                        <select id="filterDateSelect" class="py-1.5 sm:py-2 px-2 sm:px-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer max-w-[125px] sm:max-w-[160px] truncate" title="Jump to recorded date">
-                            <option value="">All Recorded Dates...</option>
-                        </select>
 
                         <!-- Step to Newer Report (Next) -->
                         <button type="button" id="btnNextDate" title="Next newer report" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200">
@@ -547,12 +542,11 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// --- FEED SEARCH, GUARDIAN-STYLE ARCHIVE DATE NAVIGATION & SORTING LOGIC ---
+// --- FEED SEARCH, ARCHIVE DATE NAVIGATION & SORTING LOGIC ---
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('logSearch');
     const filterStudent = document.getElementById('filterStudent');
     const filterDate = document.getElementById('filterDate');
-    const filterDateSelect = document.getElementById('filterDateSelect');
     const btnPrevDate = document.getElementById('btnPrevDate');
     const btnNextDate = document.getElementById('btnNextDate');
     const filterQuarter = document.getElementById('filterQuarter');
@@ -595,35 +589,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Sort descending (newest first)
         return Array.from(datesSet).sort((a, b) => b.localeCompare(a));
-    }
-
-    // Update the Available Dates dropdown options
-    function updateDateDropdown(availableDates) {
-        if (!filterDateSelect) return;
-        const currentSelectedDate = filterDate ? filterDate.value : '';
-
-        filterDateSelect.innerHTML = '';
-
-        const defaultOpt = document.createElement('option');
-        defaultOpt.value = '';
-        defaultOpt.textContent = availableDates.length > 0 
-            ? `All Recorded Dates (${availableDates.length})` 
-            : 'No Recorded Dates';
-        filterDateSelect.appendChild(defaultOpt);
-
-        availableDates.forEach(d => {
-            const opt = document.createElement('option');
-            opt.value = d;
-            opt.textContent = formatDateReadable(d);
-            if (currentSelectedDate === d) {
-                opt.selected = true;
-            }
-            filterDateSelect.appendChild(opt);
-        });
-
-        if (!currentSelectedDate) {
-            defaultOpt.selected = true;
-        }
     }
 
     // Update Previous / Next navigation buttons
@@ -698,7 +663,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const quarter = filterQuarter ? filterQuarter.value : 'all';
 
         const availableDates = getAvailableDates();
-        updateDateDropdown(availableDates);
         updateNavButtons(availableDates);
 
         let visibleCount = 0;
@@ -754,17 +718,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (filterQuarter) filterQuarter.addEventListener('change', window.applyFilters);
 
     if (filterDate) {
-        filterDate.addEventListener('change', function() {
-            if (filterDateSelect) filterDateSelect.value = this.value;
-            window.applyFilters();
-        });
-    }
-
-    if (filterDateSelect) {
-        filterDateSelect.addEventListener('change', function() {
-            if (filterDate) filterDate.value = this.value;
-            window.applyFilters();
-        });
+        filterDate.addEventListener('change', window.applyFilters);
     }
 
     if (btnPrevDate) {
@@ -785,7 +739,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
 
-            if (filterDateSelect) filterDateSelect.value = filterDate.value;
             window.applyFilters();
         });
     }
@@ -806,7 +759,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
 
-            if (filterDateSelect) filterDateSelect.value = filterDate.value;
             window.applyFilters();
         });
     }
@@ -814,7 +766,6 @@ document.addEventListener("DOMContentLoaded", function() {
     if (btnResetFilters) {
         btnResetFilters.addEventListener('click', function() {
             if (filterDate) filterDate.value = '';
-            if (filterDateSelect) filterDateSelect.value = '';
             if (searchInput) searchInput.value = '';
             if (filterQuarter) filterQuarter.value = 'all';
             window.applyFilters();

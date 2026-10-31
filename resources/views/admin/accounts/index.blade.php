@@ -10,8 +10,37 @@
     teacherSearch: '',
     guardianSearch: '', 
     showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher') ? 'true' : 'false' }},
-    showCreateGuardianModal: {{ ($errors->any() && !old('_method') && old('role') === 'guardian') ? 'true' : 'false' }}
+    showCreateGuardianModal: {{ ($errors->any() && !old('_method') && old('role') === 'guardian') ? 'true' : 'false' }},
+    showDeleteAccountModal: false,
+    deleteAccountId: null,
+    deleteAccountName: '',
+    deleteAccountRole: '',
+    deleteAccountTab: 'teachers',
+    deleteAccountActionUrl: '',
+    deleteConfirmText: '',
+    openDeleteAccountModal(id, name, role, tab, actionUrl) {
+        this.deleteAccountId = id;
+        this.deleteAccountName = name;
+        this.deleteAccountRole = role;
+        this.deleteAccountTab = tab;
+        this.deleteAccountActionUrl = actionUrl || ('/admin/accounts/' + id);
+        this.deleteConfirmText = '';
+        this.showDeleteAccountModal = true;
+        this.$nextTick(() => {
+            const el = document.getElementById('accountDeleteConfirmInput');
+            if (el) el.focus();
+        });
+    },
+    closeDeleteAccountModal() {
+        this.showDeleteAccountModal = false;
+        this.deleteAccountId = null;
+        this.deleteAccountName = '';
+        this.deleteAccountRole = '';
+        this.deleteAccountActionUrl = '';
+        this.deleteConfirmText = '';
+    }
 }"
+@open-delete-account.window="openDeleteAccountModal($event.detail.id, $event.detail.name, $event.detail.role, $event.detail.tab, $event.detail.url)"
 x-init="
     const sessionTab = '{{ session('active_tab') }}';
     const hash = window.location.hash;
@@ -31,7 +60,7 @@ x-init="
     <div class="flex items-center gap-2 sm:gap-3 bg-white p-1.5 sm:p-2 rounded-2xl border border-black/15 shadow-sm mb-4 sm:mb-6">
         <button type="button" @click="activeTab = 'teachers'; history.replaceState(null, null, '#teachers')"
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95">
+                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer">
             <i class="fa fa-chalkboard-teacher text-xs sm:text-sm"></i>
             Teacher Accounts
             <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
@@ -41,7 +70,7 @@ x-init="
         
         <button type="button" @click="activeTab = 'guardians'; history.replaceState(null, null, '#guardians')"
                 :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95">
+                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer">
             <i class="fa fa-user-shield text-xs sm:text-sm"></i>
             Guardian Accounts
             <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
@@ -53,7 +82,7 @@ x-init="
 
     @if(Auth::user()->role === 'admin')
     <!-- ================= TEACHER ACCOUNTS SECTION ================= -->
-    <div x-show="activeTab === 'teachers'" x-transition.opacity>
+    <div x-show="activeTab === 'teachers'">
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
@@ -181,14 +210,12 @@ x-init="
                                         <i class="fa fa-user-shield mr-1.5 text-[#8B5CF6]"></i> Permissions
                                     </button>
 
-                                    <form action="{{ route('admin.accounts.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this teacher?');" class="m-0 flex">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="tab" value="teachers">
-                                        <button type="submit" class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap">
-                                            <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
-                                        </button>
-                                    </form>
+                                    <button type="button" 
+                                            @click="openDeleteAccountModal({{ $user->id }}, '{{ addslashes($user->name) }}', 'teacher', 'teachers', '{{ route('admin.accounts.destroy', $user->id) }}')" 
+                                            class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap cursor-pointer"
+                                            title="Delete Teacher Account">
+                                        <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
+                                    </button>
                                     @endif
                                 </div>
 
@@ -405,7 +432,7 @@ x-init="
     @endif
 
     <!-- ================= GUARDIAN ACCOUNTS SECTION ================= -->
-    <div x-show="activeTab === 'guardians'" x-transition.opacity>
+    <div x-show="activeTab === 'guardians'">
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
@@ -574,14 +601,12 @@ x-init="
                                         </button>
                                     </form>
 
-                                    <form action="{{ route('admin.accounts.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this guardian?');" class="m-0 flex">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="tab" value="guardians">
-                                        <button type="submit" class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap">
-                                            <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
-                                        </button>
-                                    </form>
+                                    <button type="button" 
+                                            @click="openDeleteAccountModal({{ $user->id }}, '{{ addslashes($user->name) }}', 'guardian', 'guardians', '{{ route('admin.accounts.destroy', $user->id) }}')" 
+                                            class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap cursor-pointer"
+                                            title="Delete Guardian Account">
+                                        <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
+                                    </button>
                                     @endif
                                 </div>
 
@@ -884,6 +909,92 @@ x-init="
             </div>
         </div>
     </div>
+
+    <!-- ================= DELETE ACCOUNT CONFIRMATION MODAL ================= -->
+    <div x-show="showDeleteAccountModal" x-cloak class="fixed inset-0 z-[120] overflow-y-auto text-left" aria-labelledby="delete-account-modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showDeleteAccountModal" 
+                 x-transition:enter="ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" 
+                 @click="closeDeleteAccountModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div x-show="showDeleteAccountModal" 
+                 x-transition:enter="ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="inline-block align-bottom sm:align-middle bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-md w-full border border-black/15 overflow-hidden relative z-50">
+                
+                <form :action="deleteAccountActionUrl" method="POST" class="m-0">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="tab" :value="deleteAccountTab">
+
+                    <div class="p-6 sm:p-7 space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 shadow-xs">
+                                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-extrabold text-[#1E2657] m-0" id="delete-account-modal-title">
+                                    <span x-text="deleteAccountRole === 'teacher' ? 'Delete Teacher Account' : 'Delete Guardian Account'"></span>
+                                </h4>
+                                <p class="text-xs text-[#6B7086] mt-1.5 font-medium leading-relaxed">
+                                    Are you sure you want to permanently delete the account of <strong class="text-rose-600" x-text="deleteAccountName"></strong>? This action <strong class="text-rose-600">cannot be undone</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-rose-50/70 border border-rose-200/80 rounded-xl p-3 text-[11px] font-semibold text-rose-700 leading-relaxed">
+                            <i class="fa-solid fa-shield-halved mr-1 text-rose-500"></i>
+                            <span x-text="deleteAccountRole === 'teacher' ? 'Deleting this teacher will permanently revoke portal access and remove their account record.' : 'Deleting this guardian will permanently revoke portal access and remove their account record.'"></span>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-wider mb-1.5">
+                                Type <span class="text-rose-600 font-mono font-black">CONFIRM</span> to verify authorization:
+                            </label>
+                            <input type="text"
+                                   id="accountDeleteConfirmInput"
+                                   x-model="deleteConfirmText"
+                                   class="w-full text-center text-base font-mono font-black tracking-widest py-2.5 px-3.5 rounded-xl border border-black/20 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 shadow-sm bg-white"
+                                   required
+                                   placeholder="Type CONFIRM"
+                                   autocomplete="off"
+                                   autocapitalize="characters"
+                                   spellcheck="false">
+                            <p class="text-[10px] text-[#9CA0AF] mt-1.5 font-medium">Please type <strong>CONFIRM</strong> in capital letters to enable the button below.</p>
+                        </div>
+                    </div>
+
+                    <div class="px-6 py-4 bg-[#F4F6FA] border-t border-black/5 flex justify-end gap-2.5">
+                        <button type="button"
+                                @click="closeDeleteAccountModal()"
+                                class="px-4 py-2.5 text-xs font-bold text-[#6B7086] hover:text-[#1E2657] hover:bg-slate-200/50 rounded-xl transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                :disabled="deleteConfirmText.trim() !== 'CONFIRM'"
+                                :class="deleteConfirmText.trim() === 'CONFIRM'
+                                    ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm cursor-pointer hover:-translate-y-0.5 active:scale-95'
+                                    : 'bg-slate-300 text-white/70 opacity-50 cursor-not-allowed'"
+                                class="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-trash-can text-[11px]"></i> Confirm Delete
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
     
     @endif
 
@@ -1017,5 +1128,11 @@ x-init="
         const textToCopy = `Dream Achievers Learning Center PH - Portal Access\n\nRole: GUARDIAN\nName: ${name}\nUsername: ${username}\nTemporary Password: ${passField.value}\n\nPlease log in and change this password immediately.`;
         copyToClipboardRobust(textToCopy, 'New guardian account credentials copied to clipboard! You can now paste this to the user and click "Create Guardian Account".');
     }
+
+    window.triggerDeleteAccountModal = function(id, name, role, tab, url) {
+        window.dispatchEvent(new CustomEvent('open-delete-account', {
+            detail: { id: id, name: name, role: role, tab: tab, url: url }
+        }));
+    };
 </script>
 @endpush
