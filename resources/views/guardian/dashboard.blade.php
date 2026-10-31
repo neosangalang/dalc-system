@@ -413,7 +413,7 @@
                     </div>
 
                     <a href="{{ route('guardian.logs.archive') }}" class="inline-flex items-center gap-1.5 text-[12px] font-extrabold text-[#6B7086] hover:text-[#3B82F6] transition-colors">
-                        <i class="fa-solid fa-clock-rotate-left text-xs"></i> History & Archive
+                        <i class="fa-solid fa-clock-rotate-left text-xs"></i> Previous Daily Reports & Activities
                     </a>
                 </div>
 

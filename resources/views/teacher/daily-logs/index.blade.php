@@ -57,7 +57,7 @@
             </div>
             
             <div class="p-4 sm:p-8">
-                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" class="m-0 space-y-6">
+                <form id="dailyLogForm" action="{{ route('teacher.daily-logs.store') }}" method="POST" enctype="multipart/form-data" class="m-0 space-y-6">
                     @csrf
                     
                     <!-- STUDENT SELECTION DROPDOWN -->
@@ -137,6 +137,44 @@
                             <i class="fa fa-file-alt mr-1.5"></i> 2. Formal Documentation (Standardized Notes)
                         </label>
                         <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar transition-all" rows="6" placeholder="Type formal documentation directly here, or click 'Rewrite Professionally' above...">{{ old('notes') }}</textarea>
+                    </div>
+
+                    <!-- 3. Tonight's Suggested Activity (Home Practice) -->
+                    <div class="p-5 bg-emerald-50/50 border border-dashed border-emerald-300 rounded-2xl relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-[12px] font-extrabold text-emerald-800 uppercase tracking-widest m-0 flex items-center">
+                                <i class="fa-solid fa-house-chimney-user mr-1.5 text-emerald-600"></i> 3. Tonight's Suggested Activity (Home Practice)
+                            </label>
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-md border border-emerald-300/70">Optional</span>
+                        </div>
+                        <p class="text-[11px] sm:text-xs font-medium text-slate-600 mb-3 m-0">Provide actionable 5-10 minute home activities for parents to practice with the child tonight.</p>
+
+                        <button type="button" id="btnGenerateRecommendations" class="w-full inline-flex items-center justify-center px-4 py-3 bg-emerald-600 text-white text-[13px] font-extrabold rounded-xl hover:bg-emerald-700 transition-all active:scale-98 shadow-sm cursor-pointer mb-3">
+                            <i class="fa-solid fa-lightbulb mr-1.5"></i> Generate Suggested Activity via AI
+                        </button>
+
+                        <div id="recLoading" class="text-center text-emerald-600 text-[12px] mb-3 font-extrabold hidden">
+                            <i class="fa fa-spinner fa-spin mr-1.5"></i> AI is thinking...
+                        </div>
+
+                        <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-emerald-500 focus:ring-emerald-500 shadow-sm custom-scrollbar transition-all" rows="4" placeholder="Suggested home practice activities will appear here, or type your own instructions for parents...">{{ old('home_recommendations') }}</textarea>
+                    </div>
+
+                    <!-- 4. Attach Session Photo (Optional) -->
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                        <label class="block text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider mb-1.5 flex items-center">
+                            <i class="fa fa-camera text-indigo-500 mr-1.5"></i> Attach Session Photo (Optional)
+                        </label>
+                        <input type="file" name="photo" id="photoInput" onchange="handleFileInputChange(this, 'photo_input_preview', 'photo_input_filename')" class="block w-full text-[13px] font-medium text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[12px] file:font-extrabold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 border border-slate-300 rounded-xl cursor-pointer shadow-sm bg-white" accept="image/jpeg, image/png, image/jpg">
+                        <div id="photo_input_preview" class="hidden mt-2 p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-xl flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <i class="fa fa-camera text-indigo-600 text-sm"></i>
+                                <span id="photo_input_filename" class="text-[12px] font-extrabold text-slate-800 truncate"></span>
+                            </div>
+                            <button type="button" onclick="clearSelectedFile('photoInput', 'photo_input_preview')" class="px-2.5 py-1 bg-white border border-rose-200 text-rose-600 text-[11px] font-extrabold rounded-lg hover:bg-rose-600 hover:text-white transition-colors shadow-sm cursor-pointer shrink-0 flex items-center gap-1">
+                                <i class="fa fa-times text-xs"></i> Remove
+                            </button>
+                        </div>
                     </div>
 
                     <!-- SUBMIT BUTTON -->
@@ -283,46 +321,189 @@
                     </div>
 
                     <!-- Card Body -->
-                    <div class="p-5 sm:p-6 text-[13px] sm:text-[14px] text-[#6B7086] leading-relaxed bg-white font-medium">
-                        @if($log->image_path)
-                            <div class="mb-4 text-center">
-                                <div class="relative group cursor-pointer inline-block max-w-sm rounded-xl overflow-hidden shadow-sm border border-black/10"
-                                     @click="enlargedPhotoUrl = '{{ route('secure.log-photo', $log->id) }}'; enlargedPhotoTitle = 'Observation Photo - {{ addslashes($log->student->first_name) }}'"
-                                     title="Click to enlarge photo">
-                                    <img src="{{ route('secure.log-photo', $log->id) }}" alt="Observation Photo" class="max-h-[220px] w-auto mx-auto object-cover group-hover:scale-105 transition-transform duration-300">
-                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-base"></i> Click to enlarge
+                    <div class="p-5 sm:p-6 text-[13px] sm:text-[14px] text-[#6B7086] leading-relaxed bg-white font-medium flex flex-col gap-5 sm:gap-6">
+                        @php
+                            $photoUrl = $log->image_path ? route('secure.log-photo', $log->id) : null;
+
+                            $fullContent = $log->notes ?? '';
+                            $dailyReportText = $fullContent;
+                            $suggestedActivityText = $log->home_recommendations ?? '';
+
+                            if (preg_match('/^(.*?)(?:\r?\n)+(?:Tonight\'s Suggested Activity|Tonight\'s Suggested Home Activity|Home Activity):?\s*(.*)$/si', $fullContent, $matches)) {
+                                $dailyReportText = trim($matches[1]);
+                                if (empty($suggestedActivityText) && !empty($matches[2])) {
+                                    $suggestedActivityText = trim($matches[2]);
+                                }
+                            }
+
+                            $formatHtml = function($rawText) {
+                                if (empty($rawText)) return '';
+                                $escaped = e(trim($rawText));
+                                $formatted = preg_replace('/\*\*(.*?)\*\*/s', '<strong class="font-extrabold text-slate-900">$1</strong>', $escaped);
+                                
+                                $lines = explode("\n", $formatted);
+                                $output = [];
+                                $inList = false;
+                                
+                                foreach ($lines as $line) {
+                                    $trimmed = trim($line);
+                                    if (preg_match('/^[-*•]\s+(.*)$/', $trimmed, $m)) {
+                                        if (!$inList) {
+                                            $output[] = '<ul class="list-none pl-0 space-y-2 mt-2 mb-2">';
+                                            $inList = true;
+                                        }
+                                        $output[] = '<li class="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-slate-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><span class="flex-1">' . $m[1] . '</span></li>';
+                                    } else {
+                                        if ($inList) {
+                                            $output[] = '</ul>';
+                                            $inList = false;
+                                        }
+                                        if (!empty($trimmed)) {
+                                            $output[] = '<p class="m-0 mb-2 leading-relaxed text-[13px] sm:text-[14px] text-slate-700 font-normal">' . $trimmed . '</p>';
+                                        }
+                                    }
+                                }
+                                if ($inList) {
+                                    $output[] = '</ul>';
+                                }
+                                return implode("\n", $output);
+                            };
+                        @endphp
+
+                        <!-- TOP SECTION: DAILY REPORT (LEFT) + OBSERVATION PHOTO (RIGHT) -->
+                        @if($photoUrl)
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+                                
+                                <!-- LEFT: DAILY REPORT CARD (Dark Blue / Indigo Accent) -->
+                                @if(!empty($dailyReportText))
+                                    <div class="md:col-span-7 lg:col-span-8 flex flex-col">
+                                        <div class="p-5 sm:p-6 bg-white rounded-2xl border-2 border-indigo-200/90 shadow-sm relative overflow-hidden h-full flex flex-col justify-between">
+                                            <div>
+                                                <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-100 flex-wrap gap-2">
+                                                    <div class="flex items-center gap-2.5">
+                                                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
+                                                            <i class="fa-solid fa-file-lines"></i>
+                                                        </div>
+                                                        <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
+                                                            Daily Report:
+                                                        </h6>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
+                                                            Archived Report
+                                                        </span>
+                                                        <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
+                                                           target="_blank"
+                                                           class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
+                                                           title="View Standardized Formal Documentation as PDF">
+                                                            <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                                            <span>View PDF</span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="m-0 leading-relaxed text-slate-700 font-medium">
+                                                    {!! $formatHtml($dailyReportText) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- RIGHT: OBSERVATION PHOTO (Light Blue Accent) -->
+                                <div class="{{ !empty($dailyReportText) ? 'md:col-span-5 lg:col-span-4' : 'md:col-span-12' }} flex flex-col">
+                                    <div class="bg-slate-50/90 rounded-2xl border-2 border-indigo-200/80 p-3 sm:p-4 shadow-sm flex flex-col justify-between h-full">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2.5 px-0.5">
+                                                <span class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <i class="fa fa-camera text-indigo-500"></i> Session Photo
+                                                </span>
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:inline-block">
+                                                    Click to enlarge
+                                                </span>
+                                            </div>
+
+                                            <div class="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-slate-300 shadow-xs bg-slate-200 flex items-center justify-center min-h-[180px] max-h-[260px] sm:max-h-[300px]"
+                                                 @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Session Photo - {{ addslashes($log->student->first_name) }}'"
+                                                 title="Click to view full image">
+                                                <img src="{{ $photoUrl }}" 
+                                                     alt="Session Photo" 
+                                                     class="w-full h-full max-h-[260px] sm:max-h-[300px] object-cover group-hover:scale-105 transition-transform duration-300 block"
+                                                     loading="lazy">
+                                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2 backdrop-blur-[1px]">
+                                                    <i class="fa-solid fa-magnifying-glass-plus text-base"></i> View full size
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" 
+                                                @click="enlargedPhotoUrl = '{{ $photoUrl }}'; enlargedPhotoTitle = 'Session Photo - {{ addslashes($log->student->first_name) }}'"
+                                                class="w-full mt-3 py-2 px-3 bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-800 font-extrabold text-[11px] sm:text-xs rounded-xl border border-indigo-200 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+                                            <i class="fa-solid fa-expand text-indigo-500 text-xs"></i> View enlarged photo
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        @else
+                            <!-- NO PHOTO: DAILY REPORT SPANS FULL WIDTH -->
+                            @if(!empty($dailyReportText))
+                                <div class="w-full">
+                                    <div class="p-5 sm:p-6 bg-white rounded-2xl border-2 border-indigo-200/90 shadow-sm relative overflow-hidden">
+                                        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-indigo-100 flex-wrap gap-2">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-xs shrink-0">
+                                                    <i class="fa-solid fa-file-lines"></i>
+                                                </div>
+                                                <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
+                                                    Daily Report:
+                                                </h6>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200/70">
+                                                    Archived Report
+                                                </span>
+                                                <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
+                                                   target="_blank"
+                                                   class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
+                                                   title="View Standardized Formal Documentation as PDF">
+                                                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                                    <span>View PDF</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="m-0 leading-relaxed text-slate-700 font-medium">
+                                            {!! $formatHtml($dailyReportText) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+
+                        <!-- BOTTOM SECTION: TONIGHT'S SUGGESTED ACTIVITY (SPANS FULL WIDTH, Green Accent) -->
+                        @if(!empty($suggestedActivityText))
+                            <div class="w-full">
+                                <div class="p-5 sm:p-6 bg-emerald-50/40 rounded-2xl border-2 border-emerald-300/80 shadow-sm relative overflow-hidden">
+                                    <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-emerald-100/90 flex-wrap gap-2">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm shadow-xs shrink-0">
+                                                <i class="fa-solid fa-house-chimney-user"></i>
+                                            </div>
+                                            <h6 class="font-extrabold text-slate-800 m-0 text-[14px] sm:text-[15px]">
+                                                Tonight's Suggested Activity:
+                                            </h6>
+                                        </div>
+                                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-md border border-emerald-300">
+                                            Home Practice
+                                        </span>
+                                    </div>
+                                    <div class="m-0 leading-relaxed text-slate-800 font-medium text-[13px] sm:text-[14px]">
+                                        {!! $formatHtml($suggestedActivityText) !!}
                                     </div>
                                 </div>
                             </div>
                         @endif
 
-                        <div class="p-4 bg-[#F4F6FA] rounded-xl border border-black/10 text-[#1E2657]">
-                            <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-                                <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest m-0 flex items-center">
-                                    <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
-                                </h6>
-                                <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
-                                   target="_blank"
-                                   class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
-                                   title="View Standardized Formal Documentation as PDF">
-                                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
-                                    <span>View PDF</span>
-                                </a>
-                            </div>
-                            <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
-                        </div>
-
-                        @if($log->home_recommendations)
-                            <div class="mt-4 p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 text-emerald-950">
-                                <h6 class="text-[11px] font-extrabold text-emerald-700 uppercase tracking-widest mb-1.5 flex items-center m-0">
-                                    <i class="fa fa-house-user mr-1.5 text-emerald-600"></i> Tonight's Suggested Home Activity
-                                </h6>
-                                <p class="m-0 text-[13px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->home_recommendations }}</p>
-                            </div>
-                        @endif
-
-                        <div class="mt-4 pt-4 border-t border-dashed border-black/10">
+                        <div class="mt-1 pt-4 border-t border-dashed border-black/10">
                             @include('components.comment-thread', ['item' => $log])
                         </div>
                     </div>
@@ -363,11 +544,30 @@
 const dailyLogCache = {};
 let currentDailyLogKey = '';
 
+function handleFileInputChange(input, previewId, filenameId) {
+    const preview = document.getElementById(previewId);
+    const filenameEl = document.getElementById(filenameId);
+    if (input.files && input.files[0]) {
+        if (filenameEl) filenameEl.textContent = input.files[0].name;
+        if (preview) preview.classList.remove('hidden');
+    }
+}
+
+function clearSelectedFile(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    if (input) input.value = '';
+    if (preview) preview.classList.add('hidden');
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const studentIdInput = document.getElementById('student_id');
     const logDateInput = document.getElementById('log_date');
     const rawNotes = document.getElementById('rawNotes');
     const formalNotes = document.getElementById('formalNotes');
+    const homeRec = document.getElementById('home_recommendations');
+    const photoInput = document.getElementById('photoInput');
+    const btnGenRec = document.getElementById('btnGenerateRecommendations');
     const form = document.getElementById('dailyLogForm');
     const filterStudent = document.getElementById('filterStudent');
 
@@ -383,6 +583,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!dailyLogCache[currentDailyLogKey]) dailyLogCache[currentDailyLogKey] = {};
         if (rawNotes) dailyLogCache[currentDailyLogKey].rawNotes = rawNotes.value;
         if (formalNotes) dailyLogCache[currentDailyLogKey].formalNotes = formalNotes.value;
+        if (homeRec) dailyLogCache[currentDailyLogKey].homeRec = homeRec.value;
     }
 
     function loadFromCache() {
@@ -398,9 +599,11 @@ document.addEventListener("DOMContentLoaded", function() {
         if (cached) {
             if (rawNotes) rawNotes.value = cached.rawNotes || '';
             if (formalNotes) formalNotes.value = cached.formalNotes || '';
+            if (homeRec) homeRec.value = cached.homeRec || '';
         } else {
             if (rawNotes) rawNotes.value = '';
             if (formalNotes) formalNotes.value = '';
+            if (homeRec) homeRec.value = '';
         }
     }
 
@@ -409,12 +612,14 @@ document.addEventListener("DOMContentLoaded", function() {
     if (currentDailyLogKey) {
         dailyLogCache[currentDailyLogKey] = {
             rawNotes: rawNotes ? rawNotes.value : '',
-            formalNotes: formalNotes ? formalNotes.value : ''
+            formalNotes: formalNotes ? formalNotes.value : '',
+            homeRec: homeRec ? homeRec.value : ''
         };
     }
 
     if (rawNotes) rawNotes.addEventListener('input', saveCurrentToCache);
     if (formalNotes) formalNotes.addEventListener('input', saveCurrentToCache);
+    if (homeRec) homeRec.addEventListener('input', saveCurrentToCache);
 
     if (logDateInput) {
         logDateInput.addEventListener('change', loadFromCache);
@@ -449,6 +654,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 formalNotes.classList.remove('bg-white');
                 formalNotes.setAttribute('placeholder', 'Select a student above to enable Formal Documentation...');
             }
+            if (homeRec) {
+                homeRec.disabled = true;
+                homeRec.classList.add('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                homeRec.classList.remove('bg-white');
+                homeRec.setAttribute('placeholder', 'Select a student above to enable Tonight\'s Suggested Activity...');
+            }
+            if (btnGenRec) {
+                btnGenRec.disabled = true;
+                btnGenRec.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            if (photoInput) {
+                photoInput.disabled = true;
+            }
             if (generateAiBtn) {
                 generateAiBtn.disabled = true;
                 generateAiBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -470,6 +688,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 formalNotes.classList.remove('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
                 formalNotes.classList.add('bg-white');
                 formalNotes.setAttribute('placeholder', 'Type formal documentation directly here, or click \'Rewrite Professionally\' above...');
+            }
+            if (homeRec) {
+                homeRec.disabled = false;
+                homeRec.classList.remove('bg-slate-100', 'cursor-not-allowed', 'opacity-70');
+                homeRec.classList.add('bg-white');
+                homeRec.setAttribute('placeholder', 'Suggested home practice activities will appear here, or type your own instructions for parents...');
+            }
+            if (btnGenRec) {
+                btnGenRec.disabled = false;
+                btnGenRec.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            if (photoInput) {
+                photoInput.disabled = false;
             }
             if (generateAiBtn) {
                 generateAiBtn.disabled = false;
@@ -520,6 +751,8 @@ document.addEventListener("DOMContentLoaded", function() {
             // Ensure inputs are not disabled so their values are sent in POST
             if (rawNotes) rawNotes.disabled = false;
             if (formalNotes) formalNotes.disabled = false;
+            if (homeRec) homeRec.disabled = false;
+            if (photoInput) photoInput.disabled = false;
 
             window.hasUnsavedAiChanges = false;
         });
@@ -626,6 +859,71 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         loading.classList.add('hidden'); 
     });
 });
+
+// --- AI HOME RECOMMENDATIONS LOGIC ---
+const btnGenRec = document.getElementById('btnGenerateRecommendations');
+if (btnGenRec) {
+    btnGenRec.addEventListener('click', function() {
+        const sid = document.getElementById('student_id') ? document.getElementById('student_id').value : '';
+        if (!sid) {
+            window.showToast('Please select a student first!', 'warning');
+            return;
+        }
+
+        const formalNotesEl = document.getElementById('formalNotes');
+        const rawNotesEl = document.getElementById('rawNotes');
+        const notesToSend = (formalNotesEl ? formalNotesEl.value.trim() : '') || (rawNotesEl ? rawNotesEl.value.trim() : '');
+        const targetBox = document.getElementById('home_recommendations');
+        const loading = document.getElementById('recLoading');
+
+        if (!notesToSend) {
+            window.showToast('Please provide some quick notes or formal documentation first so the AI knows what to recommend!', 'warning');
+            return;
+        }
+
+        btnGenRec.disabled = true;
+        if (loading) loading.classList.remove('hidden');
+
+        fetch('{{ route('teacher.daily-logs.generate-recommendations') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                notes: notesToSend,
+                student_id: sid
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.recommendation) {
+                if (targetBox) {
+                    targetBox.value = data.recommendation;
+                    window.hasUnsavedAiChanges = true;
+                }
+                window.showToast('Suggested activity generated successfully.', 'success');
+
+                const date = document.getElementById('log_date') ? document.getElementById('log_date').value : '';
+                if (sid && date) {
+                    const key = `${sid}_${date}`;
+                    if (!dailyLogCache[key]) dailyLogCache[key] = {};
+                    dailyLogCache[key].homeRec = data.recommendation;
+                }
+            } else {
+                window.showToast(data.message || 'Failed to generate recommendations.', 'error');
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            window.showToast('Something went wrong connecting to the AI recommendations.', 'error');
+        })
+        .finally(() => {
+            btnGenRec.disabled = false;
+            if (loading) loading.classList.add('hidden');
+        });
+    });
+}
 </script>
 @endpush
 @endsection

@@ -41,12 +41,20 @@ class DailyLogController extends Controller
                       });
                 })
                 ->first();
-            if ($matchingReport && $matchingReport->comments->isNotEmpty()) {
-                $merged = $log->comments->concat($matchingReport->comments)
-                    ->unique('id')
-                    ->sortByDesc('created_at')
-                    ->values();
-                $log->setRelation('comments', $merged);
+            if ($matchingReport) {
+                if (!$log->image_path && $matchingReport->image_path) {
+                    $log->image_path = $matchingReport->image_path;
+                }
+                if (empty($log->home_recommendations) && !empty($matchingReport->home_recommendations)) {
+                    $log->home_recommendations = $matchingReport->home_recommendations;
+                }
+                if ($matchingReport->comments->isNotEmpty()) {
+                    $merged = $log->comments->concat($matchingReport->comments)
+                        ->unique('id')
+                        ->sortByDesc('created_at')
+                        ->values();
+                    $log->setRelation('comments', $merged);
+                }
             }
         }
 
