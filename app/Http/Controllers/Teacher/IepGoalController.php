@@ -75,7 +75,7 @@ class IepGoalController extends Controller
                 ->withInput();
         }
 
-        IepGoal::create([
+        $goal = IepGoal::create([
             'student_id'       => $student->id,
             'domain'           => $request->domain,
             'plop'             => $request->plop, 
@@ -102,7 +102,10 @@ class IepGoalController extends Controller
             Log::error('Guardian notification failed on IEP create: ' . $e->getMessage());
         }
 
-        return redirect()->back()->with('success', 'New IEP Goal and Baseline PLOP successfully assigned!');
+        return redirect()->back()
+            ->with('success', 'New IEP Goal and Baseline PLOP successfully assigned!')
+            ->with('active_student_id', $student->id)
+            ->with('active_goal_id', $goal->id);
     }
 
     public function generateAi(\Illuminate\Http\Request $request)
@@ -254,7 +257,19 @@ PROMPT;
             Log::error('Guardian notification failed on IEP update: ' . $e->getMessage());
         }
 
-        return redirect()->back()->with('success', 'IEP Progress updated successfully!');
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'IEP Progress updated successfully!',
+                'goal' => $goal,
+                'student_id' => $goal->student_id,
+            ]);
+        }
+
+        return redirect()->back()
+            ->with('success', 'IEP Progress updated successfully!')
+            ->with('active_student_id', $goal->student_id)
+            ->with('active_goal_id', $goal->id);
     }
 
     // DELETE A GOAL
@@ -274,7 +289,9 @@ PROMPT;
             ]);
         }
 
-        return redirect()->back()->with('success', 'IEP Goal deleted successfully!');
+        return redirect()->back()
+            ->with('success', 'IEP Goal deleted successfully!')
+            ->with('active_student_id', $studentId);
     }
 
     // ==========================================

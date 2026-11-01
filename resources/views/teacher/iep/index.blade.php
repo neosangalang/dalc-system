@@ -12,11 +12,18 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9CA0AF; }
 </style>
 
+@php
+    $initialActiveAccordion = session('active_student_id') 
+        ? (int) session('active_student_id') 
+        : ($selectedStudentId ? (int) $selectedStudentId : 'null');
+    $activeGoalId = session('active_goal_id') ? (int) session('active_goal_id') : null;
+@endphp
+
 <!-- Main Container -->
 <div class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8" 
      x-data="{ 
         showAddModal: false, 
-        activeAccordion: {{ $selectedStudentId ? (int) $selectedStudentId : 'null' }}, 
+        activeAccordion: {{ $initialActiveAccordion }}, 
         activeEditModal: null,
         showDeleteGoalModal: false,
         deleteGoalId: null,
@@ -180,6 +187,7 @@
             
             <!-- Student Accordion Wrapper with Reactive Unread State -->
             <div x-data="{ studentUnreadCount: {{ (int) $studentUnreadCount }} }" 
+                 id="student-accordion-item-{{ $student->id }}"
                  class="bg-white rounded-2xl border border-black/15 shadow-sm overflow-hidden transition-all duration-200 student-accordion-item" 
                  data-student-name="{{ strtolower($student->first_name . ' ' . $student->last_name) }}">
                 
@@ -238,7 +246,9 @@
                                     <span>View Official IEP (PDF)</span>
                                 </a>
                             </div>
-                            <div id="student-goals-tbody-{{ $student->id }}" class="space-y-3 sm:space-y-3.5" x-data="{ openGoalId: null }">
+                            <div id="student-goals-tbody-{{ $student->id }}" 
+                                 class="space-y-3 sm:space-y-3.5" 
+                                 x-data="{ openGoalId: {{ ($initialActiveAccordion == $student->id && $activeGoalId) ? $activeGoalId : 'null' }} }">
                                 @foreach($studentGoals as $goal)
                                     @php
                                         // Bulletproof unread check for specific goal
@@ -619,9 +629,11 @@
                             
                             <div class="p-5 sm:p-6 flex-1 overflow-y-auto custom-scrollbar bg-white">
                                 
-                                <form action="{{ route('teacher.iep-goals.update', $goal->id) }}" method="POST" class="m-0">
+                                <form action="{{ route('teacher.iep-goals.update', $goal->id) }}" method="POST" class="m-0 iep-goal-update-form">
                                     @csrf
                                     @method('PUT')
+                                    <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                    <input type="hidden" name="goal_id" value="{{ $goal->id }}">
                                     
                                     <div class="mb-6 interactive-checklist-container" data-goal-domain="{{ $goal->domain }}">
                                         <div class="flex justify-between items-center mb-2">
@@ -707,7 +719,7 @@
 
                                     <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0 pt-2 mb-2">
                                         <button type="button" @click="activeEditModal = null" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-black/15 rounded-xl text-[13px] font-extrabold text-[#6B7086] hover:bg-slate-50 shadow-sm active:scale-95 transition-all">Cancel</button>
-                                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center active:scale-95"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
+                                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-[#3B82F6] text-white text-[13px] font-extrabold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center active:scale-95" onclick="if(this.form.checkValidity()){ this.innerHTML = '<i class=\'fa fa-spinner fa-spin mr-1.5\'></i> Saving Progress...'; this.classList.add('opacity-75', 'pointer-events-none'); }"><i class="fa fa-save mr-1.5"></i> Save Progress</button>
                                     </div>
                                 </form>
                                 
@@ -1726,6 +1738,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
         renderChecklist();
     });
+
+    @if(session('active_goal_id'))
+    setTimeout(function() {
+        var goalEl = document.getElementById('goal-row-{{ session('active_goal_id') }}');
+        if (goalEl) {
+            goalEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 350);
+    @elseif(session('active_student_id'))
+    setTimeout(function() {
+        var studentEl = document.getElementById('student-accordion-item-{{ session('active_student_id') }}');
+        if (studentEl) {
+            studentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 350);
+    @endif
 });
 </script>
 @endpush
