@@ -10,10 +10,12 @@
     selectedReportId: null,
     selectedStudentName: '',
     selectedTeacherName: '',
-    openRevisionModal(id, student, teacher) {
+    selectedReportContent: '',
+    openRevisionModal(id, student, teacher, content = '') {
         this.selectedReportId = id;
         this.selectedStudentName = student;
         this.selectedTeacherName = teacher;
+        this.selectedReportContent = content;
         this.showRevisionModal = true;
     }
 }">
@@ -160,7 +162,7 @@
                                     </form>
 
                                     <button type="button" 
-                                            @click="openRevisionModal({{ $report->id }}, '{{ addslashes($report->student->first_name . ' ' . $report->student->last_name) }}', '{{ addslashes($report->teacher->name ?? 'Teacher') }}')" 
+                                            @click="openRevisionModal({{ $report->id }}, '{{ addslashes($report->student->first_name . ' ' . $report->student->last_name) }}', '{{ addslashes($report->teacher->name ?? 'Teacher') }}', {{ json_encode($report->content) }})" 
                                             class="w-full h-9 md:w-24 inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-rose-500 border border-transparent text-white text-xs font-extrabold rounded-xl hover:bg-rose-600 transition-all shadow-xs shadow-rose-200 active:scale-95 cursor-pointer whitespace-nowrap">
                                         <i class="fa fa-xmark text-[11px]"></i> <span>Reject</span>
                                     </button>
@@ -214,6 +216,16 @@
                 <form :action="'/admin/report-approval/' + selectedReportId + '/status'" method="POST" class="mt-5 space-y-4">
                     @csrf
                     <input type="hidden" name="status" value="rejected">
+
+                    <!-- PREVIEW OF TEACHER'S SUBMITTED REPORT -->
+                    <div x-show="selectedReportContent" class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-lines text-indigo-500"></i> Teacher's Submitted Report:
+                            </span>
+                        </div>
+                        <div class="text-[12px] text-slate-700 whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto font-normal bg-white p-2.5 rounded-lg border border-slate-200 select-text" x-text="selectedReportContent"></div>
+                    </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">

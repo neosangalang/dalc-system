@@ -378,7 +378,7 @@ REPORT TYPE / TIMEFRAME: {$timeframe}
 ADMINISTRATOR'S REQUIRED REVISIONS & INSTRUCTIONS:
 \"{$request->revision_notes}\"
 
-PREVIOUS REPORT DRAFT:
+PREVIOUS REPORT DRAFT (TEACHER'S ORIGINAL WORK - PRESERVE AS BASELINE):
 \"{$request->existing_content}\"
 
 ACTIVE IEP GOALS:
@@ -388,11 +388,26 @@ DAILY LOGS & CLASSROOM NOTES:
 {$logSummaries}
 
 STRICT REVISION RULES:
-1. Thoroughly incorporate and address all feedback and instructions provided by the Administrator.
-2. Refine, expand, or clarify the draft using supporting details strictly from daily logs and IEP goals. Do NOT fabricate unrecorded student actions or achievements.
-3. Keep the format concise: write exactly 2 cohesive paragraphs (or 1 paragraph if daily report).
-4. Do NOT use headers, bullet points, asterisks (**), bold titles, or conversational filler. Output only clean narrative paragraphs.
-5. Maintain a compassionate, objective, and professional Special Education tone.";
+1. MAXIMAL PRESERVATION OF TEACHER'S ORIGINAL DRAFT:
+   - Treat the teacher's previous draft as the foundational baseline. Do NOT rewrite the report from scratch.
+   - Preserve the teacher's original phrasing, observations, and sentences as much as possible so their manual work is retained.
+   - Only make targeted adjustments, insertions, or surgical edits directly called for by the Administrator's revision instructions.
+
+2. TARGETED ADMINISTRATIVE COMPLIANCE:
+   - Seamlessly blend the Administrator's requested updates into the existing draft paragraphs using verified details from daily logs and active IEP goals.
+
+3. STRICT FACTUAL BOUNDARY (ZERO FABRICATION):
+   - Base any added details STRICTLY on the provided DAILY LOGS and ACTIVE IEP GOALS.
+   - If the Administrator requests information, therapy sessions, or data that are NOT recorded in the daily logs or IEP goals, do NOT invent or fabricate sessions, frequencies, or metrics. Keep the teacher's existing report intact without adding unverified claims.
+
+4. NO META-COMMENTARY:
+   - Output ONLY the final revised student report narrative.
+   - NEVER include explanations, apologies, or meta-comments explaining the revision process or why information was missing (e.g. do NOT write 'In response to...', 'This draft was revised to...', or 'While documentation lacks...').
+
+5. CLEAN NARRATIVE OUTPUT:
+   - Keep the format concise: exactly 2 cohesive paragraphs (or 1 paragraph if daily report).
+   - Do NOT use headers, bullet points, asterisks (**), bold titles, or conversational filler. Output only clean narrative paragraphs.
+   - Maintain a compassionate, objective, and professional Special Education tone.";
         }
         elseif ($request->report_type === 'daily') {
             if ($request->section === 'home_recommendation') {
@@ -456,8 +471,14 @@ STRICT QUALITY RULES:
                 ]);
 
             if ($response->successful()) {
-                $aiText = $response->json('choices.0.message.content');
-                return response()->json(['success' => true, 'report_content' => trim($aiText)]);
+                $aiText = $response->json('choices.0.message.content') ?? '';
+                $aiText = trim($aiText);
+                $aiText = preg_replace('/^\*\*.*?\*\*:?\s*/', '', $aiText);
+                $aiText = preg_replace('/^(Revised Report|Report Summary|Official Report|Progress Report|Daily Report):?\s*/i', '', $aiText);
+                $aiText = str_replace('**', '', $aiText);
+                $aiText = trim($aiText, " \t\n\r\0\x0B\"'");
+
+                return response()->json(['success' => true, 'report_content' => $aiText]);
             }
 
             return response()->json(['success' => false, 'message' => 'Groq API Error: ' . $response->body()], 500);
