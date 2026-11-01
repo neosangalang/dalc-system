@@ -100,7 +100,7 @@ class TeacherController extends Controller
         ));
     }
 
-    public function announcements()
+    public function announcements(Request $request)
     {
         $teacher = Auth::user();
         $now = now();
@@ -125,8 +125,57 @@ class TeacherController extends Controller
                 ->update(['read_at' => $now]);
         } catch (\Throwable $e) {}
 
-        $announcements = Announcement::with(['comments.user'])->latest()->paginate(10);
-        return view('teacher.announcements', compact('announcements'));
+        // List of all unique available announcement dates (descending: latest first)
+        $allAnnouncements = Announcement::orderBy('created_at', 'desc')->get();
+        $availableDates = $allAnnouncements
+            ->map(fn($a) => \Carbon\Carbon::parse($a->created_at)->format('Y-m-d'))
+            ->unique()
+            ->values();
+
+        $selectedDate = null;
+        $prevDate = null;
+        $nextDate = null;
+
+        if ($request->query('date') === 'all') {
+            $selectedDate = 'all';
+            $announcements = Announcement::with(['comments.user'])->latest('created_at')->latest('id')->get();
+        } else {
+            // Determine selected date: from query param or default to latest available date
+            if ($request->filled('date')) {
+                try {
+                    $selectedDate = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $selectedDate = $availableDates->first() ?: now()->format('Y-m-d');
+                }
+            } else {
+                $selectedDate = $availableDates->first() ?: now()->format('Y-m-d');
+            }
+
+            // Calculate previous (older) and next (newer) announcement dates for quick navigation
+            if ($availableDates->isNotEmpty()) {
+                $newerDates = $availableDates->filter(fn($d) => $d > $selectedDate)->values();
+                $olderDates = $availableDates->filter(fn($d) => $d < $selectedDate)->values();
+
+                $nextDate = $newerDates->last();  // closest newer date
+                $prevDate = $olderDates->first(); // closest older date
+            }
+
+            // Strictly load announcement(s) for the specified date
+            $announcements = Announcement::with(['comments.user'])
+                ->whereDate('created_at', $selectedDate)
+                ->latest('created_at')
+                ->latest('id')
+                ->get();
+        }
+
+        return view('teacher.announcements', compact(
+            'announcements',
+            'availableDates',
+            'selectedDate',
+            'prevDate',
+            'nextDate',
+            'allAnnouncements'
+        ));
     }
 
     public function markAnnouncementsSeen(Request $request)

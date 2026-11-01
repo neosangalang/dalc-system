@@ -5,23 +5,91 @@
 @section('content')
 <!-- Main Container -->
 <div class="w-full">
-    <div class="max-w-[1200px] mx-auto space-y-10">
+    <div class="max-w-[1200px] mx-auto space-y-6">
 
-        <!-- HEADER -->
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-            <div class="flex flex-col gap-2">
-                <span class="text-[#8B5CF6] text-[11px] font-extrabold tracking-widest uppercase mb-1 block">Teacher Portal</span>
-                <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Center Announcements</h1>
-                <p class="text-[#6B7086] text-sm font-medium">Stay updated with the latest news and alerts from the center.</p>
+        <!-- HEADER & DATE SELECTOR COMPONENT (Matching Daily Reports & Guardian Portal) -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b-2 border-slate-200 pb-3 mb-6 sm:mb-8">
+            
+            <!-- Left: Title & Subtitle -->
+            <div class="flex flex-col gap-1">
+                <span class="text-[#8B5CF6] text-[11px] font-extrabold tracking-widest uppercase block">Teacher Portal</span>
+                <h1 class="text-[#1E2657] text-2xl sm:text-3xl font-extrabold tracking-tight">Center Announcements</h1>
+                <p class="text-[#6B7086] text-xs sm:text-sm font-medium m-0">Stay updated with the latest news and alerts from the center.</p>
             </div>
-        </header>
 
-        <!-- FULL ANNOUNCEMENTS FEED -->
+            <!-- Right: Dedicated Date Selector Component -->
+            <div class="flex flex-wrap items-center gap-2 self-start lg:self-auto w-full lg:w-auto">
+                
+                <!-- Step to Older Announcement -->
+                @if(!empty($prevDate))
+                    <a href="{{ route('teacher.announcements', ['date' => $prevDate]) }}" 
+                       title="Previous announcement: {{ \Carbon\Carbon::parse($prevDate)->format('M d, Y') }}"
+                       class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95">
+                        <i class="fa-solid fa-chevron-left text-[11px] text-slate-500"></i>
+                        <span class="hidden sm:inline">Previous</span>
+                    </a>
+                @else
+                    <span class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-1.5 shadow-xs">
+                        <i class="fa-solid fa-chevron-left text-[11px] text-slate-300"></i>
+                        <span class="hidden sm:inline">Previous</span>
+                    </span>
+                @endif
+
+                <!-- Date Picker Form -->
+                <form method="GET" action="{{ route('teacher.announcements') }}" class="flex items-center gap-1.5 m-0">
+                    <div class="relative flex items-center">
+                        <div class="absolute left-3 pointer-events-none text-indigo-600 text-xs">
+                            <i class="fa-regular fa-calendar-days"></i>
+                        </div>
+                        <input type="date" 
+                               name="date" 
+                               id="announcement_date_selector"
+                               value="{{ $selectedDate !== 'all' ? $selectedDate : '' }}" 
+                               onchange="this.form.submit()" 
+                               class="pl-8 pr-2.5 py-1.5 sm:py-2 bg-white border-2 border-indigo-200 hover:border-indigo-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 text-slate-800 text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                               title="Select specific announcement date">
+                    </div>
+
+                    @if($availableDates->count() > 1)
+                        <!-- Quick Dropdown of Available Dates -->
+                        <select onchange="if(this.value) window.location.href='{{ route('teacher.announcements') }}?date=' + this.value"
+                                class="py-1.5 sm:py-2 px-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer max-w-[130px] sm:max-w-[170px] truncate"
+                                title="Jump to announcement date">
+                            <option value="" disabled>All Dates...</option>
+                            @foreach($availableDates as $d)
+                                <option value="{{ $d }}" {{ $selectedDate === $d ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::parse($d)->format('M d, Y') }}
+                                </option>
+                            @endforeach
+                            <option value="all" {{ $selectedDate === 'all' ? 'selected' : '' }}>All Dates ({{ $allAnnouncements->count() }})</option>
+                        </select>
+                    @endif
+                </form>
+
+                <!-- Step to Newer Announcement -->
+                @if(!empty($nextDate))
+                    <a href="{{ route('teacher.announcements', ['date' => $nextDate]) }}" 
+                       title="Next announcement: {{ \Carbon\Carbon::parse($nextDate)->format('M d, Y') }}"
+                       class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95">
+                        <span class="hidden sm:inline">Next</span>
+                        <i class="fa-solid fa-chevron-right text-[11px] text-slate-500"></i>
+                    </a>
+                @else
+                    <span class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-1.5 shadow-xs">
+                        <span class="hidden sm:inline">Next</span>
+                        <i class="fa-solid fa-chevron-right text-[11px] text-slate-300"></i>
+                    </span>
+                @endif
+
+            </div>
+        </div>
+
+        <!-- SPECIFIED DATE ANNOUNCEMENTS DISPLAY -->
         <section>
             <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-4 sm:p-6 md:p-8 flex flex-col gap-6">
                 
                 @forelse($announcements as $announcement)
-                    <div class="flex flex-col gap-2">
+                    <div id="announcement-{{ $announcement->id }}" class="flex flex-col gap-2">
                         <!-- Announcement Header -->
                         <div class="flex items-center gap-3 sm:gap-4 mb-1">
                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] text-white shadow-sm flex items-center justify-center text-[14px] font-bold shrink-0">
@@ -35,8 +103,9 @@
                             </div>
                         </div>
 
-                        <!-- Content Bubble (Responsive on mobile) -->
+                        <!-- Content Bubble (Full width on mobile, indented on tablet/desktop) -->
                         <div class="bg-[#F4F6FA] border border-black/5 rounded-2xl sm:rounded-tl-sm p-4 sm:p-5 mt-1 sm:mt-2 ml-0 sm:ml-[56px]">
+                            
                             <!-- Dynamic Category Badge -->
                             @php
                                 $badgeIcon = match($announcement->type ?? 'Center Update') {
@@ -50,6 +119,7 @@
                                 <i class="fa-solid {{ $badgeIcon }} mr-1.5 text-[#FFD700]"></i> {{ $announcement->type ?? 'Center Update' }}
                             </span>
 
+                            <!-- Attached Image (Clean, uncropped container with click-to-view) -->
                             @if($announcement->image_path)
                                 <div class="mb-5 rounded-2xl overflow-hidden bg-slate-900/5 border border-black/10 p-2 sm:p-3 flex items-center justify-center">
                                     <a href="{{ asset('storage/' . $announcement->image_path) }}" target="_blank" class="block group relative overflow-hidden rounded-xl w-full text-center">
@@ -60,6 +130,7 @@
                                     </a>
                                 </div>
                             @endif
+
                             <p class="text-[13px] sm:text-[14px] font-medium text-[#4B5563] leading-relaxed m-0 whitespace-pre-line">{{ $announcement->content }}</p>
 
                             <!-- FACEBOOK-STYLE COMMENTS -->
@@ -67,17 +138,33 @@
                         </div>
                     </div>
 
+                    <!-- Divider -->
                     @if (!$loop->last)
                         <div class="w-full h-px bg-black/5 my-4 ml-0 sm:ml-[56px] w-full sm:w-[calc(100%-56px)]"></div>
                     @endif
 
                 @empty
-                    <div class="text-center py-10 text-[#9CA3AF] flex flex-col items-center">
-                        <div class="w-16 h-16 bg-[#F4F6FA] border border-black/5 rounded-full flex items-center justify-center text-[24px] mb-3">
-                            <i class="fa-regular fa-bell-slash"></i>
+                    <!-- Empty State (Matching Daily Reports Archive) -->
+                    <div class="bg-white rounded-2xl p-8 sm:p-12 text-center text-slate-500">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 text-2xl">
+                            <i class="fa-regular fa-calendar-xmark"></i>
                         </div>
-                        <h4 class="text-[16px] font-extrabold text-[#1E2657]">No Announcements Yet</h4>
-                        <p class="text-[13px] font-medium mt-1">We'll let you know when the center posts an update.</p>
+                        @if($selectedDate !== 'all')
+                            <h4 class="text-base sm:text-lg font-bold text-slate-700 mb-1">
+                                No Announcement Found for {{ \Carbon\Carbon::parse($selectedDate)->format('F j, Y') }}
+                            </h4>
+                            <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-6">
+                                There are no announcements posted on this specific date. Pick another date using the selector above or return to the latest announcement.
+                            </p>
+                            @if($availableDates->isNotEmpty())
+                                <a href="{{ route('teacher.announcements', ['date' => $availableDates->first()]) }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl transition-colors shadow-sm">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> View Latest Announcement ({{ \Carbon\Carbon::parse($availableDates->first())->format('M j, Y') }})
+                                </a>
+                            @endif
+                        @else
+                            <h4 class="text-base sm:text-lg font-bold text-slate-700 mb-1">No Announcements Yet</h4>
+                            <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">We'll let you know when the center posts an update.</p>
+                        @endif
                     </div>
                 @endforelse
 
