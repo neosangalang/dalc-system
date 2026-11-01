@@ -204,7 +204,7 @@ class GuardianController extends Controller
     // ==========================================
     // ANNOUNCEMENTS
     // ==========================================
-    public function announcements()
+    public function announcements(Request $request)
     {
         $guardian = Auth::user();
         $now = now();
@@ -229,10 +229,57 @@ class GuardianController extends Controller
                 ->update(['read_at' => $now]);
         } catch (\Throwable $e) {}
 
-        $announcements = Announcement::with(['comments.user'])->latest()->get();
+        // List of all available dates from announcements for quick selection dropdown
+        $allAnnouncements = Announcement::orderBy('created_at', 'desc')->get();
+        $availableDates = $allAnnouncements
+            ->groupBy(function($item) {
+                return \Carbon\Carbon::parse($item->created_at)->format('Y-m-d');
+            })
+            ->map(function($group, $date) {
+                return [
+                    'date' => $date,
+                    'formatted' => \Carbon\Carbon::parse($date)->format('M j, Y'),
+                    'count' => $group->count(),
+                    'titles' => $group->pluck('title')->all(),
+                ];
+            })
+            ->values();
+
+        $selectedDate = $request->query('date');
+        $selectedSort = in_array($request->query('sort'), ['oldest', 'latest']) ? $request->query('sort') : 'latest';
+        $selectedAnnouncementId = $request->query('announcement_id');
+
+        $query = Announcement::with(['comments.user']);
+
+        if (!empty($selectedAnnouncementId)) {
+            $query->where('id', $selectedAnnouncementId);
+            $selectedItem = $allAnnouncements->firstWhere('id', (int) $selectedAnnouncementId);
+            if ($selectedItem && empty($selectedDate)) {
+                $selectedDate = \Carbon\Carbon::parse($selectedItem->created_at)->format('Y-m-d');
+            }
+        } elseif (!empty($selectedDate)) {
+            $query->whereDate('created_at', $selectedDate);
+        }
+
+        if ($selectedSort === 'oldest') {
+            $query->orderBy('created_at', 'asc')->orderBy('id', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
+        }
+
+        $announcements = $query->get();
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
-        return view('guardian.announcements', compact('announcements', 'myChildren', 'activeChild'));
+        return view('guardian.announcements', compact(
+            'announcements',
+            'myChildren',
+            'activeChild',
+            'availableDates',
+            'selectedDate',
+            'selectedSort',
+            'selectedAnnouncementId',
+            'allAnnouncements'
+        ));
     }
 
     public function markAnnouncementsSeen(Request $request)
