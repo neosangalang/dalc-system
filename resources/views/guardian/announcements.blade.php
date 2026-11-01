@@ -5,109 +5,86 @@
 @section('content')
 <!-- Main Container -->
 <div class="w-full">
-    <div class="max-w-[1200px] mx-auto space-y-8">
+    <div class="max-w-[1200px] mx-auto space-y-6">
 
-        <!-- HEADER -->
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
-            <div class="flex flex-col gap-2">
-                <span class="text-[#8B5CF6] text-[11px] font-extrabold tracking-widest uppercase mb-1 block">Guardian Portal</span>
-                <h1 class="text-[#1E2657] text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Center Announcements</h1>
-                <p class="text-[#6B7086] text-sm font-medium">Stay updated with the latest news and alerts from the center.</p>
+        <!-- HEADER & DATE SELECTOR COMPONENT (Matching Daily Reports) -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b-2 border-slate-200 pb-3 mb-6 sm:mb-8">
+            
+            <!-- Left: Title & Subtitle -->
+            <div class="flex flex-col gap-1">
+                <span class="text-[#8B5CF6] text-[11px] font-extrabold tracking-widest uppercase block">Guardian Portal</span>
+                <h1 class="text-[#1E2657] text-2xl sm:text-3xl font-extrabold tracking-tight">Center Announcements</h1>
+                <p class="text-[#6B7086] text-xs sm:text-sm font-medium m-0">Stay updated with the latest news and alerts from the center.</p>
             </div>
-        </header>
 
-        <!-- FILTER & SORT CONTROLS -->
-        <div class="bg-white border border-black/15 rounded-2xl p-4 sm:p-5 shadow-sm">
-            <form id="announcement_filter_form" method="GET" action="{{ route('guardian.announcements.index') }}" class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 m-0">
+            <!-- Right: Dedicated Date Selector Component -->
+            <div class="flex flex-wrap items-center gap-2 self-start lg:self-auto w-full lg:w-auto">
                 
-                <!-- Left: Filter by Date (Date Picker + Quick Dropdown) -->
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2 text-[#1E2657] font-extrabold text-xs uppercase tracking-wider shrink-0">
-                        <i class="fa-solid fa-calendar-day text-[#8B5CF6]"></i>
-                        <span>Filter by Date:</span>
-                    </div>
+                <!-- Step to Older Announcement -->
+                @if(!empty($prevDate))
+                    <a href="{{ route('guardian.announcements.index', ['date' => $prevDate]) }}" 
+                       title="Previous announcement: {{ \Carbon\Carbon::parse($prevDate)->format('M d, Y') }}"
+                       class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95">
+                        <i class="fa-solid fa-chevron-left text-[11px] text-slate-500"></i>
+                        <span class="hidden sm:inline">Previous</span>
+                    </a>
+                @else
+                    <span class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-1.5 shadow-xs">
+                        <i class="fa-solid fa-chevron-left text-[11px] text-slate-300"></i>
+                        <span class="hidden sm:inline">Previous</span>
+                    </span>
+                @endif
 
-                    <!-- Native Date Picker -->
+                <!-- Date Picker Form -->
+                <form method="GET" action="{{ route('guardian.announcements.index') }}" class="flex items-center gap-1.5 m-0">
                     <div class="relative flex items-center">
-                        <div class="absolute left-3 pointer-events-none text-[#8B5CF6] text-xs">
+                        <div class="absolute left-3 pointer-events-none text-indigo-600 text-xs">
                             <i class="fa-regular fa-calendar-days"></i>
                         </div>
-                        <input type="date"
-                               name="date"
-                               id="announcement_date"
-                               value="{{ $selectedDate ?? '' }}"
-                               onchange="if(document.getElementById('quick_date_selector')) { document.getElementById('quick_date_selector').value = this.value; } this.form.submit();"
-                               class="pl-8 pr-2.5 py-1.5 sm:py-2 bg-white border border-black/15 hover:border-[#8B5CF6] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/20 text-[#1E2657] text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
-                               title="Filter announcements by specific post date">
+                        <input type="date" 
+                               name="date" 
+                               id="announcement_date_selector"
+                               value="{{ $selectedDate !== 'all' ? $selectedDate : '' }}" 
+                               onchange="this.form.submit()" 
+                               class="pl-8 pr-2.5 py-1.5 sm:py-2 bg-white border-2 border-indigo-200 hover:border-indigo-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 text-slate-800 text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                               title="Select specific announcement date">
                     </div>
 
-                    <!-- Quick Dropdown of Available Posted Dates -->
-                    @if(isset($availableDates) && $availableDates->count() > 0)
-                    <div class="relative flex items-center">
-                        <select id="quick_date_selector"
-                                onchange="document.getElementById('announcement_date').value = this.value; this.form.submit();"
-                                class="py-1.5 sm:py-2 px-3 bg-white hover:bg-slate-50 border border-black/15 text-[#1E2657] text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer max-w-[260px] sm:max-w-[340px] truncate"
+                    @if($availableDates->count() > 1)
+                        <!-- Quick Dropdown of Available Dates -->
+                        <select onchange="if(this.value) window.location.href='{{ route('guardian.announcements.index') }}?date=' + this.value"
+                                class="py-1.5 sm:py-2 px-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition-colors cursor-pointer max-w-[130px] sm:max-w-[170px] truncate"
                                 title="Jump to announcement date">
-                            <option value="">All Posted Dates ({{ $availableDates->sum('count') }} total)</option>
+                            <option value="" disabled>All Dates...</option>
                             @foreach($availableDates as $d)
-                            <option value="{{ $d['date'] }}" {{ ($selectedDate ?? '') === $d['date'] ? 'selected' : '' }}>
-                                {{ $d['formatted'] }} ({{ $d['count'] }}) — {{ Str::limit(implode(', ', $d['titles']), 28) }}
-                            </option>
+                                <option value="{{ $d }}" {{ $selectedDate === $d ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::parse($d)->format('M d, Y') }}
+                                </option>
                             @endforeach
+                            <option value="all" {{ $selectedDate === 'all' ? 'selected' : '' }}>All Dates ({{ $allAnnouncements->count() }})</option>
                         </select>
-                    </div>
                     @endif
-                </div>
+                </form>
 
-                <!-- Right: Sorting & Reset Options -->
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2 text-[#1E2657] font-extrabold text-xs uppercase tracking-wider shrink-0">
-                        <i class="fa-solid fa-arrow-down-wide-short text-[#3B82F6]"></i>
-                        <span>Sort:</span>
-                    </div>
-
-                    <div class="relative flex items-center">
-                        <select name="sort"
-                                onchange="this.form.submit()"
-                                class="py-1.5 sm:py-2 px-3 bg-white hover:bg-slate-50 border border-black/15 text-[#1E2657] text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer">
-                            <option value="latest" {{ ($selectedSort ?? 'latest') === 'latest' ? 'selected' : '' }}>Newest First</option>
-                            <option value="oldest" {{ ($selectedSort ?? 'latest') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
-                        </select>
-                    </div>
-
-                    @if(!empty($selectedDate) || ($selectedSort ?? 'latest') === 'oldest')
-                    <a href="{{ route('guardian.announcements.index') }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#1E2657] text-xs font-extrabold transition-colors border border-black/10 shadow-xs active:scale-95"
-                       title="Reset filter and view all announcements">
-                        <i class="fa-solid fa-rotate-left text-xs text-[#6B7086]"></i>
-                        <span>Reset</span>
+                <!-- Step to Newer Announcement -->
+                @if(!empty($nextDate))
+                    <a href="{{ route('guardian.announcements.index', ['date' => $nextDate]) }}" 
+                       title="Next announcement: {{ \Carbon\Carbon::parse($nextDate)->format('M d, Y') }}"
+                       class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-xs active:scale-95">
+                        <span class="hidden sm:inline">Next</span>
+                        <i class="fa-solid fa-chevron-right text-[11px] text-slate-500"></i>
                     </a>
-                    @endif
-                </div>
+                @else
+                    <span class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 text-xs font-bold cursor-not-allowed flex items-center gap-1.5 shadow-xs">
+                        <span class="hidden sm:inline">Next</span>
+                        <i class="fa-solid fa-chevron-right text-[11px] text-slate-300"></i>
+                    </span>
+                @endif
 
-            </form>
-        </div>
-
-        <!-- ACTIVE FILTER STATUS INDICATOR (When a date filter is applied) -->
-        @if(!empty($selectedDate))
-        <div class="flex items-center justify-between gap-3 bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 rounded-xl px-4 py-3 text-xs sm:text-sm">
-            <div class="flex items-center gap-2.5 text-[#1E2657] font-bold">
-                <div class="w-6 h-6 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center text-[10px] shrink-0">
-                    <i class="fa-solid fa-calendar-check"></i>
-                </div>
-                <span>
-                    Showing announcement(s) posted on
-                    <span class="font-extrabold text-[#8B5CF6]">{{ \Carbon\Carbon::parse($selectedDate)->format('F j, Y') }}</span>
-                    ({{ $announcements->count() }} {{ Str::plural('announcement', $announcements->count()) }} found)
-                </span>
             </div>
-            <a href="{{ route('guardian.announcements.index') }}" class="text-[#8B5CF6] hover:text-[#6D28D9] font-extrabold text-xs inline-flex items-center gap-1.5 px-3 py-1 rounded-lg hover:bg-[#8B5CF6]/10 transition-colors shrink-0">
-                <i class="fa-solid fa-xmark"></i> Show All
-            </a>
         </div>
-        @endif
 
-        <!-- FULL ANNOUNCEMENTS FEED -->
+        <!-- SPECIFIED DATE ANNOUNCEMENTS DISPLAY -->
         <section>
             <div class="bg-white border border-black/15 rounded-2xl shadow-sm p-4 sm:p-6 md:p-8 flex flex-col gap-6">
                 
@@ -167,20 +144,26 @@
                     @endif
 
                 @empty
-                    <!-- Empty State -->
-                    <div class="text-center py-12 text-[#9CA3AF] flex flex-col items-center">
-                        <div class="w-16 h-16 bg-[#F4F6FA] border border-black/5 rounded-full flex items-center justify-center text-[24px] mb-3 text-[#8B5CF6]">
-                            <i class="fa-regular fa-bell-slash"></i>
+                    <!-- Empty State (Matching Daily Reports Archive) -->
+                    <div class="bg-white rounded-2xl p-8 sm:p-12 text-center text-slate-500">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 text-2xl">
+                            <i class="fa-regular fa-calendar-xmark"></i>
                         </div>
-                        @if(!empty($selectedDate))
-                            <h4 class="text-[17px] font-extrabold text-[#1E2657]">No Announcements Found on This Date</h4>
-                            <p class="text-[13px] font-medium text-[#6B7086] mt-1 max-w-md">No announcements were posted on {{ \Carbon\Carbon::parse($selectedDate)->format('F j, Y') }}. Try picking another date or view all announcements.</p>
-                            <a href="{{ route('guardian.announcements.index') }}" class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors">
-                                <i class="fa-solid fa-list"></i> View All Announcements
-                            </a>
+                        @if($selectedDate !== 'all')
+                            <h4 class="text-base sm:text-lg font-bold text-slate-700 mb-1">
+                                No Announcement Found for {{ \Carbon\Carbon::parse($selectedDate)->format('F j, Y') }}
+                            </h4>
+                            <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-6">
+                                There are no announcements posted on this specific date. Pick another date using the selector above or return to the latest announcement.
+                            </p>
+                            @if($availableDates->isNotEmpty())
+                                <a href="{{ route('guardian.announcements.index', ['date' => $availableDates->first()]) }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl transition-colors shadow-sm">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> View Latest Announcement ({{ \Carbon\Carbon::parse($availableDates->first())->format('M j, Y') }})
+                                </a>
+                            @endif
                         @else
-                            <h4 class="text-[16px] font-extrabold text-[#1E2657]">No Announcements Yet</h4>
-                            <p class="text-[13px] font-medium mt-1">We'll let you know when the center posts an update.</p>
+                            <h4 class="text-base sm:text-lg font-bold text-slate-700 mb-1">No Announcements Yet</h4>
+                            <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">We'll let you know when the center posts an update.</p>
                         @endif
                     </div>
                 @endforelse

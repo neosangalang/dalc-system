@@ -229,45 +229,49 @@ class GuardianController extends Controller
                 ->update(['read_at' => $now]);
         } catch (\Throwable $e) {}
 
-        // List of all available dates from announcements for quick selection dropdown
+        // List of all unique available announcement dates (descending: latest first)
         $allAnnouncements = Announcement::orderBy('created_at', 'desc')->get();
         $availableDates = $allAnnouncements
-            ->groupBy(function($item) {
-                return \Carbon\Carbon::parse($item->created_at)->format('Y-m-d');
-            })
-            ->map(function($group, $date) {
-                return [
-                    'date' => $date,
-                    'formatted' => \Carbon\Carbon::parse($date)->format('M j, Y'),
-                    'count' => $group->count(),
-                    'titles' => $group->pluck('title')->all(),
-                ];
-            })
+            ->map(fn($a) => \Carbon\Carbon::parse($a->created_at)->format('Y-m-d'))
+            ->unique()
             ->values();
 
-        $selectedDate = $request->query('date');
-        $selectedSort = in_array($request->query('sort'), ['oldest', 'latest']) ? $request->query('sort') : 'latest';
-        $selectedAnnouncementId = $request->query('announcement_id');
+        $selectedDate = null;
+        $prevDate = null;
+        $nextDate = null;
 
-        $query = Announcement::with(['comments.user']);
-
-        if (!empty($selectedAnnouncementId)) {
-            $query->where('id', $selectedAnnouncementId);
-            $selectedItem = $allAnnouncements->firstWhere('id', (int) $selectedAnnouncementId);
-            if ($selectedItem && empty($selectedDate)) {
-                $selectedDate = \Carbon\Carbon::parse($selectedItem->created_at)->format('Y-m-d');
-            }
-        } elseif (!empty($selectedDate)) {
-            $query->whereDate('created_at', $selectedDate);
-        }
-
-        if ($selectedSort === 'oldest') {
-            $query->orderBy('created_at', 'asc')->orderBy('id', 'asc');
+        if ($request->query('date') === 'all') {
+            $selectedDate = 'all';
+            $announcements = Announcement::with(['comments.user'])->latest('created_at')->latest('id')->get();
         } else {
-            $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
+            // Determine selected date: from query param or default to latest available date
+            if ($request->filled('date')) {
+                try {
+                    $selectedDate = \Carbon\Carbon::parse($request->date)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $selectedDate = $availableDates->first() ?: now()->format('Y-m-d');
+                }
+            } else {
+                $selectedDate = $availableDates->first() ?: now()->format('Y-m-d');
+            }
+
+            // Calculate previous (older) and next (newer) announcement dates for quick navigation
+            if ($availableDates->isNotEmpty()) {
+                $newerDates = $availableDates->filter(fn($d) => $d > $selectedDate)->values();
+                $olderDates = $availableDates->filter(fn($d) => $d < $selectedDate)->values();
+
+                $nextDate = $newerDates->last();  // closest newer date
+                $prevDate = $olderDates->first(); // closest older date
+            }
+
+            // Strictly load announcement(s) for the specified date
+            $announcements = Announcement::with(['comments.user'])
+                ->whereDate('created_at', $selectedDate)
+                ->latest('created_at')
+                ->latest('id')
+                ->get();
         }
 
-        $announcements = $query->get();
         list($activeChild, $myChildren) = $this->getActiveChildData();
 
         return view('guardian.announcements', compact(
@@ -276,8 +280,8 @@ class GuardianController extends Controller
             'activeChild',
             'availableDates',
             'selectedDate',
-            'selectedSort',
-            'selectedAnnouncementId',
+            'prevDate',
+            'nextDate',
             'allAnnouncements'
         ));
     }
