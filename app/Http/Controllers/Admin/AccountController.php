@@ -30,14 +30,16 @@ class AccountController extends Controller
         }
 
         $validated = $request->validate([
-            'name'              => 'required|string|max:255',
-            'username'          => 'required|string|max:255|unique:users,username',
-            'email'             => 'required|email|max:255|unique:users,email',
-            'contact_number'    => 'required|regex:/^09[0-9]{9}$/|unique:users,contact_number',
-            'role'              => 'required|in:teacher,guardian',
-            'password'          => 'required|string|min:8|confirmed',
-            'mfa_enabled'       => 'nullable|boolean',
+            'name'              => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'username'          => ['required', 'string', 'max:255', 'alpha_dash', 'unique:users,username'],
+            'email'             => ['required', 'email', 'max:255', 'unique:users,email'],
+            'contact_number'    => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,contact_number'],
+            'role'              => ['required', 'in:teacher,guardian'],
+            'password'          => ['required', 'string', 'min:8', 'confirmed'],
+            'mfa_enabled'       => ['nullable', 'boolean'],
         ], [
+            'name.regex'            => 'The name may only contain letters, spaces, hyphens, and periods.',
+            'username.alpha_dash'   => 'The username may only contain letters, numbers, dashes, and underscores.',
             'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
             'contact_number.unique' => 'This contact number is already registered to another account.',
         ]);
@@ -187,12 +189,13 @@ class AccountController extends Controller
 
         // 1. VALIDATE INCOMING DATA (INCLUDING MFA CODE & UNIQUE CONSTRAINTS)
         $request->validate([
-            'username'       => 'required|string|max:255|unique:users,username,' . $id,
-            'email'          => 'required|email|max:255|unique:users,email,' . $id,
-            'contact_number' => 'nullable|regex:/^09[0-9]{9}$/|unique:users,contact_number,' . $id,
-            'password'       => 'nullable|string|min:8',
-            'mfa_code'       => 'required|numeric|digits:6',
+            'username'       => ['required', 'string', 'max:255', 'alpha_dash', 'unique:users,username,' . $id],
+            'email'          => ['required', 'email', 'max:255', 'unique:users,email,' . $id],
+            'contact_number' => ['nullable', 'regex:/^09[0-9]{9}$/', 'unique:users,contact_number,' . $id],
+            'password'       => ['nullable', 'string', 'min:8'],
+            'mfa_code'       => ['required', 'numeric', 'digits:6'],
         ], [
+            'username.alpha_dash'   => 'The username may only contain letters, numbers, dashes, and underscores.',
             'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
             'contact_number.unique' => 'This contact number is already registered to another account.',
         ]);

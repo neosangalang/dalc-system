@@ -53,10 +53,10 @@ class IepGoalController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'student_id'       => 'required|exists:students,id',
-            'domain'           => 'required|string|max:255',
-            'plop'             => 'required|string', 
-            'goal_description' => 'required|string',
+            'student_id'       => ['required', 'exists:students,id'],
+            'domain'           => ['required', 'string', 'max:255'],
+            'plop'             => ['required', 'string', 'max:5000'], 
+            'goal_description' => ['required', 'string', 'max:5000'],
         ]);
 
         // Security check: Ensure the student actually belongs to this teacher
@@ -218,10 +218,14 @@ PROMPT;
         $goal = IepGoal::findOrFail($id);
 
         $request->validate([
-            'goal_description' => 'required|string',
-            'progress_percentage' => 'required|integer|min:0|max:100',
-            'status' => 'nullable|string',
-            'plop' => 'nullable|string',
+            'goal_description'    => ['required', 'string', 'max:5000'],
+            'progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
+            'status'              => ['nullable', 'in:in_progress,achieved,discontinued'],
+            'plop'                => ['nullable', 'string', 'max:5000'],
+        ], [
+            'progress_percentage.min' => 'Progress percentage must be between 0 and 100.',
+            'progress_percentage.max' => 'Progress percentage must be between 0 and 100.',
+            'status.in'               => 'Status must be in_progress, achieved, or discontinued.',
         ]);
 
         // Automated progress status tracking: Complete ('achieved') ONLY when progress reaches exactly 100%

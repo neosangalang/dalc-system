@@ -11,6 +11,7 @@ use App\Models\SchoolYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AdminStudentController extends Controller
 {
@@ -29,21 +30,27 @@ class AdminStudentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'first_name'                => 'required|string|max:255',
-            'last_name'                 => 'required|string|max:255',
-            'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number', // Enforces unique 12-digit LRN
-            'class_name'                => 'required|string|max:255',
-            'date_of_birth'             => 'required|date', // Enforced requirement
-            'gender'                    => 'required|in:Male,Female',
-            'diagnosis'                 => 'required|string',
-            'diagnosis_other'           => 'required_if:diagnosis,Other|nullable|string|max:255',
-            'teacher_id'                => 'required|exists:users,id', // Enforced requirement
-            'documents'                 => 'nullable|array',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'guardian_id'               => 'required|exists:users,id', // Guardian is strictly required
-            'parental_consent_verified' => 'nullable|boolean',
+            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'learners_reference_number' => ['required', 'digits:12', 'unique:students,learners_reference_number'], // Enforces unique 12-digit LRN
+            'class_name'                => ['required', 'string', 'max:255'],
+            'date_of_birth'             => ['required', 'date', 'before:today', 'after:1950-01-01'], // Enforced requirement
+            'gender'                    => ['required', 'in:Male,Female'],
+            'diagnosis'                 => ['required', 'string'],
+            'diagnosis_other'           => ['required_if:diagnosis,Other', 'nullable', 'string', 'max:255'],
+            'teacher_id'                => ['required', Rule::exists('users', 'id')->where('role', 'teacher')], // Enforces teacher role
+            'documents'                 => ['nullable', 'array'],
+            'documents.*'               => ['file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'medical_document'          => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'guardian_id'               => ['required', Rule::exists('users', 'id')->where('role', 'guardian')], // Guardian is strictly required
+            'parental_consent_verified' => ['nullable', 'boolean'],
         ], [
+            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, and periods.',
+            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, and periods.',
+            'date_of_birth.before'        => 'The date of birth must be a past date.',
+            'date_of_birth.after'         => 'The date of birth must be a valid, realistic date.',
+            'teacher_id.exists'           => 'The selected teacher must be an active teacher account.',
+            'guardian_id.exists'          => 'The selected guardian must be an active guardian account.',
             'guardian_id.required'        => 'Please select an enrolled guardian account.',
             'diagnosis_other.required_if' => 'Please specify the diagnosis when selecting Other.',
         ]);
@@ -104,23 +111,29 @@ class AdminStudentController extends Controller
         }
 
         $request->validate([
-            'first_name'                => 'required|string|max:255',
-            'last_name'                 => 'required|string|max:255',
-            'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number,' . $id, // Ignores current student ID during unique check
-            'class_name'                => 'required|string|max:255',
-            'date_of_birth'             => 'required|date', // Enforced requirement
-            'gender'                    => 'required|in:Male,Female',
-            'diagnosis'                 => 'required|string',
-            'diagnosis_other'           => 'required_if:diagnosis,Other|nullable|string|max:255',
-            'teacher_id'                => 'required|exists:users,id', // Enforced requirement
-            'guardian_id'               => 'nullable|exists:users,id',
-            'status'                    => 'required|in:active,archived',
-            'documents'                 => 'nullable|array',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'deleted_documents'         => 'nullable|array',
-            'deleted_documents.*'       => 'integer',
+            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'learners_reference_number' => ['required', 'digits:12', 'unique:students,learners_reference_number,' . $id], // Ignores current student ID during unique check
+            'class_name'                => ['required', 'string', 'max:255'],
+            'date_of_birth'             => ['required', 'date', 'before:today', 'after:1950-01-01'], // Enforced requirement
+            'gender'                    => ['required', 'in:Male,Female'],
+            'diagnosis'                 => ['required', 'string'],
+            'diagnosis_other'           => ['required_if:diagnosis,Other', 'nullable', 'string', 'max:255'],
+            'teacher_id'                => ['required', Rule::exists('users', 'id')->where('role', 'teacher')], // Enforces teacher role
+            'guardian_id'               => ['nullable', Rule::exists('users', 'id')->where('role', 'guardian')],
+            'status'                    => ['required', 'in:active,archived'],
+            'documents'                 => ['nullable', 'array'],
+            'documents.*'               => ['file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'medical_document'          => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'deleted_documents'         => ['nullable', 'array'],
+            'deleted_documents.*'       => ['integer'],
         ], [
+            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, and periods.',
+            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, and periods.',
+            'date_of_birth.before'        => 'The date of birth must be a past date.',
+            'date_of_birth.after'         => 'The date of birth must be a valid, realistic date.',
+            'teacher_id.exists'           => 'The selected teacher must be an active teacher account.',
+            'guardian_id.exists'          => 'The selected guardian must be an active guardian account.',
             'diagnosis_other.required_if' => 'Please specify the diagnosis when selecting Other.',
         ]);
 
@@ -278,19 +291,26 @@ class AdminStudentController extends Controller
         }
 
         $request->validate([
-            'first_name'                => 'required|string|max:255',
-            'last_name'                 => 'required|string|max:255',
-            'learners_reference_number' => 'required|digits:12|unique:students,learners_reference_number,' . $id,
-            'class_name'                => 'required|string|max:255',
-            'date_of_birth'             => 'required|date',
-            'gender'                    => 'required|in:Male,Female',
-            'diagnosis'                 => 'required|string',
-            'diagnosis_other'           => 'nullable|string|max:255',
-            'teacher_id'                => 'required|exists:users,id',
-            'guardian_id'               => 'nullable|exists:users,id',
-            'documents'                 => 'nullable|array',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'medical_document'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'learners_reference_number' => ['required', 'digits:12', 'unique:students,learners_reference_number,' . $id],
+            'class_name'                => ['required', 'string', 'max:255'],
+            'date_of_birth'             => ['required', 'date', 'before:today', 'after:1950-01-01'],
+            'gender'                    => ['required', 'in:Male,Female'],
+            'diagnosis'                 => ['required', 'string'],
+            'diagnosis_other'           => ['nullable', 'string', 'max:255'],
+            'teacher_id'                => ['required', Rule::exists('users', 'id')->where('role', 'teacher')],
+            'guardian_id'               => ['nullable', Rule::exists('users', 'id')->where('role', 'guardian')],
+            'documents'                 => ['nullable', 'array'],
+            'documents.*'               => ['file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'medical_document'          => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ], [
+            'first_name.regex'     => 'The first name may only contain letters, spaces, hyphens, and periods.',
+            'last_name.regex'      => 'The last name may only contain letters, spaces, hyphens, and periods.',
+            'date_of_birth.before' => 'The date of birth must be a past date.',
+            'date_of_birth.after'  => 'The date of birth must be a valid, realistic date.',
+            'teacher_id.exists'    => 'The selected teacher must be an active teacher account.',
+            'guardian_id.exists'   => 'The selected guardian must be an active guardian account.',
         ]);
 
         $finalDiagnosis = ($request->diagnosis === 'Other' && filled($request->diagnosis_other))

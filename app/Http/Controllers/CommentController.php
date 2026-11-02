@@ -19,7 +19,7 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'body'             => 'required',
+            'body'             => ['required', 'string', 'max:1000'],
             'commentable_id'   => 'required|integer',
             'commentable_type' => 'required|string',
         ]);

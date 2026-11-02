@@ -101,11 +101,17 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'report_type' => 'required|string',
-            'content' => 'required|string',
-            'home_recommendations' => 'nullable|string',
-            'action' => 'required|in:draft,submit'
+            'student_id'           => ['required', 'exists:students,id'],
+            'report_type'          => ['required', 'in:daily,q1,q2,q3,q4,mid_year,year_end'],
+            'report_date'          => ['nullable', 'date', 'before_or_equal:today'],
+            'content'              => ['required', 'string', 'min:5'],
+            'home_recommendations' => ['nullable', 'string', 'max:2000'],
+            'action'               => ['required', 'in:draft,submit'],
+        ], [
+            'report_type.in'              => 'Please select a valid report classification.',
+            'report_date.before_or_equal' => 'Report date cannot be in the future.',
+            'content.min'                 => 'Report narrative must be at least 5 characters.',
+            'home_recommendations.max'    => 'Home recommendations may not exceed 2,000 characters.',
         ]);
 
         $reportDate = $request->report_date ?: date('Y-m-d');
@@ -264,10 +270,14 @@ class ReportController extends Controller
         $report = Report::where('teacher_id', auth()->id())->findOrFail($id);
 
         $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'report_type' => 'required|string',
-            'content' => 'required|string',
-            'report_date' => 'nullable|date'
+            'student_id'  => ['required', 'exists:students,id'],
+            'report_type' => ['required', 'in:daily,q1,q2,q3,q4,mid_year,year_end'],
+            'content'     => ['required', 'string', 'min:5'],
+            'report_date' => ['nullable', 'date', 'before_or_equal:today'],
+        ], [
+            'report_type.in'              => 'Please select a valid report classification.',
+            'report_date.before_or_equal' => 'Report date cannot be in the future.',
+            'content.min'                 => 'Report narrative must be at least 5 characters.',
         ]);
 
         // Update report content and set status back to pending_approval for review

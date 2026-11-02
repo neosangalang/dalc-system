@@ -22,10 +22,10 @@ class AnnouncementController extends Controller
     {
         // Added validation for 'type'
         $request->validate([
-            'type'    => 'required|string|max:50',
+            'type'    => ['required', 'string', 'in:Center Update,Class Suspension,Holiday,Event'],
             'title'   => 'required|string|max:255',
             'content' => 'required|string',
-            'image'   => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB
+            'image'   => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:5120'], // Max 5MB
         ]);
 
         $imagePath = null;
@@ -62,7 +62,7 @@ class AnnouncementController extends Controller
     {
         // Added validation for 'type'
         $request->validate([
-            'type'    => 'required|string|max:50',
+            'type'    => ['required', 'string', 'in:Center Update,Class Suspension,Holiday,Event'],
             'title'   => 'required|string|max:255',
             'content' => 'required|string',
             'image'   => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
