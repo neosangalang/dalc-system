@@ -251,7 +251,7 @@ x-init="
                                                     </div>
                                                     <div>
                                                         <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Contact Number <span class="text-rose-500">*</span></label>
-                                                        <input type="text" name="contact_number" value="{{ old('contact_number', $user->contact_number) }}" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] focus:border-[#3B82F6] focus:ring-[#3B82F6]" placeholder="e.g., 09123456789 or +63 912 345 6789" maxlength="20" title="Please enter a valid Philippine mobile number (e.g., 09123456789 or +63 912 345 6789)" required>
+                                                        <input type="text" name="contact_number" value="{{ old('contact_number', $user->contact_number) }}" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] focus:border-[#3B82F6] focus:ring-[#3B82F6]" placeholder="09123456789" pattern="09[0-9]{9}" maxlength="11" title="Please enter a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789)" required>
                                                     </div>
                                                     <div>
                                                         <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">System Username <span class="text-rose-500">*</span></label>
@@ -671,7 +671,7 @@ x-init="
                                                     </div>
                                                     <div>
                                                         <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Contact Number <span class="text-rose-500">*</span></label>
-                                                        <input type="text" name="contact_number" value="{{ old('contact_number', $user->contact_number) }}" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="e.g., 09123456789 or +63 912 345 6789" maxlength="20" title="Please enter a valid Philippine mobile number (e.g., 09123456789 or +63 912 345 6789)" required>
+                                                        <input type="text" name="contact_number" value="{{ old('contact_number', $user->contact_number) }}" class="w-full rounded-xl border-black/15 px-3.5 py-2 text-[13px] focus:border-[#10B981] focus:ring-[#10B981]" placeholder="09123456789" pattern="09[0-9]{9}" maxlength="11" title="Please enter a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789)" required>
                                                     </div>
                                                     <div>
                                                         <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">System Username <span class="text-rose-500">*</span></label>
@@ -832,7 +832,7 @@ x-init="
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Contact Number <span class="text-rose-500">*</span></label>
-                            <input type="text" name="contact_number" id="create_teacher_contact" value="{{ old('role') === 'teacher' ? old('contact_number') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="e.g., 09123456789 or +63 912 345 6789" maxlength="20" title="Please enter a valid Philippine mobile number (e.g., 09123456789 or +63 912 345 6789)">
+                            <input type="text" name="contact_number" id="create_teacher_contact" value="{{ old('role') === 'teacher' ? old('contact_number') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm" required placeholder="09123456789" pattern="09[0-9]{9}" maxlength="11" title="Please enter a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789)">
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Username <span class="text-rose-500">*</span></label>
@@ -904,7 +904,7 @@ x-init="
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Contact Number <span class="text-rose-500">*</span></label>
-                            <input type="text" name="contact_number" id="create_guardian_contact" value="{{ old('role') === 'guardian' ? old('contact_number') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="e.g., 09123456789 or +63 912 345 6789" maxlength="20" title="Please enter a valid Philippine mobile number (e.g., 09123456789 or +63 912 345 6789)">
+                            <input type="text" name="contact_number" id="create_guardian_contact" value="{{ old('role') === 'guardian' ? old('contact_number') : '' }}" class="w-full rounded-xl border-black/15 px-3.5 py-2.5 text-[13px] focus:border-[#10B981] focus:ring-[#10B981] shadow-sm" required placeholder="09123456789" pattern="09[0-9]{9}" maxlength="11" title="Please enter a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789)">
                         </div>
                         <div>
                             <label class="block text-[13px] font-extrabold text-[#1E2657] mb-1">Username <span class="text-rose-500">*</span></label>

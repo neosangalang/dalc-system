@@ -99,18 +99,25 @@
             }
         }
 
-        // 2. Contact / Phone Number validation
+        // 2. Contact / Phone Number validation (Strict 11-digit Philippine Mobile)
         if (name === 'contact_number' || name.includes('phone') || input.dataset.validate === 'phone') {
-            const cleaned = cleanContactNumber(val);
-            // Check if invalid characters exist
-            if (/[^\d\s\-\+\(\)\.]/.test(rawVal)) {
-                return 'Contact number may only contain digits, spaces, and hyphens.';
+            // Check for non-digits
+            if (!/^\d*$/.test(val)) {
+                return 'Contact number may only contain digits.';
             }
-            // Strict length & prefix check on blur or submit
-            if (trigger === 'blur' || trigger === 'submit' || cleaned.length >= 11) {
-                if (!/^09\d{9}$/.test(cleaned)) {
-                    return 'Must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).';
-                }
+
+            // Must start with 09
+            if (val.length >= 2 && !val.startsWith('09')) {
+                return 'Must start with 09 (e.g., 09123456789).';
+            }
+
+            // Length check on blur or submit
+            if (val.length !== 11 && (trigger === 'blur' || trigger === 'submit')) {
+                return `Must be exactly 11 digits starting with 09 (currently ${val.length}/11).`;
+            }
+
+            if (val.length === 11 && !/^09\d{9}$/.test(val)) {
+                return 'Must be a valid 11-digit Philippine mobile number starting with 09.';
             }
         }
 
@@ -249,6 +256,22 @@
     document.addEventListener('input', function(e) {
         const input = e.target;
         if (!input || !input.form) return;
+
+        const name = (input.name || '').toLowerCase();
+
+        // Contact number smart limit & instant sanitizer
+        if (name === 'contact_number' || name.includes('phone') || input.dataset.validate === 'phone') {
+            input.maxLength = 11;
+            let raw = input.value || '';
+            // If user pasted formatted phone numbers with spaces, dashes, parentheses or +63
+            if (/[^\d]/.test(raw)) {
+                let cleaned = cleanContactNumber(raw);
+                if (cleaned.length > 11) cleaned = cleaned.substring(0, 11);
+                input.value = cleaned;
+            } else if (raw.length > 11) {
+                input.value = raw.substring(0, 11);
+            }
+        }
 
         // If field was already touched or flagged with error, revalidate continuously
         if (input.dataset.dynamicTouched === 'true' || input.classList.contains('has-dynamic-error')) {
