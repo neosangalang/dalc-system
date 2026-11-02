@@ -191,6 +191,7 @@
         @include('components.terms-modal')
         @include('components.privacy-modal')
         @include('components.toast-notification')
+        @include('components.dynamic-validation')
 
 </body>
 

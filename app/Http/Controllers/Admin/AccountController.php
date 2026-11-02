@@ -29,8 +29,14 @@ class AccountController extends Controller
             abort(403, 'Security Violation: Teachers can only create Guardian accounts.');
         }
 
+        if ($request->has('contact_number')) {
+            $request->merge([
+                'contact_number' => $this->sanitizeContactNumber($request->input('contact_number')),
+            ]);
+        }
+
         $validated = $request->validate([
-            'name'              => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'name'              => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
             'username'          => ['required', 'string', 'max:255', 'alpha_dash', 'unique:users,username'],
             'email'             => ['required', 'email', 'max:255', 'unique:users,email'],
             'contact_number'    => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,contact_number'],
@@ -38,7 +44,7 @@ class AccountController extends Controller
             'password'          => ['required', 'string', 'min:8', 'confirmed'],
             'mfa_enabled'       => ['nullable', 'boolean'],
         ], [
-            'name.regex'            => 'The name may only contain letters, spaces, hyphens, and periods.',
+            'name.regex'            => 'The name may only contain letters, spaces, hyphens, periods, and apostrophes.',
             'username.alpha_dash'   => 'The username may only contain letters, numbers, dashes, and underscores.',
             'contact_number.regex'  => 'The contact number must be a valid 11-digit Philippine mobile number starting with 09 (e.g., 09123456789).',
             'contact_number.unique' => 'This contact number is already registered to another account.',
@@ -187,7 +193,13 @@ class AccountController extends Controller
             }
         }
 
-        // 1. VALIDATE INCOMING DATA (INCLUDING MFA CODE & UNIQUE CONSTRAINTS)
+        // 1. SANITIZE & VALIDATE INCOMING DATA (INCLUDING MFA CODE & UNIQUE CONSTRAINTS)
+        if ($request->has('contact_number')) {
+            $request->merge([
+                'contact_number' => $this->sanitizeContactNumber($request->input('contact_number')),
+            ]);
+        }
+
         $request->validate([
             'username'       => ['required', 'string', 'max:255', 'alpha_dash', 'unique:users,username,' . $id],
             'email'          => ['required', 'email', 'max:255', 'unique:users,email,' . $id],
@@ -262,5 +274,27 @@ class AccountController extends Controller
         return redirect()->back()
             ->with('success', "Special permissions updated for {$user->name}.")
             ->with('active_tab', 'teachers');
+    }
+
+    /**
+     * Normalize Philippine contact numbers to standard 11-digit 09XXXXXXXXX format.
+     */
+    protected function sanitizeContactNumber(?string $contactNumber): ?string
+    {
+        if ($contactNumber === null || trim($contactNumber) === '') {
+            return null;
+        }
+
+        // Remove all spaces, dashes, parentheses, dots, and non-digit characters except '+'
+        $cleaned = preg_replace('/[^\d+]/', '', trim($contactNumber));
+
+        // Convert country code +63 or 63 to leading 0
+        if (str_starts_with($cleaned, '+63')) {
+            $cleaned = '0' . substr($cleaned, 3);
+        } elseif (str_starts_with($cleaned, '63') && strlen($cleaned) === 12) {
+            $cleaned = '0' . substr($cleaned, 2);
+        }
+
+        return $cleaned;
     }
 }

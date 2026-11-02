@@ -25,8 +25,8 @@ class UpdateStudentRequest extends FormRequest
         $studentId = $this->route('student') ?? $this->route('id') ?? $this->id;
 
         return [
-            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
+            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
             'learners_reference_number' => ['required', 'digits:12', 'unique:students,learners_reference_number,' . $studentId],
             'class_name'                => ['required', 'string', 'max:255'],
             'date_of_birth'             => ['required', 'date', 'before:today', 'after:1950-01-01'],
@@ -52,8 +52,8 @@ class UpdateStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, and periods.',
-            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, and periods.',
+            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, periods, and apostrophes.',
+            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, periods, and apostrophes.',
             'date_of_birth.before'        => 'The date of birth must be a past date.',
             'date_of_birth.after'         => 'The date of birth must be a valid, realistic date.',
             'teacher_id.exists'           => 'The selected teacher must be an active teacher account.',

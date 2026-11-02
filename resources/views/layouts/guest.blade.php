@@ -27,5 +27,6 @@
             </div>
         </div>
         @include('components.toast-notification')
+        @include('components.dynamic-validation')
     </body>
 </html>

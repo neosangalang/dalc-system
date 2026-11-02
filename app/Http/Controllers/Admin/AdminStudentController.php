@@ -30,8 +30,8 @@ class AdminStudentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
+            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
             'learners_reference_number' => ['required', 'digits:12', 'unique:students,learners_reference_number'], // Enforces unique 12-digit LRN
             'class_name'                => ['required', 'string', 'max:255'],
             'date_of_birth'             => ['required', 'date', 'before:today', 'after:1950-01-01'], // Enforced requirement
@@ -45,8 +45,8 @@ class AdminStudentController extends Controller
             'guardian_id'               => ['required', Rule::exists('users', 'id')->where('role', 'guardian')], // Guardian is strictly required
             'parental_consent_verified' => ['nullable', 'boolean'],
         ], [
-            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, and periods.',
-            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, and periods.',
+            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, periods, and apostrophes.',
+            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, periods, and apostrophes.',
             'date_of_birth.before'        => 'The date of birth must be a past date.',
             'date_of_birth.after'         => 'The date of birth must be a valid, realistic date.',
             'teacher_id.exists'           => 'The selected teacher must be an active teacher account.',
@@ -111,8 +111,8 @@ class AdminStudentController extends Controller
         }
 
         $request->validate([
-            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
+            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
             'learners_reference_number' => ['required', 'digits:12', 'unique:students,learners_reference_number,' . $id], // Ignores current student ID during unique check
             'class_name'                => ['required', 'string', 'max:255'],
             'date_of_birth'             => ['required', 'date', 'before:today', 'after:1950-01-01'], // Enforced requirement
@@ -128,8 +128,8 @@ class AdminStudentController extends Controller
             'deleted_documents'         => ['nullable', 'array'],
             'deleted_documents.*'       => ['integer'],
         ], [
-            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, and periods.',
-            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, and periods.',
+            'first_name.regex'            => 'The first name may only contain letters, spaces, hyphens, periods, and apostrophes.',
+            'last_name.regex'             => 'The last name may only contain letters, spaces, hyphens, periods, and apostrophes.',
             'date_of_birth.before'        => 'The date of birth must be a past date.',
             'date_of_birth.after'         => 'The date of birth must be a valid, realistic date.',
             'teacher_id.exists'           => 'The selected teacher must be an active teacher account.',
@@ -291,8 +291,8 @@ class AdminStudentController extends Controller
         }
 
         $request->validate([
-            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
+            'first_name'                => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
+            'last_name'                 => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\.\'\x{2019}]+$/u'],
             'learners_reference_number' => ['required', 'digits:12', 'unique:students,learners_reference_number,' . $id],
             'class_name'                => ['required', 'string', 'max:255'],
             'date_of_birth'             => ['required', 'date', 'before:today', 'after:1950-01-01'],
@@ -305,8 +305,8 @@ class AdminStudentController extends Controller
             'documents.*'               => ['file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'medical_document'          => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ], [
-            'first_name.regex'     => 'The first name may only contain letters, spaces, hyphens, and periods.',
-            'last_name.regex'      => 'The last name may only contain letters, spaces, hyphens, and periods.',
+            'first_name.regex'     => 'The first name may only contain letters, spaces, hyphens, periods, and apostrophes.',
+            'last_name.regex'      => 'The last name may only contain letters, spaces, hyphens, periods, and apostrophes.',
             'date_of_birth.before' => 'The date of birth must be a past date.',
             'date_of_birth.after'  => 'The date of birth must be a valid, realistic date.',
             'teacher_id.exists'    => 'The selected teacher must be an active teacher account.',

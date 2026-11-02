@@ -280,6 +280,7 @@
     @include('components.privacy-modal')
     @include('components.confirm-modal')
     @include('components.toast-notification')
+    @include('components.dynamic-validation')
 
 @stack('scripts')
 </body>

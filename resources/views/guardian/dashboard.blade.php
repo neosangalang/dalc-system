@@ -125,8 +125,8 @@ $activeChild = $myChildren->where('id', $activeChildId)->first();
                         <i class="fa-solid fa-id-badge text-[24px] sm:text-[28px] md:text-[32px]"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h3 class="text-[17px] sm:text-[19px] md:text-[21px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300 leading-tight">Daily Reports</h3>
-                        <p class="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-[#6B7086] mt-0.5 sm:mt-1 truncate">Home activities.</p>
+                        <h3 class="text-[17px] sm:text-[19px] md:text-[21px] font-extrabold text-[#1E2657] group-hover:text-[#10B981] transition-colors duration-300 leading-tight">Daily Reports & Home Activities</h3>
+                        <p class="text-[12px] sm:text-[13px] md:text-[14px] font-semibold text-[#6B7086] mt-0.5 sm:mt-1 truncate">Report for today and Homebased Recomendations</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#10B981] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
