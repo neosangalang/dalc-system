@@ -64,21 +64,23 @@ x-init="
     <!-- ACCOUNT ROLE TABS SWITCHER -->
     <div class="flex items-center gap-2 sm:gap-3 bg-white p-1.5 sm:p-2 rounded-2xl border border-black/15 shadow-sm mb-4 sm:mb-6">
         <button type="button" @click="activeTab = 'teachers'; history.replaceState(null, null, '#teachers')"
-                :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all duration-200 {{ $initialTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086]' }}">
+                :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-100 hover:text-[#1E2657]'"
+                class="flex-1 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-2 cursor-pointer transition-all duration-200">
             <i class="fa fa-chalkboard-teacher text-xs sm:text-sm"></i>
-            Teacher Accounts
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $initialTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]' }}" :class="activeTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
+            <span>Teacher Accounts</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black transition-colors"
+                  :class="activeTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
                 {{ $users->where('role', 'teacher')->count() }}
             </span>
         </button>
         
         <button type="button" @click="activeTab = 'guardians'; history.replaceState(null, null, '#guardians')"
-                :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all duration-200 {{ $initialTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086]' }}">
+                :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-100 hover:text-[#1E2657]'"
+                class="flex-1 py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-2 cursor-pointer transition-all duration-200">
             <i class="fa fa-user-shield text-xs sm:text-sm"></i>
-            Guardian Accounts
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $initialTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]' }}" :class="activeTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
+            <span>Guardian Accounts</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black transition-colors"
+                  :class="activeTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
                 {{ $users->where('role', 'guardian')->count() }}
             </span>
         </button>
@@ -106,12 +108,18 @@ x-init="
         </div>
 
         <!-- Live Search Bar -->
-        <div class="px-3.5 sm:px-6 py-2 bg-[#F8F9FD] border-b border-black/10">
+        <div class="px-3.5 sm:px-6 py-2.5 bg-[#F8F9FD] border-b border-black/10 flex items-center justify-between gap-3">
             <div class="relative w-full max-w-sm shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#3B82F6] focus-within:ring-1 focus-within:ring-[#3B82F6] transition-all">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 text-[#9CA0AF] pointer-events-none">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 sm:pl-3 text-[#9CA0AF] pointer-events-none">
                     <i class="fa fa-search text-xs"></i>
                 </span>
-                <input type="text" x-model="teacherSearch" class="w-full border-0 py-1.5 pl-8 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search teacher accounts...">
+                <input type="text" x-model="teacherSearch" class="w-full border-0 py-1.5 sm:py-2 pl-8 sm:pl-9 pr-8 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search teacher accounts...">
+                <button type="button" x-show="teacherSearch.length > 0" @click="teacherSearch = ''" class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#9CA0AF] hover:text-[#1E2657] cursor-pointer" title="Clear search">
+                    <i class="fa fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="text-[12px] font-bold text-[#6B7086] hidden sm:block shrink-0">
+                Total: <span class="text-[#1E2657] font-extrabold">{{ $users->where('role', 'teacher')->count() }}</span> accounts
             </div>
         </div>
         
@@ -120,10 +128,10 @@ x-init="
                 <!-- DESKTOP HEADER -->
                 <thead class="hidden md:table-header-group bg-[#F4F6FA] border-b border-black/10">
                     <tr>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">User Profile</th>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Contact Information</th>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Status</th>
-                        <th scope="col" class="px-6 py-4 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Actions</th>
+                        <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap w-[32%] min-w-[260px]">User Profile</th>
+                        <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap w-[26%] min-w-[200px]">Contact Information</th>
+                        <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap w-[14%] min-w-[100px]">Status</th>
+                        <th scope="col" class="px-6 py-3.5 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap w-[28%] min-w-[240px]">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="block md:table-row-group divide-y border-black/5 bg-white">
@@ -189,37 +197,37 @@ x-init="
                             </td>
                             
                             <!-- 4. Actions Footer -->
-                            <td class="block md:table-cell px-4 py-4 md:px-6 md:py-4 md:bg-transparent align-middle">
-                                <div class="flex flex-wrap lg:flex-nowrap gap-2 w-full md:justify-end pt-1">
+                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 md:bg-transparent align-middle whitespace-nowrap">
+                                <div class="flex items-center gap-1.5 w-full md:justify-end flex-wrap md:flex-nowrap pt-1 md:pt-0">
                                     
                                     <!-- Edit Info Button -->
-                                    <button @click="showEditInfoModal = true" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-sm whitespace-nowrap">
-                                        <i class="fa fa-edit mr-1.5 text-[#3B82F6]"></i> Edit
+                                    <button @click="showEditInfoModal = true" class="inline-flex justify-center items-center px-2.5 sm:px-3 py-1.5 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-xs whitespace-nowrap active:scale-95 cursor-pointer" title="Edit Information">
+                                        <i class="fa fa-edit mr-1 text-[#3B82F6]"></i> Edit
                                     </button>
 
                                     <!-- Reset Password Button -->
-                                    <button @click="showResetModal = true" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#F59E0B] hover:border-[#F59E0B]/50 transition-colors shadow-sm whitespace-nowrap">
-                                        <i class="fa fa-key mr-1.5 text-[#F59E0B]"></i> Password
+                                    <button @click="showResetModal = true" class="inline-flex justify-center items-center px-2.5 sm:px-3 py-1.5 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#F59E0B] hover:border-[#F59E0B]/50 transition-colors shadow-xs whitespace-nowrap active:scale-95 cursor-pointer" title="Reset Password">
+                                        <i class="fa fa-key mr-1 text-[#F59E0B]"></i> Password
                                     </button>
 
                                     @if(Auth::user()->role === 'admin')
-                                    <form action="{{ route('admin.accounts.toggle', $user->id) }}" method="POST" class="m-0 flex">
+                                    <form action="{{ route('admin.accounts.toggle', $user->id) }}" method="POST" class="m-0 inline-flex">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#1E2657] hover:border-black/30 transition-colors shadow-sm whitespace-nowrap">
-                                            <i class="fa fa-ban mr-1.5"></i> {{ $user->is_active ? 'Suspend' : 'Activate' }}
+                                        <button type="submit" class="inline-flex justify-center items-center px-2.5 sm:px-3 py-1.5 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#1E2657] hover:border-black/30 transition-colors shadow-xs whitespace-nowrap active:scale-95 cursor-pointer" title="{{ $user->is_active ? 'Suspend Account' : 'Activate Account' }}">
+                                            <i class="fa fa-ban mr-1"></i> {{ $user->is_active ? 'Suspend' : 'Activate' }}
                                         </button>
                                     </form>
 
-                                    <button @click="openPermModal()" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50 transition-colors shadow-sm whitespace-nowrap">
-                                        <i class="fa fa-user-shield mr-1.5 text-[#8B5CF6]"></i> Permissions
+                                    <button @click="openPermModal()" class="inline-flex justify-center items-center px-2.5 sm:px-3 py-1.5 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50 transition-colors shadow-xs whitespace-nowrap active:scale-95 cursor-pointer" title="Manage Permissions">
+                                        <i class="fa fa-user-shield mr-1 text-[#8B5CF6]"></i> Permissions
                                     </button>
 
                                     <button type="button" 
                                             @click="openDeleteAccountModal({{ $user->id }}, '{{ addslashes($user->name) }}', 'teacher', 'teachers', '{{ route('admin.accounts.destroy', $user->id) }}')" 
-                                            class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap cursor-pointer"
+                                            class="inline-flex justify-center items-center w-8 h-8 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-xs shrink-0 cursor-pointer active:scale-95"
                                             title="Delete Teacher Account">
-                                        <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
+                                        <i class="fa fa-trash"></i>
                                     </button>
                                     @endif
                                 </div>
@@ -449,22 +457,28 @@ x-init="
                     </div>
                     Guardian Accounts
                 </h3>
-                <p class="hidden sm:block text-[12px] font-medium text-[#9CA0AF] mt-1 sm:ml-[52px] leading-tight">Guardians can only view profiles and leave feedback.</p>
+                <p class="text-[11px] sm:text-[12px] font-medium text-[#6B7086] mt-1 sm:ml-[52px] leading-tight">Guardians can monitor student daily logs, view quarterly reports, and provide feedback.</p>
             </div>
             @if(Auth::user()->role === 'admin' || Auth::user()->can_manage_credentials)
-            <button @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-3 sm:px-4 py-2 sm:py-2.5 bg-[#10B981] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer active:scale-95">
+            <button @click="showCreateGuardianModal = true" class="w-full sm:w-auto inline-flex justify-center items-center px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#10B981] text-white text-xs sm:text-[13px] font-extrabold rounded-xl hover:bg-emerald-600 transition-all shadow-sm focus:ring-2 focus:ring-[#10B981] focus:ring-offset-1 cursor-pointer active:scale-95 shrink-0">
                 <i class="fa fa-plus mr-1.5 sm:mr-2"></i> Generate Account
             </button>
             @endif
         </div>
 
         <!-- Live Search Bar -->
-        <div class="px-3.5 sm:px-6 py-2 bg-[#F8F9FD] border-b border-black/10">
+        <div class="px-3.5 sm:px-6 py-2.5 bg-[#F8F9FD] border-b border-black/10 flex items-center justify-between gap-3">
             <div class="relative w-full max-w-sm shadow-sm rounded-xl overflow-hidden border border-black/15 bg-white focus-within:border-[#10B981] focus-within:ring-1 focus-within:ring-[#10B981] transition-all">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 text-[#9CA0AF] pointer-events-none">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 sm:pl-3 text-[#9CA0AF] pointer-events-none">
                     <i class="fa fa-search text-xs"></i>
                 </span>
-                <input type="text" x-model="guardianSearch" class="w-full border-0 py-1.5 pl-8 pr-3 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search guardian accounts...">
+                <input type="text" x-model="guardianSearch" class="w-full border-0 py-1.5 sm:py-2 pl-8 sm:pl-9 pr-8 text-xs sm:text-[13px] font-bold text-[#1E2657] focus:ring-0 placeholder:text-[#9CA0AF] bg-transparent" placeholder="Search guardian accounts...">
+                <button type="button" x-show="guardianSearch.length > 0" @click="guardianSearch = ''" class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#9CA0AF] hover:text-[#1E2657] cursor-pointer" title="Clear search">
+                    <i class="fa fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="text-[12px] font-bold text-[#6B7086] hidden sm:block shrink-0">
+                Total: <span class="text-[#1E2657] font-extrabold">{{ $users->where('role', 'guardian')->count() }}</span> accounts
             </div>
         </div>
         
@@ -473,11 +487,11 @@ x-init="
                 <!-- DESKTOP HEADER -->
                 <thead class="hidden md:table-header-group bg-[#F4F6FA] border-b border-black/10">
                     <tr>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">User Profile</th>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Contact Information</th>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Status</th>
-                        <th scope="col" class="px-6 py-4 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap">Sign-In Method</th>
-                        <th scope="col" class="px-6 py-4 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap">Actions</th>
+                        <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap w-[30%] min-w-[250px]">User Profile</th>
+                        <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap w-[24%] min-w-[190px]">Contact Information</th>
+                        <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap w-[12%] min-w-[100px]">Status</th>
+                        <th scope="col" class="px-6 py-3.5 text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest text-left whitespace-nowrap w-[16%] min-w-[145px]">Sign-In Method</th>
+                        <th scope="col" class="px-6 py-3.5 text-right text-[11px] font-extrabold text-[#6B7086] uppercase tracking-widest whitespace-nowrap w-[18%] min-w-[170px]">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="block md:table-row-group divide-y border-black/5 bg-white">
@@ -521,28 +535,28 @@ x-init="
                             
                             <!-- 1. Avatar, Name & Username -->
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none pr-20 md:pr-6 align-middle">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-10 w-10 md:h-11 md:w-11 rounded-full bg-gradient-to-br from-[#1E2657] to-[#12163A] text-white flex items-center justify-center font-extrabold text-sm shadow-sm shrink-0">
+                                <div class="flex items-start gap-3 sm:gap-3.5">
+                                    <div class="h-10 w-10 md:h-11 md:w-11 rounded-full bg-gradient-to-br from-[#10B981] to-[#047857] text-white flex items-center justify-center font-extrabold text-sm shadow-xs shrink-0 mt-0.5">
                                         {{ strtoupper(substr($user->name, 0, 1)) }}
                                     </div>
-                                    <div>
-                                        <div class="text-[14px] font-extrabold text-[#1E2657] leading-tight">{{ $user->name }}</div>
-                                        <div class="text-[12px] text-[#10B981] font-bold mt-0.5">
-                                            {{ $user->username }}
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[14px] font-extrabold text-[#1E2657] leading-tight truncate" title="{{ $user->name }}">{{ $user->name }}</div>
+                                        <div class="text-[12px] text-[#10B981] font-bold mt-0.5 truncate">
+                                            {{ '@' . ltrim($user->username, '@') }}
                                         </div>
                                         @if($user->children && $user->children->isNotEmpty())
-                                            <div class="text-[11px] font-medium text-[#6B7086] mt-1.5 flex items-center gap-1.5 flex-wrap">
-                                                <i class="fa fa-user-graduate text-[#10B981] text-[10px]"></i>
-                                                <span class="text-[#9CA0AF]">Student:</span>
-                                                <span class="font-extrabold text-[#1E2657]">
+                                            <div class="text-[11px] font-medium text-[#1E2657] mt-1.5 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-lg max-w-full">
+                                                <i class="fa fa-user-graduate text-[#10B981] text-[10px] shrink-0"></i>
+                                                <span class="text-[#6B7086] text-[10px] font-bold uppercase tracking-wider shrink-0">Student:</span>
+                                                <span class="font-extrabold text-[#1E2657] truncate" title="{{ $user->children->map(fn($s) => trim($s->first_name . ' ' . $s->last_name))->join(', ') }}">
                                                     {{ $user->children->map(fn($s) => trim($s->first_name . ' ' . $s->last_name))->join(', ') }}
                                                 </span>
                                             </div>
                                         @else
-                                            <div class="text-[11px] font-medium text-slate-400 mt-1.5 flex items-center gap-1.5">
-                                                <i class="fa fa-user-slash text-slate-300 text-[10px]"></i>
-                                                <span class="text-slate-400">Student:</span>
-                                                <span class="italic text-slate-400">No student profile bound</span>
+                                            <div class="text-[11px] font-medium text-slate-500 mt-1.5 inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-lg whitespace-nowrap">
+                                                <i class="fa fa-user-slash text-slate-400 text-[10px] shrink-0"></i>
+                                                <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider shrink-0">Student:</span>
+                                                <span class="italic text-slate-500 text-[11px]">No student profile bound</span>
                                             </div>
                                         @endif
                                     </div>
@@ -550,82 +564,91 @@ x-init="
                             </td>
 
                             <!-- 2. Contact Info -->
-                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle">
-                                <div class="space-y-1.5 pt-1">
+                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle whitespace-nowrap">
+                                <div class="space-y-1.5 pt-0.5">
                                     <div class="flex items-center text-[12px] font-medium text-[#6B7086] whitespace-nowrap">
-                                        <i class="fa fa-envelope w-4 text-center text-[#9CA0AF] mr-2"></i> {{ $user->email }}
+                                        <i class="fa fa-envelope w-4 text-center text-[#9CA0AF] mr-2 shrink-0"></i> 
+                                        <span class="text-[#1E2657] font-semibold">{{ $user->email }}</span>
                                     </div>
                                     <div class="flex items-center text-[12px] font-medium text-[#6B7086] whitespace-nowrap">
-                                        <i class="fa fa-phone w-4 text-center text-[#9CA0AF] mr-2"></i> {{ $user->contact_number ?? 'No contact number' }}
+                                        <i class="fa fa-phone w-4 text-center text-[#9CA0AF] mr-2 shrink-0"></i> 
+                                        <span>{{ $user->contact_number ?? 'No contact number' }}</span>
                                     </div>
                                 </div>
                             </td>
 
                             <!-- 3. Status Badge -->
-                            <td class="absolute top-6 right-6 md:static md:table-cell md:px-6 md:py-4 align-middle">
-                                <div class="pt-1">
+                            <td class="absolute top-5 right-4 md:static md:table-cell md:px-6 md:py-4 align-middle whitespace-nowrap">
+                                <div class="pt-0.5">
                                     @if($user->is_active)
-                                        <span class="inline-flex px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest shadow-sm">Active</span>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest shadow-xs">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span>
+                                            Active
+                                        </span>
                                     @else
-                                        <span class="inline-flex px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-widest shadow-sm">Suspended</span>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-widest shadow-xs">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                            Suspended
+                                        </span>
                                     @endif
                                 </div>
                             </td>
 
-                            <!-- 3.5 Sign-In Method (MFA vs Normal) -->
-                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle">
-                                <div class="pt-1">
-                                    <span x-show="mfaEnabled"
-                                          {{ !$user->mfa_enabled ? 'x-cloak style="display: none;"' : '' }}
-                                          class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 uppercase tracking-wider shadow-sm transition-all duration-200">
-                                        <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
-                                    </span>
-                                    <span x-show="!mfaEnabled"
-                                          {{ $user->mfa_enabled ? 'x-cloak style="display: none;"' : '' }}
-                                          class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 uppercase tracking-wider shadow-sm transition-all duration-200">
-                                        <i class="fa fa-key text-[10px]"></i> Normal Sign-In
-                                    </span>
+                            <!-- 3.5 Sign-In Method (Interactive MFA Toggle) -->
+                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle whitespace-nowrap">
+                                <div class="pt-0.5">
+                                    <button type="button"
+                                            @click="toggleMfa()"
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border shadow-xs transition-all duration-200 cursor-pointer active:scale-95 group select-none"
+                                            :class="mfaEnabled 
+                                                ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/20 hover:border-[#8B5CF6]/50' 
+                                                : 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/30 hover:bg-[#3B82F6]/20 hover:border-[#3B82F6]/50'"
+                                            :title="mfaEnabled ? 'Click to switch to Normal Password Sign-In' : 'Click to require Authenticator App MFA'">
+                                        <i class="fa text-[10px]" :class="mfaEnabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-key text-[#3B82F6]'"></i>
+                                        <span x-text="mfaEnabled ? 'MFA Required' : 'Normal Sign-In'">
+                                            {{ $user->mfa_enabled ? 'MFA Required' : 'Normal Sign-In' }}
+                                        </span>
+                                        <i class="fa-solid fa-arrows-rotate text-[9px] opacity-40 group-hover:opacity-100 transition-opacity ml-0.5" title="Click to toggle"></i>
+                                    </button>
                                 </div>
                             </td>
                             
                             <!-- 4. Actions Footer -->
-                            <td class="block md:table-cell px-4 py-4 md:px-6 md:py-4 md:bg-transparent align-middle">
-                                <div class="flex flex-wrap lg:flex-nowrap gap-2 w-full md:justify-end pt-1">
-
-                                    <!-- Toggle MFA Button (Dynamic Modal + AJAX) -->
-                                    <button type="button"
-                                            @click="toggleMfa()"
-                                            class="w-full inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap active:scale-95 cursor-pointer"
-                                            :class="mfaEnabled ? 'hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50' : 'hover:text-[#3B82F6] hover:border-[#3B82F6]/50'"
-                                            :title="mfaEnabled ? 'Switch to Normal Sign-In' : 'Require Two-Factor Authentication'">
-                                        <i class="fa mr-1.5 {{ $user->mfa_enabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]' }}" :class="mfaEnabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]'"></i>
-                                        <span x-text="mfaEnabled ? 'Disable MFA' : 'Enable MFA'">{{ $user->mfa_enabled ? 'Disable MFA' : 'Enable MFA' }}</span>
-                                    </button>
+                            <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 md:bg-transparent align-middle whitespace-nowrap">
+                                <div class="flex items-center gap-1.5 w-full md:justify-end flex-wrap md:flex-nowrap pt-1 md:pt-0">
 
                                     <!-- Edit Info Button -->
-                                    <button @click="showEditInfoModal = true" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-sm whitespace-nowrap">
-                                        <i class="fa fa-edit mr-1.5 text-[#3B82F6]"></i> Edit
+                                    <button type="button" 
+                                            @click="showEditInfoModal = true" 
+                                            class="inline-flex justify-center items-center px-2.5 sm:px-3 py-1.5 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#3B82F6] hover:border-[#3B82F6]/50 transition-colors shadow-xs whitespace-nowrap active:scale-95 cursor-pointer"
+                                            title="Edit Information">
+                                        <i class="fa fa-edit mr-1 text-[#3B82F6]"></i> Edit
                                     </button>
 
                                     <!-- Reset Password Button -->
-                                    <button @click="showResetModal = true" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#F59E0B] hover:border-[#F59E0B]/50 transition-colors shadow-sm whitespace-nowrap">
-                                        <i class="fa fa-key md:mr-1.5 text-[#F59E0B]"></i> <span class="hidden md:inline">Password</span>
+                                    <button type="button" 
+                                            @click="showResetModal = true" 
+                                            class="inline-flex justify-center items-center px-2.5 sm:px-3 py-1.5 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#F59E0B] hover:border-[#F59E0B]/50 transition-colors shadow-xs whitespace-nowrap active:scale-95 cursor-pointer"
+                                            title="Reset Password">
+                                        <i class="fa fa-key mr-1 text-[#F59E0B]"></i> Password
                                     </button>
 
                                     @if(Auth::user()->role === 'admin')
-                                    <form action="{{ route('admin.accounts.toggle', $user->id) }}" method="POST" class="m-0 flex">
+                                    <form action="{{ route('admin.accounts.toggle', $user->id) }}" method="POST" class="m-0 inline-flex">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="w-full inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#1E2657] hover:border-black/30 transition-colors shadow-sm whitespace-nowrap">
-                                            <i class="fa fa-ban md:mr-1.5"></i> <span class="hidden md:inline">{{ $user->is_active ? 'Suspend' : 'Activate' }}</span>
+                                        <button type="submit" 
+                                                class="inline-flex justify-center items-center px-2.5 sm:px-3 py-1.5 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 hover:text-[#1E2657] hover:border-black/30 transition-colors shadow-xs whitespace-nowrap active:scale-95 cursor-pointer"
+                                                title="{{ $user->is_active ? 'Suspend Account' : 'Activate Account' }}">
+                                            <i class="fa fa-ban mr-1"></i> {{ $user->is_active ? 'Suspend' : 'Activate' }}
                                         </button>
                                     </form>
 
                                     <button type="button" 
                                             @click="openDeleteAccountModal({{ $user->id }}, '{{ addslashes($user->name) }}', 'guardian', 'guardians', '{{ route('admin.accounts.destroy', $user->id) }}')" 
-                                            class="w-full lg:w-auto inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm whitespace-nowrap cursor-pointer"
+                                            class="inline-flex justify-center items-center w-8 h-8 bg-white border border-black/15 text-rose-500 text-[12px] font-extrabold rounded-xl hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-xs shrink-0 cursor-pointer active:scale-95"
                                             title="Delete Guardian Account">
-                                        <i class="fa fa-trash lg:mr-0 mr-1.5"></i><span class="lg:hidden">Delete</span>
+                                        <i class="fa fa-trash"></i>
                                     </button>
                                     @endif
                                 </div>
