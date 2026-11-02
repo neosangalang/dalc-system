@@ -5,8 +5,17 @@
 @section('content')
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
+@php
+    $initialTab = session('active_tab', request('tab', Auth::user()->role === 'teacher' ? 'guardians' : (old('role') === 'guardian' ? 'guardians' : 'teachers')));
+@endphp
 <div class="w-full max-w-[1200px] mx-auto space-y-4 sm:space-y-8" x-data="{ 
-    activeTab: '{{ session('active_tab', request('tab', Auth::user()->role === 'teacher' ? 'guardians' : (old('role') === 'guardian' ? 'guardians' : 'teachers'))) }}',
+    activeTab: (() => {
+        const sessionTab = '{{ session('active_tab') }}';
+        if (sessionTab) return sessionTab;
+        const hash = window.location.hash;
+        if (hash === '#guardians' || hash === '#teachers') return hash.replace('#', '');
+        return '{{ $initialTab }}';
+    })(),
     teacherSearch: '',
     guardianSearch: '', 
     showCreateTeacherModal: {{ ($errors->any() && !old('_method') && old('role', 'teacher') === 'teacher') ? 'true' : 'false' }},
@@ -43,12 +52,8 @@
 @open-delete-account.window="openDeleteAccountModal($event.detail.id, $event.detail.name, $event.detail.role, $event.detail.tab, $event.detail.url)"
 x-init="
     const sessionTab = '{{ session('active_tab') }}';
-    const hash = window.location.hash;
     if (sessionTab) {
-        activeTab = sessionTab;
         history.replaceState(null, null, '#' + sessionTab);
-    } else if (hash === '#guardians' || hash === '#teachers') {
-        activeTab = hash.replace('#', '');
     }
 ">
 
@@ -60,20 +65,20 @@ x-init="
     <div class="flex items-center gap-2 sm:gap-3 bg-white p-1.5 sm:p-2 rounded-2xl border border-black/15 shadow-sm mb-4 sm:mb-6">
         <button type="button" @click="activeTab = 'teachers'; history.replaceState(null, null, '#teachers')"
                 :class="activeTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer">
+                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all duration-200 {{ $initialTab === 'teachers' ? 'bg-[#3B82F6] text-white shadow-sm' : 'bg-transparent text-[#6B7086]' }}">
             <i class="fa fa-chalkboard-teacher text-xs sm:text-sm"></i>
             Teacher Accounts
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $initialTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]' }}" :class="activeTab === 'teachers' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
                 {{ $users->where('role', 'teacher')->count() }}
             </span>
         </button>
         
         <button type="button" @click="activeTab = 'guardians'; history.replaceState(null, null, '#guardians')"
                 :class="activeTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086] hover:bg-slate-50'"
-                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer">
+                class="flex-1 py-2 sm:py-3 px-3 sm:px-5 rounded-xl font-extrabold text-xs sm:text-[13px] flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all duration-200 {{ $initialTab === 'guardians' ? 'bg-[#10B981] text-white shadow-sm' : 'bg-transparent text-[#6B7086]' }}">
             <i class="fa fa-user-shield text-xs sm:text-sm"></i>
             Guardian Accounts
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="activeTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ $initialTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]' }}" :class="activeTab === 'guardians' ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#6B7086]'">
                 {{ $users->where('role', 'guardian')->count() }}
             </span>
         </button>
@@ -82,7 +87,7 @@ x-init="
 
     @if(Auth::user()->role === 'admin')
     <!-- ================= TEACHER ACCOUNTS SECTION ================= -->
-    <div x-show="activeTab === 'teachers'">
+    <div x-show="activeTab === 'teachers'" {{ $initialTab !== 'teachers' ? 'x-cloak style="display: none;"' : '' }} x-transition.opacity.duration.200ms>
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
@@ -432,7 +437,7 @@ x-init="
     @endif
 
     <!-- ================= GUARDIAN ACCOUNTS SECTION ================= -->
-    <div x-show="activeTab === 'guardians'">
+    <div x-show="activeTab === 'guardians'" {{ $initialTab !== 'guardians' ? 'x-cloak style="display: none;"' : '' }} x-transition.opacity.duration.200ms>
     <div class="bg-white border border-black/15 rounded-2xl shadow-sm overflow-hidden mb-8">
         
         <!-- Header -->
@@ -571,12 +576,12 @@ x-init="
                             <td class="block md:table-cell px-4 py-3 md:px-6 md:py-4 border-b border-black/5 md:border-none align-middle">
                                 <div class="pt-1">
                                     <span x-show="mfaEnabled"
-                                          x-cloak
+                                          {{ !$user->mfa_enabled ? 'x-cloak style="display: none;"' : '' }}
                                           class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 uppercase tracking-wider shadow-sm transition-all duration-200">
                                         <i class="fa fa-shield-alt text-[10px]"></i> MFA Required
                                     </span>
                                     <span x-show="!mfaEnabled"
-                                          x-cloak
+                                          {{ $user->mfa_enabled ? 'x-cloak style="display: none;"' : '' }}
                                           class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 uppercase tracking-wider shadow-sm transition-all duration-200">
                                         <i class="fa fa-key text-[10px]"></i> Normal Sign-In
                                     </span>
@@ -593,8 +598,8 @@ x-init="
                                             class="w-full inline-flex justify-center items-center px-3 py-2 bg-white border border-black/15 text-[#6B7086] text-[12px] font-extrabold rounded-xl hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap active:scale-95 cursor-pointer"
                                             :class="mfaEnabled ? 'hover:text-[#8B5CF6] hover:border-[#8B5CF6]/50' : 'hover:text-[#3B82F6] hover:border-[#3B82F6]/50'"
                                             :title="mfaEnabled ? 'Switch to Normal Sign-In' : 'Require Two-Factor Authentication'">
-                                        <i class="fa mr-1.5" :class="mfaEnabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]'"></i>
-                                        <span x-text="mfaEnabled ? 'Disable MFA' : 'Enable MFA'"></span>
+                                        <i class="fa mr-1.5 {{ $user->mfa_enabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]' }}" :class="mfaEnabled ? 'fa-shield-halved text-[#8B5CF6]' : 'fa-unlock-alt text-[#3B82F6]'"></i>
+                                        <span x-text="mfaEnabled ? 'Disable MFA' : 'Enable MFA'">{{ $user->mfa_enabled ? 'Disable MFA' : 'Enable MFA' }}</span>
                                     </button>
 
                                     <!-- Edit Info Button -->
