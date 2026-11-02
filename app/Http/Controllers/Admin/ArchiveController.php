@@ -56,6 +56,12 @@ class ArchiveController extends Controller
             'one_time_password.digits'   => 'The authentication code must be exactly 6 digits.',
         ]);
 
+        if ($request->has('confirmation')) {
+            if (trim((string) $request->input('confirmation')) !== 'CONFIRM') {
+                return back()->withErrors(['confirmation' => 'Please type CONFIRM below to authorize Year-End Archiving.'])->withInput();
+            }
+        }
+
         $google2fa = new \PragmaRX\Google2FA\Google2FA();
         $admin = $request->user();
 
@@ -131,7 +137,74 @@ class ArchiveController extends Controller
             ->where('report_type', '!=', 'daily')
             ->update(['status' => 'archived']);
 
-        return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "! Active student profiles are now transitioned to Archived status.");
+        // Purge and delete all active Teacher Daily Logs for that specific academic year
+        // to cleanly reset the workspace for the upcoming school year.
+        $targetSY = \App\Models\SchoolYear::where('name', $schoolYear)
+            ->orWhere('name', 'SY ' . $schoolYear)
+            ->orWhere('name', str_replace('SY ', '', $schoolYear))
+            ->first() ?? $activeSY;
+
+        $syStartDate = null;
+        $syEndDate = null;
+        if ($targetSY) {
+            $syStartDate = $targetSY->quarters()->whereNotNull('start_date')->min('start_date');
+            $syEndDate   = $targetSY->quarters()->whereNotNull('end_date')->max('end_date');
+        }
+
+        if (!$syStartDate || !$syEndDate) {
+            if (preg_match('/(\d{4})\s*[-–]\s*(\d{4})/', $schoolYear, $matches)) {
+                $syStartDate = $matches[1] . '-06-01';
+                $syEndDate   = $matches[2] . '-05-31';
+            }
+        }
+
+        $activeStudentIds = $activeStudents->pluck('id');
+        $dailyLogsQuery = \App\Models\DailyLog::query();
+
+        if ($syStartDate && $syEndDate) {
+            $dailyLogsQuery->where(function ($q) use ($activeStudentIds, $syStartDate, $syEndDate) {
+                $q->whereBetween('log_date', [$syStartDate, $syEndDate])
+                  ->orWhere(function ($sub) use ($syStartDate, $syEndDate) {
+                      $sub->whereNull('log_date')
+                          ->whereBetween('created_at', [
+                              \Illuminate\Support\Carbon::parse($syStartDate)->startOfDay(),
+                              \Illuminate\Support\Carbon::parse($syEndDate)->endOfDay()
+                          ]);
+                  })
+                  ->orWhereIn('student_id', $activeStudentIds);
+            });
+        } else {
+            $dailyLogsQuery->whereIn('student_id', $activeStudentIds);
+        }
+
+        $logsToDelete = $dailyLogsQuery->get();
+        $logIds = $logsToDelete->pluck('id');
+
+        if ($logIds->isNotEmpty()) {
+            // Delete polymorphic comments on these daily logs
+            \App\Models\Comment::where('commentable_type', \App\Models\DailyLog::class)
+                ->whereIn('commentable_id', $logIds)
+                ->delete();
+
+            // Clean up image files uniquely attached to these logs
+            foreach ($logsToDelete as $log) {
+                if ($log->image_path) {
+                    $usedByReport = \App\Models\Report::where('image_path', $log->image_path)->exists();
+                    $usedByOtherLog = \App\Models\DailyLog::whereNotIn('id', $logIds)->where('image_path', $log->image_path)->exists();
+                    if (!$usedByReport && !$usedByOtherLog) {
+                        if (Storage::disk('local')->exists($log->image_path)) {
+                            Storage::disk('local')->delete($log->image_path);
+                        } elseif (Storage::disk('public')->exists($log->image_path)) {
+                            Storage::disk('public')->delete($log->image_path);
+                        }
+                    }
+                }
+            }
+
+            \App\Models\DailyLog::whereIn('id', $logIds)->delete();
+        }
+
+        return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "! Active student profiles are now transitioned to Archived status and Teacher Daily Logs have been purged.");
     }
 
     // ==========================================
@@ -292,19 +365,37 @@ class ArchiveController extends Controller
     }
 
     public function archiveQuarterlyReports(\Illuminate\Http\Request $request)
-{
-    // 1. Validate the date the admin picked
-    $request->validate([
-        'cutoff_date' => 'required|date'
-    ]);
+    {
+        // 1. Validate the date the admin picked
+        $request->validate([
+            'cutoff_date' => 'required|date'
+        ]);
 
-    // 2. The "Scenario A" Magic: Just change the status!
-    $archivedCount = \App\Models\Report::where('status', 'approved')
-                        ->where('report_type', '!=', 'daily')
-                        ->whereDate('created_at', '<=', $request->cutoff_date)
-                        ->update(['status' => 'archived']);
+        // 2. Archive non-daily approved reports up to cutoff date
+        $archivedCount = \App\Models\Report::where('status', 'approved')
+                            ->where('report_type', '!=', 'daily')
+                            ->whereDate('created_at', '<=', $request->cutoff_date)
+                            ->update(['status' => 'archived']);
 
-    // 3. Return to the page with a success message
-    return back()->with('success', "Quarterly Rollover Complete! {$archivedCount} active reports have been safely hidden from teacher dashboards.");
-}
+        // 3. Purge daily reports up to cutoff date to keep dashboards clean and optimized, permanently preserving raw daily logs
+        $dailyReportsQuery = \App\Models\Report::where('report_type', 'daily')
+            ->where(function($q) use ($request) {
+                $q->whereDate('report_date', '<=', $request->cutoff_date)
+                  ->orWhere(function($sub) use ($request) {
+                      $sub->whereNull('report_date')
+                          ->whereDate('created_at', '<=', $request->cutoff_date);
+                  });
+            });
+
+        $dailyReportIds = (clone $dailyReportsQuery)->pluck('id');
+        if ($dailyReportIds->isNotEmpty()) {
+            \App\Models\Comment::where('commentable_type', \App\Models\Report::class)
+                ->whereIn('commentable_id', $dailyReportIds)
+                ->delete();
+        }
+        $purgedDailyCount = $dailyReportsQuery->delete();
+
+        // 4. Return to the page with a success message
+        return back()->with('success', "Quarterly Rollover Complete! {$archivedCount} active reports have been safely hidden and {$purgedDailyCount} daily reports purged (raw teacher daily logs permanently preserved).");
+    }
 }

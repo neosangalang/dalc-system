@@ -13,7 +13,7 @@
 @endphp
 
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
-<div x-data="{ show2faModal: {{ $errors->has('one_time_password') ? 'true' : 'false' }} }}" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
+<div x-data="{ show2faModal: {{ ($errors->has('one_time_password') || $errors->has('confirmation')) ? 'true' : 'false' }} }}" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
@@ -38,11 +38,11 @@
                 </div>
 
                 <!-- 2FA CONFIRMATION MODAL -->
-                <div id="twoFaModal" style="display: {{ $errors->has('one_time_password') ? 'flex' : 'none' }};" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                <div id="twoFaModal" style="display: {{ ($errors->has('one_time_password') || $errors->has('confirmation')) ? 'flex' : 'none' }};" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
                     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 space-y-6 border border-black/10 relative">
                         
                         <div class="text-center">
-                            <div class="w-14 h-14 rounded-full bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center mx-auto mb-4 text-2xl border border-[#3B82F6]/20">
+                            <div class="w-14 h-14 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4 text-2xl border border-rose-200">
                                 <i class="fa fa-shield-halved"></i>
                             </div>
                             <h4 class="text-xl font-extrabold text-[#1E2657] m-0">2-Factor Authentication Required</h4>
@@ -51,10 +51,34 @@
                             </p>
                         </div>
 
+                        <!-- CAUTION MESSAGE FOR ADMINISTRATOR (System Interface Alert) -->
+                        <div class="bg-amber-50/90 border-2 border-amber-300 text-amber-950 p-4 rounded-xl text-xs space-y-2 leading-relaxed shadow-xs text-left">
+                            <div class="flex items-center gap-2 text-amber-800 font-extrabold text-[12px] uppercase tracking-wider">
+                                <i class="fa fa-triangle-exclamation text-amber-600 text-sm"></i>
+                                <span>CAUTION MESSAGE FOR ADMINISTRATOR</span>
+                            </div>
+                            <p class="font-extrabold text-rose-700 m-0">
+                                WARNING: Running Year-End Archiving will PERMANENTLY PURGE all Teacher Daily Logs for the current Academic Year.
+                            </p>
+                            <p class="font-semibold text-slate-800 m-0">
+                                This operation requires 2-Factor Authentication (2FA) verification and cannot be reversed.
+                            </p>
+                            <p class="font-medium text-slate-700 m-0">
+                                To proceed, please enter your 2FA verification code and type CONFIRM below.
+                            </p>
+                        </div>
+
                         @if($errors->has('one_time_password'))
                             <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-xs font-bold flex items-center">
                                 <i class="fa fa-exclamation-circle mr-2 text-rose-500"></i>
                                 {{ $errors->first('one_time_password') }}
+                            </div>
+                        @endif
+
+                        @if($errors->has('confirmation'))
+                            <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-xs font-bold flex items-center">
+                                <i class="fa fa-exclamation-circle mr-2 text-rose-500"></i>
+                                {{ $errors->first('confirmation') }}
                             </div>
                         @endif
 
@@ -73,6 +97,19 @@
                                        placeholder="• • • • • •" 
                                        maxlength="6" 
                                        autofocus>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-extrabold text-[#1E2657] uppercase tracking-wider mb-2 text-center">
+                                    Type <span class="text-rose-600 font-mono">CONFIRM</span> Below
+                                </label>
+                                <input type="text" 
+                                       name="confirmation" 
+                                       id="archiveConfirmInput" 
+                                       class="w-full text-center text-base font-bold font-mono tracking-widest py-2.5 px-4 rounded-xl border border-black/20 focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white uppercase" 
+                                       required 
+                                       placeholder="CONFIRM" 
+                                       autocomplete="off">
                             </div>
 
                             <!-- NOTE: NO "Remember me" option for maximum archiving security -->
@@ -96,7 +133,7 @@
                             <i class="fa fa-triangle-exclamation text-[#F59E0B] mr-2"></i> Real-Time Year-End Archive (SY {{ $activeSchoolYear }})
                         </strong>
                         <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed ml-0 sm:ml-6 mt-1.5 sm:mt-0">
-                            This will save a complete copy of student records, generate printable PDF summaries, and archive current files for the end of the school year.
+                            WARNING: Running Year-End Archiving will PERMANENTLY PURGE all Teacher Daily Logs for the current Academic Year. This operation requires 2-Factor Authentication (2FA) verification and cannot be reversed.
                         </p>
                     </div>
                     
@@ -117,8 +154,8 @@
                         
                         <div class="relative pl-6 sm:pl-8">
                             <span id="step3Dot" class="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-[#E8E5DC] border-4 border-white shadow-sm transition-colors duration-500"></span>
-                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Close School Year</p>
-                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Move active students to the archive to prepare clean class lists for the new year while keeping past records completely safe</p>
+                            <p class="font-extrabold text-[13px] sm:text-[14px] text-[#1E2657] m-0 mb-0.5">Purge Logs & Close School Year</p>
+                            <p class="text-[12px] font-medium text-[#9CA0AF] m-0">Purge and delete active Teacher Daily Logs for this academic year to cleanly reset the workspace for the upcoming school year</p>
                         </div>
                         
                     </div>
@@ -131,9 +168,9 @@
                     <i class="fa fa-robot text-lg sm:text-xl"></i>
                 </div>
                 <div>
-                    <h5 class="font-extrabold text-[14px] sm:text-[15px] text-[#1E2657] mb-1 sm:mb-1.5 m-0 leading-tight">Automatic Quarter Transition Active</h5>
+                    <h5 class="font-extrabold text-[14px] sm:text-[15px] text-[#1E2657] mb-1 sm:mb-1.5 m-0 leading-tight">Quarterly Rollover (Daily Report Cleanup)</h5>
                     <p class="text-[12px] font-medium text-[#6B7086] m-0 leading-relaxed">
-                        The system automatically saves all approved daily reports and refreshes teacher dashboards at midnight on the last day of each quarter. <strong class="text-[#1E2657]">No manual action is required.</strong>
+                        The system executes an automated background Quarterly Rollover process at the end of each quarter. This feature automatically purges the Daily Reports for that quarter to keep the active dashboards clean and optimized, while permanently preserving the raw teacher Daily Logs in the database as the permanent historical record. <strong class="text-[#1E2657]">No manual action is required.</strong>
                     </p>
                 </div>
             </div>
