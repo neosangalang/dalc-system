@@ -57,8 +57,46 @@ class NotificationUrlResolver
             if (!empty($query) || !empty($fragment)) {
                 if ($role === 'guardian') {
                     parse_str($query, $params);
-                    if (!empty($params['student_id'])) {
-                        session(['active_child_id' => (int) $params['student_id']]);
+                    $targetStudentId = !empty($params['student_id']) ? (int) $params['student_id'] : $studentId;
+                    if ($targetStudentId) {
+                        session(['active_child_id' => $targetStudentId]);
+                    }
+
+                    // Intercept any daily report/log notification so it strictly routes to Daily Reports & Home Activities
+                    $isDailyUrl = str_contains($rawUrl, 'type=daily')
+                        || str_contains($rawUrl, 'type=Daily')
+                        || str_contains($rawUrl, 'open_log')
+                        || str_contains($rawUrl, 'daily-logs')
+                        || str_contains($rawUrl, 'recommendations');
+
+                    if (!$isDailyUrl && !empty($params['report_id'])) {
+                        $repCheck = Report::find($params['report_id']);
+                        if ($repCheck && $repCheck->report_type === 'daily') {
+                            $isDailyUrl = true;
+                        }
+                    }
+
+                    if ($isDailyUrl) {
+                        $dateStr = null;
+                        if (!empty($params['date'])) {
+                            $dateStr = $params['date'];
+                        } elseif (!empty($params['report_id'])) {
+                            $rep = Report::find($params['report_id']);
+                            if ($rep) {
+                                $dateStr = $rep->report_date ? \Carbon\Carbon::parse($rep->report_date)->format('Y-m-d') : $rep->created_at->format('Y-m-d');
+                            }
+                        } elseif (!empty($params['open_log'])) {
+                            $dLog = DailyLog::find($params['open_log']);
+                            if ($dLog) {
+                                $dateStr = $dLog->log_date ? \Carbon\Carbon::parse($dLog->log_date)->format('Y-m-d') : $dLog->created_at->format('Y-m-d');
+                            }
+                        }
+
+                        if ($dateStr && $dateStr < \Carbon\Carbon::today()->format('Y-m-d')) {
+                            return route('guardian.logs.archive', array_filter(['student_id' => $targetStudentId, 'date' => $dateStr]));
+                        }
+
+                        return route('guardian.recommendations', array_filter(['student_id' => $targetStudentId]));
                     }
                 }
                 return $rawUrl;
@@ -122,6 +160,26 @@ class NotificationUrlResolver
             };
 
             if ($role === 'guardian') {
+                $isDaily = ($reportType === 'daily')
+                    || preg_match('/Daily\s*Report|Daily\s*Log|Home\s*Activit/i', $combinedText)
+                    || str_contains($rawUrl, 'type=daily');
+
+                if ($isDaily) {
+                    $latestDaily = Report::where('student_id', $studentId)
+                        ->where('report_type', 'daily')
+                        ->where('status', 'approved')
+                        ->latest('report_date')
+                        ->latest('id')
+                        ->first();
+
+                    $dateStr = $latestDaily?->report_date ? \Carbon\Carbon::parse($latestDaily->report_date)->format('Y-m-d') : null;
+                    if ($dateStr && $dateStr < \Carbon\Carbon::today()->format('Y-m-d')) {
+                        return route('guardian.logs.archive', array_filter(['student_id' => $studentId, 'date' => $dateStr]));
+                    }
+
+                    return route('guardian.recommendations', array_filter(['student_id' => $studentId]));
+                }
+
                 $reportQuery = Report::query();
                 if ($studentId) {
                     $reportQuery->where('student_id', $studentId);
@@ -154,10 +212,8 @@ class NotificationUrlResolver
         // SCENARIO 2: Comments / Discussion Replies (e.g. "Teacher Teacher 1 posted a reply regarding Neo.")
         if (preg_match('/reply|comment|replied/i', $combinedText)) {
             if ($role === 'guardian') {
-                if (preg_match('/Daily\s*Log/i', $combinedText)) {
-                    $log = $studentId ? DailyLog::where('student_id', $studentId)->latest()->first() : null;
-                    $url = route('guardian.dashboard', array_filter(['student_id' => $studentId, 'open_log' => $log?->id]));
-                    return $log ? $url . '#log-' . $log->id : $url;
+                if (preg_match('/Daily\s*Log|Daily\s*Report|Home\s*Activit/i', $combinedText)) {
+                    return route('guardian.recommendations', array_filter(['student_id' => $studentId]));
                 } elseif (preg_match('/IEP\s*Goal/i', $combinedText)) {
                     $goal = $studentId ? IepGoal::where('student_id', $studentId)->latest()->first() : null;
                     $url = route('guardian.goals', array_filter(['student_id' => $studentId, 'goal_id' => $goal?->id]));
@@ -185,16 +241,20 @@ class NotificationUrlResolver
 
                         if ($top) {
                             if ($top->commentable_type === DailyLog::class) {
-                                return route('guardian.dashboard', ['student_id' => $studentId, 'open_log' => $top->commentable_id]) . '#log-' . $top->commentable_id;
+                                return route('guardian.recommendations', array_filter(['student_id' => $studentId]));
                             } elseif ($top->commentable_type === IepGoal::class) {
                                 return route('guardian.goals', ['student_id' => $studentId, 'goal_id' => $top->commentable_id]) . '#goal-' . $top->commentable_id;
                             } elseif ($top->commentable_type === Report::class) {
+                                $rep = Report::find($top->commentable_id);
+                                if (!$rep || $rep->report_type === 'daily') {
+                                    return route('guardian.recommendations', array_filter(['student_id' => $studentId]));
+                                }
                                 return route('guardian.reports', ['student_id' => $studentId, 'report_id' => $top->commentable_id]);
                             }
                         }
                     }
 
-                    return route('guardian.dashboard', array_filter(['student_id' => $studentId]));
+                    return route('guardian.recommendations', array_filter(['student_id' => $studentId]));
                 }
             } elseif ($role === 'teacher') {
                 return route('teacher.dashboard');

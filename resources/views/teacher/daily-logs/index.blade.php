@@ -338,10 +338,6 @@
                                 <p class="m-0 text-[13px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->home_recommendations }}</p>
                             </div>
                         @endif
-
-                        <div class="mt-4 pt-4 border-t border-dashed border-black/10">
-                            @include('components.comment-thread', ['item' => $log])
-                        </div>
                     </div>
                 </div>
             @empty

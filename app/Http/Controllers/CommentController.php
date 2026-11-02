@@ -40,7 +40,7 @@ class CommentController extends Controller
         $user = Auth::user();
 
         // 2. Save the comment to the database
-        Comment::create([
+        $comment = Comment::create([
             'user_id'          => $user->id,
             'commentable_id'   => $request->commentable_id,
             'commentable_type' => $request->commentable_type,
@@ -49,7 +49,7 @@ class CommentController extends Controller
             'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
         ]);
 
-        // 2b. Mirror comments between DailyLog and Daily Report so both views stay connected
+        // 2b. Mirror comments between DailyLog and Daily Report without duplicate entries
         try {
             if ($request->commentable_type === 'App\Models\DailyLog') {
                 $log = DailyLog::find($request->commentable_id);
@@ -65,14 +65,23 @@ class CommentController extends Controller
                         })
                         ->first();
                     if ($matchingReport) {
-                        Comment::create([
-                            'user_id'          => $user->id,
-                            'commentable_id'   => $matchingReport->id,
-                            'commentable_type' => 'App\Models\Report',
-                            'body'             => $request->body,
-                            'is_teacher_read'  => $user->role === 'teacher' ? 1 : 0,
-                            'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
-                        ]);
+                        $alreadyMirrored = Comment::where('user_id', $user->id)
+                            ->where('commentable_id', $matchingReport->id)
+                            ->where('commentable_type', 'App\Models\Report')
+                            ->where('body', $request->body)
+                            ->where('created_at', '>=', now()->subSeconds(30))
+                            ->exists();
+
+                        if (!$alreadyMirrored) {
+                            Comment::create([
+                                'user_id'          => $user->id,
+                                'commentable_id'   => $matchingReport->id,
+                                'commentable_type' => 'App\Models\Report',
+                                'body'             => $request->body,
+                                'is_teacher_read'  => $user->role === 'teacher' ? 1 : 0,
+                                'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
+                            ]);
+                        }
                     }
                 }
             } elseif ($request->commentable_type === 'App\Models\Report') {
@@ -83,14 +92,23 @@ class CommentController extends Controller
                         ->whereDate('log_date', $repDate)
                         ->first();
                     if ($matchingLog) {
-                        Comment::create([
-                            'user_id'          => $user->id,
-                            'commentable_id'   => $matchingLog->id,
-                            'commentable_type' => 'App\Models\DailyLog',
-                            'body'             => $request->body,
-                            'is_teacher_read'  => $user->role === 'teacher' ? 1 : 0,
-                            'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
-                        ]);
+                        $alreadyMirrored = Comment::where('user_id', $user->id)
+                            ->where('commentable_id', $matchingLog->id)
+                            ->where('commentable_type', 'App\Models\DailyLog')
+                            ->where('body', $request->body)
+                            ->where('created_at', '>=', now()->subSeconds(30))
+                            ->exists();
+
+                        if (!$alreadyMirrored) {
+                            Comment::create([
+                                'user_id'          => $user->id,
+                                'commentable_id'   => $matchingLog->id,
+                                'commentable_type' => 'App\Models\DailyLog',
+                                'body'             => $request->body,
+                                'is_teacher_read'  => $user->role === 'teacher' ? 1 : 0,
+                                'is_guardian_read' => $user->role === 'guardian' ? 1 : 0,
+                            ]);
+                        }
                     }
                 }
             }
@@ -98,7 +116,7 @@ class CommentController extends Controller
             Log::warning('Mirroring comment between DailyLog and Report failed: ' . $e->getMessage());
         }
 
-        // 3. Notify the respective party
+        // 3. Notify the respective party (fast in-app notification without blocking on external SMTP)
         try {
             $target = null;
             if ($request->commentable_type === 'App\Models\DailyLog') {
@@ -128,23 +146,37 @@ class CommentController extends Controller
                         ));
                     }
                 } else {
-                    // Teacher/Admin commented -> Notify the guardian
+                    // Teacher/Admin commented -> Notify the guardian in real-time bell without external SMTP blocking
                     $guardian = $target->student->guardian ?? null;
                     if ($guardian && $guardian->id !== $user->id) {
                         $childId = $target->student_id ?? ($target->student->id ?? null);
                         $childName = $target->student->first_name ?? 'your child';
-                        $url = match($request->commentable_type) {
-                            'App\Models\DailyLog' => route('guardian.dashboard', ['student_id' => $childId, 'open_log' => $target->id]) . '#log-' . $target->id,
-                            'App\Models\IepGoal'  => route('guardian.goals', ['student_id' => $childId, 'goal_id' => $target->id]) . '#goal-' . $target->id,
-                            'App\Models\Report'   => route('guardian.reports', array_filter(['student_id' => $childId, 'type' => $target->report_type ?? null, 'report_id' => $target->id])),
-                            default               => route('guardian.dashboard', array_filter(['student_id' => $childId])),
-                        };
-                        $targetTypeLabel = match($request->commentable_type) {
-                            'App\Models\DailyLog' => 'Daily Log',
-                            'App\Models\IepGoal'  => 'IEP Goal',
-                            'App\Models\Report'   => 'Progress Report',
-                            default               => 'Update',
-                        };
+                        $isDaily = ($request->commentable_type === 'App\Models\DailyLog')
+                            || ($request->commentable_type === 'App\Models\Report' && ($target->report_type === 'daily' || empty($target->report_type)));
+
+                        if ($isDaily) {
+                            $targetDate = $target->report_date ?? ($target->log_date ?? null);
+                            $dateStr = $targetDate ? \Carbon\Carbon::parse($targetDate)->format('Y-m-d') : null;
+                            if ($dateStr && $dateStr < \Carbon\Carbon::today()->format('Y-m-d')) {
+                                $url = route('guardian.logs.archive', array_filter(['student_id' => $childId, 'date' => $dateStr]));
+                            } else {
+                                $url = route('guardian.recommendations', array_filter(['student_id' => $childId]));
+                            }
+                        } elseif ($request->commentable_type === 'App\Models\IepGoal') {
+                            $url = route('guardian.goals', ['student_id' => $childId, 'goal_id' => $target->id]) . '#goal-' . $target->id;
+                        } elseif ($request->commentable_type === 'App\Models\Report') {
+                            $url = route('guardian.reports', array_filter(['student_id' => $childId, 'type' => $target->report_type ?? null, 'report_id' => $target->id]));
+                        } else {
+                            $url = route('guardian.dashboard', array_filter(['student_id' => $childId]));
+                        }
+
+                        $targetTypeLabel = $isDaily 
+                            ? 'Daily Report & Home Activity' 
+                            : match($request->commentable_type) {
+                                'App\Models\IepGoal' => 'IEP Goal',
+                                'App\Models\Report'  => 'Progress Report',
+                                default              => 'Update',
+                            };
 
                         $guardian->notify(new GuardianAlertNotification(
                             title: "New Reply on {$targetTypeLabel}",
@@ -152,13 +184,31 @@ class CommentController extends Controller
                             url: $url,
                             studentName: $childName,
                             actionText: 'View Reply',
-                            extraDetails: 'A new message was added to the discussion thread on your parent portal.'
+                            extraDetails: 'A new message was added to the discussion thread on your parent portal.',
+                            sendEmail: false
                         ));
                     }
                 }
             }
         } catch (\Exception $e) {
             Log::error('Notification error in CommentController: ' . $e->getMessage());
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            $comment->load('user');
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment posted successfully!',
+                'comment' => [
+                    'id'         => $comment->id,
+                    'user_id'    => $user->id,
+                    'user_name'  => $user->name,
+                    'user_role'  => $user->role,
+                    'body'       => $comment->body,
+                    'time_ago'   => 'Just now',
+                    'is_own'     => true,
+                ]
+            ]);
         }
 
         return back()->with('success', 'Comment posted!');

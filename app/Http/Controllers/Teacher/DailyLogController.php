@@ -43,7 +43,11 @@ class DailyLogController extends Controller
                 ->first();
             if ($matchingReport && $matchingReport->comments->isNotEmpty()) {
                 $merged = $log->comments->concat($matchingReport->comments)
-                    ->unique('id')
+                    ->unique(function ($c) {
+                        $cleanBody = trim(preg_replace('/\s+/', ' ', strip_tags($c->body ?? '')));
+                        $timeKey = $c->created_at ? $c->created_at->format('Y-m-d H:i') : '';
+                        return ($c->user_id ?? 0) . '|' . $cleanBody . '|' . $timeKey;
+                    })
                     ->sortByDesc('created_at')
                     ->values();
                 $log->setRelation('comments', $merged);

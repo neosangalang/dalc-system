@@ -148,7 +148,11 @@ class GuardianController extends Controller
                 $reportComments = $rep->comments ?? collect();
                 $logComments = $log->comments ?? collect();
                 $mergedComments = $logComments->concat($reportComments)
-                    ->unique('id')
+                    ->unique(function ($c) {
+                        $cleanBody = trim(preg_replace('/\s+/', ' ', strip_tags($c->body ?? '')));
+                        $timeKey = $c->created_at ? $c->created_at->format('Y-m-d H:i') : '';
+                        return ($c->user_id ?? 0) . '|' . $cleanBody . '|' . $timeKey;
+                    })
                     ->sortByDesc('created_at')
                     ->values();
                 $log->setRelation('comments', $mergedComments);
@@ -322,6 +326,21 @@ class GuardianController extends Controller
     public function reports(Request $request)
     {
         list($activeChild, $myChildren) = $this->getActiveChildData();
+
+        // If daily report is requested on official reports page, smoothly redirect to Daily Reports & Home Activities
+        if ($request->query('type') === 'daily') {
+            $childId = $request->query('student_id', $activeChild?->id);
+            if ($request->filled('report_id')) {
+                $rep = Report::find($request->report_id);
+                if ($rep) {
+                    $repDate = $rep->report_date ? \Carbon\Carbon::parse($rep->report_date)->format('Y-m-d') : $rep->created_at->format('Y-m-d');
+                    if ($repDate < \Carbon\Carbon::today()->format('Y-m-d')) {
+                        return redirect()->route('guardian.logs.archive', array_filter(['student_id' => $childId, 'date' => $repDate]));
+                    }
+                }
+            }
+            return redirect()->route('guardian.recommendations', array_filter(['student_id' => $childId]));
+        }
         
         if (!$activeChild) {
             $reports = collect();
@@ -332,8 +351,11 @@ class GuardianController extends Controller
             ->where('student_id', $activeChild->id)
             ->where('status', 'approved');
 
-        if ($request->has('type') && !empty($request->type)) {
+        if ($request->filled('type')) {
             $query->where('report_type', $request->type);
+        } else {
+            // Official Student Reports Document Library strictly showcases term evaluations (Q1-Q4, Mid-Year, Year-End)
+            $query->where('report_type', '!=', 'daily');
         }
 
         $reports = $query->latest()->get();
@@ -436,7 +458,11 @@ class GuardianController extends Controller
                     $reportComments = $rep->comments ?? collect();
                     $logComments = $log->comments ?? collect();
                     $mergedComments = $logComments->concat($reportComments)
-                        ->unique('id')
+                        ->unique(function ($c) {
+                            $cleanBody = trim(preg_replace('/\s+/', ' ', strip_tags($c->body ?? '')));
+                            $timeKey = $c->created_at ? $c->created_at->format('Y-m-d H:i') : '';
+                            return ($c->user_id ?? 0) . '|' . $cleanBody . '|' . $timeKey;
+                        })
                         ->sortByDesc('created_at')
                         ->values();
                     $log->setRelation('comments', $mergedComments);
@@ -571,7 +597,11 @@ class GuardianController extends Controller
                     $reportComments = $dailyReport->comments ?? collect();
                     $logComments = $log->comments ?? collect();
                     $mergedComments = $logComments->concat($reportComments)
-                        ->unique('id')
+                        ->unique(function ($c) {
+                            $cleanBody = trim(preg_replace('/\s+/', ' ', strip_tags($c->body ?? '')));
+                            $timeKey = $c->created_at ? $c->created_at->format('Y-m-d H:i') : '';
+                            return ($c->user_id ?? 0) . '|' . $cleanBody . '|' . $timeKey;
+                        })
                         ->sortByDesc('created_at')
                         ->values();
                     $log->setRelation('comments', $mergedComments);

@@ -75,7 +75,11 @@ class ReportController extends Controller
                     ->first();
                 if ($matchingLog && $matchingLog->comments->isNotEmpty()) {
                     $merged = $report->comments->concat($matchingLog->comments)
-                        ->unique('id')
+                        ->unique(function ($c) {
+                            $cleanBody = trim(preg_replace('/\s+/', ' ', strip_tags($c->body ?? '')));
+                            $timeKey = $c->created_at ? $c->created_at->format('Y-m-d H:i') : '';
+                            return ($c->user_id ?? 0) . '|' . $cleanBody . '|' . $timeKey;
+                        })
                         ->sortByDesc('created_at')
                         ->values();
                     $report->setRelation('comments', $merged);
@@ -217,8 +221,8 @@ class ReportController extends Controller
                         : "Daily Summary: " . Str::limit(strip_tags($finalContent), 120);
 
                     $targetUrl = \Carbon\Carbon::parse($reportDate)->isToday() 
-                        ? route('guardian.dashboard', array_filter(['student_id' => $student->id, 'open_log' => $log?->id])) . ($log ? '#log-' . $log->id : '')
-                        : route('guardian.reports', ['student_id' => $student->id, 'type' => 'daily', 'report_id' => $report->id]);
+                        ? route('guardian.recommendations', array_filter(['student_id' => $student->id]))
+                        : route('guardian.logs.archive', array_filter(['student_id' => $student->id, 'date' => \Carbon\Carbon::parse($reportDate)->format('Y-m-d')]));
 
                     $student->guardian->notify(new GuardianAlertNotification(
                         title: $title,
