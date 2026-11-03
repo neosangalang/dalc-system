@@ -63,29 +63,7 @@ class ReportController extends Controller
         }
 
         // 4. Execute the query with Pagination
-        $reports = $query->with(['student', 'teacher', 'comments.user'])->latest()->paginate(10)->withQueryString();
-
-        // Merge comments from matching DailyLogs for daily reports
-        foreach ($reports as $report) {
-            if ($report->report_type === 'daily') {
-                $repDate = $report->report_date ? \Carbon\Carbon::parse($report->report_date)->format('Y-m-d') : $report->created_at->format('Y-m-d');
-                $matchingLog = DailyLog::with('comments.user')
-                    ->where('student_id', $report->student_id)
-                    ->whereDate('log_date', $repDate)
-                    ->first();
-                if ($matchingLog && $matchingLog->comments->isNotEmpty()) {
-                    $merged = $report->comments->concat($matchingLog->comments)
-                        ->unique(function ($c) {
-                            $cleanBody = trim(preg_replace('/\s+/', ' ', strip_tags($c->body ?? '')));
-                            $timeKey = $c->created_at ? $c->created_at->format('Y-m-d H:i') : '';
-                            return ($c->user_id ?? 0) . '|' . $cleanBody . '|' . $timeKey;
-                        })
-                        ->sortByDesc('created_at')
-                        ->values();
-                    $report->setRelation('comments', $merged);
-                }
-            }
-        }
+        $reports = $query->with(['student', 'teacher'])->latest()->paginate(10)->withQueryString();
 
         return view('teacher.reports.index', compact('reports', 'myStudents'));
     }
