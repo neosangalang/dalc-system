@@ -107,16 +107,10 @@
                     </div>
 
                     <div class="p-5 bg-[#F4F6FA] border border-dashed border-[#3B82F6]/30 rounded-2xl relative overflow-hidden">
-                        <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
+                        <div class="flex justify-between items-center mb-2">
                             <label class="text-[12px] font-extrabold text-[#3B82F6] uppercase tracking-widest m-0 flex items-center">
                                 <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
                             </label>
-
-                            <!-- Draft persistence status indicator -->
-                            <div id="draftStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-white border border-slate-200 text-slate-500 shadow-xs transition-all">
-                                <i id="draftStatusIcon" class="fa-solid fa-cloud text-slate-400"></i>
-                                <span id="draftStatusText">Auto-save ready</span>
-                            </div>
                         </div>
                         <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white transition-all" rows="4" placeholder="e.g., he ate snacks, played with blocks, got distracted...">{{ old('raw_notes') }}</textarea>
                         
