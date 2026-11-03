@@ -212,9 +212,21 @@
             }, true);
         });
 
-        function handleFileInputChange(inputEl, previewContainerId, fileNameId) {
+        function handleFileInputChange(inputEl, previewContainerId, fileNameId, maxMb = 5) {
             if (inputEl && inputEl.files && inputEl.files[0]) {
                 const file = inputEl.files[0];
+                if (file.size > maxMb * 1024 * 1024) {
+                    const msg = `"${file.name}" (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds the maximum allowed size of ${maxMb}MB.`;
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(msg, 'error');
+                    } else {
+                        alert(msg);
+                    }
+                    inputEl.value = '';
+                    const containerEl = document.getElementById(previewContainerId);
+                    if (containerEl) containerEl.classList.add('hidden');
+                    return;
+                }
                 const fileNameEl = document.getElementById(fileNameId);
                 const containerEl = document.getElementById(previewContainerId);
                 if (fileNameEl) fileNameEl.textContent = file.name;
@@ -233,7 +245,7 @@
             }
         }
 
-        function handleMultiFileInputChange(inputEl, previewContainerId) {
+        function handleMultiFileInputChange(inputEl, previewContainerId, maxMbPerFile = 5) {
             const containerEl = document.getElementById(previewContainerId);
             if (!containerEl) return;
             containerEl.innerHTML = '';
@@ -241,6 +253,22 @@
                 containerEl.classList.add('hidden');
                 return;
             }
+
+            const maxBytes = maxMbPerFile * 1024 * 1024;
+            const oversized = Array.from(inputEl.files).filter(f => f.size > maxBytes);
+            if (oversized.length > 0) {
+                const names = oversized.map(f => `"${f.name}" (${(f.size / 1024 / 1024).toFixed(1)}MB)`).join(', ');
+                const msg = `File size limit is ${maxMbPerFile}MB per file. The following file(s) are too large: ${names}`;
+                if (typeof window.showToast === 'function') {
+                    window.showToast(msg, 'error');
+                } else {
+                    alert(msg);
+                }
+                inputEl.value = '';
+                containerEl.classList.add('hidden');
+                return;
+            }
+
             containerEl.classList.remove('hidden');
 
             const wrapper = document.createElement('div');

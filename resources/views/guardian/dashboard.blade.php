@@ -15,10 +15,12 @@ $activeChild = $myChildren->where('id', $activeChildId)->first();
     <div class="max-w-[1200px] mx-auto space-y-8 md:space-y-10">
 
         <!-- WELCOME HERO BANNER (SCOPED BLUE DESIGN) & PILL STUDENT SELECTOR -->
-        <header class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5] p-6 sm:p-8 text-white shadow-lg border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 sm:mb-10">
-            <!-- Ambient Decorative Background Glows -->
-            <div class="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl pointer-events-none"></div>
+        <header class="relative z-30 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#1E2657] via-[#2E3D8F] to-[#4F6AF5] p-6 sm:p-8 text-white shadow-lg border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8 sm:mb-10">
+            <!-- Ambient Decorative Background Glows (Contained) -->
+            <div class="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl pointer-events-none">
+                <div class="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
+                <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl"></div>
+            </div>
 
             <div class="relative z-10 flex flex-col gap-1">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-blue-100 text-[11px] font-extrabold tracking-widest uppercase mb-2 self-start">Guardian Portal</span>
@@ -48,9 +50,9 @@ $activeChild = $myChildren->where('id', $activeChildId)->first();
 
                     <div class="flex flex-col">
                         @foreach($myChildren as $child)
-                        @if($activeChild->id === $child->id)
+                        @if($activeChild->id == $child->id)
                         <!-- Active Student State -->
-                        <a href="{{ route('guardian.switch-child', $child->id) }}" class="flex items-center justify-between px-4 py-3 bg-[#6366F1] text-white text-[13px] font-extrabold cursor-default pointer-events-none">
+                        <a href="javascript:void(0)" @click="switchOpen = false" class="flex items-center justify-between px-4 py-3 bg-[#6366F1] text-white text-[13px] font-extrabold cursor-pointer">
                             <span>{{ $child->first_name }} {{ $child->last_name }}</span>
                             <i class="fa-solid fa-check text-[13px]"></i>
                         </a>

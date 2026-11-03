@@ -4,6 +4,8 @@ server {
     server_name _;
     root /home/site/wwwroot/public;
 
+    client_max_body_size 64M;
+
     index index.php index.html index.htm;
 
     location / {
