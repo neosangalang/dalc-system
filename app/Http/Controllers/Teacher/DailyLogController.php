@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\DailyLog;
+use App\Models\DailyLogDraft;
 use App\Models\Report; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 use App\Services\ImageOptimizationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class DailyLogController extends Controller
 {
@@ -85,6 +89,112 @@ class DailyLogController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function getEntry(Request $request)
+    {
+        $request->validate([
+            'student_id' => ['required', 'exists:students,id'],
+            'log_date'   => ['required', 'date'],
+        ]);
+
+        $teacherId = Auth::id();
+        $student = Student::where('id', $request->student_id)->where('teacher_id', $teacherId)->first();
+        if (!$student) {
+            return response()->json(['error' => 'Student not found or unauthorized.'], 403);
+        }
+
+        $logDate = Carbon::parse($request->log_date)->format('Y-m-d');
+
+        // 1. Check for active draft
+        $draft = $this->findDraft($student->id, $logDate);
+        if ($draft && (trim((string)($draft->raw_notes ?? '')) !== '' || trim((string)($draft->formal_notes ?? '')) !== '')) {
+            $updatedAt = !empty($draft->updated_at) ? Carbon::parse($draft->updated_at) : now();
+            return response()->json([
+                'exists'       => true,
+                'source'       => 'draft',
+                'raw_notes'    => $draft->raw_notes ?? '',
+                'formal_notes' => $draft->formal_notes ?? '',
+                'quarter'      => $draft->quarter ?? null,
+                'updated_at'   => $updatedAt->diffForHumans(),
+                'updated_time' => $updatedAt->format('M j, Y g:i A'),
+            ]);
+        }
+
+        // 2. Check for saved DailyLog on this date
+        $savedLog = DailyLog::where('teacher_id', $teacherId)
+            ->where('student_id', $student->id)
+            ->whereDate('log_date', $logDate)
+            ->latest('id')
+            ->first();
+
+        if ($savedLog) {
+            $updatedAt = !empty($savedLog->updated_at) ? Carbon::parse($savedLog->updated_at) : now();
+            return response()->json([
+                'exists'       => true,
+                'source'       => 'saved',
+                'raw_notes'    => $savedLog->raw_notes ?? '',
+                'formal_notes' => $savedLog->notes ?? '',
+                'quarter'      => $savedLog->quarter,
+                'updated_at'   => $updatedAt->diffForHumans(),
+                'updated_time' => $updatedAt->format('M j, Y g:i A'),
+                'log_id'       => $savedLog->id,
+            ]);
+        }
+
+        return response()->json([
+            'exists'       => false,
+            'source'       => 'none',
+            'raw_notes'    => '',
+            'formal_notes' => '',
+            'quarter'      => null,
+        ]);
+    }
+
+    public function saveDraft(Request $request)
+    {
+        $request->validate([
+            'student_id'   => ['required', 'exists:students,id'],
+            'log_date'     => ['required', 'date'],
+            'quarter'      => ['nullable', 'string', 'in:Q1,Q2,Q3,Q4'],
+            'raw_notes'    => ['nullable', 'string', 'max:5000'],
+            'formal_notes' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        $teacherId = Auth::id();
+        $student = Student::where('id', $request->student_id)->where('teacher_id', $teacherId)->first();
+        if (!$student) {
+            return response()->json(['error' => 'Student not found or unauthorized.'], 403);
+        }
+
+        $logDate = Carbon::parse($request->log_date)->format('Y-m-d');
+        $rawTrimmed = trim((string)$request->raw_notes);
+        $formalTrimmed = trim((string)$request->formal_notes);
+
+        // If both fields are empty, clear the draft
+        if ($rawTrimmed === '' && $formalTrimmed === '') {
+            $this->deleteDraft($student->id, $logDate);
+            return response()->json([
+                'status'  => 'cleared',
+                'message' => 'Draft cleared.',
+            ]);
+        }
+
+        $savedDraft = $this->persistDraft(
+            $student->id,
+            $logDate,
+            $request->quarter,
+            $request->raw_notes,
+            $request->formal_notes
+        );
+
+        $savedTime = isset($savedDraft['updated_at']) ? Carbon::parse($savedDraft['updated_at'])->format('g:i A') : now()->format('g:i A');
+
+        return response()->json([
+            'status'       => 'saved',
+            'updated_time' => $savedTime,
+            'message'      => 'Draft auto-saved.',
+        ]);
+    }
+
     public function store(Request $request) {
         $request->validate([
             'student_id'           => ['required', 'exists:students,id'],
@@ -110,6 +220,7 @@ class DailyLogController extends Controller
         // Security check
         $student = Student::where('id', $request->student_id)->where('teacher_id', Auth::id())->firstOrFail();
 
+        $rawNotes = $rawTrimmed !== '' ? $request->raw_notes : null;
         $finalNotes = $notesTrimmed !== '' ? $request->notes : $request->raw_notes;
 
         // SECURE VAULT STORAGE & OPTIMIZATION
@@ -118,17 +229,130 @@ class DailyLogController extends Controller
             $imagePath = ImageOptimizationService::optimizeAndStore($request->file('photo'), 'private_log_photos', 'local');
         }
 
-        $dailyLog = DailyLog::create([
-            'student_id' => $student->id,
-            'teacher_id' => Auth::id(),
-            'log_date'   => $request->log_date,
-            'quarter'    => $request->quarter,
-            'notes'      => $finalNotes, 
+        $logData = [
+            'student_id'           => $student->id,
+            'teacher_id'           => Auth::id(),
+            'log_date'             => $request->log_date,
+            'quarter'              => $request->quarter,
+            'notes'                => $finalNotes, 
             'home_recommendations' => $request->home_recommendations ?? null,
-            'image_path' => $imagePath, 
-        ]);
+        ];
+
+        try {
+            if (Schema::hasColumn('daily_logs', 'raw_notes')) {
+                $logData['raw_notes'] = $rawNotes;
+            }
+        } catch (\Throwable $e) {
+            $logData['raw_notes'] = $rawNotes;
+        }
+
+        if ($imagePath) {
+            $logData['image_path'] = $imagePath;
+        }
+
+        // Check if an existing log exists for this student on this date by this teacher
+        $existingLog = DailyLog::where('teacher_id', Auth::id())
+            ->where('student_id', $student->id)
+            ->whereDate('log_date', $request->log_date)
+            ->latest('id')
+            ->first();
+
+        if ($existingLog) {
+            $existingLog->update($logData);
+            $dailyLog = $existingLog;
+        } else {
+            $dailyLog = DailyLog::create($logData);
+        }
+
+        // Clean up any drafts for this date and student
+        $this->deleteDraft($student->id, $request->log_date);
 
         return redirect()->route('teacher.daily-logs.index')->with('success', 'Daily log saved successfully!');
+    }
+
+    protected function findDraft($studentId, $logDate)
+    {
+        $teacherId = Auth::id();
+        try {
+            if (Schema::hasTable('daily_log_drafts')) {
+                return DailyLogDraft::where('teacher_id', $teacherId)
+                    ->where('student_id', $studentId)
+                    ->whereDate('log_date', $logDate)
+                    ->first();
+            }
+        } catch (\Throwable $e) {
+            Log::warning("findDraft DB error: " . $e->getMessage());
+        }
+
+        $cacheKey = "daily_log_draft_{$teacherId}_{$studentId}_{$logDate}";
+        $data = Cache::get($cacheKey);
+        if ($data && is_array($data)) {
+            return (object) [
+                'raw_notes'    => $data['raw_notes'] ?? '',
+                'formal_notes' => $data['formal_notes'] ?? '',
+                'quarter'      => $data['quarter'] ?? null,
+                'updated_at'   => isset($data['updated_at']) ? Carbon::parse($data['updated_at']) : now(),
+            ];
+        }
+
+        return null;
+    }
+
+    protected function persistDraft($studentId, $logDate, $quarter, $rawNotes, $formalNotes)
+    {
+        $teacherId = Auth::id();
+        $now = now();
+
+        try {
+            if (Schema::hasTable('daily_log_drafts')) {
+                $draft = DailyLogDraft::updateOrCreate(
+                    [
+                        'teacher_id' => $teacherId,
+                        'student_id' => $studentId,
+                        'log_date'   => $logDate,
+                    ],
+                    [
+                        'quarter'      => $quarter,
+                        'raw_notes'    => $rawNotes,
+                        'formal_notes' => $formalNotes,
+                    ]
+                );
+
+                return ['updated_at' => $draft->updated_at ?? $now];
+            }
+        } catch (\Throwable $e) {
+            Log::warning("persistDraft DB error: " . $e->getMessage());
+        }
+
+        $cacheKey = "daily_log_draft_{$teacherId}_{$studentId}_{$logDate}";
+        $payload = [
+            'raw_notes'    => $rawNotes,
+            'formal_notes' => $formalNotes,
+            'quarter'      => $quarter,
+            'updated_at'   => $now->toDateTimeString(),
+        ];
+        Cache::put($cacheKey, $payload, now()->addDays(90));
+
+        return ['updated_at' => $now];
+    }
+
+    protected function deleteDraft($studentId, $logDate)
+    {
+        $teacherId = Auth::id();
+
+        try {
+            if (Schema::hasTable('daily_log_drafts')) {
+                DailyLogDraft::where('teacher_id', $teacherId)
+                    ->where('student_id', $studentId)
+                    ->whereDate('log_date', $logDate)
+                    ->delete();
+            }
+        } catch (\Throwable $e) {
+            Log::warning("deleteDraft DB error: " . $e->getMessage());
+        }
+
+        $cacheKey = "daily_log_draft_{$teacherId}_{$studentId}_{$logDate}";
+        Cache::forget($cacheKey);
     }
 
     public function generateAiReport(\Illuminate\Http\Request $request)

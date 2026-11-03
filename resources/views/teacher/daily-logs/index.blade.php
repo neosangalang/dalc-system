@@ -107,10 +107,16 @@
                     </div>
 
                     <div class="p-5 bg-[#F4F6FA] border border-dashed border-[#3B82F6]/30 rounded-2xl relative overflow-hidden">
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
                             <label class="text-[12px] font-extrabold text-[#3B82F6] uppercase tracking-widest m-0 flex items-center">
                                 <i class="fa fa-bolt mr-1.5"></i> 1. Quick Notes (Informal)
                             </label>
+
+                            <!-- Draft persistence status indicator -->
+                            <div id="draftStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-white border border-slate-200 text-slate-500 shadow-xs transition-all">
+                                <i id="draftStatusIcon" class="fa-solid fa-cloud text-slate-400"></i>
+                                <span id="draftStatusText">Auto-save ready</span>
+                            </div>
                         </div>
                         <textarea name="raw_notes" id="rawNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm mb-4 custom-scrollbar bg-white transition-all" rows="4" placeholder="e.g., he ate snacks, played with blocks, got distracted...">{{ old('raw_notes') }}</textarea>
                         
@@ -330,6 +336,15 @@
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
 
+                        @if(!empty($log->raw_notes))
+                            <div class="mt-3 p-3.5 bg-blue-50/60 rounded-xl border border-blue-200/70 text-slate-800">
+                                <h6 class="text-[11px] font-extrabold text-[#3B82F6] uppercase tracking-widest mb-1.5 flex items-center m-0">
+                                    <i class="fa fa-bolt mr-1.5"></i> Quick Notes (Informal)
+                                </h6>
+                                <p class="m-0 text-[13px] leading-relaxed font-normal text-slate-700 whitespace-pre-wrap">{{ $log->raw_notes }}</p>
+                            </div>
+                        @endif
+
                         @if(!empty($log->home_recommendations))
                             <div class="mt-4 p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 text-emerald-950">
                                 <h6 class="text-[11px] font-extrabold text-emerald-700 uppercase tracking-widest mb-1.5 flex items-center m-0">
@@ -371,67 +386,271 @@
 
 @push('scripts')
 <script>
-// --- AUTO-SAVE DRAFT & CACHE LOGIC ---
-const dailyLogCache = {};
-let currentDailyLogKey = '';
+// --- PERSISTENT DRAFT & AUTO-SAVE MANAGER ---
+const CURRENT_TEACHER_ID = '{{ Auth::id() }}';
+const CSRF_TOKEN = '{{ csrf_token() }}';
+const FETCH_ENTRY_URL = '{{ route('teacher.daily-logs.entry') }}';
+const SAVE_DRAFT_URL = '{{ route('teacher.daily-logs.save-draft') }}';
+
+let autoSaveTimer = null;
+let currentFetchController = null;
+let isDirty = false;
+let isSubmitting = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     const studentIdInput = document.getElementById('student_id');
     const logDateInput = document.getElementById('log_date');
+    const quarterSelect = document.querySelector('select[name="quarter"]');
     const rawNotes = document.getElementById('rawNotes');
     const formalNotes = document.getElementById('formalNotes');
     const form = document.getElementById('dailyLogForm');
     const filterStudent = document.getElementById('filterStudent');
+    const draftStatusBadge = document.getElementById('draftStatusBadge');
+    const draftStatusIcon = document.getElementById('draftStatusIcon');
+    const draftStatusText = document.getElementById('draftStatusText');
 
-    function getCacheKey() {
+    function getStorageKey(sid, date) {
+        if (!sid || !date) return null;
+        return `dalc_log_draft_${CURRENT_TEACHER_ID}_${sid}_${date}`;
+    }
+
+    function saveLocalBackup(sid, date, raw, formal, quarter) {
+        const key = getStorageKey(sid, date);
+        if (!key) return;
+        try {
+            localStorage.setItem(key, JSON.stringify({
+                raw_notes: raw || '',
+                formal_notes: formal || '',
+                quarter: quarter || '',
+                updated_at: new Date().toISOString()
+            }));
+        } catch(e) {}
+    }
+
+    function loadLocalBackup(sid, date) {
+        const key = getStorageKey(sid, date);
+        if (!key) return null;
+        try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : null;
+        } catch(e) {
+            return null;
+        }
+    }
+
+    function clearLocalBackup(sid, date) {
+        const key = getStorageKey(sid, date);
+        if (!key) return;
+        try { localStorage.removeItem(key); } catch(e) {}
+    }
+
+    function updateStatusBadge(state, message) {
+        if (!draftStatusBadge || !draftStatusText || !draftStatusIcon) return;
+
+        draftStatusBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold shadow-xs transition-all ';
+        draftStatusIcon.className = '';
+
+        switch (state) {
+            case 'saving':
+                draftStatusBadge.classList.add('bg-blue-50', 'border', 'border-blue-200', 'text-blue-700');
+                draftStatusIcon.className = 'fa-solid fa-cloud-arrow-up text-blue-500 animate-pulse';
+                draftStatusText.textContent = message || 'Saving draft...';
+                break;
+            case 'saved':
+                draftStatusBadge.classList.add('bg-emerald-50', 'border', 'border-emerald-200', 'text-emerald-700');
+                draftStatusIcon.className = 'fa-solid fa-circle-check text-emerald-500';
+                draftStatusText.textContent = message ? `Draft saved (${message})` : 'Draft auto-saved';
+                break;
+            case 'restored-draft':
+                draftStatusBadge.classList.add('bg-indigo-50', 'border', 'border-indigo-200', 'text-indigo-700');
+                draftStatusIcon.className = 'fa-solid fa-clock-rotate-left text-indigo-500';
+                draftStatusText.textContent = message ? `Draft restored (${message})` : 'Draft restored';
+                break;
+            case 'restored-saved':
+                draftStatusBadge.classList.add('bg-slate-100', 'border', 'border-slate-300', 'text-slate-700');
+                draftStatusIcon.className = 'fa-solid fa-file-circle-check text-emerald-600';
+                draftStatusText.textContent = message ? `Saved log loaded (${message})` : 'Saved log loaded';
+                break;
+            case 'error':
+                draftStatusBadge.classList.add('bg-amber-50', 'border', 'border-amber-200', 'text-amber-700');
+                draftStatusIcon.className = 'fa-solid fa-circle-exclamation text-amber-500';
+                draftStatusText.textContent = message || 'Saved locally';
+                break;
+            default:
+                draftStatusBadge.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-500');
+                draftStatusIcon.className = 'fa-solid fa-cloud text-slate-400';
+                draftStatusText.textContent = message || 'Auto-save ready';
+        }
+    }
+
+    async function loadEntry(sid, date) {
+        if (!sid || !date) return;
+
+        if (currentFetchController) {
+            currentFetchController.abort();
+        }
+        currentFetchController = new AbortController();
+
+        updateStatusBadge('saving', 'Checking for notes...');
+
+        try {
+            const response = await fetch(`${FETCH_ENTRY_URL}?student_id=${encodeURIComponent(sid)}&log_date=${encodeURIComponent(date)}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                signal: currentFetchController.signal
+            });
+
+            if (!response.ok) throw new Error('Network response not ok');
+            const data = await response.json();
+
+            if (data.exists) {
+                if (rawNotes) rawNotes.value = data.raw_notes || '';
+                if (formalNotes) formalNotes.value = data.formal_notes || '';
+                if (data.quarter && quarterSelect) {
+                    quarterSelect.value = data.quarter;
+                }
+
+                saveLocalBackup(sid, date, data.raw_notes, data.formal_notes, data.quarter);
+                isDirty = false;
+
+                if (data.source === 'draft') {
+                    updateStatusBadge('restored-draft', data.updated_at || data.updated_time);
+                } else if (data.source === 'saved') {
+                    updateStatusBadge('restored-saved', data.updated_at || data.updated_time);
+                }
+            } else {
+                // Fallback to local storage
+                const local = loadLocalBackup(sid, date);
+                if (local && (local.raw_notes || local.formal_notes)) {
+                    if (rawNotes) rawNotes.value = local.raw_notes || '';
+                    if (formalNotes) formalNotes.value = local.formal_notes || '';
+                    if (local.quarter && quarterSelect) quarterSelect.value = local.quarter;
+                    isDirty = true;
+                    updateStatusBadge('restored-draft', 'local');
+                } else {
+                    if (rawNotes) rawNotes.value = '';
+                    if (formalNotes) formalNotes.value = '';
+                    isDirty = false;
+                    updateStatusBadge('idle');
+                }
+            }
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            console.warn('Failed to load entry from server:', err);
+            const local = loadLocalBackup(sid, date);
+            if (local && (local.raw_notes || local.formal_notes)) {
+                if (rawNotes) rawNotes.value = local.raw_notes || '';
+                if (formalNotes) formalNotes.value = local.formal_notes || '';
+                updateStatusBadge('error', 'Loaded local backup');
+            } else {
+                updateStatusBadge('idle');
+            }
+        }
+    }
+
+    function flushDraft(sid, date, quarterVal, rawVal, formalVal) {
+        if (!sid || !date || isSubmitting) return;
+
+        fetch(SAVE_DRAFT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                student_id: sid,
+                log_date: date,
+                quarter: quarterVal,
+                raw_notes: rawVal,
+                formal_notes: formalVal
+            }),
+            keepalive: true
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'saved') {
+                isDirty = false;
+                updateStatusBadge('saved', data.updated_time || 'just now');
+            } else if (data.status === 'cleared') {
+                isDirty = false;
+                clearLocalBackup(sid, date);
+                updateStatusBadge('idle');
+            }
+        })
+        .catch(err => {
+            console.warn('Draft save error:', err);
+            updateStatusBadge('error', 'Saved locally');
+        });
+    }
+
+    window.triggerAutoSave = function(immediate = false) {
         const sid = studentIdInput ? studentIdInput.value : '';
         const date = logDateInput ? logDateInput.value : '';
-        if (!sid || !date) return '';
-        return `${sid}_${date}`;
-    }
+        if (!sid || !date || isSubmitting) return;
 
-    function saveCurrentToCache() {
-        if (!currentDailyLogKey) return;
-        if (!dailyLogCache[currentDailyLogKey]) dailyLogCache[currentDailyLogKey] = {};
-        if (rawNotes) dailyLogCache[currentDailyLogKey].rawNotes = rawNotes.value;
-        if (formalNotes) dailyLogCache[currentDailyLogKey].formalNotes = formalNotes.value;
-    }
+        isDirty = true;
+        const rawVal = rawNotes ? rawNotes.value : '';
+        const formalVal = formalNotes ? formalNotes.value : '';
+        const quarterVal = quarterSelect ? quarterSelect.value : 'Q1';
 
-    function loadFromCache() {
-        const newKey = getCacheKey();
-        if (currentDailyLogKey && currentDailyLogKey !== newKey) {
-            saveCurrentToCache();
-        }
-        currentDailyLogKey = newKey;
+        saveLocalBackup(sid, date, rawVal, formalVal, quarterVal);
 
-        if (!newKey) return;
-
-        const cached = dailyLogCache[newKey];
-        if (cached) {
-            if (rawNotes) rawNotes.value = cached.rawNotes || '';
-            if (formalNotes) formalNotes.value = cached.formalNotes || '';
+        if (immediate) {
+            clearTimeout(autoSaveTimer);
+            flushDraft(sid, date, quarterVal, rawVal, formalVal);
         } else {
-            if (rawNotes) rawNotes.value = '';
-            if (formalNotes) formalNotes.value = '';
+            updateStatusBadge('saving');
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                flushDraft(sid, date, quarterVal, rawVal, formalVal);
+            }, 1000);
         }
+    };
+
+    if (rawNotes) {
+        rawNotes.addEventListener('input', () => window.triggerAutoSave(false));
+        rawNotes.addEventListener('blur', () => { if (isDirty) window.triggerAutoSave(true); });
     }
 
-    // Save initial state if preset
-    currentDailyLogKey = getCacheKey();
-    if (currentDailyLogKey) {
-        dailyLogCache[currentDailyLogKey] = {
-            rawNotes: rawNotes ? rawNotes.value : '',
-            formalNotes: formalNotes ? formalNotes.value : ''
-        };
+    if (formalNotes) {
+        formalNotes.addEventListener('input', () => window.triggerAutoSave(false));
+        formalNotes.addEventListener('blur', () => { if (isDirty) window.triggerAutoSave(true); });
     }
 
-    if (rawNotes) rawNotes.addEventListener('input', saveCurrentToCache);
-    if (formalNotes) formalNotes.addEventListener('input', saveCurrentToCache);
+    if (quarterSelect) {
+        quarterSelect.addEventListener('change', () => {
+            if (isDirty) window.triggerAutoSave(true);
+        });
+    }
 
     if (logDateInput) {
-        logDateInput.addEventListener('change', loadFromCache);
-        logDateInput.addEventListener('input', loadFromCache);
+        logDateInput.addEventListener('change', function() {
+            if (isDirty) window.triggerAutoSave(true);
+            const sid = studentIdInput ? studentIdInput.value : '';
+            if (sid && this.value) {
+                loadEntry(sid, this.value);
+            }
+        });
     }
+
+    // Flush draft before leaving (e.g., clicking Back to Dashboard or logging out)
+    window.addEventListener('beforeunload', function() {
+        if (isDirty && !isSubmitting) {
+            window.triggerAutoSave(true);
+        }
+    });
+
+    document.querySelectorAll('a[href*="dashboard"], a[href*="logout"], #back-to-dashboard-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (isDirty && !isSubmitting) {
+                window.triggerAutoSave(true);
+            }
+        });
+    });
 
     window.syncStudentFilter = function() {
         if (studentIdInput && studentIdInput.value && filterStudent) {
@@ -470,6 +689,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
             }
             if (noStudentNotice) noStudentNotice.classList.remove('hidden');
+            updateStatusBadge('idle', 'Select a student');
         } else {
             if (rawNotes) {
                 rawNotes.disabled = false;
@@ -498,16 +718,22 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial student input state
     updateStudentInputState();
 
+    // Initial load if student and date are already set on page visit
+    if (studentIdInput && studentIdInput.value && logDateInput && logDateInput.value) {
+        window.syncStudentFilter();
+        loadEntry(studentIdInput.value, logDateInput.value);
+    }
+
     if (studentIdInput) {
         studentIdInput.addEventListener('change', function() {
+            if (isDirty) window.triggerAutoSave(true);
             updateStudentInputState();
-            loadFromCache();
+            const dateVal = logDateInput ? logDateInput.value : '';
+            if (this.value && dateVal) {
+                loadEntry(this.value, dateVal);
+            }
             window.syncStudentFilter();
         });
-        // Initial sync if student already pre-selected
-        if (studentIdInput.value) {
-            window.syncStudentFilter();
-        }
     }
 
     if (form) {
@@ -533,6 +759,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (rawNotes) rawNotes.disabled = false;
             if (formalNotes) formalNotes.disabled = false;
 
+            isSubmitting = true;
+            clearTimeout(autoSaveTimer);
             window.hasUnsavedAiChanges = false;
         });
     }
@@ -811,14 +1039,8 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
             window.hasUnsavedAiChanges = true;
             window.showToast('Formal note generated successfully.', 'success');
 
-            let sid = document.getElementById('student_id').value;
-            let date = document.getElementById('log_date').value;
-            if (sid && date) {
-                let key = `${sid}_${date}`;
-                if (!dailyLogCache[key]) dailyLogCache[key] = {};
-                dailyLogCache[key].formalNotes = data.formal_note;
-                dailyLogCache[key].rawNotes = document.getElementById('rawNotes').value;
-                currentDailyLogKey = key;
+            if (typeof window.triggerAutoSave === 'function') {
+                window.triggerAutoSave(true);
             }
         }
     })

@@ -9,7 +9,7 @@ class DailyLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_id', 'teacher_id', 'log_date', 'quarter', 'notes', 'ai_generated_report','home_recommendations','image_path'];
+    protected $fillable = ['student_id', 'teacher_id', 'log_date', 'quarter', 'raw_notes', 'notes', 'ai_generated_report','home_recommendations','image_path'];
 
     public function student() {
         return $this->belongsTo(Student::class);

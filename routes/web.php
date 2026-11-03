@@ -231,6 +231,8 @@ Route::middleware(['auth', 'role:teacher', \App\Http\Middleware\ForcePasswordCha
     Route::resource('reports', ReportController::class);
     
     Route::get('/daily-logs', [DailyLogController::class, 'index'])->name('daily-logs.index');
+    Route::get('/daily-logs/entry', [DailyLogController::class, 'getEntry'])->name('daily-logs.entry');
+    Route::post('/daily-logs/save-draft', [DailyLogController::class, 'saveDraft'])->name('daily-logs.save-draft');
     Route::post('/daily-logs', [DailyLogController::class, 'store'])->name('daily-logs.store');
     Route::get('/daily-logs/{id}/pdf', [DailyLogController::class, 'downloadPdf'])->name('daily-logs.pdf');
     Route::delete('/daily-logs/{id}', [DailyLogController::class, 'destroy'])->name('daily-logs.destroy');
