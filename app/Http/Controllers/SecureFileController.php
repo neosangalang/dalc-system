@@ -7,6 +7,7 @@ use App\Models\DailyLog;
 use App\Models\Report;
 use App\Models\Student;
 use App\Models\StudentDocument;
+use App\Models\UserActivityLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,6 +30,18 @@ class SecureFileController extends Controller
         };
 
         if (!$isAuthorized) abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized.');
+
+        // Audit Trail: Record daily log media access
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "User {$user->name} accessed Daily Log observation media for {$student->first_name} {$student->last_name}.",
+            targetType: 'DailyLog',
+            targetId: $log->id,
+            studentName: "{$student->first_name} {$student->last_name}",
+            user: $user,
+            request: request()
+        );
 
         $disk = Storage::disk('local');
         if ($log->image_path && $disk->exists($log->image_path)) {
@@ -82,6 +95,18 @@ class SecureFileController extends Controller
         };
 
         if (!$isAuthorized) abort(403, 'Security Violation: User ID ' . $user->id . ' is not authorized to view this report media.');
+
+        // Audit Trail: Record report media access
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "User {$user->name} accessed Report media attachment for " . ($student ? "{$student->first_name} {$student->last_name}" : "Student ID #{$report->student_id}"),
+            targetType: 'Report',
+            targetId: $report->id,
+            studentName: $student ? "{$student->first_name} {$student->last_name}" : null,
+            user: $user,
+            request: request()
+        );
 
         $disk = Storage::disk('local');
         if ($report->image_path && $disk->exists($report->image_path)) {
@@ -166,6 +191,19 @@ class SecureFileController extends Controller
 
         $disk = Storage::disk('local');
         $fileName = $document->original_name ?? basename($document->file_path);
+
+        // Audit Trail: Record confidential student document access
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "User {$user->name} accessed confidential student document '{$fileName}' for {$student->first_name} {$student->last_name}.",
+            targetType: 'StudentDocument',
+            targetId: $document->id,
+            studentName: "{$student->first_name} {$student->last_name}",
+            user: $user,
+            request: request()
+        );
+
         $headers = [
             'Content-Disposition' => 'inline; filename="' . $fileName . '"',
         ];

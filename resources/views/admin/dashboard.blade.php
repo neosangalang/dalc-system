@@ -88,8 +88,8 @@
                 <span class="h-px flex-1 bg-black/10"></span>
             </div>
 
-            <!-- ADMIN MODULES (2 cols on mobile, 3 on md, 6 on xl) -->
-            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-5 w-full">
+            <!-- ADMIN MODULES (2 cols on mobile, 3 on md, 7 on xl) -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3 sm:gap-4 w-full">
                 
                 <!-- Student Profiles -->
                 <a href="{{ route('admin.students.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#3B82F6]/30 hover:shadow-[0_8px_20px_-6px_rgba(59,130,246,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
@@ -170,6 +170,18 @@
                         <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0">Past Records</p>
                     </div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#6B7086] transition-all duration-500 ease-out group-hover:w-full"></div>
+                </a>
+
+                <!-- Audit Logs -->
+                <a href="{{ route('admin.audit-logs.index') }}" class="group bg-white border border-black/15 rounded-2xl shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)] hover:border-[#1E2657]/40 hover:shadow-[0_8px_20px_-6px_rgba(30,38,87,0.25)] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 block p-4 sm:p-5 h-[125px] sm:h-[140px] flex flex-col justify-between relative overflow-hidden">
+                    <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-[#1E2657]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#1E2657] relative z-10">
+                        <i class="fa-solid fa-shield-halved text-[#1E2657] text-xs sm:text-sm group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[13px] sm:text-[15px] font-extrabold text-[#1E2657] mb-0.5 transition-colors duration-300 group-hover:text-[#1E2657]">Audit Logs</h3>
+                        <p class="text-[11px] sm:text-[12px] text-[#9CA0AF] font-medium m-0">Activity Trail</p>
+                    </div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] w-0 bg-[#1E2657] transition-all duration-500 ease-out group-hover:w-full"></div>
                 </a>
             </div>
         </section>

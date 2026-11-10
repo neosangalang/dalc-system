@@ -206,94 +206,14 @@
             </div>
         </div>
 
-        <!-- RIGHT COLUMN: IEP Goals -->
+        <!-- RIGHT COLUMN: IEP Goals & Historical Longitudinal Comparison -->
         <div class="lg:col-span-2">
-            <div class="bg-white rounded-2xl shadow-sm border border-black/15 h-full flex flex-col overflow-hidden">
-                
-                <div class="p-6 border-b border-black/10 flex justify-between items-center bg-[#F4F6FA]">
-                    <h4 class="font-extrabold text-base sm:text-lg text-[#1E2657] m-0 flex items-center">
-                        <i class="fa fa-bullseye mr-2.5 text-[#8B5CF6]"></i> IEP Goal Progress
-                    </h4>
-                </div>
-                
-                <div class="p-6 overflow-y-auto max-h-[800px] custom-scrollbar bg-white flex-1">
-                    @forelse($student->iepGoals as $goal)
-                        <div class="mb-8 pb-8 border-b border-black/10 last:border-0 last:pb-0 last:mb-0">
-                            
-                            <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
-                                <span class="inline-flex px-3.5 py-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] text-[10px] font-extrabold rounded-md uppercase tracking-widest border border-[#8B5CF6]/20 shadow-sm">
-                                    {{ str_replace('-', ' - ', strtoupper($goal->domain)) }}
-                                </span>
-                                <span class="text-[12px] font-extrabold text-[#6B7086] bg-[#F4F6FA] px-3.5 py-1.5 border border-black/5 rounded-md shadow-sm uppercase tracking-widest">
-                                    Overall Progress: <span class="{{ $goal->progress_percentage == 100 ? 'text-[#10B981]' : 'text-[#8B5CF6]' }}">{{ $goal->progress_percentage }}%</span>
-                                </span>
-                            </div>
-
-                            @php
-                                $subGoals = preg_split('/-{5,}/', $goal->goal_description);
-                            @endphp
-
-                            <div class="space-y-5">
-                                @foreach($subGoals as $subGoalText)
-                                    @php
-                                        $subGoalText = trim($subGoalText);
-                                        if (empty($subGoalText)) continue;
-
-                                        $objective = $subGoalText;
-                                        $activitiesText = '';
-
-                                        if (preg_match('/ACTIVITIES:/i', $subGoalText)) {
-                                            $parts = preg_split('/ACTIVITIES:/i', $subGoalText);
-                                            $objective = preg_replace('/OBJECTIVE:/i', '', $parts[0]);
-                                            $activitiesText = $parts[1];
-                                        }
-
-                                        $objective = trim($objective);
-                                        // Fix Names
-                                        $objective = str_ireplace(['[Student Name]', '[Student\'s Name]'], $student->first_name, $objective);
-                                        $activitiesText = str_ireplace(['[Student Name]', '[Student\'s Name]'], $student->first_name, $activitiesText);
-                                        
-                                        // Turn activities string into an array of lines based on checkboxes or bullets
-                                        $activitiesArray = preg_split('/\[ \]|\[x\]|\[X\]|\[\]|•/', $activitiesText);
-                                    @endphp
-
-                                    @if(!empty($objective))
-                                        <div class="p-5 bg-white border-y border-r border-l-4 border-black/15 border-l-[#8B5CF6] rounded-r-xl shadow-sm">
-                                            <span class="text-[10px] font-extrabold tracking-widest text-[#8B5CF6] uppercase block mb-2 flex items-center">
-                                                <i class="fa fa-bullseye mr-1.5"></i> Objective:
-                                            </span>
-                                            <p class="text-[14px] font-extrabold text-[#1E2657] mb-0 leading-relaxed">{{ $objective }}</p>
-
-                                            @if(count(array_filter($activitiesArray)) > 0)
-                                                <div class="mt-5 pt-5 border-t border-black/10 border-dashed">
-                                                    <span class="text-[10px] font-extrabold tracking-widest text-[#9CA0AF] uppercase block mb-3 flex items-center">
-                                                        <i class="fa fa-list-check mr-1.5 text-[#3B82F6]"></i> Activities / Strategies:
-                                                    </span>
-                                                    <ul class="list-disc pl-5 space-y-2 text-[13px] font-medium text-[#6B7086] m-0 leading-relaxed">
-                                                        @foreach($activitiesArray as $activity)
-                                                            @if(trim($activity))
-                                                                <li>{{ trim($activity) }}</li>
-                                                            @endif
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-16 px-6 bg-white rounded-2xl border border-black/15 shadow-sm">
-                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F4F6FA] border border-black/5 mb-4 shadow-sm">
-                                <i class="fa fa-folder-open text-2xl text-[#9CA0AF]"></i>
-                            </div>
-                            <h3 class="font-extrabold text-[#1E2657] text-[15px] mb-1">No IEP Goals Found</h3>
-                            <p class="text-[#6B7086] text-[13px] font-medium m-0">No IEP Goals or objectives have been generated for this student yet.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
+            <x-student-historical-comparison 
+                :student="$student" 
+                :past-archives="$pastArchives" 
+                :active-school-year="$activeSchoolYear" 
+                :is-admin="false" 
+            />
         </div>
         
     </div>

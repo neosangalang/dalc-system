@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\IepGoal;
 use App\Models\Report;
 use App\Models\DailyLog;
+use App\Models\UserActivityLog;
 use Illuminate\Http\Request; 
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf; 
@@ -387,6 +388,18 @@ class GuardianController extends Controller
         $pdf = Pdf::loadView('teacher.reports.pdf', compact('report'));
         $fileName = $report->student->last_name . '_' . $report->student->first_name . '_Report.pdf';
 
+        // Audit Trail: Record Guardian Report PDF Download
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "Guardian " . Auth::user()->name . " downloaded " . strtoupper(str_replace('_', ' ', $report->report_type)) . " Report PDF for child {$report->student->first_name} {$report->student->last_name}.",
+            targetType: 'Report',
+            targetId: $report->id,
+            studentName: "{$report->student->first_name} {$report->student->last_name}",
+            user: Auth::user(),
+            request: request()
+        );
+
         return $pdf->stream($fileName);
     }
 
@@ -415,6 +428,18 @@ class GuardianController extends Controller
         $pdf = Pdf::loadView('teacher.iep.pdf', compact('student'));
         $fileName = 'IEP_' . $student->last_name . '_' . $student->first_name . '_SY2025-2026.pdf';
         
+        // Audit Trail: Record Guardian IEP PDF Download
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "Guardian " . Auth::user()->name . " downloaded Master IEP Summary PDF for child {$student->first_name} {$student->last_name}.",
+            targetType: 'Student',
+            targetId: $student->id,
+            studentName: "{$student->first_name} {$student->last_name}",
+            user: Auth::user(),
+            request: request()
+        );
+
         return $pdf->stream($fileName);
     }
 

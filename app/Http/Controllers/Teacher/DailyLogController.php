@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\DailyLog;
 use App\Models\DailyLogDraft;
 use App\Models\Report; 
+use App\Models\UserActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -584,6 +585,18 @@ PROMPT;
         $safeFirstName = Str::slug($log->student->first_name ?? '');
         $dateStr = \Carbon\Carbon::parse($log->log_date)->format('Y-m-d');
         $fileName = "DailyLog_{$safeLastName}_{$safeFirstName}_{$dateStr}.pdf";
+
+        // Audit Trail: Record Daily Log PDF Download
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "Teacher " . Auth::user()->name . " downloaded Daily Log PDF for {$log->student->first_name} {$log->student->last_name} (Date: {$dateStr}).",
+            targetType: 'DailyLog',
+            targetId: $log->id,
+            studentName: "{$log->student->first_name} {$log->student->last_name}",
+            user: Auth::user(),
+            request: request()
+        );
 
         return $pdf->stream($fileName);
     }

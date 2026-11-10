@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserActivityLog;
 use Illuminate\Http\Request;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -46,6 +47,17 @@ class MfaChallengeController extends Controller
                 \Illuminate\Support\Facades\Cookie::queue('mfa_remember_' . $user->id, true, 43200); // 30 days
                 \Illuminate\Support\Facades\Log::info('MFA COOKIE SET for user ' . $user->id);
             }
+
+            // Audit Trail: Record MFA Login
+            UserActivityLog::record(
+                action: 'MFA Verified Login',
+                actionType: 'login',
+                details: "User {$user->name} successfully verified 2FA code and completed sign-in.",
+                targetType: 'User',
+                targetId: $user->id,
+                user: $user,
+                request: $request
+            );
 
             return match($user->role) {
                 'admin'    => redirect()->route('admin.dashboard')->with('success', 'Authentication successful.'),

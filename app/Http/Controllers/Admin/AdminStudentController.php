@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\StudentDocument;
 use App\Models\ArchivedStudent;
 use App\Models\SchoolYear;
+use App\Models\UserActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -97,6 +98,18 @@ class AdminStudentController extends Controller
                     'mime_type'     => $file->getClientMimeType(),
                 ]);
             }
+
+            // Audit Trail: Record Student Enrollment
+            UserActivityLog::record(
+                action: 'Student Profile Enrolled',
+                actionType: 'student_create',
+                details: "Enrolled new student profile for {$student->first_name} {$student->last_name} (LRN: {$student->learners_reference_number}).",
+                targetType: 'Student',
+                targetId: $student->id,
+                studentName: "{$student->first_name} {$student->last_name}",
+                user: auth()->user(),
+                request: $request
+            );
         });
 
         return redirect()->back()->with('success', 'Student Profile created successfully!');
@@ -452,6 +465,18 @@ class AdminStudentController extends Controller
                     'archived_student_id' => null,
                 ]);
             }
+
+            // Audit Trail: Record Student Re-enrollment
+            UserActivityLog::record(
+                action: 'Student Re-enrolled',
+                actionType: 'student_reenroll',
+                details: "Re-enrolled student {$student->first_name} {$student->last_name} for the new school year.",
+                targetType: 'Student',
+                targetId: $student->id,
+                studentName: "{$student->first_name} {$student->last_name}",
+                user: auth()->user(),
+                request: $request
+            );
         });
 
         return redirect()->back()->with('success', "Student {$student->first_name} {$student->last_name} has been successfully re-enrolled and reactivated for the new school year! A fresh IEP slate has been initialized.");
@@ -464,6 +489,10 @@ class AdminStudentController extends Controller
             'guardian',
             'documents',
             'iepGoals',
+            'reports' => function ($query) {
+                $query->whereIn('report_type', ['q1', 'q2', 'q3', 'q4', 'mid_year', 'year_end'])
+                      ->orderBy('report_date', 'asc');
+            },
             'dailyLogs' => function ($query) {
                 $query->orderBy('log_date', 'desc')->take(5);
             }
@@ -473,7 +502,9 @@ class AdminStudentController extends Controller
             ->orderBy('school_year', 'desc')
             ->get();
 
-        return view('admin.students.show', compact('student', 'pastArchives'));
+        $activeSchoolYear = SchoolYear::active()?->name ?? ('SY ' . date('Y') . '-' . (date('Y') + 1));
+
+        return view('admin.students.show', compact('student', 'pastArchives', 'activeSchoolYear'));
     }
 
     public function destroy($id)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\UserActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +34,17 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // Audit Trail: Record User Login
+        UserActivityLog::record(
+            action: 'User Login',
+            actionType: 'login',
+            details: "User {$user->name} signed in successfully via credentials.",
+            targetType: 'User',
+            targetId: $user->id,
+            user: $user,
+            request: $request
+        );
+
         // Redirect based on role
         return match($user->role) {
             'admin'    => redirect()->route('admin.dashboard'),
@@ -47,6 +59,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+        if ($user) {
+            UserActivityLog::record(
+                action: 'User Logout',
+                actionType: 'logout',
+                details: "User {$user->name} logged out of the system.",
+                targetType: 'User',
+                targetId: $user->id,
+                user: $user,
+                request: $request
+            );
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

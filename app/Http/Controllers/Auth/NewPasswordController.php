@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserActivityLog;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,6 +47,17 @@ class NewPasswordController extends Controller
                     'password_changed_at' => now(),
                     'remember_token'      => Str::random(60),
                 ])->save();
+
+                // Audit Trail: Record Password Reset
+                UserActivityLog::record(
+                    action: 'Password Reset',
+                    actionType: 'password_reset',
+                    details: "Password reset completed via token for {$user->name} ({$user->email}).",
+                    targetType: 'User',
+                    targetId: $user->id,
+                    user: $user,
+                    request: $request
+                );
 
                 event(new PasswordReset($user));
             }

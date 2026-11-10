@@ -13,6 +13,7 @@ use App\Models\Report;
 use App\Models\AcademicQuarter;
 use App\Models\DailyLog;
 use App\Models\User;
+use App\Models\UserActivityLog;
 use App\Notifications\SystemAlert;
 use App\Notifications\GuardianAlertNotification;
 use Illuminate\Support\Facades\Log;
@@ -524,6 +525,18 @@ STRICT QUALITY RULES:
         $report = Report::with(['student', 'teacher', 'approver'])->findOrFail($id);
         $pdf = Pdf::loadView('teacher.reports.pdf', compact('report'));
         $fileName = $report->student->last_name . '_' . $report->student->first_name . '_Report.pdf';
+
+        // Audit Trail: Record Report PDF Download
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "Teacher " . auth()->user()->name . " downloaded " . strtoupper(str_replace('_', ' ', $report->report_type)) . " Report PDF for {$report->student->first_name} {$report->student->last_name}.",
+            targetType: 'Report',
+            targetId: $report->id,
+            studentName: "{$report->student->first_name} {$report->student->last_name}",
+            user: auth()->user(),
+            request: request()
+        );
 
         return $pdf->stream($fileName);
     }

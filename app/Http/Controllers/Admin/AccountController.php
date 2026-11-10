@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Student;
+use App\Models\UserActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth; 
@@ -124,6 +125,17 @@ class AccountController extends Controller
 
         $account->save();
 
+        // Audit Trail: Record MFA Setting Change
+        UserActivityLog::record(
+            action: 'MFA Configuration Changed',
+            actionType: 'account_mfa',
+            details: "User {$currentUser->name} updated sign-in mode for {$account->name} to: {$statusLabel}.",
+            targetType: 'User',
+            targetId: $account->id,
+            user: $currentUser,
+            request: $request
+        );
+
         $statusLabel = $account->mfa_enabled ? 'MFA Required' : 'Normal Sign-In';
         $message = "Authentication mode for {$account->name} updated to {$statusLabel}.";
 
@@ -241,12 +253,26 @@ class AccountController extends Controller
             }
         }
 
-        if ($request->filled('password')) {
+        $isPasswordReset = $request->filled('password');
+        if ($isPasswordReset) {
             $user->password = Hash::make($request->password);
             $user->password_changed_at = null; 
         }
 
         $user->save();
+
+        // Audit Trail: Record credential / password modification
+        UserActivityLog::record(
+            action: $isPasswordReset ? 'Password Reset by Admin' : 'Account Credentials Updated',
+            actionType: $isPasswordReset ? 'password_reset' : 'account_credentials',
+            details: $isPasswordReset 
+                ? "Admin {$admin->name} reset password and credentials for account {$user->name}." 
+                : "Admin {$admin->name} updated username/contact info for account {$user->name}.",
+            targetType: 'User',
+            targetId: $user->id,
+            user: $admin,
+            request: $request
+        );
 
         return redirect()->back()
             ->with('success', "Login credentials for {$user->name} have been successfully updated!")

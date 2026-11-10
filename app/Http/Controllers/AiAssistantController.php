@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -81,6 +82,17 @@ PROMPT;
             $content = preg_replace('/^\*\*.*?\*\*:?\s*/', '', $content);
             $content = preg_replace('/^(Formal Documentation|Documentation|Daily Note|Note):?\s*/i', '', $content);
             $content = trim($content, " \t\n\r\0\x0B\"'");
+
+            // Audit Trail: Record Daily Log AI Formatting
+            UserActivityLog::record(
+                action: 'Daily Log AI Formatting',
+                actionType: 'ai_formatting',
+                details: "AI polished informal rough notes into clean, clinical classroom documentation.",
+                targetType: 'DailyLog',
+                targetId: null,
+                user: auth()->user(),
+                request: $request
+            );
 
             return response()->json([
                 'success' => true,

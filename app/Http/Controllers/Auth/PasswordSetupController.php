@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -35,6 +36,17 @@ class PasswordSetupController extends Controller
         }
 
         $user->update($updateData);
+
+        // Audit Trail: Record Initial Security Setup
+        UserActivityLog::record(
+            action: 'Password Setup',
+            actionType: 'password_reset',
+            details: "User {$user->name} completed initial account setup, updated password, and accepted terms of service.",
+            targetType: 'User',
+            targetId: $user->id,
+            user: $user,
+            request: $request
+        );
 
         // For guardian accounts with normal sign-in (MFA optional/disabled), skip MFA setup
         if ($user->role === 'guardian' && !$user->mfa_enabled) {

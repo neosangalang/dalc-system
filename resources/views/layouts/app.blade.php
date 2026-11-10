@@ -48,15 +48,145 @@
     </style>
 </head>
 
-<body class="font-['Nunito'] bg-gradient-to-br from-[#F4F1EA] via-[#EDF0F8] to-[#F4F1EA] text-[#2C2F45] antialiased min-h-screen bg-fixed overflow-x-hidden">
+<body class="font-['Nunito'] bg-gradient-to-br from-[#F4F1EA] via-[#EDF0F8] to-[#F4F1EA] text-[#2C2F45] antialiased min-h-screen bg-fixed overflow-x-hidden" x-data="{ adminSidebarOpen: false }">
+
+    @if(Auth::check() && Auth::user()->role === 'admin')
+        <!-- Admin Sidebar Backdrop -->
+        <div x-show="adminSidebarOpen" 
+             x-transition:enter="transition-opacity ease-linear duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             x-cloak
+             @click="adminSidebarOpen = false" 
+             class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50">
+        </div>
+
+        <!-- Admin Sidebar Drawer -->
+        <aside x-show="adminSidebarOpen"
+               x-transition:enter="transition ease-in-out duration-300 transform"
+               x-transition:enter-start="-translate-x-full"
+               x-transition:enter-end="translate-x-0"
+               x-transition:leave="transition ease-in-out duration-300 transform"
+               x-transition:leave-start="translate-x-0"
+               x-transition:leave-end="-translate-x-full"
+               x-cloak
+               class="fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-white shadow-2xl border-r border-[#1E2657]/15 flex flex-col justify-between">
+            
+            <!-- Sidebar Header -->
+            <div>
+                <div class="h-16 px-5 border-b border-black/10 flex items-center justify-between bg-[#F8F9FD]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#1E2657] to-[#12163A] flex items-center justify-center text-white font-black text-xs shadow-md">
+                            DA
+                        </div>
+                        <div>
+                            <span class="block font-black text-sm text-[#1E2657] leading-tight">Admin Console</span>
+                            <span class="block text-[10px] font-bold text-[#C4922E] uppercase tracking-wider">Dream Achievers</span>
+                        </div>
+                    </div>
+                    <button type="button" @click="adminSidebarOpen = false" class="w-8 h-8 rounded-lg bg-slate-200/60 hover:bg-slate-200 text-[#1E2657] flex items-center justify-center transition cursor-pointer">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Links List -->
+                <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-140px)] custom-scrollbar">
+                    <span class="block px-3 text-[10px] font-extrabold uppercase tracking-widest text-[#9CA0AF] mb-2">Core Modules</span>
+
+                    <!-- Dashboard -->
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <i class="fa-solid fa-gauge-high w-4 text-center"></i>
+                        <span>Dashboard Overview</span>
+                    </a>
+
+                    <!-- Student Profiles -->
+                    <a href="{{ route('admin.students.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.students.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <i class="fa-solid fa-users w-4 text-center text-[#3B82F6]"></i>
+                        <span>Student Profiles</span>
+                    </a>
+
+                    <!-- Approvals -->
+                    <a href="{{ route('admin.report-approval.index') }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.report-approval.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-file-circle-check w-4 text-center text-[#10B981]"></i>
+                            <span>Report Approvals</span>
+                        </div>
+                    </a>
+
+                    <!-- User Management -->
+                    <a href="{{ route('admin.accounts.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.accounts.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <i class="fa-solid fa-user-shield w-4 text-center text-[#8B5CF6]"></i>
+                        <span>User Management</span>
+                    </a>
+
+                    <!-- Calendar / Terms -->
+                    <a href="{{ route('admin.quarters.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.quarters.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <i class="fa-solid fa-calendar-days w-4 text-center text-[#F59E0B]"></i>
+                        <span>Calendar & Terms</span>
+                    </a>
+
+                    <!-- Announcements -->
+                    <a href="{{ route('admin.announcements.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.announcements.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <i class="fa-solid fa-bullhorn w-4 text-center text-[#8B5CF6]"></i>
+                        <span>Announcements</span>
+                    </a>
+
+                    <!-- Archive Snapshots -->
+                    <a href="{{ route('admin.archive.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.archive.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <i class="fa-solid fa-box-archive w-4 text-center text-[#6B7086]"></i>
+                        <span>Year-End Archive</span>
+                    </a>
+
+                    <div class="pt-3 pb-1 border-t border-black/10 my-2">
+                        <span class="block px-3 text-[10px] font-extrabold uppercase tracking-widest text-[#9CA0AF] mb-2">Audit & Compliance</span>
+                    </div>
+
+                    <!-- STANDALONE AUDIT LOGS MODULE -->
+                    <a href="{{ route('admin.audit-logs.index') }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.audit-logs.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA] border border-[#1E2657]/15 bg-blue-50/40' }}">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-shield-halved w-4 text-center text-[#3B82F6]"></i>
+                            <span>Audit Logs</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider {{ request()->routeIs('admin.audit-logs.*') ? 'bg-white/20 text-white' : 'bg-[#3B82F6]/10 text-[#3B82F6]' }}">
+                            Real-Time
+                        </span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="p-4 border-t border-black/10 bg-[#F8F9FD]">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#1E2657] to-[#12163A] text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="font-extrabold text-xs text-[#1E2657] truncate">{{ Auth::user()->name }}</div>
+                        <div class="text-[10px] font-bold text-[#C4922E] uppercase tracking-wider">System Administrator</div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    @endif
 
     <!-- ========================================== -->
     <!-- 1. TOP HEADER NAVIGATION                   -->
     <!-- ========================================== -->
-    <header class="sticky top-0 z-50 h-16 bg-white/80 backdrop-blur-lg border-b border-[#1E2657]/20 flex items-center justify-between px-3 sm:px-6 lg:px-8 shadow-sm">
+    <header class="sticky top-0 z-40 h-16 bg-white/80 backdrop-blur-lg border-b border-[#1E2657]/20 flex items-center justify-between px-3 sm:px-6 lg:px-8 shadow-sm">
 
         <!-- Logo & Brand -->
-        <div class="flex items-center gap-2.5 sm:gap-6 min-w-0">
+        <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+            @if(Auth::check() && Auth::user()->role === 'admin')
+                <!-- Sidebar Toggle Button -->
+                <button type="button" @click="adminSidebarOpen = !adminSidebarOpen" class="w-10 h-10 rounded-xl bg-[#F0F3FA] border border-[#1E2657]/20 flex items-center justify-center text-[#1E2657] hover:bg-[#1E2657] hover:text-white shadow-xs transition active:scale-95 shrink-0 cursor-pointer" title="Open Sidebar Navigation">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+            @endif
+
             <a href="{{ Auth::check() ? route(strtolower(Auth::user()->role) . '.dashboard') : route('home') }}" class="flex items-center gap-2.5 sm:gap-3 shrink-0 group decoration-transparent">
                 <div class="relative w-9 h-9 hidden sm:block">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E2657] to-[#12163A] flex items-center justify-center text-white font-black text-sm shadow-md group-hover:scale-105 transition-transform">DA</div>

@@ -205,121 +205,14 @@
             </div>
         </div>
 
-        <!-- RIGHT COLUMN: IEP Goals -->
+        <!-- RIGHT COLUMN: IEP Goals & Historical Longitudinal Comparison -->
         <div class="lg:col-span-2">
-            <div class="bg-white rounded-2xl shadow-sm border border-black/15 h-full flex flex-col overflow-hidden">
-                
-                <div class="p-6 border-b border-black/10 flex flex-wrap justify-between items-center gap-2 bg-[#F4F6FA]">
-                    <h4 class="font-extrabold text-base sm:text-lg text-[#1E2657] m-0 flex items-center">
-                        <i class="fa fa-bullseye mr-2.5 text-[#8B5CF6]"></i> IEP Goal Progress
-                    </h4>
-                    @if(isset($pastArchives) && $pastArchives->isNotEmpty())
-                        <div class="flex items-center gap-2">
-                            @foreach($pastArchives as $archive)
-                                <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-white border border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 text-[11px] font-bold rounded-lg shadow-sm transition-all" title="View SY {{ $archive->school_year }} Archive PDF">
-                                    <i class="fa fa-file-pdf mr-1.5 text-rose-500"></i> SY {{ $archive->school_year }} Archive
-                                </a>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-                
-                <div class="p-6 overflow-y-auto max-h-[800px] custom-scrollbar bg-white flex-1">
-                    @forelse($student->iepGoals as $goal)
-                        <div class="mb-8 pb-8 border-b border-black/10 last:border-0 last:pb-0 last:mb-0">
-                            
-                            <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
-                                <span class="inline-flex px-3.5 py-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] text-[10px] font-extrabold rounded-md uppercase tracking-widest border border-[#8B5CF6]/20 shadow-sm">
-                                    {{ str_replace('-', ' - ', strtoupper($goal->domain)) }}
-                                </span>
-                                <span class="text-[12px] font-extrabold text-[#6B7086] bg-[#F4F6FA] px-3.5 py-1.5 border border-black/5 rounded-md shadow-sm uppercase tracking-widest">
-                                    Overall Progress: <span class="{{ $goal->progress_percentage == 100 ? 'text-[#10B981]' : 'text-[#8B5CF6]' }}">{{ $goal->progress_percentage }}%</span>
-                                </span>
-                            </div>
-
-                            @php
-                                $subGoals = preg_split('/-{5,}/', $goal->goal_description);
-                            @endphp
-
-                            <div class="space-y-5">
-                                @foreach($subGoals as $subGoalText)
-                                    @php
-                                        $subGoalText = trim($subGoalText);
-                                        if (empty($subGoalText)) continue;
-
-                                        $objective = $subGoalText;
-                                        $activitiesText = '';
-
-                                        if (preg_match('/ACTIVITIES:/i', $subGoalText)) {
-                                            $parts = preg_split('/ACTIVITIES:/i', $subGoalText);
-                                            $objective = preg_replace('/OBJECTIVE:/i', '', $parts[0]);
-                                            $activitiesText = $parts[1];
-                                        }
-
-                                        $objective = trim($objective);
-                                        // Fix Names
-                                        $objective = str_ireplace(['[Student Name]', '[Student\'s Name]'], $student->first_name, $objective);
-                                        $activitiesText = str_ireplace(['[Student Name]', '[Student\'s Name]'], $student->first_name, $activitiesText);
-                                        
-                                        // Turn activities string into an array of lines based on checkboxes or bullets
-                                        $activitiesArray = preg_split('/\[ \]|\[x\]|\[X\]|\[\]|•/', $activitiesText);
-                                    @endphp
-
-                                    @if(!empty($objective))
-                                        <div class="p-5 bg-white border-y border-r border-l-4 border-black/15 border-l-[#8B5CF6] rounded-r-xl shadow-sm">
-                                            <span class="text-[10px] font-extrabold tracking-widest text-[#8B5CF6] uppercase block mb-2 flex items-center">
-                                                <i class="fa fa-bullseye mr-1.5"></i> Objective:
-                                            </span>
-                                            <p class="text-[14px] font-extrabold text-[#1E2657] mb-0 leading-relaxed">{{ $objective }}</p>
-
-                                            @if(count(array_filter($activitiesArray)) > 0)
-                                                <div class="mt-5 pt-5 border-t border-black/10 border-dashed">
-                                                    <span class="text-[10px] font-extrabold tracking-widest text-[#9CA0AF] uppercase block mb-3 flex items-center">
-                                                        <i class="fa fa-list-check mr-1.5 text-[#3B82F6]"></i> Activities / Strategies:
-                                                    </span>
-                                                    <ul class="list-disc pl-5 space-y-2 text-[13px] font-medium text-[#6B7086] m-0 leading-relaxed">
-                                                        @foreach($activitiesArray as $activity)
-                                                            @if(trim($activity))
-                                                                <li>{{ trim($activity) }}</li>
-                                                            @endif
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-16 px-6 bg-white rounded-2xl border border-black/15 shadow-sm">
-                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#F4F6FA] border border-black/5 mb-4 shadow-sm">
-                                <i class="fa fa-folder-open text-2xl text-[#9CA0AF]"></i>
-                            </div>
-                            <h3 class="font-extrabold text-[#1E2657] text-[15px] mb-1">No Active IEP Goals Found</h3>
-                            <p class="text-[#6B7086] text-[13px] font-medium m-0 max-w-md mx-auto">
-                                @if($student->status === 'active')
-                                    This student is actively enrolled with a fresh IEP slate. Their assigned teacher can now establish new goals for the current school year.
-                                @else
-                                    No IEP Goals or objectives have been generated for this student yet.
-                                @endif
-                            </p>
-                            @if(isset($pastArchives) && $pastArchives->isNotEmpty())
-                                <div class="mt-5 pt-5 border-t border-black/10 inline-flex flex-col items-center">
-                                    <span class="text-[11px] font-extrabold text-[#9CA0AF] uppercase tracking-wider mb-2">Previous Enrollment Records</span>
-                                    <div class="flex flex-wrap justify-center gap-2">
-                                        @foreach($pastArchives as $archive)
-                                            <a href="{{ route('admin.archive.pdf', $archive->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-black/15 text-[#1E2657] text-[12px] font-bold rounded-xl shadow-sm transition-all">
-                                                <i class="fa fa-file-pdf mr-2 text-rose-500"></i> View SY {{ $archive->school_year }} Archived IEP
-                                            </a>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    @endforelse
-                </div>
-            </div>
+            <x-student-historical-comparison 
+                :student="$student" 
+                :past-archives="$pastArchives" 
+                :active-school-year="$activeSchoolYear" 
+                :is-admin="true" 
+            />
         </div>
         
     </div>

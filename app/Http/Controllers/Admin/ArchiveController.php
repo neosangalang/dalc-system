@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\ArchivedStudent;
 use App\Models\StudentDocument;
+use App\Models\UserActivityLog;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -204,6 +205,18 @@ class ArchiveController extends Controller
             \App\Models\DailyLog::whereIn('id', $logIds)->delete();
         }
 
+        // Audit Trail: Record Student Archiving
+        UserActivityLog::record(
+            action: 'Student Archiving',
+            actionType: 'student_archiving',
+            details: "Administrator {$admin->name} executed Year-End Rollover archiving for SY {$schoolYear}. Snapshot archived for {$activeStudents->count()} active student records.",
+            targetType: 'ArchivedStudent',
+            targetId: null,
+            studentName: "Batch ({$activeStudents->count()} Students)",
+            user: $admin,
+            request: $request
+        );
+
         return redirect()->back()->with('success', "Year-End Archiving for SY {$schoolYear} completed successfully on " . $now->format('M j, Y h:i A') . "! Active student profiles are now transitioned to Archived status and Teacher Daily Logs have been purged.");
     }
 
@@ -239,6 +252,18 @@ class ArchiveController extends Controller
 
         $studentName = $archive->student ? ($archive->student->last_name . '_' . $archive->student->first_name) : 'Student_' . $archive->student_id;
         $downloadName = $studentName . '_SY_' . $archive->school_year . '_Archive.pdf';
+
+        // Audit Trail: Record Master Archive PDF Download
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "Streamed/Downloaded Master Archive PDF for {$archive->student_name} (SY {$archive->school_year}).",
+            targetType: 'ArchivedStudent',
+            targetId: $archive->id,
+            studentName: $archive->student_name,
+            user: auth()->user(),
+            request: request()
+        );
 
         return $disk->response($path, $downloadName, [
             'Content-Type' => 'application/pdf',
@@ -279,6 +304,18 @@ class ArchiveController extends Controller
         if (!$disk) {
             abort(404, 'Archived physical file not found on server.');
         }
+
+        // Audit Trail: Record Archived File Download
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "Downloaded archived document '{$originalName}' for {$archive->student_name} (SY {$archive->school_year}).",
+            targetType: 'ArchivedStudent',
+            targetId: $archive->id,
+            studentName: $archive->student_name,
+            user: auth()->user(),
+            request: request()
+        );
 
         return $disk->response($filePath, $originalName, [
             'Content-Type' => $mimeType,
@@ -359,6 +396,18 @@ class ArchiveController extends Controller
 
         // 3. Permanently delete the archived student snapshot record (Student profile is strictly preserved!)
         $archive->delete();
+
+        // Audit Trail: Record Snapshot Purge
+        UserActivityLog::record(
+            action: 'Archived Student Purged',
+            actionType: 'student_archiving',
+            details: "Administrator {$admin->name} permanently purged archived snapshot for student {$studentName} (SY {$archive->school_year}).",
+            targetType: 'ArchivedStudent',
+            targetId: $id,
+            studentName: $studentName,
+            user: $admin,
+            request: $request
+        );
 
         return redirect()->route('admin.archive.index')
             ->with('success', "Archived record for {$studentName} has been permanently deleted.");

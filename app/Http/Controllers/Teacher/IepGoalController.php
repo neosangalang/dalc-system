@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Student;
 use App\Models\IepGoal;
+use App\Models\UserActivityLog;
 use App\Notifications\SystemAlert;
 use App\Notifications\GuardianAlertNotification;
 use Illuminate\Http\Request;
@@ -83,6 +84,18 @@ class IepGoalController extends Controller
             'progress_percentage' => 0,
             'status'           => 'in_progress',
         ]);
+
+        // Audit Trail: Record IEP Creation
+        UserActivityLog::record(
+            action: 'IEP Creation',
+            actionType: 'iep_creation',
+            details: "Teacher " . Auth::user()->name . " created a new IEP Goal in domain '{$goal->domain}' for student {$student->first_name} {$student->last_name}.",
+            targetType: 'IepGoal',
+            targetId: $goal->id,
+            studentName: "{$student->first_name} {$student->last_name}",
+            user: Auth::user(),
+            request: $request
+        );
 
         // Notify the Guardian via in-app bell & email
         try {
@@ -310,6 +323,18 @@ PROMPT;
 
         // Format the file name
         $fileName = 'IEP_' . $student->last_name . '_' . $student->first_name . '_SY2025-2026.pdf';
+
+        // Audit Trail: Record IEP PDF Download
+        UserActivityLog::record(
+            action: 'File Download',
+            actionType: 'file_download',
+            details: "Downloaded Master IEP Summary PDF for student {$student->first_name} {$student->last_name}.",
+            targetType: 'Student',
+            targetId: $student->id,
+            studentName: "{$student->first_name} {$student->last_name}",
+            user: Auth::user(),
+            request: request()
+        );
 
         return $pdf->stream($fileName); 
     }

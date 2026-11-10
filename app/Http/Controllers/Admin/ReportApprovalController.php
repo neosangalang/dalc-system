@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Report;
+use App\Models\UserActivityLog;
 use App\Notifications\DocumentReadyNotification;
 use App\Notifications\SystemAlert; 
 use App\Notifications\GuardianAlertNotification;
@@ -72,6 +73,34 @@ class ReportApprovalController extends Controller
             $report->revision_notes = $request->revision_notes;
         }
         $report->save();
+
+        $studentFullName = $report->student ? "{$report->student->first_name} {$report->student->last_name}" : 'Student #' . $report->student_id;
+        $docLabel = strtoupper(str_replace('_', ' ', $report->report_type)) . ' Report';
+
+        // Audit Trail: Record Document Approval/Stamping or Rejection
+        if ($request->status === 'approved') {
+            UserActivityLog::record(
+                action: 'Document Approval/Stamping',
+                actionType: 'document_approval',
+                details: "Administrator " . auth()->user()->name . " digitally stamped and approved {$docLabel} for {$studentFullName}.",
+                targetType: 'Report',
+                targetId: $report->id,
+                studentName: $studentFullName,
+                user: auth()->user(),
+                request: $request
+            );
+        } else {
+            UserActivityLog::record(
+                action: 'Document Revision Requested',
+                actionType: 'document_rejection',
+                details: "Administrator " . auth()->user()->name . " requested revisions for {$docLabel} for {$studentFullName}. Notes: " . ($request->revision_notes ? \Illuminate\Support\Str::limit($request->revision_notes, 120) : 'None'),
+                targetType: 'Report',
+                targetId: $report->id,
+                studentName: $studentFullName,
+                user: auth()->user(),
+                request: $request
+            );
+        }
 
         if ($report->status === 'approved') {
             
