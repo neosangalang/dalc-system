@@ -154,6 +154,7 @@
                         <option value="">All Statuses</option>
                         <option value="active">Active</option>
                         <option value="archived">Archived</option>
+                        <option value="graduated">Graduated</option>
                     </select>
                 </div>
 
@@ -208,6 +209,8 @@
                                     <div class="md:hidden shrink-0 mt-1">
                                         @if($student->status === 'active')
                                         <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest">Active</span>
+                                        @elseif($student->status === 'graduated')
+                                        <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-purple-100 text-purple-700 border border-purple-200 uppercase tracking-widest">Graduated</span>
                                         @else
                                         <span class="inline-flex px-2 py-0.5 text-[9px] font-extrabold rounded bg-slate-100 text-slate-600 border border-black/10 uppercase tracking-widest">Archived</span>
                                         @endif
@@ -262,6 +265,8 @@
                                 <div class="flex flex-col gap-2 items-start">
                                     @if($student->status === 'active')
                                     <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 uppercase tracking-widest shadow-sm">Active</span>
+                                    @elseif($student->status === 'graduated')
+                                    <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-purple-100 text-purple-700 border border-purple-200 uppercase tracking-widest shadow-sm">Graduated</span>
                                     @else
                                     <span class="inline-flex px-3 py-1 text-[10px] font-extrabold rounded-md bg-slate-100 text-slate-600 border border-black/10 uppercase tracking-widest shadow-sm">Archived</span>
                                     @endif
@@ -280,8 +285,8 @@
                                             <i class="fa fa-eye text-[12px]"></i>
                                         </a>
 
-                                        @if($student->status === 'archived')
-                                        <button type="button" disabled class="w-8 h-8 rounded-lg bg-slate-100 border border-black/10 text-slate-300 cursor-not-allowed flex items-center justify-center shadow-sm opacity-50" title="Archived student is uneditable">
+                                        @if(in_array($student->status, ['archived', 'graduated']))
+                                        <button type="button" disabled class="w-8 h-8 rounded-lg bg-slate-100 border border-black/10 text-slate-300 cursor-not-allowed flex items-center justify-center shadow-sm opacity-50" title="{{ ucfirst($student->status) }} student is uneditable">
                                             <i class="fa fa-edit text-[12px]"></i>
                                         </button>
                                         @else
@@ -299,7 +304,7 @@
                                     </div>
                                 </div>
 
-                                @if($student->status !== 'archived')
+                                @if(!in_array($student->status, ['archived', 'graduated']))
                                 <!-- EDIT MODAL -->
                                 <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                                     <div class="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4 text-center">
@@ -404,6 +409,7 @@
                                                             <select name="status" class="w-full rounded-xl border border-[#9CA0AF] px-3.5 py-2.5 text-[13px] focus:border-[#3B82F6] shadow-sm">
                                                                 <option value="active" {{ $student->status === 'active' ? 'selected' : '' }}>Active</option>
                                                                 <option value="archived" {{ $student->status === 'archived' ? 'selected' : '' }}>Archived</option>
+                                                                <option value="graduated" {{ $student->status === 'graduated' ? 'selected' : '' }}>Graduated</option>
                                                             </select>
                                                         </div>
                                                         <div class="md:col-span-2">

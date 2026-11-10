@@ -276,6 +276,8 @@
                                     'document_approval' => ['icon' => 'fa-stamp', 'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200'],
                                     'document_rejection' => ['icon' => 'fa-rotate-left', 'badge' => 'bg-rose-50 text-rose-700 border-rose-200'],
                                     'student_archiving' => ['icon' => 'fa-box-archive', 'badge' => 'bg-blue-50 text-blue-700 border-blue-200'],
+                                    'data_purge' => ['icon' => 'fa-trash-can', 'badge' => 'bg-rose-50 text-rose-700 border-rose-200'],
+                                    'dry_run' => ['icon' => 'fa-flask', 'badge' => 'bg-sky-50 text-sky-700 border-sky-200'],
                                     'file_download' => ['icon' => 'fa-file-arrow-down', 'badge' => 'bg-sky-50 text-sky-700 border-sky-200'],
                                     'student_create', 'student_reenroll' => ['icon' => 'fa-user-plus', 'badge' => 'bg-teal-50 text-teal-700 border-teal-200'],
                                     default => ['icon' => 'fa-clipboard-list', 'badge' => 'bg-slate-100 text-slate-700 border-slate-200'],

@@ -129,8 +129,11 @@ class ArchiveController extends Controller
                 'is_archived'         => true,
             ]);
 
-            // Update Status to Archived
-            $student->update(['status' => 'archived']);
+            // Update Status to Archived and record archival timestamp for data retention tracking
+            $student->update([
+                'status'      => 'archived',
+                'archived_at' => $student->archived_at ?? $now,
+            ]);
         }
 
         // Archive all student reports excluding daily reports so active report lists clear up

@@ -169,7 +169,7 @@
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#F4F6FA] text-[#9CA0AF] mb-3">
                     <i class="fa-solid fa-folder-open text-2xl"></i>
                 </div>
-                <h4 class="font-extrabold text-[#1E2657] text-sm mb-1">No Active IEP Goals Established</h4>
+                <h4 class="font-extrabold text-[#1E2657] text-sm mb-1">No Active IEP Goals Found</h4>
                 <p class="text-[#6B7086] text-xs max-w-sm mx-auto m-0">
                     This student does not currently have active IEP goals recorded for {{ $activeSchoolYear }}.
                 </p>
@@ -224,7 +224,7 @@
                                     :class="selectedArchiveId === {{ $archive->id }} 
                                         ? 'bg-[#1E2657] text-white border-[#1E2657] shadow-sm' 
                                         : 'bg-white text-[#1E2657] border-black/15 hover:bg-slate-50'">
-                                SY {{ $archive->school_year }}
+                                SY {{ $archive->school_year }} Archive
                             </button>
                         @endforeach
                     </div>

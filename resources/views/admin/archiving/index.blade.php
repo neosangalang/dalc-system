@@ -15,6 +15,18 @@
 <!-- Main Container (Background stripped to let app.blade.php gradient flow) -->
 <div x-data="{ show2faModal: {{ ($errors->has('one_time_password') || $errors->has('confirmation')) ? 'true' : 'false' }} }}" class="w-full max-w-[1200px] mx-auto space-y-6 md:space-y-8">
 
+    <!-- NAVIGATION TABS -->
+    <div class="flex items-center gap-2 border-b border-black/10 pb-3">
+        <a href="{{ route('admin.archive.index') }}" class="px-4 py-2 rounded-xl text-xs sm:text-[13px] font-extrabold bg-[#1E2657] text-white shadow-sm flex items-center gap-2">
+            <i class="fa fa-box-archive"></i>
+            <span>Year-End Archiving</span>
+        </a>
+        <a href="{{ route('admin.data-retention.index') }}" class="px-4 py-2 rounded-xl text-xs sm:text-[13px] font-extrabold text-[#6B7086] hover:text-[#1E2657] hover:bg-[#F0F3FA] transition flex items-center gap-2">
+            <i class="fa fa-clock-rotate-left text-rose-500"></i>
+            <span>5-Year Data Retention & Purge</span>
+        </a>
+    </div>
+
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         

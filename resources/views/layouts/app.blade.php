@@ -140,6 +140,12 @@
                         <span>Year-End Archive</span>
                     </a>
 
+                    <!-- 5-Year Data Retention & Automated Purge -->
+                    <a href="{{ route('admin.data-retention.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all {{ request()->routeIs('admin.data-retention.*') ? 'bg-[#1E2657] text-white shadow-sm' : 'text-[#1E2657] hover:bg-[#F0F3FA]' }}">
+                        <i class="fa-solid fa-clock-rotate-left w-4 text-center text-rose-500"></i>
+                        <span>Data Retention</span>
+                    </a>
+
                     <div class="pt-3 pb-1 border-t border-black/10 my-2">
                         <span class="block px-3 text-[10px] font-extrabold uppercase tracking-widest text-[#9CA0AF] mb-2">Audit & Compliance</span>
                     </div>

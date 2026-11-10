@@ -119,8 +119,8 @@ class AdminStudentController extends Controller
     {
         $student = Student::findOrFail($id);
 
-        if ($student->status === 'archived') {
-            return redirect()->back()->withErrors(['error' => 'Archived students cannot be edited. Please re-enroll the student to make changes.']);
+        if (in_array($student->status, ['archived', 'graduated'])) {
+            return redirect()->back()->withErrors(['error' => 'Archived or graduated students cannot be edited directly. Please re-enroll the student to make changes.']);
         }
 
         $request->validate([
@@ -134,7 +134,7 @@ class AdminStudentController extends Controller
             'diagnosis_other'           => ['required_if:diagnosis,Other', 'nullable', 'string', 'max:255'],
             'teacher_id'                => ['required', Rule::exists('users', 'id')->where('role', 'teacher')], // Enforces teacher role
             'guardian_id'               => ['nullable', Rule::exists('users', 'id')->where('role', 'guardian')],
-            'status'                    => ['required', 'in:active,archived'],
+            'status'                    => ['required', 'in:active,archived,graduated'],
             'documents'                 => ['nullable', 'array'],
             'documents.*'               => ['file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'medical_document'          => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
@@ -168,6 +168,16 @@ class AdminStudentController extends Controller
                 'status',
             ]);
             $data['diagnosis'] = $finalDiagnosis;
+
+            // Track retention dates based on status transition
+            if ($data['status'] === 'graduated') {
+                $data['graduated_at'] = $student->graduated_at ?? now();
+            } elseif ($data['status'] === 'archived') {
+                $data['archived_at'] = $student->archived_at ?? now();
+            } elseif ($data['status'] === 'active') {
+                $data['graduated_at'] = null;
+                $data['archived_at'] = null;
+            }
 
             $student->update($data);
 
@@ -435,6 +445,10 @@ class AdminStudentController extends Controller
             ]);
             $data['diagnosis'] = $finalDiagnosis;
             $data['status'] = 'active';
+            $data['archived_at'] = null;
+            $data['graduated_at'] = null;
+            $data['legal_hold'] = false;
+            $data['legal_hold_reason'] = null;
 
             $student->update($data);
 

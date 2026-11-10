@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\ReportApprovalController;
 use App\Http\Controllers\Admin\ArchiveController;
+use App\Http\Controllers\Admin\DataRetentionController;
 use App\Http\Controllers\Admin\AcademicQuarterController;
 use App\Http\Controllers\Admin\AnnouncementController;
 
@@ -181,6 +182,12 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class, \App
         Route::get('/archive/{id}/pdf', [ArchiveController::class, 'masterPdf'])->name('archive.pdf');
         Route::get('/archive/{id}/document/{index}', [ArchiveController::class, 'streamArchiveDocument'])->name('archive.document');
         Route::post('/archive/execute-rollover', [ArchiveController::class, 'archiveQuarterlyReports'])->name('archive.reports');
+
+        // 5-Year Data Retention & Automated Purge Protocol
+        Route::get('/data-retention', [DataRetentionController::class, 'index'])->name('data-retention.index');
+        Route::post('/data-retention/dry-run', [DataRetentionController::class, 'dryRun'])->name('data-retention.dry-run');
+        Route::post('/data-retention/purge', [DataRetentionController::class, 'purge'])->name('data-retention.purge');
+        Route::post('/data-retention/{id}/legal-hold', [DataRetentionController::class, 'toggleLegalHold'])->name('data-retention.legal-hold');
     });
 
     Route::middleware([\App\Http\Middleware\CheckModulePermission::class . ':can_manage_calendar'])->group(function() {
