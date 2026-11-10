@@ -118,11 +118,19 @@
                             <i class="fa fa-magic mr-1.5"></i> Rewrite Professionally
                         </button>
 
+                        <!-- Contextual Hallucination Warning Banner -->
+                        <div class="mt-3 p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900 text-[11.5px] leading-relaxed font-semibold flex items-start gap-2 shadow-xs">
+                            <span class="shrink-0 text-sm leading-none mt-0.5">💡</span>
+                            <div class="flex-1">
+                                <span class="font-extrabold text-amber-950">Notice:</span> AI models may occasionally generate incomplete details or inaccuracies (hallucinations). Always review, edit, and validate
+                            </div>
+                        </div>
+
                         <!-- AI Clinical Disclaimer Notice -->
                         <div class="mt-2.5 flex items-center justify-between text-[11px] text-[#6B7086] px-1">
                             <span class="flex items-center gap-1.5">
-                                <i class="fa fa-shield-halved text-[#3B82F6]"></i>
-                                <span>AI Draft: Please review and adjust notes before saving</span>
+                                <i class="fa-solid fa-shield-halved text-[#3B82F6]"></i>
+                                <span>Human-in-the-Loop: Review and adjust notes before saving</span>
                             </span>
                             <span class="text-[10px] text-[#9CA0AF] hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                         </div>
@@ -133,9 +141,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest mb-2 flex items-center">
-                            <i class="fa fa-file-alt mr-1.5"></i> 2. Official Classroom Notes
-                        </label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-[12px] font-extrabold text-[#10B981] uppercase tracking-widest flex items-center m-0">
+                                <i class="fa fa-file-alt mr-1.5"></i> 2. Official Classroom Notes
+                            </label>
+                            <span id="formalNotesValidationBadge" class="hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold shadow-xs transition-all"></span>
+                        </div>
                         <textarea name="notes" id="formalNotes" class="w-full rounded-xl border-black/15 px-4 py-3 text-[13px] font-medium text-[#1E2657] bg-white focus:border-[#10B981] focus:ring-[#10B981] shadow-sm custom-scrollbar transition-all" rows="6" placeholder="Type formal documentation directly here, or click 'Rewrite Professionally' above...">{{ old('notes') }}</textarea>
                     </div>
 
@@ -319,13 +330,20 @@
                                 <h6 class="text-[11px] font-extrabold text-[#10B981] uppercase tracking-widest m-0 flex items-center">
                                     <i class="fa-solid fa-file-contract mr-1.5"></i> Standardized Formal Documentation
                                 </h6>
-                                <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
-                                   target="_blank"
-                                   class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
-                                   title="View Standardized Formal Documentation as PDF">
-                                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
-                                    <span>View PDF</span>
-                                </a>
+                                <div class="flex items-center gap-2">
+                                    @if(!empty($log->raw_notes))
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Policy Verified: AI notes reviewed and validated by teacher before saving">
+                                            <i class="fa-solid fa-shield-check text-emerald-600"></i> Teacher Validated
+                                        </span>
+                                    @endif
+                                    <a href="{{ route('teacher.daily-logs.pdf', $log->id) }}" 
+                                       target="_blank"
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-[#1E2657] bg-white border border-black/15 rounded-lg hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition-colors shadow-sm decoration-transparent" 
+                                       title="View Standardized Formal Documentation as PDF">
+                                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                        <span>View PDF</span>
+                                    </a>
+                                </div>
                             </div>
                             <p class="m-0 text-[13px] sm:text-[14px] leading-relaxed font-medium whitespace-pre-wrap">{{ $log->notes }}</p>
                         </div>
@@ -514,7 +532,26 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else if (data.source === 'saved') {
                     updateStatusBadge('restored-saved', data.updated_at || data.updated_time);
                 }
+
+                const valBadge = document.getElementById('formalNotesValidationBadge');
+                if (valBadge) {
+                    if (data.source === 'saved' && data.raw_notes && data.formal_notes) {
+                        valBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs';
+                        valBadge.innerHTML = '<i class="fa-solid fa-shield-check text-emerald-600"></i> Teacher Validated';
+                        valBadge.dataset.status = 'teacher-validated';
+                        valBadge.classList.remove('hidden');
+                    } else {
+                        valBadge.classList.add('hidden');
+                        valBadge.dataset.status = '';
+                    }
+                }
             } else {
+                const valBadge = document.getElementById('formalNotesValidationBadge');
+                if (valBadge) {
+                    valBadge.classList.add('hidden');
+                    valBadge.dataset.status = '';
+                }
+
                 // Fallback to local storage
                 const local = loadLocalBackup(sid, date);
                 if (local && (local.raw_notes || local.formal_notes)) {
@@ -1033,6 +1070,14 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
             window.hasUnsavedAiChanges = true;
             window.showToast('Formal note generated successfully.', 'success');
 
+            const valBadge = document.getElementById('formalNotesValidationBadge');
+            if (valBadge) {
+                valBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 shadow-xs';
+                valBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i> AI-Generated Draft &bull; Review Required';
+                valBadge.dataset.status = 'ai-draft';
+                valBadge.classList.remove('hidden');
+            }
+
             if (typeof window.triggerAutoSave === 'function') {
                 window.triggerAutoSave(true);
             }
@@ -1046,6 +1091,21 @@ document.getElementById('generateAiBtn').addEventListener('click', function() {
         btn.disabled = false;
         loading.classList.add('hidden'); 
     });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const formalNotes = document.getElementById('formalNotes');
+    if (formalNotes) {
+        formalNotes.addEventListener('input', function() {
+            const valBadge = document.getElementById('formalNotesValidationBadge');
+            if (valBadge && valBadge.dataset.status === 'ai-draft') {
+                valBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-xs';
+                valBadge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> Teacher Validated &bull; Reviewed';
+                valBadge.dataset.status = 'teacher-validated';
+                valBadge.classList.remove('hidden');
+            }
+        });
+    }
 });
 </script>
 @endpush

@@ -667,6 +667,14 @@
                                                     <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Request Additional AI Suggestions
                                                 </button>
                                                 
+                                                <!-- Contextual Hallucination Warning Banner -->
+                                                <div class="mt-2.5 p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900 text-[11px] leading-relaxed font-semibold flex items-start gap-2 shadow-xs">
+                                                    <span class="shrink-0 text-sm leading-none mt-0.5">💡</span>
+                                                    <div class="flex-1">
+                                                        <span class="font-extrabold text-amber-950">Notice:</span> AI models may occasionally generate incomplete details or inaccuracies (hallucinations). Always review, edit, and validate
+                                                    </div>
+                                                </div>
+                                                
                                                 <!-- AI Suggestions Results in Edit Modal -->
                                                 <div class="edit-ai-results-container mt-3 hidden border-t border-black/10 pt-3">
                                                     <div class="flex items-center justify-between mb-2">
@@ -804,11 +812,19 @@
                                     <i class="fa-solid fa-robot mr-2"></i> Generate Objectives & Activities
                                 </button>
 
+                                <!-- Contextual Hallucination Warning Banner -->
+                                <div class="mt-3 p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900 text-[11.5px] leading-relaxed font-semibold flex items-start gap-2 shadow-xs">
+                                    <span class="shrink-0 text-sm leading-none mt-0.5">💡</span>
+                                    <div class="flex-1">
+                                        <span class="font-extrabold text-amber-950">Notice:</span> AI models may occasionally generate incomplete details or inaccuracies (hallucinations). Always review, edit, and validate
+                                    </div>
+                                </div>
+
                                 <!-- AI Clinical Disclaimer & Ethics Notice -->
                                 <div class="mt-2.5 flex items-center justify-between text-[11px] text-[#6B7086] px-1">
                                     <span class="flex items-center gap-1.5">
-                                        <i class="fa fa-shield-halved text-[#8B5CF6]"></i>
-                                        <span>AI Assistant Suggestion &bull; Review and adjust to match student needs</span>
+                                        <i class="fa-solid fa-shield-halved text-[#8B5CF6]"></i>
+                                        <span>Human-in-the-Loop: Review and adjust suggestions to match student needs</span>
                                     </span>
                                     <span class="text-[10px] text-[#9CA0AF] hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                                 </div>
@@ -1336,7 +1352,12 @@ document.getElementById('generate-goals-btn').addEventListener('click', function
                 tr.className = "block sm:table-row bg-white border border-black/10 sm:border-none rounded-2xl sm:rounded-none shadow-sm sm:shadow-none hover:bg-slate-50 transition-colors";
                 tr.innerHTML = `
                     <td class="block sm:table-cell font-extrabold text-[#3B82F6] align-top py-4 px-5 border-b border-black/5 sm:border-none text-[13px]">
-                        <span class="sm:hidden text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-wider block mb-1">Objective</span>
+                        <div class="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                            <span class="sm:hidden text-[10px] font-extrabold text-[#9CA0AF] uppercase tracking-wider block">Objective</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200">
+                                <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i> AI Suggestion &bull; Review Required
+                            </span>
+                        </div>
                         ${item.objective}
                     </td>
                     <td class="block sm:table-cell align-top py-4 px-5 border-b border-black/5 sm:border-none">
@@ -1472,7 +1493,12 @@ document.addEventListener("DOMContentLoaded", function() {
                             card.className = 'p-3 bg-[#F8FAFC] border border-black/10 rounded-xl shadow-xs flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:border-[#8B5CF6]/40 transition-colors';
                             card.innerHTML = `
                                 <div class="flex-1">
-                                    <span class="text-[10px] font-extrabold text-[#8B5CF6] uppercase tracking-wider block mb-1">Suggested Objective</span>
+                                    <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                                        <span class="text-[10px] font-extrabold text-[#8B5CF6] uppercase tracking-wider">Suggested Objective</span>
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9.5px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200">
+                                            <i class="fa-solid fa-wand-magic-sparkles text-[8.5px]"></i> AI Suggestion &bull; Review Required
+                                        </span>
+                                    </div>
                                     <p class="text-[12px] font-bold text-[#1E2657] m-0 mb-1 leading-snug">${escapeHtml(item.objective)}</p>
                                     <ul class="list-disc pl-4 space-y-0.5 m-0 mb-0">${actListHtml}</ul>
                                 </div>

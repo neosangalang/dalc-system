@@ -125,10 +125,16 @@
 
             <div>
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <label class="block text-[11px] font-extrabold text-[#1E2657] uppercase tracking-widest m-0">Revised Report Content (Editable)</label>
                         <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-200">
                             Active Draft
+                        </span>
+                        <span x-show="aiDraftPendingReview" x-cloak class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10.5px] font-extrabold border border-amber-300 shadow-xs">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> AI-Generated Draft &bull; Review Required
+                        </span>
+                        <span x-show="teacherValidated" x-cloak class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10.5px] font-extrabold border border-emerald-300 shadow-xs">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> Teacher Validated &bull; Reviewed
                         </span>
                     </div>
                     
@@ -145,7 +151,15 @@
                     </div>
                 </div>
 
-                <textarea name="content" rows="11" x-model="content" class="w-full rounded-xl border-black/15 p-4 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white leading-relaxed resize-y" required>{{ old('content', $report->content) }}</textarea>
+                <!-- Contextual Hallucination Warning Banner -->
+                <div class="mb-3 p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900 text-[11.5px] leading-relaxed font-semibold flex items-start gap-2 shadow-xs">
+                    <span class="shrink-0 text-sm leading-none mt-0.5">💡</span>
+                    <div class="flex-1">
+                        <span class="font-extrabold text-amber-950">Notice:</span> AI models may occasionally generate incomplete details or inaccuracies (hallucinations). Always review, edit, and validate
+                    </div>
+                </div>
+
+                <textarea name="content" rows="11" x-model="content" @input="onContentInput()" class="w-full rounded-xl border-black/15 p-4 text-[13px] font-medium text-[#1E2657] focus:border-[#3B82F6] focus:ring-[#3B82F6] shadow-sm bg-white leading-relaxed resize-y" required>{{ old('content', $report->content) }}</textarea>
                 <p class="text-[11px] text-[#6B7086] mt-1.5 font-medium">You can edit the report directly, or use AI to rewrite it with the administrator's suggestions while keeping your original work intact above.</p>
             </div>
 
@@ -171,6 +185,14 @@
             aiLoading: false,
             showOriginal: true,
             copiedOriginal: false,
+            aiDraftPendingReview: false,
+            teacherValidated: false,
+            onContentInput() {
+                if (this.aiDraftPendingReview) {
+                    this.aiDraftPendingReview = false;
+                    this.teacherValidated = true;
+                }
+            },
             copyOriginalText() {
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(this.originalContent);
@@ -191,6 +213,8 @@
             restoreOriginal() {
                 if (this.content === this.originalContent || confirm('Revert the editor back to your original submitted report? Any unsaved edits will be replaced.')) {
                     this.content = this.originalContent;
+                    this.aiDraftPendingReview = false;
+                    this.teacherValidated = false;
                     if (window.showToast) {
                         window.showToast('Original draft restored to editor.', 'success');
                     }
@@ -216,6 +240,8 @@
                     let data = await response.json();
                     if(data.success) {
                         this.content = data.report_content;
+                        this.aiDraftPendingReview = true;
+                        this.teacherValidated = false;
                         window.hasUnsavedAiChanges = true;
                         window.showToast('AI revised content generated! Your original submission remains preserved above.', 'success');
                     } else {

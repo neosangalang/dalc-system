@@ -92,12 +92,23 @@
                         <button type="button" id="trigger-daily-ai-btn" class="w-full inline-flex justify-center items-center px-4 py-3.5 sm:py-3 bg-indigo-600 text-white text-[13px] sm:text-sm font-extrabold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
                             <i class="fa-solid fa-robot mr-2"></i> <span>Generate Daily Report via AI</span>
                         </button>
+
+                        <!-- Contextual Hallucination Warning Banner -->
+                        <div class="mt-3 p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900 text-[11.5px] leading-relaxed font-semibold flex items-start gap-2 shadow-xs">
+                            <span class="shrink-0 text-sm leading-none mt-0.5">💡</span>
+                            <div class="flex-1">
+                                <span class="font-extrabold text-amber-950">Notice:</span> AI models may occasionally generate incomplete details or inaccuracies (hallucinations). Always review, edit, and validate
+                            </div>
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-extrabold text-slate-700 uppercase tracking-wider mb-2">
-                            Daily Report Narrative
-                        </label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-[12px] font-extrabold text-slate-700 uppercase tracking-wider m-0">
+                                Daily Report Narrative
+                            </label>
+                            <span id="dailyValidationBadge" class="hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold shadow-xs transition-all"></span>
+                        </div>
                         <textarea id="daily_content" class="w-full rounded-xl border-slate-300 px-4 py-4 text-[13px] sm:text-sm font-medium text-slate-700 bg-white focus:border-indigo-500 focus:ring-indigo-500 shadow-inner custom-scrollbar" rows="8" placeholder="Daily Report content will appear here..."></textarea>
                     </div>
 
@@ -115,15 +126,26 @@
                             <i class="fa-solid fa-lightbulb mr-2"></i> <span>Generate Home-Based Recommendations via AI</span>
                         </button>
 
+                        <!-- Contextual Hallucination Warning Banner -->
+                        <div class="mt-3 p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900 text-[11.5px] leading-relaxed font-semibold flex items-start gap-2 shadow-xs">
+                            <span class="shrink-0 text-sm leading-none mt-0.5">💡</span>
+                            <div class="flex-1">
+                                <span class="font-extrabold text-amber-950">Notice:</span> AI models may occasionally generate incomplete details or inaccuracies (hallucinations). Always review, edit, and validate
+                            </div>
+                        </div>
+
                         <div class="mt-2 text-center text-[10.5px] text-amber-800/80 font-medium">
                             <i class="fa-solid fa-info-circle mr-1"></i> Home practice ideas &bull; Review to make sure it fits the student's needs
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-extrabold text-slate-700 uppercase tracking-wider mb-2">
-                            Home-Based Recommendations (Optional)
-                        </label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-[12px] font-extrabold text-slate-700 uppercase tracking-wider m-0">
+                                Home-Based Recommendations (Optional)
+                            </label>
+                            <span id="homeValidationBadge" class="hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold shadow-xs transition-all"></span>
+                        </div>
                         <textarea name="home_recommendations" id="home_recommendations" class="w-full rounded-xl border-slate-300 px-4 py-4 text-[13px] sm:text-sm font-medium text-slate-700 bg-white focus:border-amber-500 focus:ring-amber-500 shadow-inner custom-scrollbar" rows="4" placeholder="Home-based recommendations will appear here (optional)..."></textarea>
                     </div>
 
@@ -159,19 +181,30 @@
                             <i class="fa-solid fa-robot mr-2"></i> <span id="general-btn-text">Generate Report</span>
                         </button>
 
+                        <!-- Contextual Hallucination Warning Banner -->
+                        <div class="mt-3 p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-900 text-[11.5px] leading-relaxed font-semibold flex items-start gap-2 shadow-xs">
+                            <span class="shrink-0 text-sm leading-none mt-0.5">💡</span>
+                            <div class="flex-1">
+                                <span class="font-extrabold text-amber-950">Notice:</span> AI models may occasionally generate incomplete details or inaccuracies (hallucinations). Always review, edit, and validate
+                            </div>
+                        </div>
+
                         <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 px-1">
                             <span class="flex items-center gap-1.5">
-                                <i class="fa fa-shield-halved text-indigo-500"></i>
-                                <span>AI Draft: Please review and adjust the text before submitting</span>
+                                <i class="fa-solid fa-shield-halved text-indigo-500"></i>
+                                <span>Human-in-the-Loop: Review and adjust the text before submitting</span>
                             </span>
                             <span class="text-[10px] text-slate-400 hidden sm:inline">Zero-PII Proxy &bull; Groq Cloud</span>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-extrabold text-slate-700 uppercase tracking-wider mb-2">
-                            Report Narrative & Review
-                        </label>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-[12px] font-extrabold text-slate-700 uppercase tracking-wider m-0">
+                                Report Narrative & Review
+                            </label>
+                            <span id="generalValidationBadge" class="hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold shadow-xs transition-all"></span>
+                        </div>
                         <textarea id="general_content" class="w-full rounded-xl border-slate-300 px-4 py-4 text-[13px] sm:text-sm font-medium text-slate-700 bg-white focus:border-indigo-500 focus:ring-indigo-500 shadow-inner custom-scrollbar" rows="14" placeholder="Report content will appear here..."></textarea>
                     </div>
 
@@ -333,6 +366,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
             setBtnState(triggerDailyBtn, cached.dailyGen ? 'success' : 'ready', 'Generate Daily Report via AI', 'fa-solid fa-robot mr-2');
             setBtnState(triggerHomeBtn, cached.homeGen ? 'success' : 'ready', 'Generate Home-Based Recommendations via AI', 'fa-solid fa-lightbulb mr-2');
+            
+            if (cached.dailyGen && dailyContent.value) {
+                setValidationBadge('dailyValidationBadge', 'ai-draft');
+            } else {
+                setValidationBadge('dailyValidationBadge', 'none');
+            }
+            if (cached.homeGen && homeRec.value) {
+                setValidationBadge('homeValidationBadge', 'ai-draft');
+            } else {
+                setValidationBadge('homeValidationBadge', 'none');
+            }
         } else {
             // HIDE date picker completely for Periodic Reports (Quarterly, Mid-Year, Year-End)
             dateRow.classList.add('hidden');
@@ -357,6 +401,12 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             setBtnState(triggerGeneralBtn, cached.generalGen ? 'success' : 'ready', `Generate ${typeLabel} via AI`, 'fa-solid fa-robot mr-2');
+
+            if (cached.generalGen && generalContent.value) {
+                setValidationBadge('generalValidationBadge', 'ai-draft');
+            } else {
+                setValidationBadge('generalValidationBadge', 'none');
+            }
         }
 
         reviewActionSection.classList.remove('hidden');
@@ -508,6 +558,25 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     dateInput.addEventListener('change', handleDateChange);
 
+    function setValidationBadge(badgeId, state) {
+        const badge = document.getElementById(badgeId);
+        if (!badge) return;
+        if (state === 'ai-draft') {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 shadow-xs';
+            badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i> AI-Generated Draft &bull; Review Required';
+            badge.dataset.status = 'ai-draft';
+            badge.classList.remove('hidden');
+        } else if (state === 'teacher-validated') {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs';
+            badge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> Teacher Validated &bull; Reviewed';
+            badge.dataset.status = 'teacher-validated';
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+            badge.dataset.status = '';
+        }
+    }
+
     // GENERIC AI FETCH HELPER
     function runAiGeneration(btn, sectionType) {
         const studentId = currentActiveStudent;
@@ -583,13 +652,16 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (sectionType === 'home_recommendation') {
                             homeRec.value = data.report_content;
                             setBtnState(triggerHomeBtn, 'success', '', 'fa-solid fa-lightbulb mr-2');
+                            setValidationBadge('homeValidationBadge', 'ai-draft');
                         } else {
                             dailyContent.value = data.report_content;
                             setBtnState(triggerDailyBtn, 'success', '', 'fa-solid fa-robot mr-2');
+                            setValidationBadge('dailyValidationBadge', 'ai-draft');
                         }
                     } else {
                         generalContent.value = data.report_content;
                         setBtnState(triggerGeneralBtn, 'success', '', 'fa-solid fa-robot mr-2');
+                        setValidationBadge('generalValidationBadge', 'ai-draft');
                     }
                 }
             } else {
@@ -619,6 +691,33 @@ document.addEventListener("DOMContentLoaded", function() {
     if (triggerGeneralBtn) {
         triggerGeneralBtn.addEventListener('click', function() {
             runAiGeneration(this, 'general');
+        });
+    }
+
+    if (dailyContent) {
+        dailyContent.addEventListener('input', function() {
+            const badge = document.getElementById('dailyValidationBadge');
+            if (badge && badge.dataset.status === 'ai-draft') {
+                setValidationBadge('dailyValidationBadge', 'teacher-validated');
+            }
+        });
+    }
+
+    if (homeRec) {
+        homeRec.addEventListener('input', function() {
+            const badge = document.getElementById('homeValidationBadge');
+            if (badge && badge.dataset.status === 'ai-draft') {
+                setValidationBadge('homeValidationBadge', 'teacher-validated');
+            }
+        });
+    }
+
+    if (generalContent) {
+        generalContent.addEventListener('input', function() {
+            const badge = document.getElementById('generalValidationBadge');
+            if (badge && badge.dataset.status === 'ai-draft') {
+                setValidationBadge('generalValidationBadge', 'teacher-validated');
+            }
         });
     }
 
